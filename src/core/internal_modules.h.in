@@ -1,0 +1,22 @@
+#ifndef ST_SRC_CORE_STATIC_MODULES_H
+#define ST_SRC_CORE_STATIC_MODULES_H
+
+#include <stddef.h>
+
+#include "steroids/module.h"
+
+typedef struct {
+    size_t           modules_count;
+    st_modinitfunc_t modules_init_funcs[];
+} st_modsentrpts_t;
+
+@INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES@
+
+st_modsentrpts_t st_internal_modules_entrypoints = {
+    .modules_count = @ST_INTERNAL_MODULES_COUNT@,
+    .modules_init_funcs = {
+        @ST_INTERNAL_MODULES_INIT_FUNCS@
+    },
+};
+
+#endif

@@ -1,0 +1,24 @@
+#ifndef ST_SRC_MODULES_LOGGER_SIMPLE_CONFIG_H
+#define ST_SRC_MODULES_LOGGER_SIMPLE_CONFIG_H
+
+#include "steroids/module.h"
+
+#define ST_MODULE_TYPE_@ST_MODULE_TYPE@
+
+void *st_module_logger_simple_get_func(const char *func_name);
+
+st_moddata_t st_module_logger_simple_data = {
+    .name = "@ST_MODULE_NAME@",
+    .name_len = @ST_MODULE_NAME_LEN@,
+    .type = "@ST_MODULE_TYPE@",
+    .type_len = @ST_MODULE_TYPE_LEN@,
+    .subsystem = "@ST_MODULE_SUBSYSTEM@",
+    .subsystem_len = @ST_MODULE_SUBSYSTEM_LEN@,
+    .prereqs = {
+        @ST_MODULE_PREREQS@
+    },
+    .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
+    .get_function = st_module_logger_simple_get_func,
+};
+
+#endif
