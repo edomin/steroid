@@ -16,8 +16,6 @@ typedef enum {
     ST_LL_ALL       = 0xFF
 } st_loglvl_t;
 
-#ifdef ST_ENABLE_FUNC_DECLS
-
 typedef void *(*st_logger_init_t)(void);
 typedef void (*st_logger_quit_t)(void *logger_ctx);
 typedef bool (*st_logger_set_stdout_levels_t)(void *logger_ctx,
@@ -41,8 +39,5 @@ typedef bool (*st_logger_alert_t)(void *logger_ctx, const char* format,
  ...);
 typedef bool (*st_logger_emergency_t)(void *logger_ctx,
  const char* format, ...);
-
-#endif /* ST_ENABLE_FUNC_DECLS */
-#undef ST_ENABLE_FUNC_DECLS
 
 #endif /* ST_STEROIDS_TYPES_MODULES_LOGGER_H */

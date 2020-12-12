@@ -4,7 +4,13 @@
 
 #include <sir.h>
 
-static bool global_sir_inited = false;
+static void                     *global_modsmgr;
+static st_modsmgr_get_function_t global_modsmgr_get_function;
+static bool                      global_sir_inited = false;
+
+static st_logger_init_t  st_logger_simple_init;
+static st_logger_quit_t  st_logger_simple_quit;
+static st_logger_debug_t st_logger_simple_debug;
 
 void *st_module_logger_libsir_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_logger_libsir_funcs_table;
@@ -17,13 +23,18 @@ void *st_module_logger_libsir_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_logger_libsir_init(void) {
+st_moddata_t *st_module_logger_libsir_init(void *modsmgr,
+ st_modsmgr_get_function_t modsmgr_get_function) {
+    global_modsmgr = modsmgr;
+    global_modsmgr_get_function = modsmgr_get_function;
+
     return &st_module_logger_libsir_data;
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void) {
-    return &st_module_logger_libsir_data;
+st_moddata_t *st_module_init(void *modsmgr,
+ void *modsmgr_get_function) {
+    return st_module_logger_libsir_init(modsmgr, modsmgr_get_function);
 }
 #endif
 
@@ -37,6 +48,11 @@ st_moddata_t *st_module_init(void) {
 static st_modctx_t *st_logger_init(void) {
     sirinit      si = {0};
     st_modctx_t *logger_ctx;
+
+
+    void         *logger_simple;
+
+
 
     if (global_sir_inited)
         return NULL;
@@ -63,6 +79,21 @@ static st_modctx_t *st_logger_init(void) {
     sir_stderrlevels(ST_LL_ALL);
 
     global_sir_inited = true;
+
+
+
+
+    st_logger_simple_init = global_modsmgr_get_function(global_modsmgr, "logger", "simple",
+     "st_logger_init");
+    st_logger_simple_quit = global_modsmgr_get_function(global_modsmgr, "logger", "simple",
+     "st_logger_quit");
+    st_logger_simple_debug = global_modsmgr_get_function(global_modsmgr, "logger", "simple",
+     "st_logger_debug");
+
+    logger_simple = st_logger_simple_init();
+    st_logger_simple_debug(logger_simple, "hello %s\n", "world");
+    st_logger_simple_quit(logger_simple);
+
 
     return logger_ctx;
 }

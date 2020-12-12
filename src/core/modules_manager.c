@@ -94,7 +94,8 @@ st_modsmgr_t *st_modsmgr_init(void) {
     printf("Searching internal modules...\n");
     for (size_t i = 0; i < st_internal_modules_entrypoints.modules_count; i++) {
         st_moddata_t *module_data =
-         st_internal_modules_entrypoints.modules_init_funcs[i]();
+         st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
+         st_modsmgr_get_function);
 
         printf("Found module \"%s_%s\"\n", module_data->subsystem,
          module_data->name);
@@ -114,8 +115,8 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
 }
 
 
-void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
- const char *subsystem, const char *module_name, const char *func_name) {
+void *st_modsmgr_get_function(const void *modsmgr, const char *subsystem,
+ const char *module_name, const char *func_name) {
     st_moddata_t *module_data = st_modsmgr_find_module(modsmgr, subsystem,
      module_name);
 

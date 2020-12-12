@@ -45,7 +45,8 @@ include(build-logger-libsir)
 foreach(ST_INTERNAL_MODULE ${ST_INTERNAL_MODULES})
     set(INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES
      "${INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES}\
-     extern st_moddata_t *st_module_${ST_INTERNAL_MODULE}_init(void);\n"
+     extern st_moddata_t *st_module_${ST_INTERNAL_MODULE}_init(\
+      void *, st_modsmgr_get_function_t);\n"
     )
     set(ST_INTERNAL_MODULES_INIT_FUNCS
      "${ST_INTERNAL_MODULES_INIT_FUNCS}\

@@ -14,13 +14,14 @@ void *st_module_logger_simple_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_logger_simple_init(void) {
+st_moddata_t *st_module_logger_simple_init(void *modsmgr,
+ void *modsmgr_get_function) {
     return &st_module_logger_simple_data;
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void) {
-    return &st_module_logger_simple_data;
+st_moddata_t *st_module_init(void *modsmgr) {
+    return st_module_logger_simple_init(void *modsmgr);
 }
 #endif
 

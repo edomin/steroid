@@ -39,7 +39,10 @@ typedef struct {
     st_getfunc_t  get_function;
 } st_moddata_t;
 
-typedef st_moddata_t *(*st_modinitfunc_t)(void);
+typedef void *(*st_modsmgr_get_function_t)(const void *modsmgr,
+ const char *subsystem, const char *module_name, const char *func_name);
+typedef st_moddata_t *(*st_modinitfunc_t)(void *modsmgr,
+ st_modsmgr_get_function_t modsmgr_get_function);
 
 typedef struct {
     char  func_name[ST_MODULE_FUNC_NAME_LEN_MAX];
