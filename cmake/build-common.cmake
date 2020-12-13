@@ -52,8 +52,11 @@ function(st_target_set_common ST_TARGET)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
     )
     target_compile_options(${ST_TARGET} PRIVATE
-        -Wall -Wextra -Wshadow -Werror
+        -Wall -Wextra -Wshadow -D_DEFAULT_SOURCE
     )
+    if (ST_WERROR)
+        target_compile_options(${ST_TARGET} PRIVATE -Werror)
+    endif()
     if (ST_MORE_WARNINGS)
         target_compile_options(${ST_TARGET} PRIVATE
             -Waggregate-return ${ST_WALLOC_ZERO} ${ST_WALLOCA}
