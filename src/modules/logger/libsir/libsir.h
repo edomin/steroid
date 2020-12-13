@@ -4,8 +4,6 @@
 #include "config.h"
 #include "steroids/logger.h"
 
-// version
-
 typedef struct {
     char unused;
 } st_logger_libsir_t;

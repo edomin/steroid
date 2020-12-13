@@ -14,7 +14,8 @@ void *st_module_logger_simple_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_logger_simple_init(__attribute__((unused)) void *modsmgr,
+st_moddata_t *st_module_logger_simple_init(
+ __attribute__((unused)) void *modsmgr,
  __attribute__((unused)) void *modsmgr_get_function) {
     return &st_module_logger_simple_data;
 }
@@ -44,7 +45,8 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_free_module_ctx(logger_ctx);
 }
 
-static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx, st_loglvl_t levels) {
+static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
+ st_loglvl_t levels) {
     st_logger_simple_t *logger = logger_ctx->data;
 
     logger->stdout_levels = levels;
@@ -52,7 +54,8 @@ static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx, st_loglvl_t lev
     return true;
 }
 
-static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx, st_loglvl_t levels) {
+static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
+ st_loglvl_t levels) {
     st_logger_simple_t *logger = logger_ctx->data;
 
     logger->stderr_levels = levels;
@@ -60,23 +63,26 @@ static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx, st_loglvl_t lev
     return true;
 }
 
-static bool st_logger_set_log_file(__attribute__((unused)) st_modctx_t *logger_ctx, __attribute__((unused)) const char *filename,
+static bool st_logger_set_log_file(
+ __attribute__((unused)) st_modctx_t *logger_ctx,
+ __attribute__((unused)) const char *filename,
  __attribute__((unused)) st_loglvl_t levels) {
     /* TODO */
     return false;
 }
 
-#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                    \
-    static  __attribute__ ((format (printf, 2, 3))) bool st_func(st_modctx_t *logger_ctx, const char* format, ...) { \
-        st_logger_simple_t *logger = logger_ctx->data;               \
-        va_list             args;                                    \
-        va_start(args, format);                                      \
-        if ((logger->stdout_levels & level) == level)                \
-            vprintf(format, args);                                   \
-        if ((logger->stderr_levels & level) == level)                \
-            vfprintf(stderr, format, args);                          \
-        va_end(args);                                                \
-        return true;                                                 \
+#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                 \
+    static  __attribute__ ((format (printf, 2, 3))) bool st_func( \
+     const st_modctx_t *logger_ctx, const char* format, ...) {    \
+        st_logger_simple_t *logger = logger_ctx->data;            \
+        va_list             args;                                 \
+        va_start(args, format);                                   \
+        if ((logger->stdout_levels & level) == level)             \
+            vprintf(format, args);                                \
+        if ((logger->stderr_levels & level) == level)             \
+            vfprintf(stderr, format, args);                       \
+        va_end(args);                                             \
+        return true;                                              \
     }
 
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug, ST_LL_DEBUG)

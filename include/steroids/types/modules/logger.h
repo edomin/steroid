@@ -24,20 +24,21 @@ typedef bool (*st_logger_set_stderr_levels_t)(void *logger_ctx,
  st_loglvl_t levels);
 typedef bool (*st_logger_set_log_file_t)(void *logger_ctx,
  const char *filename, st_loglvl_t levels);
-typedef bool (*st_logger_debug_t)(void *logger_ctx, const char* format,
+typedef bool (*st_logger_debug_t)(const void *logger_ctx, const char* format,
  ...);
-typedef bool (*st_logger_info_t)(void *logger_ctx, const char* format,
+typedef bool (*st_logger_info_t)(const void *logger_ctx, const char* format,
  ...);
-typedef bool (*st_logger_notice_t)(void *logger_ctx, const char* format,
+typedef bool (*st_logger_notice_t)(const void *logger_ctx, const char* format,
  ...);
-typedef bool (*st_logger_warning_t)(void *logger_ctx, const char* format, ...);
-typedef bool (*st_logger_error_t)(void *logger_ctx, const char* format,
+typedef bool (*st_logger_warning_t)(const void *logger_ctx, const char* format,
  ...);
-typedef bool (*st_logger_critical_t)(void *logger_ctx,
+typedef bool (*st_logger_error_t)(const void *logger_ctx, const char* format,
+ ...);
+typedef bool (*st_logger_critical_t)(const void *logger_ctx,
  const char* format, ...);
-typedef bool (*st_logger_alert_t)(void *logger_ctx, const char* format,
+typedef bool (*st_logger_alert_t)(const void *logger_ctx, const char* format,
  ...);
-typedef bool (*st_logger_emergency_t)(void *logger_ctx,
+typedef bool (*st_logger_emergency_t)(const void *logger_ctx,
  const char* format, ...);
 
 #endif /* ST_STEROIDS_TYPES_MODULES_LOGGER_H */
