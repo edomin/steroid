@@ -7,7 +7,7 @@ static st_logger_init_t  st_logger_init;
 static st_logger_quit_t  st_logger_quit;
 static st_logger_debug_t st_logger_debug;
 
-int main(int argc, char **argv) {
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
     void         *logger;
 

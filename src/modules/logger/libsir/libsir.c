@@ -98,23 +98,23 @@ static st_modctx_t *st_logger_init(void) {
     return logger_ctx;
 }
 
-static void st_logger_quit(st_modctx_t *logger_ctx) {
+static void st_logger_quit(__attribute__((unused)) st_modctx_t *logger_ctx) {
     sir_cleanup();
     st_free_module_ctx(logger_ctx);
     global_sir_inited = false;
 }
 
-static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
+static bool st_logger_set_stdout_levels(__attribute__((unused)) st_modctx_t *logger_ctx,
  st_loglvl_t levels) {
     return sir_stdoutlevels(levels);
 }
 
-static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
+static bool st_logger_set_stderr_levels(__attribute__((unused)) st_modctx_t *logger_ctx,
  st_loglvl_t levels) {
     return sir_stderrlevels(levels);
 }
 
-static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
+static bool st_logger_set_log_file(__attribute__((unused)) st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
     sirfileid_t file = sir_addfile(filename, SIRL_ALL,
      SIRO_NONAME | SIRO_NOPID | SIRO_NOTID);
@@ -127,7 +127,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 8192
 #define ST_LOGGER_LIBSIR_LOG_FUNC(st_func, sir_func)                 \
-    static bool st_func(st_modctx_t *logger_ctx, const char* format, ...) { \
+    static __attribute__ ((format (printf, 2, 3))) bool st_func(__attribute__((unused)) st_modctx_t *logger_ctx, const char* format, ...) { \
         va_list args;                                                \
         char    message[ST_LOGGER_MESSAGE_LEN_MAX];                  \
         va_start(args, format);                                      \

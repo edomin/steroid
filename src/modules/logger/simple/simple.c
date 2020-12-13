@@ -14,8 +14,8 @@ void *st_module_logger_simple_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_logger_simple_init(void *modsmgr,
- void *modsmgr_get_function) {
+st_moddata_t *st_module_logger_simple_init(__attribute__((unused)) void *modsmgr,
+ __attribute__((unused)) void *modsmgr_get_function) {
     return &st_module_logger_simple_data;
 }
 
@@ -60,14 +60,14 @@ static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx, st_loglvl_t lev
     return true;
 }
 
-static bool st_logger_set_log_file(st_modctx_t *logger_ctx, const char *filename,
- st_loglvl_t levels) {
+static bool st_logger_set_log_file(__attribute__((unused)) st_modctx_t *logger_ctx, __attribute__((unused)) const char *filename,
+ __attribute__((unused)) st_loglvl_t levels) {
     /* TODO */
     return false;
 }
 
 #define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                    \
-    static bool st_func(st_modctx_t *logger_ctx, const char* format, ...) { \
+    static  __attribute__ ((format (printf, 2, 3))) bool st_func(st_modctx_t *logger_ctx, const char* format, ...) { \
         st_logger_simple_t *logger = logger_ctx->data;               \
         va_list             args;                                    \
         va_start(args, format);                                      \
