@@ -38,10 +38,13 @@ static st_modctx_t *st_logger_init(void) {
     logger->stdout_levels = ST_LL_NONE;
     logger->stderr_levels = ST_LL_ALL;
 
+    st_logger_info(logger_ctx, "%s\n", "logger_simple: Logger initialized.");
+
     return logger_ctx;
 }
 
 static void st_logger_quit(st_modctx_t *logger_ctx) {
+    st_logger_info(logger_ctx, "%s\n", "logger_simple: Destroying logger.");
     st_free_module_ctx(logger_ctx);
 }
 
@@ -85,11 +88,11 @@ static bool st_logger_set_log_file(
         return true;                                              \
     }
 
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug, ST_LL_DEBUG)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info, ST_LL_INFO)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_notice, ST_LL_NOTICE)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning, ST_LL_WARNING)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error, ST_LL_ERROR)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_critical, ST_LL_CRITICAL)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_alert, ST_LL_ALERT)
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_emergency, ST_LL_EMERGENCY)
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug, ST_LL_DEBUG);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info, ST_LL_INFO);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_notice, ST_LL_NOTICE);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning, ST_LL_WARNING);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error, ST_LL_ERROR);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_critical, ST_LL_CRITICAL);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_alert, ST_LL_ALERT);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_emergency, ST_LL_EMERGENCY);
