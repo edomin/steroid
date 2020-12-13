@@ -22,6 +22,8 @@ typedef bool (*st_logger_set_stdout_levels_t)(void *logger_ctx,
  st_loglvl_t levels);
 typedef bool (*st_logger_set_stderr_levels_t)(void *logger_ctx,
  st_loglvl_t levels);
+typedef bool (*st_logger_set_syslog_levels_t)(void *logger_ctx,
+ st_loglvl_t levels);
 typedef bool (*st_logger_set_log_file_t)(void *logger_ctx,
  const char *filename, st_loglvl_t levels);
 typedef bool (*st_logger_debug_t)(const void *logger_ctx, const char* format,

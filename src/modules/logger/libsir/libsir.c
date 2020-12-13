@@ -104,6 +104,7 @@ static st_modctx_t *st_logger_init(void) {
 
         sir_stdoutlevels(ST_LL_NONE);
         sir_stderrlevels(ST_LL_ALL);
+        sir_sysloglevels(ST_LL_NONE);
         logger->use_fallback_module = false;
     } else {
         st_logger_init_fallback(logger_ctx);
@@ -149,6 +150,17 @@ static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
     return sir_stderrlevels(levels);
 }
 
+static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
+ st_loglvl_t levels) {
+    st_logger_libsir_t *logger = logger_ctx->data;
+
+    if (logger->use_fallback_module)
+        return logger->logger_fallback_set_syslog_levels(
+         logger->logger_fallback_ctx, levels);
+
+    return sir_sysloglevels(levels);
+}
+
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
     st_logger_libsir_t *logger = logger_ctx->data;
@@ -167,7 +179,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return sir_filelevels(file, levels);
 }
 
-#define ST_LOGGER_MESSAGE_LEN_MAX 8192
+#define ST_LOGGER_MESSAGE_LEN_MAX 4096
 #define ST_LOGGER_LIBSIR_LOG_FUNC(st_func, st_fallback_func, sir_func)   \
     static __attribute__ ((format (printf, 2, 3))) bool st_func(         \
      const st_modctx_t *logger_ctx, const char* format, ...) {           \

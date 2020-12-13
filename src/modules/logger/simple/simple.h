@@ -1,23 +1,39 @@
 #ifndef ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 #define ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 
+#include <limits.h>
+#include <stdio.h>
+
 #include "config.h"
 #include "steroids/logger.h"
 
 // version
 
+#define ST_LOGGER_LOG_FILES_MAX 16
+#define ST_LOGGER_PATH_MAX      4096
+
 typedef struct {
-    st_loglvl_t stdout_levels;
-    st_loglvl_t stderr_levels;
+    FILE       *file;
+    char        filename[ST_LOGGER_PATH_MAX];
+    st_loglvl_t log_levels;
+} st_logger_simple_log_file_t;
+
+typedef struct {
+    st_loglvl_t                 stdout_levels;
+    st_loglvl_t                 stderr_levels;
+    st_loglvl_t                 syslog_levels;
+    st_logger_simple_log_file_t log_files[ST_LOGGER_LOG_FILES_MAX];
+    unsigned                    log_files_count;
 } st_logger_simple_t;
 
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
-    .funcs_count = 13,
+    .funcs_count = 14,
     .entries = {
         {"st_logger_init", st_logger_init},
         {"st_logger_quit", st_logger_quit},
         {"st_logger_set_stdout_levels", st_logger_set_stdout_levels},
         {"st_logger_set_stderr_levels", st_logger_set_stderr_levels},
+        {"st_logger_set_syslog_levels", st_logger_set_syslog_levels},
         {"st_logger_set_log_file", st_logger_set_log_file},
         {"st_logger_debug", st_logger_debug},
         {"st_logger_info", st_logger_info},

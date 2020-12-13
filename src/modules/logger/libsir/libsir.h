@@ -11,6 +11,7 @@ typedef struct {
     st_logger_quit_t              logger_fallback_quit;
     st_logger_set_stdout_levels_t logger_fallback_set_stdout_levels;
     st_logger_set_stderr_levels_t logger_fallback_set_stderr_levels;
+    st_logger_set_syslog_levels_t logger_fallback_set_syslog_levels;
     st_logger_set_log_file_t      logger_fallback_set_log_file;
     st_logger_debug_t             logger_fallback_debug;
     st_logger_info_t              logger_fallback_info;
@@ -23,12 +24,13 @@ typedef struct {
 } st_logger_libsir_t;
 
 st_modfuncstbl_t st_module_logger_libsir_funcs_table = {
-    .funcs_count = 13,
+    .funcs_count = 14,
     .entries = {
         {"st_logger_init", st_logger_init},
         {"st_logger_quit", st_logger_quit},
         {"st_logger_set_stdout_levels", st_logger_set_stdout_levels},
         {"st_logger_set_stderr_levels", st_logger_set_stderr_levels},
+        {"st_logger_set_syslog_levels", st_logger_set_syslog_levels},
         {"st_logger_set_log_file", st_logger_set_log_file},
         {"st_logger_debug", st_logger_debug},
         {"st_logger_info", st_logger_info},

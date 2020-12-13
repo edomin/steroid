@@ -18,6 +18,8 @@ ST_VISIBILITY bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
 ST_VISIBILITY bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
+ST_VISIBILITY bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
+ st_loglvl_t levels);
 ST_VISIBILITY bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels);
 ST_VISIBILITY bool st_logger_debug(const st_modctx_t *logger_ctx,
