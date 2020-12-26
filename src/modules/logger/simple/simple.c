@@ -1,6 +1,6 @@
 #include "simple.h"
 
-#include <features.h>
+#include <err.h>
 #include <stdarg.h>
 #include <syslog.h>
 
@@ -145,8 +145,11 @@ static inline __attribute__((format (printf, 3, 0))) bool st_logger_general(
 
     if ((logger->stdout_levels & log_level) == log_level)
         return vprintf(format, args) > 0;
-    if ((logger->stderr_levels & log_level) == log_level)
-        return vfprintf(stderr, format, args) > 0;
+    if ((logger->stderr_levels & log_level) == log_level) {
+        vwarnx(format, args);
+
+        return true;
+    }
     if ((logger->syslog_levels & log_level) == log_level) {
         vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);
 
