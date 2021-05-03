@@ -35,6 +35,8 @@ static st_modctx_t *st_logger_init(void) {
     if (logger_ctx == NULL)
         return NULL;
 
+    logger_ctx->funcs = &st_logger_simple_funcs;
+
     logger = logger_ctx->data;
     logger->stdout_levels = ST_LL_NONE;
     logger->stderr_levels = ST_LL_ALL;

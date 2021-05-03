@@ -23,6 +23,23 @@ typedef struct {
     st_logger_emergency_t         logger_fallback_emergency;
 } st_logger_libsir_t;
 
+st_logger_funcs_t st_logger_libsir_funcs = {
+    .logger_init = st_logger_init,
+    .logger_quit = st_logger_quit,
+    .logger_set_stdout_levels = st_logger_set_stdout_levels,
+    .logger_set_stderr_levels = st_logger_set_stderr_levels,
+    .logger_set_syslog_levels = st_logger_set_syslog_levels,
+    .logger_set_log_file = st_logger_set_log_file,
+    .logger_debug = st_logger_debug,
+    .logger_info = st_logger_info,
+    .logger_notice = st_logger_notice,
+    .logger_warning = st_logger_warning,
+    .logger_error = st_logger_error,
+    .logger_critical = st_logger_critical,
+    .logger_alert = st_logger_alert,
+    .logger_emergency = st_logger_emergency,
+};
+
 st_modfuncstbl_t st_module_logger_libsir_funcs_table = {
     .funcs_count = 14,
     .entries = {

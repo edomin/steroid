@@ -62,6 +62,10 @@ static inline st_modctx_t *st_init_module_ctx(st_moddata_t *module_data,
     return module_ctx;
 }
 
+static inline void st_module_ctx_add_funcs(st_modctx_t *modctx, void *funcs) {
+    modctx->funcs = funcs;
+}
+
 static inline void st_free_module_ctx(st_modctx_t *modctx) {
     if (modctx) {
         free(modctx->data);

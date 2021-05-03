@@ -93,6 +93,8 @@ static st_modctx_t *st_logger_init(void) {
     if (logger_ctx == NULL)
         return NULL;
 
+    logger_ctx->funcs = &st_logger_libsir_funcs;
+
     si.d_stdout.opts = SIRO_NONAME | SIRO_NOPID | SIRO_NOTID;
     si.d_stderr.opts = SIRO_NONAME | SIRO_NOPID | SIRO_NOTID;
     si.d_syslog.levels = 0;
