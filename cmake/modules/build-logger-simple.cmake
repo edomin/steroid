@@ -18,6 +18,7 @@ st_process_internal_module(st_logger_simple ST_MODULE_TYPE)
 target_include_directories(st_logger_simple PRIVATE
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src/modules/logger/simple/>
 )
+
 target_sources(st_logger_simple PRIVATE
     "${CMAKE_SOURCE_DIR}/src/modules/logger/simple/simple.c"
 )

@@ -14,7 +14,6 @@ target_include_directories(steroids PRIVATE
 target_sources(steroids PRIVATE
     "${CMAKE_SOURCE_DIR}/src/core/core.c"
     "${CMAKE_SOURCE_DIR}/src/core/modules_manager.c"
-    "${CMAKE_SOURCE_DIR}/src/stdlib/strlcpy.c"
     "${CMAKE_SOURCE_DIR}/src/utils.c"
 )
 

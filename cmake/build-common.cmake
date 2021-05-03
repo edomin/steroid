@@ -15,6 +15,7 @@ if(ST_MORE_WARNINGS)
 endif()
 
 function(st_target_set_common ST_TARGET)
+    find_package(libbsd REQUIRED)
     if(ST_HAVE_LTO)
         set_target_properties(${ST_TARGET} PROPERTIES
             INTERPROCEDURAL_OPTIMIZATION TRUE
@@ -31,6 +32,10 @@ function(st_target_set_common ST_TARGET)
     target_include_directories(${ST_TARGET} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        ${LIBBSD_INCLUDE_DIR}
+    )
+    target_link_libraries(st_logger_simple PRIVATE
+        ${LIBBSD_LIBRARY}
     )
     target_compile_options(${ST_TARGET} PRIVATE
         -Wall -Wextra -Wshadow -D_DEFAULT_SOURCE

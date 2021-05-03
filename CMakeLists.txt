@@ -26,7 +26,9 @@ else()
     check_c_compiler_flag("-flto" ST_HAVE_FLTO)
 endif()
 
+include(CheckIncludeFile)
 include(CheckSymbolExists)
+check_include_file(sys/queue.h ST_HAVE_QUEUE_H)
 check_symbol_exists(strlcpy string.h ST_HAVE_STRLCPY)
 configure_file (
     "${CMAKE_SOURCE_DIR}/include/steroids/config.h.in"

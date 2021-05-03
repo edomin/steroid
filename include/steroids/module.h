@@ -2,7 +2,8 @@
 #define ST_INCLUDE_STEROIDS_MODULE_H
 
 #include <stdlib.h>
-#include "steroids/string.h"
+
+#include "steroids/stdlib/string.h"
 
 typedef struct {
     char *subsystem;
