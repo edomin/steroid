@@ -4,7 +4,8 @@ function(st_process_flag_availability ST_FLAG_VALUE ST_FLAG ST_FALLBACK_FLAG)
     message(STATUS "Check if compiler accepts ${ST_FLAG}")
     file(WRITE "${CMAKE_BINARY_DIR}/trycompile.c"
         "int main(int argc, char **argv){return 0;}")
-    try_compile(ST_HAVE_FLAG ${CMAKE_BINARY_DIR} "${CMAKE_BINARY_DIR}/trycompile.c"
+    try_compile(ST_HAVE_FLAG ${CMAKE_BINARY_DIR}
+        "${CMAKE_BINARY_DIR}/trycompile.c"
         COMPILE_DEFINITIONS ${ST_FLAG}
         C_STANDARD 11
         C_STANDARD_REQUIRED ON

@@ -11,10 +11,10 @@ endif()
 project(steroids LANGUAGES C)
 
 set(CMAKE_MODULE_PATH
- "${CMAKE_SOURCE_DIR}/cmake"
- "${CMAKE_SOURCE_DIR}/cmake/modules"
- "${CMAKE_SOURCE_DIR}/cmake/packages"
- "${CMAKE_SOURCE_DIR}/cmake/toolchains"
+    "${CMAKE_SOURCE_DIR}/cmake"
+    "${CMAKE_SOURCE_DIR}/cmake/modules"
+    "${CMAKE_SOURCE_DIR}/cmake/packages"
+    "${CMAKE_SOURCE_DIR}/cmake/toolchains"
 )
 include(options)
 
