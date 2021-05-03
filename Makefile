@@ -28,7 +28,7 @@ clean:
 build-in-docker:
 ifeq ($(ARCH)-$(OS),x86_64-linux)
 	docker run -i -t \
-     -v `pwd`:/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
+     -v `pwd`:/mnt/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
      -E -c "make build" | tee build.log
 else
 	echo "Error: host $(ARCH) architecture or $(OS) os not implemented now"
@@ -37,7 +37,7 @@ endif
 rebuild-in-docker:
 ifeq ($(ARCH)-$(OS),x86_64-linux)
 	docker run -i -t \
-     -v `pwd`:/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
+     -v `pwd`:/mnt/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
      -E -c "make rebuild" | tee build.log
 else
 	echo "Error: host $(ARCH) architecture or $(OS) os not implemented now"
