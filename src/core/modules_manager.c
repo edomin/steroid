@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "internal_modules.h"
+#include "utils.h"
 
 static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
@@ -18,10 +19,10 @@ static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
     for (node = list_iterator_next(moddata_iter); node;
      node = list_iterator_next(moddata_iter)) {
         st_moddata_t *module_data = node->val;
-        bool          subsystem_equal = strncmp(module_data->subsystem,
-         subsystem, ST_MODULE_SUBSYSTEM_LEN_MAX) == 0;
-        bool          name_equal = strncmp(module_data->name, module_name,
-         ST_MODULE_NAME_LEN_MAX) == 0;
+        bool          subsystem_equal = st_utl_strings_equal(
+         module_data->subsystem, subsystem);
+        bool          name_equal = st_utl_strings_equal(module_data->name,
+         module_name);
         bool          name_is_null = module_name == NULL;
 
         if (subsystem_equal && (name_equal || name_is_null)) {
