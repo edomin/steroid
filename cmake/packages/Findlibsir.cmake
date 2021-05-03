@@ -6,6 +6,8 @@
 if (LIBSIR_LIBRARY AND LIBSIR_INCLUDE_DIR)
     set(LIBSIR_FOUND TRUE)
 else ()
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
     message(STATUS "Looking for sir.h")
     find_path(LIBSIR_INCLUDE_DIR
         NAMES sir.h
@@ -28,6 +30,8 @@ else ()
 
     if (LIBSIR_LIBRARY AND LIBSIR_INCLUDE_DIR)
         set(LIBSIR_FOUND TRUE)
+        set(LIBSIR_LIBRARY ${LIBSIR_LIBRARY};${CMAKE_THREAD_LIBS_INIT}
+            CACHE INTERNAL "")
     else()
         message(FATAL_ERROR "Could not find libsir")
     endif()

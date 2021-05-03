@@ -1,10 +1,10 @@
 #ifndef ST_SRC_CORE_MODULES_MANAGER_H
 #define ST_SRC_CORE_MODULES_MANAGER_H
 
-#include <list.h>
+#include "steroids/types/list.h"
 
 typedef struct {
-    list_t *modules_data;
+    st_slist_t modules_data;
 } st_modsmgr_t;
 
 st_modsmgr_t *st_modsmgr_init(void);

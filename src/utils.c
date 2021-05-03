@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "steroids/string.h"
+#include "steroids/stdlib/string.h"
 
 bool st_ult_string_create(char **dst_str, size_t *dst_len, const char *src_str,
  size_t src_len) {
