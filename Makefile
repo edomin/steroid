@@ -7,6 +7,7 @@ endif
 
 ifeq ($(ARCH)-$(OS),x86_64-linux)
 	TRIPLET=x86_64-linux-gnu
+	CPU_CORES=$(shell nproc --all)
 endif
 
 rebuild: clean build
@@ -20,7 +21,7 @@ refresh: cmake_build
      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
 build: refresh
-	cmake --build cmake_build
+	cmake --build cmake_build -- -j$(CPU_CORES)
 
 clean:
 	-rm -r -f ./cmake_build
