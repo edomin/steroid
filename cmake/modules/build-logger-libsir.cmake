@@ -5,17 +5,13 @@ endif()
 find_package(libsir REQUIRED)
 
 set(ST_MODULE_NAME "libsir")
-string(LENGTH ${ST_MODULE_NAME} ST_MODULE_NAME_LEN)
 set(ST_MODULE_TYPE ${ST_MODULE_LOGGER_SIMPLE})
-string(LENGTH ${ST_MODULE_TYPE} ST_MODULE_TYPE_LEN)
 set(ST_MODULE_SUBSYSTEM "logger")
-string(LENGTH ${ST_MODULE_SUBSYSTEM} ST_MODULE_SUBSYSTEM_LEN)
+
 set(ST_MODULE_PREREQS [=[
     {
         .subsystem = "logger",
-        .subsystem_len = 6,
         .name = "simple",
-        .name_len = 6,
     },
 ]=])
 set(ST_MODULE_PREREQS_COUNT 1)

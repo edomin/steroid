@@ -4,39 +4,27 @@
 #include <stdlib.h>
 #include "steroids/string.h"
 
-#define ST_MODULE_NAME_LEN_MAX      32
-#define ST_MODULE_SUBSYSTEM_LEN_MAX 32
-#define ST_MODULE_TYPE_LEN_MAX      32
-#define ST_MODULE_PREREQS_MAX       32
-#define ST_MODULE_FUNC_NAME_LEN_MAX 128
-
 typedef struct {
-    char   subsystem[ST_MODULE_SUBSYSTEM_LEN_MAX];
-    size_t subsystem_len;
-    char   name[ST_MODULE_NAME_LEN_MAX];
-    size_t name_len;
-    void  *data;
+    char *subsystem;
+    char *name;
+    void *data;
+    void *funcs;
 } st_modctx_t;
 
 typedef struct {
-    char   subsystem[ST_MODULE_SUBSYSTEM_LEN_MAX];
-    size_t subsystem_len;
-    char   name[ST_MODULE_NAME_LEN_MAX];
-    size_t name_len;
+    const char *subsystem;
+    const char *name;
 } st_modprerq_t;
 
 typedef void *(*st_getfunc_t)(const char *funcname);
 
 typedef struct {
-    char          name[ST_MODULE_NAME_LEN_MAX];
-    size_t        name_len;
-    char          type[ST_MODULE_TYPE_LEN_MAX];
-    size_t        type_len;
-    char          subsystem[ST_MODULE_SUBSYSTEM_LEN_MAX];
-    size_t        subsystem_len;
-    st_modprerq_t prereqs[ST_MODULE_PREREQS_MAX];
-    size_t        prereqs_count;
-    st_getfunc_t  get_function;
+    const char    *name;
+    const char    *type;
+    const char    *subsystem;
+    st_modprerq_t *prereqs;
+    size_t         prereqs_count;
+    st_getfunc_t   get_function;
 } st_moddata_t;
 
 typedef void *(*st_modsmgr_get_function_t)(const void *modsmgr,
@@ -45,8 +33,8 @@ typedef st_moddata_t *(*st_modinitfunc_t)(void *modsmgr,
  st_modsmgr_get_function_t modsmgr_get_function);
 
 typedef struct {
-    char  func_name[ST_MODULE_FUNC_NAME_LEN_MAX];
-    void *func_pointer;
+    const char *func_name;
+    void       *func_pointer;
 } st_modfuncentry_t;
 
 typedef struct {
@@ -61,15 +49,13 @@ static inline st_modctx_t *st_init_module_ctx(st_moddata_t *module_data,
     if (module_ctx == NULL)
         return NULL;
 
-    strlcpy(module_ctx->subsystem, module_data->subsystem,
-     module_data->subsystem_len);
-    module_ctx->subsystem_len = module_data->subsystem_len;
-    strlcpy(module_ctx->name, module_data->name, module_data->name_len);
-    module_ctx->name_len = module_data->name_len;
+    module_ctx->subsystem = strdup(module_data->subsystem);
+    module_ctx->name = strdup(module_data->name);
 
     module_ctx->data = malloc(data_size);
     if (module_ctx->data == NULL) {
         free(module_ctx);
+
         return NULL;
     }
 

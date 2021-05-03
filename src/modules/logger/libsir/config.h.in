@@ -9,12 +9,9 @@ void *st_module_logger_libsir_get_func(const char *func_name);
 
 st_moddata_t st_module_logger_libsir_data = {
     .name = "@ST_MODULE_NAME@",
-    .name_len = @ST_MODULE_NAME_LEN@,
     .type = "@ST_MODULE_TYPE@",
-    .type_len = @ST_MODULE_TYPE_LEN@,
     .subsystem = "@ST_MODULE_SUBSYSTEM@",
-    .subsystem_len = @ST_MODULE_SUBSYSTEM_LEN@,
-    .prereqs = {
+    .prereqs = (st_modprerq_t[]){
         @ST_MODULE_PREREQS@
     },
     .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
