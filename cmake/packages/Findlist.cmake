@@ -18,7 +18,7 @@ else ()
 
     message(STATUS "Looking for liblist.a")
     find_library(LIST_LIBRARY
-        NAMES list
+        NAMES liblist.a list
     )
     if (LIST_LIBRARY)
         message(STATUS "Looking for liblist.a - ${LIST_LIBRARY}")
