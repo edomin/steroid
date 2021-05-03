@@ -1,7 +1,3 @@
-if (${ST_MODULE_LOGGER_SIMPLE} STREQUAL "internal")
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
-endif()
 find_package(libsir REQUIRED)
 
 set(ST_MODULE_NAME "libsir")
@@ -30,7 +26,6 @@ target_include_directories(st_logger_libsir PRIVATE
 )
 target_link_libraries(st_logger_libsir PRIVATE
     ${LIBSIR_LIBRARY}
-    Threads::Threads
 )
 target_sources(st_logger_libsir PRIVATE
     "${CMAKE_SOURCE_DIR}/src/modules/logger/libsir/libsir.c"
