@@ -21,9 +21,9 @@ function(st_process_flag_availability ST_FLAG_VALUE ST_FLAG ST_FALLBACK_FLAG)
     try_compile(ST_HAVE_FLAG ${CMAKE_BINARY_DIR}
         "${CMAKE_BINARY_DIR}/trycompile.c"
         COMPILE_DEFINITIONS ${ST_FLAG}
-        C_STANDARD 11
+        C_STANDARD ${ST_C_STD}
         C_STANDARD_REQUIRED ON
-        C_EXTENSIONS OFF
+        C_EXTENSIONS ${ST_C_EXTENCIONS}
     )
     file(REMOVE "${CMAKE_BINARY_DIR}/trycompile.c")
     if (${ST_HAVE_FLAG})

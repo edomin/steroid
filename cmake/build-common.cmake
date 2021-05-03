@@ -22,8 +22,8 @@ function(st_target_set_common ST_TARGET)
     endif()
 
     set_target_properties(${ST_TARGET} PROPERTIES
-        C_STANDARD 11
-        C_EXTENSIONS OFF
+        C_STANDARD ${ST_C_STD}
+        C_EXTENSIONS ${ST_C_EXTENCIONS}
         POSITION_INDEPENDENT_CODE 1
     )
     target_include_directories(${ST_TARGET} PRIVATE

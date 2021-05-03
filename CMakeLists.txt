@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.7.2)
 cmake_policy(SET CMP0069 NEW)
 
+set(ST_C_STD 99)
+set(ST_C_EXTENCIONS OFF)
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Debug' as none was specified.")
     set(CMAKE_BUILD_TYPE "Debug" CACHE
