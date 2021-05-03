@@ -15,7 +15,6 @@ if(ST_MORE_WARNINGS)
 endif()
 
 function(st_target_set_common ST_TARGET)
-    find_package(libbsd REQUIRED)
     if(ST_HAVE_LTO)
         set_target_properties(${ST_TARGET} PROPERTIES
             INTERPROCEDURAL_OPTIMIZATION TRUE
