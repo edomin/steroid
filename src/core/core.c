@@ -1,5 +1,6 @@
 #include "modules_manager.h"
 
+#include "steroids/types/modules.h"
 #define ST_ENABLE_FUNC_DECLS
 #include "steroids/types/modules/logger.h"
 
