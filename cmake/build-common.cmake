@@ -1,25 +1,3 @@
-# We dont use check_c_compiler_flag because We want more pretty configure
-# output with printed checked option
-function(st_process_flag_availability ST_FLAG_VALUE ST_FLAG ST_FALLBACK_FLAG)
-    message(STATUS "Check if compiler accepts ${ST_FLAG}")
-    file(WRITE "${CMAKE_BINARY_DIR}/trycompile.c"
-        "int main(int argc, char **argv){return 0;}")
-    try_compile(ST_HAVE_FLAG ${CMAKE_BINARY_DIR}
-        "${CMAKE_BINARY_DIR}/trycompile.c"
-        COMPILE_DEFINITIONS ${ST_FLAG}
-        C_STANDARD 11
-        C_STANDARD_REQUIRED ON
-        C_EXTENSIONS OFF
-    )
-    if (${ST_HAVE_FLAG})
-        message(STATUS "Check if compiler accepts ${ST_FLAG} - yes")
-        set(${ST_FLAG_VALUE} ${ST_FLAG} PARENT_SCOPE)
-    else()
-        message(STATUS "Check if compiler accepts ${ST_FLAG} - no")
-        set(${ST_FLAG_VALUE} ${ST_FALLBACK_FLAG} PARENT_SCOPE)
-    endif()
-endfunction()
-
 if(ST_MORE_WARNINGS)
     st_process_flag_availability(ST_WALLOC_ZERO "-Walloc-zero" "")
     st_process_flag_availability(ST_WALLOCA "-Walloca" "")
