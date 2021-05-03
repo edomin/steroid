@@ -20,9 +20,7 @@ function(st_target_set_common ST_TARGET)
             INTERPROCEDURAL_OPTIMIZATION TRUE
         )
     endif()
-    if(ST_HAVE_FLTO)
-        target_compile_options(${ST_TARGET} PRIVATE -flto)
-    endif()
+
     set_target_properties(${ST_TARGET} PROPERTIES
         C_STANDARD 11
         C_EXTENSIONS OFF
@@ -33,11 +31,9 @@ function(st_target_set_common ST_TARGET)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         ${LIBBSD_INCLUDE_DIR}
     )
-    target_link_libraries(st_logger_simple PRIVATE
-        ${LIBBSD_LIBRARY}
-    )
+    st_process_flag_availability(ST_FLTO "-flto" "")
     target_compile_options(${ST_TARGET} PRIVATE
-        -Wall -Wextra -Wshadow -D_DEFAULT_SOURCE
+        -Wall -Wextra -Wshadow -D_DEFAULT_SOURCE ${ST_FLTO}
     )
     if (ST_WERROR)
         target_compile_options(${ST_TARGET} PRIVATE -Werror)

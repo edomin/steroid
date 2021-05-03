@@ -18,14 +18,6 @@ set(CMAKE_MODULE_PATH
 )
 include(options)
 
-include(CheckCCompilerFlag)
-include(CheckIPOSupported OPTIONAL RESULT_VARIABLE CHECK_IPO_SUPPORTED_PATH)
-if (CHECK_IPO_SUPPORTED_PATH)
-    check_ipo_supported(RESULT ST_HAVE_LTO)
-else()
-    check_c_compiler_flag("-flto" ST_HAVE_FLTO)
-endif()
-
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 check_include_file(sys/queue.h ST_HAVE_QUEUE_H)
