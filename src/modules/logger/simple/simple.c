@@ -1,6 +1,5 @@
 #include "simple.h"
 
-#include <err.h>
 #include <stdarg.h>
 #include <syslog.h>
 
@@ -43,7 +42,7 @@ static st_modctx_t *st_logger_init(void) {
     logger->syslog_levels = ST_LL_NONE;
     logger->log_files_count = 0;
 
-    st_logger_info(logger_ctx, "%s\n", "logger_simple: Logger initialized.");
+    st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized.");
 
     return logger_ctx;
 }
@@ -51,7 +50,7 @@ static st_modctx_t *st_logger_init(void) {
 static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_simple_t *logger = logger_ctx->data;
 
-    st_logger_info(logger_ctx, "%s\n", "logger_simple: Destroying logger.");
+    st_logger_info(logger_ctx, "%s", "logger_simple: Destroying logger.");
 
     if (logger->syslog_levels != ST_LL_NONE)
         closelog();
@@ -146,11 +145,12 @@ static inline __attribute__((format (printf, 3, 0))) bool st_logger_general(
     st_logger_simple_t *logger = logger_ctx->data;
 
     if ((logger->stdout_levels & log_level) == log_level)
-        return vprintf(format, args) > 0;
+        return (vprintf(format, args) > 0) && (putc('\n', stdout) != EOF);
     if ((logger->stderr_levels & log_level) == log_level) {
-        vwarnx(format, args);
+        bool vfprintf_success = vfprintf(stderr, format, args) > 0;
+        bool putc_success = putc('\n', stdout) != EOF;
 
-        return true;
+        return vfprintf_success && putc_success;
     }
     if ((logger->syslog_levels & log_level) == log_level) {
         vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);

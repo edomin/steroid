@@ -114,7 +114,7 @@ static st_modctx_t *st_logger_init(void) {
 
     global_sir_inited = true;
 
-    st_logger_info(logger_ctx, "%s\n", "logger_libsir: Logger initialized.");
+    st_logger_info(logger_ctx, "%s", "logger_libsir: Logger initialized.");
 
     return logger_ctx;
 }
@@ -122,7 +122,7 @@ static st_modctx_t *st_logger_init(void) {
 static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_libsir_t *logger = logger_ctx->data;
 
-    st_logger_info(logger_ctx, "%s\n", "logger_libsir: Destroying logger.");
+    st_logger_info(logger_ctx, "%s", "logger_libsir: Destroying logger.");
     if (logger->use_fallback_module)
         logger->logger_fallback_quit(logger->logger_fallback_ctx);
     sir_cleanup();
