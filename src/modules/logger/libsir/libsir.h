@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "steroids/logger.h"
+#include "steroids/types/modules/logger.h"
 
 typedef struct {
     bool                          use_fallback_module;
