@@ -26,20 +26,20 @@ typedef bool (*st_logger_set_syslog_levels_t)(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
 typedef bool (*st_logger_set_log_file_t)(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels);
-typedef bool (*st_logger_debug_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
-typedef bool (*st_logger_info_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
-typedef bool (*st_logger_notice_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
-typedef bool (*st_logger_warning_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
-typedef bool (*st_logger_error_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
+typedef bool (*st_logger_debug_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
+typedef bool (*st_logger_info_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
+typedef bool (*st_logger_notice_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
+typedef bool (*st_logger_warning_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
+typedef bool (*st_logger_error_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
 typedef bool (*st_logger_critical_t)(const st_modctx_t *logger_ctx,
  const char* format, ...);
-typedef bool (*st_logger_alert_t)(const st_modctx_t *logger_ctx, const char* format,
- ...);
+typedef bool (*st_logger_alert_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
 typedef bool (*st_logger_emergency_t)(const st_modctx_t *logger_ctx,
  const char* format, ...);
 
