@@ -19,7 +19,7 @@ function(st_target_set_module_common ST_TARGET ST_BUILD_MODE)
 endfunction()
 
 macro(st_process_internal_module ST_TARGET ST_MODULE_TYPE)
-    if (ST_MODULE_TYPE STREQUAL "internal")
+    if (${ST_MODULE_TYPE} STREQUAL "internal")
         math(EXPR ST_INTERNAL_MODULES_COUNT "${ST_INTERNAL_MODULES_COUNT} + 1")
         set(ST_MODULE_FULL_NAME
             "${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME}"
