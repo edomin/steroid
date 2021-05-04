@@ -1,5 +1,3 @@
-find_package(list REQUIRED)
-
 add_executable(steroids)
 
 st_target_set_common(steroids)
@@ -19,7 +17,6 @@ target_sources(steroids PRIVATE
 
 target_link_libraries(steroids PRIVATE
     ${ST_INTERNAL_MODULES_LIBS}
-    ${LIST_LIBRARY}
 )
 
 #if (CMAKE_SYSTEM_NAME STREQUAL Windows)
