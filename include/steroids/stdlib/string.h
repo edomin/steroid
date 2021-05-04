@@ -10,6 +10,7 @@
         #undef __CONCAT
         #undef __always_inline
         #undef __nonnull
+        #undef _Static_assert
     #endif
     #include <bsd/string.h>
 #endif
