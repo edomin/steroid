@@ -3,7 +3,7 @@
 
 #include "steroids/config.h"
 
-#ifndef ST_HAVE_QUEUE_H
+#if !defined(ST_HAVE_QUEUE_H)
     #ifndef _SYS_CDEFS_H_
         #undef __P
         #undef __CONCAT
@@ -12,6 +12,8 @@
         #undef _Static_assert
     #endif
     #include <bsd/sys/queue.h>
+#else
+    #include <sys/queue.h>
 #endif
 
 #endif
