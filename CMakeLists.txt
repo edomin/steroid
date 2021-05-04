@@ -38,6 +38,7 @@ include(build-module)
 include(modules)
 include(build-logger-simple)
 include(build-logger-libsir)
+include(build-opts-ketopt)
 
 foreach(ST_INTERNAL_MODULE ${ST_INTERNAL_MODULES})
     set(INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES
