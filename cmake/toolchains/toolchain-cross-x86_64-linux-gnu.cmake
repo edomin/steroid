@@ -7,7 +7,7 @@ set(CMAKE_FIND_ROOT_PATH /usr/local/${ST_TARGET_TRIPLET})
 set(CMAKE_C_COMPILER x86_64-linux-gnu-gcc)
 set(PKG_CONFIG_EXECUTABLE x86_64-linux-gnu-pkg-config)
 
-function(mtrst_target_set_fpu_options ST_TARGET)
+function(st_target_set_fpu_options ST_TARGET)
     target_compile_options(${ST_TARGET} PRIVATE
         -mmmx -msse -msse2 -mfpmath=sse
     )
