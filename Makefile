@@ -1,58 +1,54 @@
-ifeq ($(shell uname -m),x86_64)
-	ARCH=x86_64
-endif
-ifeq ($(shell uname),Linux)
-	OS=linux
-endif
+all: debug
 
-ifeq ($(ARCH)-$(OS),x86_64-linux)
-	TRIPLET=x86_64-linux-gnu
-	CPU_CORES=$(shell nproc --all)
-endif
+include barebones.mk
 
-rebuild: clean build
+arch?=x86_64
+os?=linux
+abi?=gnu
+TRIPLET=$(arch)-$(os)-$(abi)
 
-cmake_build:
-	mkdir cmake_build
+run-image:
+	docker run --net=host -i -t -v ~/.vgazer:/root/.vgazer \
+     -v `pwd`:/mnt/steroids --entrypoint sh steroids-deps-$(TRIPLET)
 
-refresh: cmake_build
-	cd cmake_build; cmake .. -DCMAKE_BUILD_TYPE=Debug -DST_MORE_WARNINGS=ON \
-     -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/toolchain-cross-$(TRIPLET).cmake \
-     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+release:
+	docker run --net=host -i -t \
+     -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
+     --entrypoint sh steroids-deps-$(TRIPLET) \
+     -E -c "make bb_build_release toolchain=$(TRIPLET)-gcc \
+     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
 
-build: refresh
-	cmake --build cmake_build -- -j$(CPU_CORES)
+debug:
+	docker run --net=host -i -t \
+     -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
+     --entrypoint sh steroids-deps-$(TRIPLET) \
+     -E -c "make bb_build_debug toolchain=$(TRIPLET)-gcc \
+     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
 
-clean:
-	-rm -r -f ./cmake_build
+coverage:
+	docker run --net=host -i -t \
+     -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
+     --entrypoint sh steroids-deps-$(TRIPLET) \
+     -E -c "make bb_build_coverage toolchain=$(TRIPLET)-gcc \
+     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
 
-build-in-docker:
-ifeq ($(ARCH)-$(OS),x86_64-linux)
-	docker run -i -t \
-     -v `pwd`:/mnt/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
-     -E -c "make build" | tee build.log
-else
-	echo "Error: host $(ARCH) architecture or $(OS) os not implemented now"
-endif
+lint:
+	docker run --net=host -i -t \
+     -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
+     --entrypoint sh steroids-deps-$(TRIPLET) \
+     -E -c "make bb_build_lint toolchain=$(TRIPLET)-gcc \
+     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
 
-rebuild-in-docker:
-ifeq ($(ARCH)-$(OS),x86_64-linux)
-	docker run -i -t \
-     -v `pwd`:/mnt/steroids --entrypoint sh steroids-deps-x86_64-linux-gnu \
-     -E -c "make rebuild" | tee build.log
-else
-	echo "Error: host $(ARCH) architecture or $(OS) os not implemented now"
-endif
+lint_build: bb_lint_build
 
-build-deps-x86_64-linux-gnu: dockerfiles/deps-x86_64-linux-gnu.dockerfile
+install: bb_install
 
-dockerfiles:
-	mkdir dockerfiles
+clean: bb_clean
 
-dockerfiles/deps-x86_64-linux-gnu.dockerfile: deps/x86_64-linux-gnu scripts/build_dockerfile.py dockerfiles
-	scripts/build_dockerfile.py --target=x86_64-linux-gnu
+dockerfiles/deps-$(TRIPLET).dockerfile: deps/$(TRIPLET) scripts/build_dockerfile.py
+	scripts/build_dockerfile.py --target=$(TRIPLET)
 
-build-image: dockerfiles/deps-x86_64-linux-gnu.dockerfile
-	docker build \
-     -f dockerfiles/deps-x86_64-linux-gnu.dockerfile \
-     -t steroids-deps-x86_64-linux-gnu .
+build-image: dockerfiles/deps-$(TRIPLET).dockerfile
+	docker build --network=host --no-cache \
+     -f dockerfiles/deps-$(TRIPLET).dockerfile \
+     -t steroids-deps-$(TRIPLET) .

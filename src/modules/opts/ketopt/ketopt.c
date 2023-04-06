@@ -1,15 +1,17 @@
 #include "ketopt.h"
 
 #include <ctype.h>
-#include <stdarg.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "steroids/stdlib/string.h"
+#include <bsd/string.h>
 
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
 #define SHORT_OPTS_FMT_SIZE          100
 
-// static void                     *global_modsmgr;
-// static st_modsmgr_get_function_t global_modsmgr_get_function;
+static void              *global_modsmgr;
+static st_modsmgr_funcs_t global_modsmgr_funcs;
 
 typedef enum {
     ST_OT_SHORT,
@@ -27,18 +29,18 @@ void *st_module_opts_ketopt_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_opts_ketopt_init(__attribute__((unused)) void *modsmgr,
- __attribute__((unused)) st_modsmgr_get_function_t modsmgr_get_function) {
-    // global_modsmgr = modsmgr;
-    // global_modsmgr_get_function = modsmgr_get_function;
+st_moddata_t *st_module_opts_ketopt_init(void *modsmgr,
+ st_modsmgr_funcs_t *modsmgr_funcs) {
+    global_modsmgr = modsmgr;
+    memcpy(&global_modsmgr_funcs, modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
 
     return &st_module_opts_ketopt_data;
 }
 
 #ifdef ST_MODULE_TYPE_shared
 st_moddata_t *st_module_init(void *modsmgr,
- void *modsmgr_get_function) {
-    return st_module_opts_ketopt_init(modsmgr, modsmgr_get_function);
+ st_modsmgr_funcs_t *modsmgr_funcs) {
+    return st_module_opts_ketopt_init(modsmgr, modsmgr_funcs);
 }
 #endif
 
@@ -47,14 +49,9 @@ static void st_opts_import_functions(st_modctx_t *opts_ctx,
     st_opts_ketopt_t  *opts = opts_ctx->data;
     st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
 
-    opts->logger_debug = logger_funcs->logger_debug;
-    opts->logger_info = logger_funcs->logger_info;
-    opts->logger_notice = logger_funcs->logger_notice;
-    opts->logger_warning = logger_funcs->logger_warning;
-    opts->logger_error = logger_funcs->logger_error;
-    opts->logger_critical = logger_funcs->logger_critical;
-    opts->logger_alert = logger_funcs->logger_alert;
-    opts->logger_emergency = logger_funcs->logger_emergency;
+    opts->logger.debug = logger_funcs->logger_debug;
+    opts->logger.info = logger_funcs->logger_info;
+    opts->logger.error = logger_funcs->logger_error;
 }
 
 static st_modctx_t *st_opts_init(int argc, char **argv,
@@ -62,15 +59,18 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     st_modctx_t      *opts_ctx;
     st_opts_ketopt_t *opts;
 
-    opts_ctx = st_init_module_ctx(&st_module_opts_ketopt_data,
-     sizeof(st_opts_ketopt_t));
+    opts_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
+     &st_module_opts_ketopt_data, sizeof(st_opts_ketopt_t));
 
     if (opts_ctx == NULL)
         return NULL;
 
+    opts_ctx->funcs = &st_opts_ketopt_funcs;
+
     st_opts_import_functions(opts_ctx, logger_ctx);
     opts = opts_ctx->data;
-    opts->logger_ctx = logger_ctx;
+    // opts->logger.active = true;
+    opts->logger.ctx = logger_ctx;
     opts->argc = argc;
     opts->argv = argv;
     memset(opts->longopts, 0, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX);
@@ -78,7 +78,7 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     opts->longopts_count = 0;
     opts->opts_data_count = 0;
 
-    opts->logger_info(opts->logger_ctx, "%s", "opts_ketopt: Opts initialized.");
+    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Opts initialized.");
 
     return opts_ctx;
 }
@@ -86,16 +86,17 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
 static void st_opts_quit(st_modctx_t *opts_ctx) {
     st_opts_ketopt_t *opts = opts_ctx->data;
 
-    opts->logger_info(opts->logger_ctx, "%s", "opts_ketopt: Destroying opts.");
+    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Destroying opts.");
     for (unsigned i = 0; i < opts->longopts_count; i++)
-        free(opts->longopts->name);
+        free(opts->longopts[i].name);
 
     for (unsigned i = 0; i < opts->opts_data_count; i++) {
-        free(opts->opts_data->arg_fmt);
-        free(opts->opts_data->opt_descr);
+        free(opts->opts_data[i].arg_fmt);
+        free(opts->opts_data[i].opt_descr);
     }
 
-    opts->logger_info(opts->logger_ctx, "%s", "opts_ketopt: Opts destroyed.");
+    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Opts destroyed.");
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
 }
 
 static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
@@ -108,7 +109,7 @@ static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
 
     ko_longopt->name = malloc(sizeof(char) * longopt_size);
     if (ko_longopt->name == NULL) {
-        opts->logger_error(opts->logger_ctx, "%s",
+        opts->logger.error(opts->logger.ctx, "%s",
          "opts_ketopt: Unable to allocate memory for long option. Using "
          "short option only");
         long_option = NULL;
@@ -117,7 +118,7 @@ static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
     }
 
     strlcpy(ko_longopt->name, long_option, longopt_size);
-    ko_longopt->has_arg = arg;
+    ko_longopt->has_arg = (int)arg;
     ko_longopt->val = (int)opts->longopts_count + LONG_OPT_NUM_TO_INDEX_OFFSET;
 
     return true;
@@ -150,7 +151,7 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
 
         opt_data->arg_fmt = malloc(sizeof(char) * arg_fmt_size);
         if (opt_data->arg_fmt == NULL)
-            opts->logger_error(opts->logger_ctx, "%s",
+            opts->logger.error(opts->logger.ctx, "%s",
              "opts_ketopt: Unable to allocate memory for option argument "
              "format");
         else
@@ -161,7 +162,7 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
 
         opt_data->opt_descr = malloc(sizeof(char) * option_descr_size);
         if (opt_data->opt_descr == NULL)
-            opts->logger_error(opts->logger_ctx, "%s",
+            opts->logger.error(opts->logger.ctx, "%s",
              "opts_ketopt: Unable to allocate memory for option description");
         else
             strlcpy(opt_data->opt_descr, option_descr, option_descr_size);

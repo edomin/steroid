@@ -2,6 +2,5 @@
 #define ST_CONFIG_H
 
 #cmakedefine ST_HAVE_QUEUE_H
-#cmakedefine ST_HAVE_STRLCPY
 
 #endif

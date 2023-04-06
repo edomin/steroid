@@ -1,7 +1,7 @@
 #ifndef ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 #define ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 
-#include <limits.h>
+// #include <limits.h>
 #include <stdio.h>
 
 #include "config.h"

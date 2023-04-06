@@ -1,7 +1,14 @@
 #include "simple.h"
 
 #include <stdarg.h>
+#include <stdbool.h>
+#include <string.h>
 #include <syslog.h>
+
+#include "config.h"
+
+static void              *global_modsmgr;
+static st_modsmgr_funcs_t global_modsmgr_funcs;
 
 void *st_module_logger_simple_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_logger_simple_funcs_table;
@@ -14,21 +21,23 @@ void *st_module_logger_simple_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_logger_simple_init(
- __attribute__((unused)) void *modsmgr,
- __attribute__((unused)) void *modsmgr_get_function) {
+st_moddata_t *st_module_logger_simple_init(void *modsmgr,
+ st_modsmgr_funcs_t *modsmgr_funcs) {
+    global_modsmgr = modsmgr;
+    memcpy(&global_modsmgr_funcs, modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
+
     return &st_module_logger_simple_data;
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void *modsmgr) {
-    return st_module_logger_simple_init(void *modsmgr);
+st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
+    return st_module_logger_simple_init(modsmgr, modsmgr_funcs);
 }
 #endif
 
 static st_modctx_t *st_logger_init(void) {
-    st_modctx_t        *logger_ctx = st_init_module_ctx(
-     &st_module_logger_simple_data, sizeof(st_logger_simple_t));
+    st_modctx_t        *logger_ctx = global_modsmgr_funcs.init_module_ctx(
+     global_modsmgr, &st_module_logger_simple_data, sizeof(st_logger_simple_t));
     st_logger_simple_t *logger;
 
     if (logger_ctx == NULL)
@@ -60,7 +69,7 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         fclose(logger->log_files[i].file);
     }
 
-    st_free_module_ctx(logger_ctx);
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
 }
 
 static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
@@ -86,7 +95,7 @@ static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
     st_logger_simple_t *logger = logger_ctx->data;
 
     if (logger->syslog_levels == ST_LL_NONE && levels != ST_LL_NONE)
-        openlog("steroids", LOG_CONS, LOG_USER);
+        openlog("steroids", LOG_CONS, LOG_USER); // NOLINT(hicpp-signed-bitwise)
     else if (levels == ST_LL_NONE)
         closelog();
 
@@ -119,7 +128,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
 
             return false;
         }
-        logger->log_files[file_num].file = fopen(filename, "wb");
+        logger->log_files[file_num].file = fopen(filename, "wbe");
         logger->log_files_count++;
     }
 
@@ -128,13 +137,12 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return true;
 }
 
-
-
 static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
-    int result = 0;
+    int      result = 0;
+    unsigned u_log_level = log_level;
 
-    for (log_level >>= 1; log_level > 0; log_level >>= 1, result++)
-        ;
+    for (u_log_level >>= 1u; u_log_level > 0; u_log_level >>= 1u)
+        result++;
 
     return result;
 }
@@ -163,7 +171,7 @@ static inline __attribute__((format (printf, 3, 0))) bool st_logger_general(
             bool success = vfprintf(logger->log_files[i].file, format, args) >
              0;
 
-            success &= fflush(logger->log_files[i].file) == 0;
+            success = success && fflush(logger->log_files[i].file) == 0;
 
             return success;
         }

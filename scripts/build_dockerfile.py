@@ -16,7 +16,7 @@ def GetDockefrileName(target):
 
 def GetBaseImageName(target):
     return {
-        "x86_64-linux-gnu": "debian:buster",
+        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bullseye",
     }[target]
 
 def GetTargetArch(target):
@@ -56,45 +56,30 @@ def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
         f.write(
             "FROM {baseImageName} as build \n"
             "MAINTAINER Vasiliy Edomin <Vasiliy.Edomin@gmail.com> \n"
-            "RUN apt-get update \\\n"
-            "&& apt-get install -y sudo \\\n"
-            "&& useradd -m steroids_user \\\n"
-            "&& echo \"steroids_user:steroids_user\" | chpasswd \\\n"
-            "&& adduser steroids_user sudo \\\n"
-            "&& echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers\n"
-            "USER steroids_user \n"
             "WORKDIR /tmp/.steroids \n"
-            "RUN sudo bash -c 'echo \"deb http://deb.debian.org/debian buster-backports main\" >> /etc/apt/sources.list' \\\n"
-            "&& sudo apt-get update \\\n"
-            "&& sudo apt-get install -y python3 python3-pip \\\n"
-            "&& pip3 install requests bs4 \\\n"
+            "RUN python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
+            "&& echo \"#!/usr/bin/env python3\" >> ./deps_installer.py \\\n"
+            "&& echo \"from vgazer import Vgazer\" >> ./deps_installer.py \\\n"
+            "&& echo \"deps=[\" >> ./deps_installer.py \\\n"
             "&& mkdir -p ~/.vgazer/github \\\n"
             "&& echo \"{username}\" >> ~/.vgazer/github/username \\\n"
             "&& echo \"{token}\" >> ~/.vgazer/github/token \\\n"
-            "&& python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
-            "&& sudo sh -c 'echo \"Defaults env_keep += \\\"PYTHONPATH\\\"\" >> /etc/sudoers' \\\n"
-            "&& sudo sh -c 'echo \"#!/usr/bin/env python3\" >> ./deps_installer.py' \\\n"
-            "&& sudo sh -c 'echo \"from vgazer.vgazer import Vgazer\" >> ./deps_installer.py' \\\n"
-            "&& sudo sh -c 'echo \"deps=[\" >> ./deps_installer.py' \\\n"
             "".format(baseImageName=baseImageName, username=GetGithubUsername(),
                 token=GetGithubToken())
         )
         for dep in deps:
             f.write(
-                "&& sudo sh -c 'echo \"\\\"{dep}\\\",\" >> ./deps_installer.py' \\\n"
+                "&& echo \"\\\"{dep}\\\",\" >> ./deps_installer.py \\\n"
                 "".format(dep=dep)
             )
         f.write(
-            "&& sudo sh -c 'echo \"]\" >> ./deps_installer.py' \\\n"
-            "&& sudo sh -c 'echo \"gazer = Vgazer(arch=\\\"{arch}\\\", os=\\\"{os}\\\", osVersion=\\\"any\\\", abi=\\\"{abi}\\\")\" >> ./deps_installer.py' \\\n"
-            "&& sudo sh -c 'echo \"gazer.InstallList(deps, verbose=True)\" >> ./deps_installer.py' \\\n"
-            "&& sudo chmod u+x ./deps_installer.py \\\n"
-            "&& sudo -E sh -c 'python3 -u ./deps_installer.py' \n"
+            "&& echo \"]\" >> ./deps_installer.py \\\n"
+            "&& echo \"gazer = Vgazer(arch=\\\"{arch}\\\", os=\\\"{os}\\\", osVersion=\\\"any\\\", abi=\\\"{abi}\\\")\" >> ./deps_installer.py \\\n"
+            "&& echo \"gazer.InstallList(deps, verbose=True)\" >> ./deps_installer.py \\\n"
+            "&& chmod u+x ./deps_installer.py \\\n"
+            "&& python3 -u ./deps_installer.py \n"
             "WORKDIR /mnt/steroids \n"
-            "".format(baseImageName=baseImageName,
-                username=GetGithubUsername(),
-                token=GetGithubToken(), arch = targetArch, os = targetOs,
-                abi = targetAbi)
+            "".format(arch = targetArch, os = targetOs, abi = targetAbi)
         )
 
 

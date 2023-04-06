@@ -1,2 +1,4 @@
-option(ST_MORE_WARNINGS "More compiler warnings" ON)
-option(ST_WERROR "All warnings are errors" ON)
+set(ST_MODULE_LOGGER_SIMPLE "internal" CACHE STRING "")
+set(ST_MODULE_LOGGER_LIBSIR "no" CACHE STRING "")
+set(ST_MODULE_LUA_LUAJIT "no" CACHE STRING "")
+set(ST_MODULE_OPTS_KETOPT "internal" CACHE STRING "")

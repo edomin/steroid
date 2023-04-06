@@ -1,4 +1,4 @@
-function(st_target_set_module_common ST_TARGET ST_BUILD_MODE)
+function(st_add_module ST_TARGET ST_BUILD_MODE)
     if (ST_BUILD_MODE STREQUAL "no")
         return()
     elseif (ST_BUILD_MODE STREQUAL "internal")
@@ -13,9 +13,7 @@ function(st_target_set_module_common ST_TARGET ST_BUILD_MODE)
         return()
     endif()
 
-    add_library(${ST_TARGET} ${ST_LIBRARY_MODE} "${CMAKE_BINARY_DIR}/dummy.c")
-
-    st_target_set_common(${ST_TARGET})
+    bb_add_library(${ST_TARGET} ${ST_LIBRARY_MODE})
 endfunction()
 
 macro(st_process_internal_module ST_TARGET ST_MODULE_TYPE)
@@ -26,5 +24,9 @@ macro(st_process_internal_module ST_TARGET ST_MODULE_TYPE)
         )
         list(APPEND ST_INTERNAL_MODULES ${ST_MODULE_FULL_NAME})
         list(APPEND ST_INTERNAL_MODULES_LIBS ${ST_TARGET})
+
+        set(ST_INTERNAL_MODULES ${ST_INTERNAL_MODULES} PARENT_SCOPE)
+        set(ST_INTERNAL_MODULES_LIBS ${ST_INTERNAL_MODULES_LIBS} PARENT_SCOPE)
+        set(ST_INTERNAL_MODULES_COUNT ${ST_INTERNAL_MODULES_COUNT} PARENT_SCOPE)
     endif()
 endmacro()

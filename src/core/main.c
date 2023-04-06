@@ -1,7 +1,7 @@
 #include "modules_manager.h"
 
 #include "steroids/types/modules.h"
-#define ST_ENABLE_FUNC_DECLS
+// #define ST_ENABLE_FUNC_DECLS
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/opts.h"
 
@@ -14,17 +14,22 @@ static st_opts_quit_t       st_opts_quit;
 static st_opts_add_option_t st_opts_add_option;
 static st_opts_get_str_t    st_opts_get_str;
 
+#define BUFFER_SIZE 128
+
+#include <stdio.h>
+
 int main(int argc, char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
     void         *logger;
     void         *opts;
-    char          buffer[128] = {0};
+    char          buffer[BUFFER_SIZE] = {0};
 
-    st_logger_init = st_modsmgr_get_function(modsmgr, "logger", "libsir",
+    st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL,
      "st_logger_init");
-    st_logger_quit = st_modsmgr_get_function(modsmgr, "logger", "libsir",
+    printf("%p\n", st_logger_init);
+    st_logger_quit = st_modsmgr_get_function(modsmgr, "logger", NULL,
      "st_logger_quit");
-    st_logger_debug = st_modsmgr_get_function(modsmgr, "logger", "libsir",
+    st_logger_debug = st_modsmgr_get_function(modsmgr, "logger", NULL,
      "st_logger_debug");
 
 
@@ -42,7 +47,7 @@ int main(int argc, char **argv) {
 
     opts = st_opts_init(argc, argv, logger);
     st_opts_add_option(opts, 't', "test", ST_OA_OPTIONAL, "ARG", "test option");
-    st_opts_get_str(opts, "test", buffer, 128);
+    st_opts_get_str(opts, "test", buffer, BUFFER_SIZE);
     st_logger_debug(logger, "buffer: %s", buffer);
 
     st_opts_quit(opts);

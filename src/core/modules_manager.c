@@ -2,9 +2,18 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <xmempool.h>
+
+#include "genid.h"
 #include "internal_modules.h"
 #include "utils.h"
+
+st_modctx_t *st_modsmgr_init_module_ctx(void *modsmgr,
+ const st_moddata_t *module_data, size_t data_size);
+void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx);
 
 static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
@@ -86,7 +95,11 @@ st_modsmgr_t *st_modsmgr_init(void) {
     for (size_t i = 0; i < st_internal_modules_entrypoints.modules_count; i++) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
-         st_modsmgr_get_function);
+         &(st_modsmgr_funcs_t){
+            .get_function = st_modsmgr_get_function,
+            .init_module_ctx = st_modsmgr_init_module_ctx,
+            .free_module_ctx = st_free_module_ctx,
+         });
         st_snode_t *node;
 
         printf("Found module \"%s_%s\"\n", module_data->subsystem,
@@ -97,12 +110,15 @@ st_modsmgr_t *st_modsmgr_init(void) {
             perror("malloc");
             printf("Error occured while processing found module: \"%s_%s\". "
              "Module skipped.\n", module_data->subsystem, module_data->name);
+            continue;
         }
         node->data = module_data;
         SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT);
     }
 
     st_modsmgr_process_deps(modsmgr);
+
+    modsmgr->ctx_pool = xmem_create_pool(sizeof(st_modctx_t));
 
     return modsmgr;
 }
@@ -112,12 +128,13 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
         return;
 
     while (!SLIST_EMPTY(&modsmgr->modules_data)) {
-       st_snode_t *node = SLIST_FIRST(&modsmgr->modules_data);
-       SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT);
-       free(node);
-   }
-}
+        st_snode_t *node = SLIST_FIRST(&modsmgr->modules_data);
+        SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT);
+        free(node);
+    }
 
+    xmem_destroy_pool(modsmgr->ctx_pool);
+}
 
 void *st_modsmgr_get_function(const void *modsmgr, const char *subsystem,
  const char *module_name, const char *func_name) {
@@ -128,4 +145,64 @@ void *st_modsmgr_get_function(const void *modsmgr, const char *subsystem,
         return NULL;
 
     return module_data->get_function(func_name);
+}
+
+st_modctx_t *st_modsmgr_init_module_ctx(void *modsmgr,
+ const st_moddata_t *module_data, size_t data_size) {
+    st_modctx_t *modctx = (st_modctx_t *)xmem_alloc(
+     ((st_modsmgr_t *)modsmgr)->ctx_pool);
+
+    if (modctx == NULL)
+        return NULL;
+
+    modctx->subsystem = strdup(module_data->subsystem);
+    if (modctx->subsystem == NULL) {
+        perror("strdup");
+
+        goto error_free_ctx_pool;
+    }
+
+    modctx->name = strdup(module_data->name);
+    if (modctx->name == NULL) {
+        perror("strdup");
+
+        goto error_free_subsystem;
+    }
+
+    modctx->data = malloc(data_size);
+    if (modctx->data == NULL) {
+        perror("malloc");
+
+        goto error_free_name;
+    }
+
+    modctx->alive = true;
+    modctx->id = st_genid();
+    SLIST_INIT(&modctx->uses);
+
+    return modctx;
+
+error_free_name:
+    free(modctx->name);
+error_free_subsystem:
+    free(modctx->subsystem);
+error_free_ctx_pool:
+    xmem_free(((st_modsmgr_t *)modsmgr)->ctx_pool, (char *)modctx);
+
+    return NULL;
+}
+
+void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx) {
+    if (modsmgr && modctx) {
+        while (!SLIST_EMPTY(&modctx->uses)) {
+            st_snode_t *node = SLIST_FIRST(&modctx->uses);
+            SLIST_REMOVE_HEAD(&modctx->uses, ST_SNODE_NEXT);
+            free(node);
+        }
+        free(modctx->subsystem);
+        free(modctx->name);
+        free(modctx->data);
+        modctx->alive = false;
+        xmem_free(((st_modsmgr_t *)modsmgr)->ctx_pool, (char *)modctx);
+    }
 }
