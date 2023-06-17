@@ -16,7 +16,7 @@ def GetDockefrileName(target):
 
 def GetBaseImageName(target):
     return {
-        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bullseye",
+        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bookworm",
     }[target]
 
 def GetTargetArch(target):
@@ -48,7 +48,7 @@ def GetGithubToken():
     with open(
         os.path.join(str(Path.home()), ".vgazer/github/token"), "r"
     ) as f:
-        return f.read()
+        return f.read().rstrip()
 
 def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
  targetAbi, deps):
@@ -57,7 +57,9 @@ def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
             "FROM {baseImageName} as build \n"
             "MAINTAINER Vasiliy Edomin <Vasiliy.Edomin@gmail.com> \n"
             "WORKDIR /tmp/.steroids \n"
-            "RUN python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
+            "RUN python3 -m venv ./.venv --system-site-packages \\\n"
+            "&& . ./.venv/bin/activate \\\n"
+            "&& python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
             "&& echo \"#!/usr/bin/env python3\" >> ./deps_installer.py \\\n"
             "&& echo \"from vgazer import Vgazer\" >> ./deps_installer.py \\\n"
             "&& echo \"deps=[\" >> ./deps_installer.py \\\n"
