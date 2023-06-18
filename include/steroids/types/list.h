@@ -1,7 +1,7 @@
 #ifndef ST_INCLUDE_STEROIDS_TYPES_LIST_H
 #define ST_INCLUDE_STEROIDS_TYPES_LIST_H
 
-#include <bsd/sys/queue.h>
+#include <sys/queue.h>
 
 #define ST_SNODE_NEXT next
 

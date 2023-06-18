@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <bsd/sys/queue.h>
+#include <sys/queue.h>
 
 #include <xmempool.h>
 
