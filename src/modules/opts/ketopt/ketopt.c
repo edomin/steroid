@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <bsd/string.h>
-
 #include <safeclib/safe_mem_lib.h>
+#include <safeclib/safe_str_lib.h>
 
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
 #define SHORT_OPTS_FMT_SIZE          100
@@ -144,7 +143,14 @@ static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
         return false;
     }
 
-    strlcpy(ko_longopt->name, long_option, longopt_size);
+    if (strncpy_s(ko_longopt->name, longopt_size, long_option, longopt_size)
+     != 0) {
+        #ifndef __SAFE_STR_LIB_H__
+            perror("strncpy_s");
+        #endif
+        printf("Unable to add long option: --%s\n", long_option);
+        return false;
+    }
     ko_longopt->has_arg = (int)arg;
     ko_longopt->val = (int)opts->longopts_count + LONG_OPT_NUM_TO_INDEX_OFFSET;
 
@@ -177,22 +183,35 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
         size_t arg_fmt_size = strlen(arg_fmt) + 1;
 
         opt_data->arg_fmt = malloc(sizeof(char) * arg_fmt_size);
-        if (opt_data->arg_fmt == NULL)
+        if (opt_data->arg_fmt == NULL) {
             opts->logger.error(opts->logger.ctx, "%s",
              "opts_ketopt: Unable to allocate memory for option argument "
              "format");
-        else
-            strlcpy(opt_data->arg_fmt, arg_fmt, arg_fmt_size);
+        } else if (
+         strncpy_s(opt_data->arg_fmt, arg_fmt_size, arg_fmt, arg_fmt_size)
+         != 0) {
+            #ifndef __SAFE_STR_LIB_H__
+                perror("strncpy_s");
+            #endif
+            printf("Unable to add option: --%s\n", long_option);
+            return false;
+        }
     }
     if (option_descr != NULL) {
         size_t option_descr_size = strlen(option_descr) + 1;
 
         opt_data->opt_descr = malloc(sizeof(char) * option_descr_size);
-        if (opt_data->opt_descr == NULL)
+        if (opt_data->opt_descr == NULL) {
             opts->logger.error(opts->logger.ctx, "%s",
              "opts_ketopt: Unable to allocate memory for option description");
-        else
-            strlcpy(opt_data->opt_descr, option_descr, option_descr_size);
+        } else if (strncpy_s(opt_data->opt_descr, option_descr_size,
+         option_descr, option_descr_size) != 0) {
+            #ifndef __SAFE_STR_LIB_H__
+                perror("strncpy_s");
+            #endif
+            printf("Unable to add option: --%s\n", long_option);
+            return false;
+        }
     }
     if (longopt_add_success)
         opts->longopts_count++;
@@ -220,10 +239,20 @@ static bool st_opts_get_longopt_str(const st_opts_ketopt_t *opts,
             if (i != req_longopt_index)
                 return false;
 
-            if (!kopt->arg)
-                strlcpy(dst, "", dst_size);
-            else
-                strlcpy(dst, kopt->arg, dst_size);
+            if (!kopt->arg) {
+                if (strncpy_s(dst, dst_size, "", 1) != 0) {
+                    #ifndef __SAFE_STR_LIB_H__
+                        perror("strncpy_s");
+                    #endif
+                    return false;
+                }
+            } else if (strncpy_s(dst, dst_size, kopt->arg,
+             strlen(kopt->arg)) != 0) {
+                #ifndef __SAFE_STR_LIB_H__
+                    perror("strncpy_s");
+                #endif
+                return false;
+            }
 
             return true;
         }
@@ -258,7 +287,13 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
                 short_opt_fmt[1] = opts->opts_data[i].arg == ST_OA_REQUIRED ?
                  ':' : '?';
 
-            strlcat(short_opts_fmt, short_opt_fmt, SHORT_OPTS_FMT_SIZE);
+            if (strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt, 3)
+             != 0) {
+                #ifndef __SAFE_STR_LIB_H__
+                    perror("strncat_s");
+                #endif
+                return false;
+            }
         }
     }
 
@@ -284,10 +319,20 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
                 return true;
         } else {
             if (parse_result == opt[0]) {
-                if (!kopt.arg)
-                    strlcpy(optarg, "", optarg_size_max);
-                else
-                    strlcpy(optarg, kopt.arg, optarg_size_max);
+                if (!kopt.arg) {
+                    if (strncpy_s(optarg, optarg_size_max, "", 1) != 0) {
+                        #ifndef __SAFE_STR_LIB_H__
+                            perror("strncpy_s");
+                        #endif
+                        return false;
+                    }
+                } else if (strncpy_s(optarg, optarg_size_max, kopt.arg,
+                 strlen(kopt.arg)) != 0) {
+                    #ifndef __SAFE_STR_LIB_H__
+                        perror("strncpy_s");
+                    #endif
+                    return false;
+                }
 
                 return true;
             }

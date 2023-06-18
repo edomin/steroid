@@ -4,7 +4,6 @@ cmake_barebones
 freebsd-queue
 iwyu
 ketopt
-libbsd
 libsir
 luajit
 make
