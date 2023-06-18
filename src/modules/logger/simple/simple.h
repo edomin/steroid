@@ -1,10 +1,9 @@
 #ifndef ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 #define ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 
-// #include <limits.h>
 #include <stdio.h>
 
-#include "config.h"
+#include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
 
 // version
@@ -43,8 +42,9 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_emergency = st_logger_emergency,
 };
 
+#define FUNCS_COUNT 14
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
-    .funcs_count = 14,
+    .funcs_count = FUNCS_COUNT,
     .entries = {
         {"st_logger_init", st_logger_init},
         {"st_logger_quit", st_logger_quit},

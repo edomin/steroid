@@ -23,11 +23,9 @@ target_sources(steroids PRIVATE
     "${CMAKE_SOURCE_DIR}/src/utils.c"
 )
 
-set_target_properties(steroids PROPERTIES
-    C_STANDARD 11
-    C_EXTENSIONS ON
-    POSITION_INDEPENDENT_CODE 1
-)
+bb_set_c_std(steroids STD 11 EXTENSIONS)
+
+bb_add_iwyu_mapping_file(steroids ${CMAKE_CURRENT_SOURCE_DIR}/iwyu.imp)
 
 target_include_directories(steroids PRIVATE
     "${CMAKE_FIND_ROOT_PATH}/include"

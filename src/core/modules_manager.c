@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <bsd/sys/queue.h>
+
 #include <xmempool.h>
 
 #include "genid.h"
@@ -67,14 +69,14 @@ static bool st_modsmgr_module_have_deps(const st_modsmgr_t *modsmgr,
     return true;
 }
 
-static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) {
+static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readability-function-cognitive-complexity)
     st_snode_t *node;
 
     SLIST_FOREACH(node, &modsmgr->modules_data, ST_SNODE_NEXT) {
         st_moddata_t *module_data = node->data;
 
         if (!st_modsmgr_module_have_deps(modsmgr, module_data)) {
-            SLIST_REMOVE(&modsmgr->modules_data, node, st_snode_t,
+            SLIST_REMOVE(&modsmgr->modules_data, node, st_snode_t, // NOLINT(altera-unroll-loops)
              ST_SNODE_NEXT);
             st_modsmgr_process_deps(modsmgr);
 
@@ -89,10 +91,10 @@ st_modsmgr_t *st_modsmgr_init(void) {
     if (!modsmgr)
         return NULL;
 
-    SLIST_INIT(&modsmgr->modules_data);
+    SLIST_INIT(&modsmgr->modules_data); // NOLINT(altera-unroll-loops)
 
     printf("Searching internal modules...\n");
-    for (size_t i = 0; i < st_internal_modules_entrypoints.modules_count; i++) {
+    for (size_t i = 0; i < ST_INTERNAL_MODULES_COUNT; i++) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
          &(st_modsmgr_funcs_t){
@@ -101,6 +103,9 @@ st_modsmgr_t *st_modsmgr_init(void) {
             .free_module_ctx = st_free_module_ctx,
          });
         st_snode_t *node;
+
+        if (!module_data)
+            continue;
 
         printf("Found module \"%s_%s\"\n", module_data->subsystem,
          module_data->name);
@@ -113,7 +118,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
             continue;
         }
         node->data = module_data;
-        SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT);
+        SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
     }
 
     st_modsmgr_process_deps(modsmgr);
@@ -129,7 +134,7 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
 
     while (!SLIST_EMPTY(&modsmgr->modules_data)) {
         st_snode_t *node = SLIST_FIRST(&modsmgr->modules_data);
-        SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT);
+        SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
         free(node);
     }
 
@@ -178,7 +183,7 @@ st_modctx_t *st_modsmgr_init_module_ctx(void *modsmgr,
 
     modctx->alive = true;
     modctx->id = st_genid();
-    SLIST_INIT(&modctx->uses);
+    SLIST_INIT(&modctx->uses); // NOLINT(altera-unroll-loops)
 
     return modctx;
 
@@ -196,7 +201,7 @@ void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx) {
     if (modsmgr && modctx) {
         while (!SLIST_EMPTY(&modctx->uses)) {
             st_snode_t *node = SLIST_FIRST(&modctx->uses);
-            SLIST_REMOVE_HEAD(&modctx->uses, ST_SNODE_NEXT);
+            SLIST_REMOVE_HEAD(&modctx->uses, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
             free(node);
         }
         free(modctx->subsystem);

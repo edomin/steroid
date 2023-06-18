@@ -1,16 +1,19 @@
-if (${ST_MODULE_LOGGER_SIMPLE} STREQUAL "no")
+if (${ST_MODULE_LOGGER_LIBSIR} STREQUAL "no")
     return()
 endif()
 
-set(ST_MODULE_NAME "simple")
-set(ST_MODULE_TYPE ${ST_MODULE_LOGGER_SIMPLE})
+set(ST_MODULE_NAME "libsir")
+set(ST_MODULE_TYPE ${ST_MODULE_LOGGER_LIBSIR})
 set(ST_MODULE_SUBSYSTEM "logger")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
-set(ST_MODULE_PREREQS
-    ""
-)
-set(ST_MODULE_PREREQS_COUNT 0)
+set(ST_MODULE_PREREQS [=[
+    {
+        .subsystem = "logger",
+        .name = "simple",
+    },
+]=])
+set(ST_MODULE_PREREQS_COUNT 1)
 
 configure_file(
     "config.h.in"
@@ -22,23 +25,25 @@ bb_add_more_warnings(
     LANG C
     CATEGORIES
         basic
-        asciiz
         array
+        asciiz
+        enum
         format
         preprocessor
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_LOGGER_SIMPLE})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_OPTS_KETOPT})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAFEC REQUIRED libsafec)
-find_library(LIBBSD_LIBRARY NAMES bsd)
+find_library(LIBSIR_LIBRARY NAMES sir_s)
+find_package(Threads)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "simple.c"
+    "libsir.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
@@ -55,6 +60,7 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    ${LIBBSD_LIBRARY}
+    ${LIBSIR_LIBRARY}
     ${SAFEC_LINK_LIBRARIES}
+    Threads::Threads
 )

@@ -1,3 +1,7 @@
+if (${ST_MODULE_OPTS_KETOPT} STREQUAL "no")
+    return()
+endif()
+
 set(ST_MODULE_NAME "ketopt")
 set(ST_MODULE_TYPE ${ST_MODULE_OPTS_KETOPT})
 set(ST_MODULE_SUBSYSTEM "opts")
@@ -32,6 +36,8 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_OPTS_KETOPT})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SAFEC REQUIRED libsafec)
 find_library(LIBBSD_LIBRARY NAMES bsd)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
@@ -39,10 +45,11 @@ target_sources(${ST_MODULE_TARGET} PRIVATE
     "ketopt.c"
 )
 
-set_target_properties(${ST_MODULE_TARGET} PROPERTIES
-    C_STANDARD 11
-    C_EXTENSIONS ON
-    POSITION_INDEPENDENT_CODE 1
+bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
+
+bb_add_iwyu_mapping_file(
+    ${ST_MODULE_TARGET}
+    ${CMAKE_CURRENT_SOURCE_DIR}/iwyu.imp
 )
 
 target_include_directories(${ST_MODULE_TARGET} PRIVATE
@@ -53,4 +60,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     ${LIBBSD_LIBRARY}
+    ${SAFEC_LINK_LIBRARIES}
 )

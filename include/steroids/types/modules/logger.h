@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#include "steroids/module.h"
+
 typedef enum {
     ST_LL_NONE      = 0x0,
     ST_LL_EMERGENCY = 0x1,

@@ -1,17 +1,22 @@
 #include "libsir.h"
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <safeclib/safe_mem_lib.h>
+#include <safeclib/safe_str_lib.h>
 
 #include <sir.h>
 
-static void                     *global_modsmgr;
-static st_modsmgr_get_function_t global_modsmgr_get_function;
-static bool                      global_sir_inited = false;
+static void              *global_modsmgr;
+static st_modsmgr_funcs_t global_modsmgr_funcs;
+static bool               global_sir_inited = false;
 
 void *st_module_logger_libsir_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_logger_libsir_funcs_table;
 
-    for (size_t i = 0; i < funcs_table->funcs_count; i++) {
+    for (size_t i = 0; i < FUNCS_COUNT; i++) {
         if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
             return funcs_table->entries[i].func_pointer;
     }
@@ -20,57 +25,60 @@ void *st_module_logger_libsir_get_func(const char *func_name) {
 }
 
 st_moddata_t *st_module_logger_libsir_init(void *modsmgr,
- st_modsmgr_get_function_t modsmgr_get_function) {
+ st_modsmgr_funcs_t *modsmgr_funcs) {
     global_modsmgr = modsmgr;
-    global_modsmgr_get_function = modsmgr_get_function;
+    if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
+     modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
+        #ifndef __SAFE_MEM_LIB_H__
+            perror("memcpy_s");
+        #endif
+        printf("Unable to init module: logger_libsir\n");
+        return NULL;
+    }
 
     return &st_module_logger_libsir_data;
 }
 
 #ifdef ST_MODULE_TYPE_shared
 st_moddata_t *st_module_init(void *modsmgr,
- void *modsmgr_get_function) {
-    return st_module_logger_libsir_init(modsmgr, modsmgr_get_function);
+ st_modsmgr_funcs_t *modsmgr_funcs) {
+    return st_module_logger_libsir_init(modsmgr, modsmgr_funcs);
 }
 #endif
-
-//void ST_LoggerReportError(void) {
-    //sirchar_t message[SIR_MAXERROR] = {0};
-    //uint16_t  code = sir_geterror(message);
-
-    //fprintf(stderr, "libsir error: (%hu, %s)\n", code, message);
-//}
 
 static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
     st_logger_libsir_t *logger = logger_ctx->data;
 
     logger->use_fallback_module = true;
+    logger->logger_fallback_active = true;
 
-    logger->logger_fallback_init = global_modsmgr_get_function(global_modsmgr,
-     "logger", "simple", "st_logger_init");
-    logger->logger_fallback_quit = global_modsmgr_get_function(global_modsmgr,
-     "logger", "simple", "st_logger_quit");
-    logger->logger_fallback_set_stdout_levels = global_modsmgr_get_function(
-     global_modsmgr, "logger", "simple", "st_logger_set_stdout_levels");
-    logger->logger_fallback_set_stderr_levels = global_modsmgr_get_function(
-     global_modsmgr, "logger", "simple", "st_logger_set_stderr_levels");
-    logger->logger_fallback_set_log_file = global_modsmgr_get_function(
+    logger->logger_fallback_init = global_modsmgr_funcs.get_function(
+     global_modsmgr, "logger", "simple", "st_logger_init");
+    logger->logger_fallback_quit = global_modsmgr_funcs.get_function(
+     global_modsmgr, "logger", "simple", "st_logger_quit");
+    logger->logger_fallback_set_stdout_levels =
+     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
+      "st_logger_set_stdout_levels");
+    logger->logger_fallback_set_stderr_levels =
+     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
+      "st_logger_set_stderr_levels");
+    logger->logger_fallback_set_log_file = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_set_log_file");
-    logger->logger_fallback_debug = global_modsmgr_get_function(
+    logger->logger_fallback_debug = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_debug");
-    logger->logger_fallback_info = global_modsmgr_get_function(
+    logger->logger_fallback_info = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_info");
-    logger->logger_fallback_notice = global_modsmgr_get_function(
+    logger->logger_fallback_notice = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_notice");
-    logger->logger_fallback_warning = global_modsmgr_get_function(
+    logger->logger_fallback_warning = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_warning");
-    logger->logger_fallback_error = global_modsmgr_get_function(
+    logger->logger_fallback_error = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_error");
-    logger->logger_fallback_critical = global_modsmgr_get_function(
+    logger->logger_fallback_critical = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_critical");
-    logger->logger_fallback_alert = global_modsmgr_get_function(
+    logger->logger_fallback_alert = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_alert");
-    logger->logger_fallback_emergency = global_modsmgr_get_function(
+    logger->logger_fallback_emergency = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "st_logger_emergency");
 
     logger->logger_fallback_ctx = logger->logger_fallback_init();
@@ -80,33 +88,41 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
 }
 
 static st_modctx_t *st_logger_init(void) {
-    sirinit      si = {0};
+    sirinit      initOptions = {
+        .d_stdout = {
+            .levels = ST_LL_NONE,
+            .opts = (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
+             (sir_options)SIRO_NOTID,
+        },
+        .d_stderr = {
+            .levels = ST_LL_ALL,
+            .opts = (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
+             (sir_options)SIRO_NOTID,
+        },
+        .d_syslog = {
+            .levels = ST_LL_NONE,
+            .includePID = true,
+        },
+        .processName = "steroids", /* TODO(edomin): move name management to
+                                    * module
+                                    */
+    };
     st_modctx_t *logger_ctx;
-    // st_logger_libsir_t *logger;
 
     if (global_sir_inited)
         return NULL;
 
-    logger_ctx = st_init_module_ctx(&st_module_logger_libsir_data,
-     sizeof(st_logger_libsir_t));
+    logger_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
+     &st_module_logger_libsir_data, sizeof(st_logger_libsir_t));
 
     if (logger_ctx == NULL)
         return NULL;
 
     logger_ctx->funcs = &st_logger_libsir_funcs;
 
-    si.d_stdout.opts = SIRO_NONAME | SIRO_NOPID | SIRO_NOTID;
-    si.d_stderr.opts = SIRO_NONAME | SIRO_NOPID | SIRO_NOTID;
-    si.d_syslog.levels = 0;
-
-    strcpy(si.processName, "steroids"); // TODO: move name management to module
-
-    if (sir_init(&si)) {
+    if (sir_init(&initOptions)) {
         st_logger_libsir_t *logger = logger_ctx->data;
 
-        sir_stdoutlevels(ST_LL_NONE);
-        sir_stderrlevels(ST_LL_ALL);
-        sir_sysloglevels(ST_LL_NONE);
         logger->use_fallback_module = false;
     } else {
         st_logger_init_fallback(logger_ctx);
@@ -126,7 +142,7 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
     if (logger->use_fallback_module)
         logger->logger_fallback_quit(logger->logger_fallback_ctx);
     sir_cleanup();
-    st_free_module_ctx(logger_ctx);
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
     global_sir_inited = false;
 }
 
@@ -138,7 +154,7 @@ static bool st_logger_set_stdout_levels( st_modctx_t *logger_ctx,
         return logger->logger_fallback_set_stdout_levels(
          logger->logger_fallback_ctx, levels);
 
-    return sir_stdoutlevels(levels);
+    return sir_stdoutlevels((sir_levels)levels);
 }
 
 static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
@@ -149,7 +165,7 @@ static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
         return logger->logger_fallback_set_stderr_levels(
          logger->logger_fallback_ctx, levels);
 
-    return sir_stderrlevels(levels);
+    return sir_stderrlevels((sir_levels)levels);
 }
 
 static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
@@ -160,7 +176,7 @@ static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
         return logger->logger_fallback_set_syslog_levels(
          logger->logger_fallback_ctx, levels);
 
-    return sir_sysloglevels(levels);
+    return sir_sysloglevels((sir_levels)levels);
 }
 
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
@@ -173,12 +189,13 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
          logger->logger_fallback_ctx, filename, levels);
 
     file = sir_addfile(filename, SIRL_ALL,
-     SIRO_NONAME | SIRO_NOPID | SIRO_NOTID);
+     (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
+     (sir_options)SIRO_NOTID);
 
     if (file == NULL)
         return false;
 
-    return sir_filelevels(file, levels);
+    return sir_filelevels(file, (sir_levels)levels);
 }
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 4096
@@ -189,7 +206,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
         va_list args;                                                    \
         char    message[ST_LOGGER_MESSAGE_LEN_MAX];                      \
         va_start(args, format);                                          \
-        vsnprintf(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);     \
+        vsnprintf_s(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);   \
         va_end(args);                                                    \
         if (logger->use_fallback_module)                                 \
             return logger->st_fallback_func(logger->logger_fallback_ctx, \
@@ -197,13 +214,13 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
         return sir_func("%s", message);                                  \
     }
 
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_debug, logger_fallback_debug, sir_debug);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_info, logger_fallback_info, sir_info);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_notice, logger_fallback_notice, sir_notice);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_warning, logger_fallback_warning, sir_warn);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_error, logger_fallback_error, sir_error);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_critical, logger_fallback_critical,
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_debug, logger_fallback_debug, sir_debug); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_info, logger_fallback_info, sir_info); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_notice, logger_fallback_notice, sir_notice); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_warning, logger_fallback_warning, sir_warn); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_error, logger_fallback_error, sir_error); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_critical, logger_fallback_critical, // NOLINT(cert-err33-c)
  sir_crit);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_alert, logger_fallback_alert, sir_alert);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_emergency, logger_fallback_emergency,
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_alert, logger_fallback_alert, sir_alert); // NOLINT(cert-err33-c)
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_emergency, logger_fallback_emergency, // NOLINT(cert-err33-c)
  sir_emerg);

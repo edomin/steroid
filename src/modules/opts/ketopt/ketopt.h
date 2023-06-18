@@ -8,7 +8,7 @@
 #include <ketopt.h>
 #pragma GCC diagnostic pop
 
-#include "config.h"
+#include "config.h" // IWYU pragma: keep
 #include "steroids/opts.h"
 #include "steroids/types/modules/logger.h"
 
@@ -46,8 +46,9 @@ st_opts_funcs_t st_opts_ketopt_funcs = {
     .opts_get_str = st_opts_get_str,
 };
 
+#define FUNCS_COUNT 4
 st_modfuncstbl_t st_module_opts_ketopt_funcs_table = {
-    .funcs_count = 4,
+    .funcs_count = FUNCS_COUNT,
     .entries = {
         {"st_opts_init", st_opts_init},
         {"st_opts_quit", st_opts_quit},

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <syslog.h>
 
-#include "config.h"
+#include <safeclib/safe_mem_lib.h>
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -13,7 +13,7 @@ static st_modsmgr_funcs_t global_modsmgr_funcs;
 void *st_module_logger_simple_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_logger_simple_funcs_table;
 
-    for (size_t i = 0; i < funcs_table->funcs_count; i++) {
+    for (size_t i = 0; i < FUNCS_COUNT; i++) {
         if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
             return funcs_table->entries[i].func_pointer;
     }
@@ -24,7 +24,14 @@ void *st_module_logger_simple_get_func(const char *func_name) {
 st_moddata_t *st_module_logger_simple_init(void *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
     global_modsmgr = modsmgr;
-    memcpy(&global_modsmgr_funcs, modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
+    if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
+     modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
+        #ifndef __SAFE_MEM_LIB_H__
+            perror("memcpy_s");
+        #endif
+        printf("Unable to init module: logger_simple\n");
+        return NULL;
+    }
 
     return &st_module_logger_simple_data;
 }
@@ -57,16 +64,16 @@ static st_modctx_t *st_logger_init(void) {
 }
 
 static void st_logger_quit(st_modctx_t *logger_ctx) {
-    st_logger_simple_t *logger = logger_ctx->data;
+    st_logger_simple_t *logger = logger_ctx->data; // NOLINT(altera-id-dependent-backward-branch)
 
     st_logger_info(logger_ctx, "%s", "logger_simple: Destroying logger.");
 
     if (logger->syslog_levels != ST_LL_NONE)
         closelog();
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) {
-        fflush(logger->log_files[i].file);
-        fclose(logger->log_files[i].file);
+    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+        (void)fflush(logger->log_files[i].file);
+        (void)fclose(logger->log_files[i].file);
     }
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
@@ -109,7 +116,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     st_logger_simple_t *logger = logger_ctx->data;
     unsigned            file_num = logger->log_files_count;
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) {
+    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
         bool filenames_equal = strcmp(filename,
          logger->log_files[logger->log_files_count].filename) == 0;
 
@@ -141,7 +148,7 @@ static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
     int      result = 0;
     unsigned u_log_level = log_level;
 
-    for (u_log_level >>= 1u; u_log_level > 0; u_log_level >>= 1u)
+    for (u_log_level >>= 1u; u_log_level > 0; u_log_level >>= 1u) // NOLINT(altera-id-dependent-backward-branch)
         result++;
 
     return result;
@@ -166,7 +173,7 @@ static inline __attribute__((format (printf, 3, 0))) bool st_logger_general(
         return true;
     }
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) {
+    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
         if ((logger->log_files[i].log_levels & log_level) == log_level) {
             bool success = vfprintf(logger->log_files[i].file, format, args) >
              0;

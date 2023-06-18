@@ -2,10 +2,13 @@
 
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <bsd/string.h>
+
+#include <safeclib/safe_mem_lib.h>
 
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
 #define SHORT_OPTS_FMT_SIZE          100
@@ -21,7 +24,7 @@ typedef enum {
 void *st_module_opts_ketopt_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_opts_ketopt_funcs_table;
 
-    for (size_t i = 0; i < funcs_table->funcs_count; i++) {
+    for (size_t i = 0; i < FUNCS_COUNT; i++) {
         if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
             return funcs_table->entries[i].func_pointer;
     }
@@ -32,7 +35,14 @@ void *st_module_opts_ketopt_get_func(const char *func_name) {
 st_moddata_t *st_module_opts_ketopt_init(void *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
     global_modsmgr = modsmgr;
-    memcpy(&global_modsmgr_funcs, modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
+    if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
+     modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
+        #ifndef __SAFE_MEM_LIB_H__
+            perror("memcpy_s");
+        #endif
+        printf("Unable to init module: opts_ketopt\n");
+        return NULL;
+    }
 
     return &st_module_opts_ketopt_data;
 }
@@ -73,8 +83,25 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     opts->logger.ctx = logger_ctx;
     opts->argc = argc;
     opts->argv = argv;
-    memset(opts->longopts, 0, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX);
-    memset(opts->opts_data, 0, sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX);
+
+    if (memset_s(opts->longopts, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX, '\0',
+     sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX) != 0) {
+        #ifndef __SAFE_MEM_LIB_H__
+            perror("memset_s");
+        #endif
+        printf("Unable to init module: opts_ketopt\n");
+        return NULL;
+    }
+
+    if (memset_s(opts->opts_data, sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX,
+     '\0', sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX) != 0) {
+        #ifndef __SAFE_MEM_LIB_H__
+            perror("memset_s");
+        #endif
+        printf("Unable to init module: opts_ketopt\n");
+        return NULL;
+    }
+
     opts->longopts_count = 0;
     opts->opts_data_count = 0;
 

@@ -1,0 +1,3 @@
+[
+    { include: ["\"steroids/module.h\"", "private", "\"internal_modules.h\"" , "public"] },
+]

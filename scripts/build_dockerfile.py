@@ -16,7 +16,7 @@ def GetDockefrileName(target):
 
 def GetBaseImageName(target):
     return {
-        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bookworm",
+        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bullseye",
     }[target]
 
 def GetTargetArch(target):

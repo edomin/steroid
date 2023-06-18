@@ -18,6 +18,8 @@ set(CMAKE_MODULE_PATH
 set(ST_INTERNAL_MODULES_COUNT 0)
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/simple"
  "${CMAKE_BINARY_DIR}/src/modules/logger/simple")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
+ "${CMAKE_BINARY_DIR}/src/modules/logger/libsir")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
 

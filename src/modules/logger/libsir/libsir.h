@@ -1,12 +1,14 @@
 #ifndef ST_MODULES_LOGGER_LIBSIR_LIBSIR_H
 #define ST_MODULES_LOGGER_LIBSIR_LIBSIR_H
 
-#include "config.h"
+#include <stdbool.h>
+
+#include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
-#include "steroids/types/modules/logger.h"
 
 typedef struct {
     bool                          use_fallback_module;
+    bool                          logger_fallback_active;
     st_modctx_t                  *logger_fallback_ctx;
     st_logger_init_t              logger_fallback_init;
     st_logger_quit_t              logger_fallback_quit;
@@ -41,8 +43,9 @@ st_logger_funcs_t st_logger_libsir_funcs = {
     .logger_emergency = st_logger_emergency,
 };
 
+#define FUNCS_COUNT 14
 st_modfuncstbl_t st_module_logger_libsir_funcs_table = {
-    .funcs_count = 14,
+    .funcs_count = FUNCS_COUNT,
     .entries = {
         {"st_logger_init", st_logger_init},
         {"st_logger_quit", st_logger_quit},

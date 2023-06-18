@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "steroids/module.h"
+
 #define ST_OPTS_SHORT_UNSPEC       '\0'
 #define ST_OPTS_LONG_INDEX_UNSPEC  -1
 
