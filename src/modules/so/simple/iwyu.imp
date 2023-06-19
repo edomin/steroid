@@ -1,0 +1,4 @@
+[
+    { include: ["\"steroids/types/modules/so.h\"", "private", "\"steroids/so.h\"", "public"] },
+    { include: ["\"steroids/module.h\""          , "private", "\"steroids/so.h\"", "public"] },
+]

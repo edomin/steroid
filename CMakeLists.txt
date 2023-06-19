@@ -22,6 +22,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
  "${CMAKE_BINARY_DIR}/src/modules/logger/libsir")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/so/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/so/simple")
 
 foreach(ST_INTERNAL_MODULE ${ST_INTERNAL_MODULES})
     set(INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES
