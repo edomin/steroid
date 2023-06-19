@@ -148,7 +148,11 @@ static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
         #ifndef __SAFE_STR_LIB_H__
             perror("strncpy_s");
         #endif
-        printf("Unable to add long option: --%s\n", long_option);
+        opts->logger.error(opts->logger.ctx, "%s",
+         "opts_ketopt: Unable to add long option. Using short option only");
+        long_option = NULL;
+        free(ko_longopt->name);
+
         return false;
     }
     ko_longopt->has_arg = (int)arg;
@@ -193,7 +197,11 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
             #ifndef __SAFE_STR_LIB_H__
                 perror("strncpy_s");
             #endif
-            printf("Unable to add option: --%s\n", long_option);
+            opts->logger.error(opts->logger.ctx, "%s",
+             "Unable to add option argument format");
+
+            free(opt_data->arg_fmt);
+
             return false;
         }
     }
@@ -209,7 +217,11 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
             #ifndef __SAFE_STR_LIB_H__
                 perror("strncpy_s");
             #endif
-            printf("Unable to add option: --%s\n", long_option);
+            opts->logger.error(opts->logger.ctx, "%s",
+             "Unable to add option description");
+            free(opt_data->arg_fmt);
+            free(opt_data->opt_descr);
+            
             return false;
         }
     }
