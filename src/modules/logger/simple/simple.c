@@ -1,14 +1,22 @@
 #include "simple.h"
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
 #include <syslog.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 #include <safeclib/safe_mem_lib.h>
+#pragma GCC diagnostic pop
+#include <safeclib/safe_str_lib.h>
+
+#define ERR_MSG_BUF_SIZE 1024
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 void *st_module_logger_simple_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_logger_simple_funcs_table;
@@ -26,10 +34,10 @@ st_moddata_t *st_module_logger_simple_init(void *modsmgr,
     global_modsmgr = modsmgr;
     if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
      modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
-        #ifndef __SAFE_MEM_LIB_H__
-            perror("memcpy_s");
-        #endif
-        printf("Unable to init module: logger_simple\n");
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+        fprintf(stderr, "Unable to init module: logger_simple: %s\n",
+         err_msg_buf);
+
         return NULL;
     }
 

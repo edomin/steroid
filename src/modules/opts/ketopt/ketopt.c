@@ -1,19 +1,25 @@
 #include "ketopt.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 #include <safeclib/safe_mem_lib.h>
 #include <safeclib/safe_str_lib.h>
+#pragma GCC diagnostic pop
 
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
 #define SHORT_OPTS_FMT_SIZE          100
+#define ERR_MSG_BUF_SIZE             1024
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 typedef enum {
     ST_OT_SHORT,
@@ -36,10 +42,10 @@ st_moddata_t *st_module_opts_ketopt_init(void *modsmgr,
     global_modsmgr = modsmgr;
     if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
      modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
-        #ifndef __SAFE_MEM_LIB_H__
-            perror("memcpy_s");
-        #endif
-        printf("Unable to init module: opts_ketopt\n");
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+        fprintf(stderr, "Unable to init module \"opts_ketopt\": %s\n",
+         err_msg_buf);
+
         return NULL;
     }
 
@@ -85,19 +91,17 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
 
     if (memset_s(opts->longopts, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX, '\0',
      sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX) != 0) {
-        #ifndef __SAFE_MEM_LIB_H__
-            perror("memset_s");
-        #endif
-        printf("Unable to init module: opts_ketopt\n");
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+        fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
+
         return NULL;
     }
 
     if (memset_s(opts->opts_data, sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX,
      '\0', sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX) != 0) {
-        #ifndef __SAFE_MEM_LIB_H__
-            perror("memset_s");
-        #endif
-        printf("Unable to init module: opts_ketopt\n");
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+        fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
+
         return NULL;
     }
 
@@ -145,11 +149,11 @@ static bool st_opts_add_long_option(st_opts_ketopt_t *opts,
 
     if (strncpy_s(ko_longopt->name, longopt_size, long_option, longopt_size)
      != 0) {
-        #ifndef __SAFE_STR_LIB_H__
-            perror("strncpy_s");
-        #endif
-        opts->logger.error(opts->logger.ctx, "%s",
-         "opts_ketopt: Unable to add long option. Using short option only");
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+
+        opts->logger.error(opts->logger.ctx,
+         "opts_ketopt: Unable to add long option: %s. Using short option only",
+         err_msg_buf);
         long_option = NULL;
         free(ko_longopt->name);
 
@@ -188,17 +192,15 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
 
         opt_data->arg_fmt = malloc(sizeof(char) * arg_fmt_size);
         if (opt_data->arg_fmt == NULL) {
-            opts->logger.error(opts->logger.ctx, "%s",
+            opts->logger.error(opts->logger.ctx,
              "opts_ketopt: Unable to allocate memory for option argument "
              "format");
         } else if (
          strncpy_s(opt_data->arg_fmt, arg_fmt_size, arg_fmt, arg_fmt_size)
          != 0) {
-            #ifndef __SAFE_STR_LIB_H__
-                perror("strncpy_s");
-            #endif
-            opts->logger.error(opts->logger.ctx, "%s",
-             "Unable to add option argument format");
+            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+            opts->logger.error(opts->logger.ctx,
+             "Unable to add option argument format: %s", err_msg_buf);
 
             free(opt_data->arg_fmt);
 
@@ -210,15 +212,13 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
 
         opt_data->opt_descr = malloc(sizeof(char) * option_descr_size);
         if (opt_data->opt_descr == NULL) {
-            opts->logger.error(opts->logger.ctx, "%s",
+            opts->logger.error(opts->logger.ctx,
              "opts_ketopt: Unable to allocate memory for option description");
         } else if (strncpy_s(opt_data->opt_descr, option_descr_size,
          option_descr, option_descr_size) != 0) {
-            #ifndef __SAFE_STR_LIB_H__
-                perror("strncpy_s");
-            #endif
-            opts->logger.error(opts->logger.ctx, "%s",
-             "Unable to add option description");
+            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+            opts->logger.error(opts->logger.ctx,
+             "Unable to add option description: %s", err_msg_buf);
             free(opt_data->arg_fmt);
             free(opt_data->opt_descr);
             
@@ -252,17 +252,10 @@ static bool st_opts_get_longopt_str(const st_opts_ketopt_t *opts,
                 return false;
 
             if (!kopt->arg) {
-                if (strncpy_s(dst, dst_size, "", 1) != 0) {
-                    #ifndef __SAFE_STR_LIB_H__
-                        perror("strncpy_s");
-                    #endif
+                if (strncpy_s(dst, dst_size, "", 1) != 0)
                     return false;
-                }
             } else if (strncpy_s(dst, dst_size, kopt->arg,
              strlen(kopt->arg)) != 0) {
-                #ifndef __SAFE_STR_LIB_H__
-                    perror("strncpy_s");
-                #endif
                 return false;
             }
 
@@ -300,12 +293,8 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
                  ':' : '?';
 
             if (strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt, 3)
-             != 0) {
-                #ifndef __SAFE_STR_LIB_H__
-                    perror("strncat_s");
-                #endif
+             != 0)
                 return false;
-            }
         }
     }
 
@@ -332,17 +321,10 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
         } else {
             if (parse_result == opt[0]) {
                 if (!kopt.arg) {
-                    if (strncpy_s(optarg, optarg_size_max, "", 1) != 0) {
-                        #ifndef __SAFE_STR_LIB_H__
-                            perror("strncpy_s");
-                        #endif
+                    if (strncpy_s(optarg, optarg_size_max, "", 1) != 0)
                         return false;
-                    }
                 } else if (strncpy_s(optarg, optarg_size_max, kopt.arg,
                  strlen(kopt.arg)) != 0) {
-                    #ifndef __SAFE_STR_LIB_H__
-                        perror("strncpy_s");
-                    #endif
                     return false;
                 }
 
