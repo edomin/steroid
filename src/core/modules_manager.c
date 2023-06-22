@@ -148,9 +148,9 @@ st_modsmgr_t *st_modsmgr_init(void) {
 
         node = malloc(sizeof(st_snode_t));
         if (!node) {
-            perror("malloc");
-            printf("Error occured while processing found module: \"%s_%s\". "
-             "Module skipped.\n", module_data->subsystem, module_data->name);
+            printf("Error occured while processing found module: \"%s_%s\": "
+             "%s. Module skipped.\n", module_data->subsystem, module_data->name,
+             strerror(errno));
             continue;
         }
         node->data = module_data;
