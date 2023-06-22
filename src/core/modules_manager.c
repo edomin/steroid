@@ -1,5 +1,6 @@
 #include "modules_manager.h"
 
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,6 +86,40 @@ static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readabili
     }
 }
 
+/*
+ * Load noninternal module. Internal modules being loaded by function
+ * st_modsmgr_init
+ */
+bool st_modsmgr_load_module(void *modsmgr,
+ st_modinitfunc_t modinit_func) {
+    st_snode_t   *node;
+    st_moddata_t *module_data = modinit_func(modsmgr,
+     &(st_modsmgr_funcs_t){
+        .load_module = st_modsmgr_load_module,
+        .get_function = st_modsmgr_get_function,
+        .init_module_ctx = st_modsmgr_init_module_ctx,
+        .free_module_ctx = st_free_module_ctx,
+     });
+
+    printf("Trying to add module \"%s_%s\"\n", module_data->subsystem,
+     module_data->name);
+
+    if (!st_modsmgr_module_have_deps(modsmgr, module_data))
+        return false;
+
+    node = malloc(sizeof(st_snode_t));
+    if (!node) {
+        printf("Error occured while processing found module \"%s_%s\": %s. "
+         "Module skipped.\n", module_data->subsystem, module_data->name,
+         strerror(errno));
+        return false;
+    }
+    node->data = module_data;
+    SLIST_INSERT_HEAD(&((st_modsmgr_t *)modsmgr)->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+
+    return true;
+}
+
 st_modsmgr_t *st_modsmgr_init(void) {
     st_modsmgr_t *modsmgr = malloc(sizeof(st_modsmgr_t));
 
@@ -98,6 +133,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
          &(st_modsmgr_funcs_t){
+            .load_module = st_modsmgr_load_module,
             .get_function = st_modsmgr_get_function,
             .init_module_ctx = st_modsmgr_init_module_ctx,
             .free_module_ctx = st_free_module_ctx,

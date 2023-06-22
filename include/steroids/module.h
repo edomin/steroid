@@ -8,6 +8,9 @@
 
 #include "steroids/types/list.h"
 
+#define ST_MT_internal 0
+#define ST_MT_shared   1
+
 typedef struct {
     char      *subsystem;
     char      *name;
@@ -39,6 +42,13 @@ typedef struct {
     st_getfunc_t   get_function;
 } st_moddata_t;
 
+struct st_modsmgr_funcs_s;
+
+typedef st_moddata_t *(*st_modinitfunc_t)(void *modsmgr,
+ struct st_modsmgr_funcs_s *modsmgr_funcs);
+
+typedef bool (*st_modsmgr_load_module_t)(void *modsmgr,
+ st_modinitfunc_t modinit_func);
 typedef void *(*st_modsmgr_get_function_t)(const void *modsmgr,
  const char *subsystem, const char *module_name, const char *func_name);
 typedef st_modctx_t *(*st_modsmgr_init_module_ctx_t)(void *modsmgr,
@@ -46,14 +56,12 @@ typedef st_modctx_t *(*st_modsmgr_init_module_ctx_t)(void *modsmgr,
 typedef void (*st_modsmgr_free_module_ctx_t)(void *modsmgr,
  st_modctx_t *modctx);
 
-typedef struct {
+typedef struct st_modsmgr_funcs_s {
+    st_modsmgr_load_module_t     load_module;
     st_modsmgr_get_function_t    get_function;
     st_modsmgr_init_module_ctx_t init_module_ctx;
     st_modsmgr_free_module_ctx_t free_module_ctx;
 } st_modsmgr_funcs_t;
-
-typedef st_moddata_t *(*st_modinitfunc_t)(void *modsmgr,
- st_modsmgr_funcs_t *modsmgr_funcs);
 
 typedef struct {
     const char *func_name;
