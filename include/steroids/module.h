@@ -73,33 +73,4 @@ typedef struct {
     st_modfuncentry_t entries[];
 } st_modfuncstbl_t;
 
-// static inline st_modctx_t *st_init_module_ctx(st_moddata_t *module_data,
-//  size_t data_size) {
-//     st_modctx_t *module_ctx = malloc(sizeof(st_modctx_t));
-
-//     if (module_ctx == NULL)
-//         return NULL;
-
-//     module_ctx->subsystem = strdup(module_data->subsystem);
-//     module_ctx->name = strdup(module_data->name);
-
-//     module_ctx->data = malloc(data_size);
-//     if (module_ctx->data == NULL) {
-//         free(module_ctx);
-
-//         return NULL;
-//     }
-
-//     return module_ctx;
-// }
-
-// static inline void st_free_module_ctx(st_modctx_t *modctx) {
-//     if (modctx) {
-//         free(modctx->subsystem);
-//         free(modctx->name);
-//         free(modctx->data);
-//         free(modctx);
-//     }
-// }
-
 #endif
