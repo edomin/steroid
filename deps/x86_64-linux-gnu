@@ -1,6 +1,7 @@
 clang-tidy
 cmake
 cmake_barebones
+fnv_hash
 freebsd-queue
 iwyu
 ketopt
