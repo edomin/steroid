@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <sys/queue.h>
 
 #include <xmempool.h>
@@ -148,9 +147,9 @@ st_modsmgr_t *st_modsmgr_init(void) {
 
         node = malloc(sizeof(st_snode_t));
         if (!node) {
-            printf("Error occured while processing found module: \"%s_%s\": "
-             "%s. Module skipped.\n", module_data->subsystem, module_data->name,
-             strerror(errno));
+            fprintf(stderr, "Error occured while processing found module: "
+             "\"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
+             module_data->name, strerror(errno));
             continue;
         }
         node->data = module_data;
@@ -170,6 +169,7 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
 
     while (!SLIST_EMPTY(&modsmgr->modules_data)) {
         st_snode_t *node = SLIST_FIRST(&modsmgr->modules_data);
+
         SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
         free(node);
     }
