@@ -25,7 +25,7 @@ st_so_funcs_t st_so_simple_funcs = {
     .so_memload_module = st_so_memload_module,
 };
 
-#define FUNCS_COUNT 2
+#define FUNCS_COUNT 4
 st_modfuncstbl_t st_module_so_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
