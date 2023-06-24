@@ -9,8 +9,8 @@
 #include "steroids/types/list.h"
 
 typedef struct {
-    st_slist_t         modules_data;
-    xmem_pool_handle   ctx_pool;
+    st_slist_t       modules_data;
+    xmem_pool_handle ctx_pool;
 } st_modsmgr_t;
 
 st_modsmgr_t *st_modsmgr_init(void);
