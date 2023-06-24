@@ -3,6 +3,7 @@
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/so.h"
+#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
@@ -14,29 +15,24 @@ typedef struct {
 
 typedef struct {
     st_so_simple_logger_t logger;
+    st_slist_t            opened_handles;
 } st_so_simple_t;
 
-typedef struct st_so st_so;;
-
 st_so_funcs_t st_so_simple_funcs = {
-    .so_init = st_so_init,
-    .so_quit = st_so_quit,
-    .so_open = st_so_open,
-    .so_memopen = st_so_memopen,
-    .so_close = st_so_close,
-    .so_load_symbol = st_so_load_symbol,
+    .so_init           = st_so_init,
+    .so_quit           = st_so_quit,
+    .so_load_module    = st_so_load_module,
+    .so_memload_module = st_so_memload_module,
 };
 
-#define FUNCS_COUNT 6
+#define FUNCS_COUNT 2
 st_modfuncstbl_t st_module_so_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_so_init", st_so_init},
-        {"st_so_quit", st_so_quit},
-        {"st_so_open", st_so_open},
-        {"st_so_memopen", st_so_memopen},
-        {"st_so_close", st_so_close},
-        {"st_so_load_symbol", st_so_load_symbol},
+        {"st_so_init"          , st_so_init},
+        {"st_so_quit"          , st_so_quit},
+        {"st_so_load_module"   , st_so_load_module},
+        {"st_so_memload_module", st_so_memload_module},
     }
 };
 
