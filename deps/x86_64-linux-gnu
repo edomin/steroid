@@ -3,6 +3,7 @@ cmake
 cmake_barebones
 fnv_hash
 freebsd-queue
+hash_table
 iwyu
 ketopt
 libsir

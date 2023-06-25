@@ -1,0 +1,4 @@
+[
+    { include: ["\"steroids/types/modules/hash_table.h\"", "private", "\"steroids/hash_table.h\"", "public"] },
+    { include: ["\"steroids/module.h\""                  , "private", "\"steroids/hash_table.h\"", "public"] },
+]
