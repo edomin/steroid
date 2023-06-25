@@ -2,19 +2,8 @@
 #define ST_MODULES_HASH_TABLE_HASH_TABLE_HASH_TABLE_H
 
 #include "config.h" // IWYU pragma: keep
+#include "types.h"
 #include "steroids/hash_table.h"
-#include "steroids/types/modules/logger.h"
-
-typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
-} st_hash_table_hash_table_logger_t;
-
-typedef struct {
-    st_hash_table_hash_table_logger_t logger;
-} st_hash_table_hash_table_t;
 
 st_hash_table_funcs_t st_hash_table_hash_table_funcs = {
     .hash_table_init           = st_hash_table_init,

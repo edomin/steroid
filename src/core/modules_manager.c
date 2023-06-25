@@ -1,3 +1,4 @@
+#include "types.h"
 #include "modules_manager.h"
 
 #include <errno.h>
@@ -13,9 +14,9 @@
 #include "internal_modules.h"
 #include "utils.h"
 
-st_modctx_t *st_modsmgr_init_module_ctx(void *modsmgr,
+st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size);
-void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx);
+void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx);
 
 static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
@@ -89,7 +90,7 @@ static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readabili
  * Load noninternal module. Internal modules being loaded by function
  * st_modsmgr_init
  */
-bool st_modsmgr_load_module(void *modsmgr,
+bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
  st_modinitfunc_t modinit_func) {
     st_snode_t   *node;
     st_moddata_t *module_data = modinit_func(modsmgr,
@@ -114,7 +115,7 @@ bool st_modsmgr_load_module(void *modsmgr,
         return false;
     }
     node->data = module_data;
-    SLIST_INSERT_HEAD(&((st_modsmgr_t *)modsmgr)->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+    SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
 
     return true;
 }
@@ -177,8 +178,8 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
     xmem_destroy_pool(modsmgr->ctx_pool);
 }
 
-void *st_modsmgr_get_function(const void *modsmgr, const char *subsystem,
- const char *module_name, const char *func_name) {
+void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
+ const char *subsystem, const char *module_name, const char *func_name) {
     st_moddata_t *module_data = st_modsmgr_find_module(modsmgr, subsystem,
      module_name);
 
@@ -188,10 +189,9 @@ void *st_modsmgr_get_function(const void *modsmgr, const char *subsystem,
     return module_data->get_function(func_name);
 }
 
-st_modctx_t *st_modsmgr_init_module_ctx(void *modsmgr,
+st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size) {
-    st_modctx_t *modctx = (st_modctx_t *)xmem_alloc(
-     ((st_modsmgr_t *)modsmgr)->ctx_pool);
+    st_modctx_t *modctx = (st_modctx_t *)xmem_alloc(modsmgr->ctx_pool);
 
     if (modctx == NULL)
         return NULL;
@@ -228,12 +228,12 @@ error_free_name:
 error_free_subsystem:
     free(modctx->subsystem);
 error_free_ctx_pool:
-    xmem_free(((st_modsmgr_t *)modsmgr)->ctx_pool, (char *)modctx);
+    xmem_free(modsmgr->ctx_pool, (char *)modctx);
 
     return NULL;
 }
 
-void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx) {
+void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
     if (modsmgr && modctx) {
         while (!SLIST_EMPTY(&modctx->uses)) {
             st_snode_t *node = SLIST_FIRST(&modctx->uses);
@@ -244,6 +244,6 @@ void st_free_module_ctx(void *modsmgr, st_modctx_t *modctx) {
         free(modctx->name);
         free(modctx->data);
         modctx->alive = false;
-        xmem_free(((st_modsmgr_t *)modsmgr)->ctx_pool, (char *)modctx);
+        xmem_free(modsmgr->ctx_pool, (char *)modctx);
     }
 }

@@ -44,16 +44,20 @@ typedef struct {
 
 struct st_modsmgr_funcs_s;
 
-typedef st_moddata_t *(*st_modinitfunc_t)(void *modsmgr,
+#ifndef ST_MODSMGR_T_DEFINED
+    typedef struct st_modsmgr_s st_modsmgr_t;
+#endif
+
+typedef st_moddata_t *(*st_modinitfunc_t)(st_modsmgr_t *modsmgr,
  struct st_modsmgr_funcs_s *modsmgr_funcs);
 
-typedef bool (*st_modsmgr_load_module_t)(void *modsmgr,
+typedef bool (*st_modsmgr_load_module_t)(st_modsmgr_t *modsmgr,
  st_modinitfunc_t modinit_func);
-typedef void *(*st_modsmgr_get_function_t)(const void *modsmgr,
+typedef void *(*st_modsmgr_get_function_t)(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name, const char *func_name);
-typedef st_modctx_t *(*st_modsmgr_init_module_ctx_t)(void *modsmgr,
+typedef st_modctx_t *(*st_modsmgr_init_module_ctx_t)(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size);
-typedef void (*st_modsmgr_free_module_ctx_t)(void *modsmgr,
+typedef void (*st_modsmgr_free_module_ctx_t)(st_modsmgr_t *modsmgr,
  st_modctx_t *modctx);
 
 typedef struct st_modsmgr_funcs_s {

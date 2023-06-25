@@ -16,16 +16,6 @@
 
 #define ERR_MSG_BUF_SIZE 1024
 
-typedef struct {
-    st_hash_table_hash_table_t *module;
-    struct hash_table          *handle;
-} st_hashtable_t;
-
-typedef struct {
-   st_hashtable_t    *hash_table;
-   struct hash_entry *handle;
-} st_htiter_t;
-
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
@@ -66,12 +56,12 @@ st_moddata_t *st_module_init(void *modsmgr,
 
 static void st_hash_table_import_functions(st_modctx_t *hash_table_ctx,
  st_modctx_t *logger_ctx) {
-    st_hash_table_hash_table_t *hash_table = hash_table_ctx->data;
-    st_logger_funcs_t          *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_hash_table_hash_table_t *ht_module = hash_table_ctx->data;
+    st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
 
-    hash_table->logger.debug = logger_funcs->logger_debug;
-    hash_table->logger.info  = logger_funcs->logger_info;
-    hash_table->logger.error = logger_funcs->logger_error;
+    ht_module->logger.debug = logger_funcs->logger_debug;
+    ht_module->logger.info  = logger_funcs->logger_info;
+    ht_module->logger.error = logger_funcs->logger_error;
 }
 
 static st_modctx_t *st_hash_table_init(st_modctx_t *logger_ctx) {
@@ -104,7 +94,7 @@ static void st_hash_table_quit(st_modctx_t *hash_table_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, hash_table_ctx);
 }
 
-static void *st_hash_table_create(st_modctx_t *hash_table_ctx,
+static st_hashtable_t *st_hash_table_create(st_modctx_t *hash_table_ctx,
  st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc) {
     st_hash_table_hash_table_t *module = hash_table_ctx->data;
     struct hash_table          *handle = hash_table_create(hashfunc, keyeqfunc);
@@ -132,61 +122,58 @@ static void *st_hash_table_create(st_modctx_t *hash_table_ctx,
     return hash_table;
 }
 
-static void st_hash_table_destroy(void *hash_table, st_freefunc_t valdelfunc) {
-    struct hash_table *handle = ((st_hashtable_t *)hash_table)->handle;
-    struct hash_entry *entry = hash_table_next_entry(handle, NULL);
+static void st_hash_table_destroy(st_hashtable_t *hash_table,
+ st_freefunc_t valdelfunc) {
+    struct hash_entry *entry = hash_table_next_entry(hash_table->handle, NULL);
 
     while (entry) {
         if (valdelfunc)
             valdelfunc(entry->data);
-        hash_table_remove_entry(handle, entry);
-        hash_table_next_entry(handle, NULL);
+        hash_table_remove_entry(hash_table->handle, entry);
+        hash_table_next_entry(hash_table->handle, NULL);
     }
 
-    hash_table_destroy(handle, NULL);
+    hash_table_destroy(hash_table->handle, NULL);
 }
 
-static bool st_hash_table_insert(void *hash_table, const void *key,
+static bool st_hash_table_insert(st_hashtable_t *hash_table, const void *key,
  void *value) {
-    return hash_table_insert(((st_hashtable_t *)hash_table)->handle, key, value)
-     != NULL;
+    return hash_table_insert(hash_table->handle, key, value) != NULL;
 }
 
-static void *st_hash_table_find(void *hash_table, const void *key) {
-    struct hash_entry *entry = hash_table_search(
-     ((st_hashtable_t *)hash_table)->handle, key);
+static void *st_hash_table_find(st_hashtable_t *hash_table, const void *key) {
+    struct hash_entry *entry = hash_table_search(hash_table->handle, key);
 
     return entry ? entry->data : NULL;
 }
 
-static bool st_hash_table_remove(void *hash_table, const void *key) {
-    struct hash_table *handle = ((st_hashtable_t *)hash_table)->handle;
-    struct hash_entry *entry = hash_table_search(handle, key);
+static bool st_hash_table_remove(st_hashtable_t *hash_table, const void *key) {
+    struct hash_entry *entry = hash_table_search(hash_table->handle, key);
 
     if (entry)
-        hash_table_remove_entry(handle, entry);
+        hash_table_remove_entry(hash_table->handle, entry);
 
     return !!entry;
 }
 
-static bool st_hash_table_next(void *dst, void *hash_table, void *current) {
-    struct hash_table *ht_handle = ((st_hashtable_t *)hash_table)->handle;
-    struct hash_entry *entry = hash_table_next_entry(ht_handle,
-     current ? ((st_htiter_t *)current)->handle : NULL);
+static bool st_hash_table_next(st_htiter_t *dst, st_hashtable_t *hash_table,
+ st_htiter_t *current) {
+    struct hash_entry *entry = hash_table_next_entry(hash_table->handle,
+     current ? current->handle : NULL);
 
     if (!entry)
         return false;
 
-    ((st_htiter_t *)dst)->hash_table = hash_table;
-    ((st_htiter_t *)dst)->handle = entry;
+    dst->hash_table = hash_table;
+    dst->handle = entry;
 
     return true;
 }
 
-static const void *st_hash_table_get_iter_key(const void *iter) {
-    return ((const st_htiter_t *)iter)->handle->key;
+static const void *st_hash_table_get_iter_key(const st_htiter_t *iter) {
+    return iter->handle->key;
 }
 
-static void *st_hash_table_get_iter_value(const void *iter) {
-    return ((const st_htiter_t *)iter)->handle->data;
+static void *st_hash_table_get_iter_value(const st_htiter_t *iter) {
+    return iter->handle->data;
 }

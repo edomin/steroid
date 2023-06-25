@@ -1,13 +1,21 @@
-if (${ST_MODULE_HASH_TABLE_HASH_TABLE} STREQUAL "no")
+if (${ST_MODULE_INI_INIH} STREQUAL "no")
     return()
 endif()
 
-set(ST_MODULE_NAME "hash_table")
-set(ST_MODULE_TYPE ${ST_MODULE_HASH_TABLE_HASH_TABLE})
-set(ST_MODULE_SUBSYSTEM "hash_table")
+set(ST_MODULE_NAME "inih")
+set(ST_MODULE_TYPE ${ST_MODULE_INI_INIH})
+set(ST_MODULE_SUBSYSTEM "ini")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
+    {
+        .subsystem = "fnv1",
+        .name = NULL,
+    },
+    {
+        .subsystem = "hash_table",
+        .name = NULL,
+    },
     {
         .subsystem = "logger",
         .name = NULL,
@@ -33,16 +41,16 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_HASH_TABLE_HASH_TABLE})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_INI_INIH})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAFEC REQUIRED libsafec)
-find_library(HASH_TABLE_LIBRARY NAMES hash_table)
+find_library(INIH_LIBRARY NAMES inih)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "hash_table.c"
+    "inih.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
@@ -60,5 +68,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     ${SAFEC_LINK_LIBRARIES}
-    ${HASH_TABLE_LIBRARY}
+    ${INIH_LIBRARY}
 )
