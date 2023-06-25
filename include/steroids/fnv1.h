@@ -14,15 +14,15 @@
 #endif
 
 ST_VISIBILITY st_modctx_t *st_fnv1_init(st_modctx_t *logger_ctx);
-ST_VISIBILITY void st_fnv1_quit(st_modctx_t *so_ctx);
-ST_VISIBILITY uint32_t st_fnv1_u32hash_string(st_modctx_t *so_ctx,
+ST_VISIBILITY void st_fnv1_quit(st_modctx_t *fmv1_ctx);
+ST_VISIBILITY uint32_t st_fnv1_u32hash_string(st_modctx_t *fmv1_ctx,
  const char *str);
-ST_VISIBILITY uint32_t st_fnv1_u32hash_bytes(st_modctx_t *so_ctx,
+ST_VISIBILITY uint32_t st_fnv1_u32hash_bytes(st_modctx_t *fmv1_ctx,
  const void *ptr, size_t size);
 ST_VISIBILITY st_u32hashstrfunc_t st_fnv1_get_u32hashstr_func(
- st_modctx_t *so_ctx);
+ st_modctx_t *fmv1_ctx);
 ST_VISIBILITY st_u32hashbytesfunc_t st_fnv1_get_u32hashbytes_func(
- st_modctx_t *so_ctx);
+ st_modctx_t *fmv1_ctx);
 
 #undef ST_VISIBILITY
 
