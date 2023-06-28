@@ -24,12 +24,14 @@ typedef void (*st_hash_table_destroy_t)(st_hashtable_t *hash_table,
  st_freefunc_t valdelfunc);
 typedef bool (*st_hash_table_insert_t)(st_hashtable_t *hash_table,
  const void *key, void *value);
-typedef void *(*st_hash_table_find_t)(st_hashtable_t *hash_table,
+typedef void *(*st_hash_table_get_t)(st_hashtable_t *hash_table,
  const void *key);
 typedef bool (*st_hash_table_remove_t)(st_hashtable_t *hash_table,
  const void *key);
-typedef bool (*st_hash_table_next_t)(st_htiter_t *dst,
- st_hashtable_t *hash_table, st_htiter_t *current);
+typedef bool (*st_hash_table_find_t)(st_hashtable_t *hash_table,
+ st_htiter_t *dst, const void *key);
+typedef bool (*st_hash_table_next_t)(st_hashtable_t *hash_table,
+ st_htiter_t *dst, st_htiter_t *current);
 typedef const void *(*st_hash_table_get_iter_key_t)(const st_htiter_t *iter);
 typedef void *(*st_hash_table_get_iter_value_t)(const st_htiter_t *iter);
 
@@ -39,8 +41,9 @@ typedef struct {
     st_hash_table_create_t         hash_table_create;
     st_hash_table_destroy_t        hash_table_destroy;
     st_hash_table_insert_t         hash_table_insert;
-    st_hash_table_find_t           hash_table_find;
+    st_hash_table_get_t            hash_table_get;
     st_hash_table_remove_t         hash_table_remove;
+    st_hash_table_find_t           hash_table_find;
     st_hash_table_next_t           hash_table_next;
     st_hash_table_get_iter_key_t   hash_table_get_iter_key;
     st_hash_table_get_iter_value_t hash_table_get_iter_value;

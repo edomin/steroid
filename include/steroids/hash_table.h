@@ -19,12 +19,14 @@ ST_VISIBILITY void st_hash_table_destroy(st_hashtable_t *hash_table,
  st_freefunc_t valdelfunc);
 ST_VISIBILITY bool st_hash_table_insert(st_hashtable_t *hash_table,
  const void *key, void *value);
-ST_VISIBILITY void *st_hash_table_find(st_hashtable_t *hash_table,
+ST_VISIBILITY void *st_hash_table_get(st_hashtable_t *hash_table,
  const void *key);
 ST_VISIBILITY bool st_hash_table_remove(st_hashtable_t *hash_table,
  const void *key);
-ST_VISIBILITY bool st_hash_table_next(st_htiter_t *dst,
- st_hashtable_t *hash_table, st_htiter_t *current);
+ST_VISIBILITY bool st_hash_table_find(st_hashtable_t *hash_table,
+ st_htiter_t *dst, const void *key);
+ST_VISIBILITY bool st_hash_table_next(st_hashtable_t *hash_table,
+ st_htiter_t *dst, st_htiter_t *current);
 ST_VISIBILITY const void *st_hash_table_get_iter_key(const st_htiter_t *iter);
 ST_VISIBILITY void *st_hash_table_get_iter_value(const st_htiter_t *iter);
 

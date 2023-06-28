@@ -141,10 +141,13 @@ static bool st_hash_table_insert(st_hashtable_t *hash_table, const void *key,
     return hash_table_insert(hash_table->handle, key, value) != NULL;
 }
 
-static void *st_hash_table_find(st_hashtable_t *hash_table, const void *key) {
-    struct hash_entry *entry = hash_table_search(hash_table->handle, key);
+static void *st_hash_table_get(st_hashtable_t *hash_table, const void *key) {
+    st_htiter_t iter;
 
-    return entry ? entry->data : NULL;
+    if (st_hash_table_find(hash_table, &iter, key))
+        return iter.handle->data;
+
+    return NULL;
 }
 
 static bool st_hash_table_remove(st_hashtable_t *hash_table, const void *key) {
@@ -156,7 +159,23 @@ static bool st_hash_table_remove(st_hashtable_t *hash_table, const void *key) {
     return !!entry;
 }
 
-static bool st_hash_table_next(st_htiter_t *dst, st_hashtable_t *hash_table,
+static bool st_hash_table_find(st_hashtable_t *hash_table, st_htiter_t *dst,
+ const void *key) {
+    struct hash_entry *handle;
+
+    if (!dst)
+        return false;
+
+    handle = hash_table_search(hash_table->handle, key);
+    if (!handle)
+        return false;
+
+    dst->handle = handle;
+
+    return true;
+}
+
+static bool st_hash_table_next(st_hashtable_t *hash_table, st_htiter_t *dst,
  st_htiter_t *current) {
     struct hash_entry *entry = hash_table_next_entry(hash_table->handle,
      current ? current->handle : NULL);
