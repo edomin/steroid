@@ -14,9 +14,9 @@ ST_VISIBILITY st_modctx_t *st_hash_table_init(st_modctx_t *logger_ctx);
 ST_VISIBILITY void st_hash_table_quit(st_modctx_t *hash_table_ctx);
 
 ST_VISIBILITY st_hashtable_t *st_hash_table_create(st_modctx_t *hash_table_ctx,
- st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc);
-ST_VISIBILITY void st_hash_table_destroy(st_hashtable_t *hash_table,
+ st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc);
+ST_VISIBILITY void st_hash_table_destroy(st_hashtable_t *hash_table);
 ST_VISIBILITY bool st_hash_table_insert(st_hashtable_t *hash_table,
  const void *key, void *value);
 ST_VISIBILITY void *st_hash_table_get(st_hashtable_t *hash_table,

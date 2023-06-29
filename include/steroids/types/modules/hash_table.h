@@ -14,14 +14,16 @@
 
 typedef uint32_t (*st_u32hashfunc_t)(const void *str);
 typedef int (*st_keyeqfunc_t)(const void *left, const void *right);
-typedef void (*st_freefunc_t)(void *ptr);
+#ifndef ST_FREEFUNC_T_DEFINED
+    typedef void (*st_freefunc_t)(void *ptr);
+#endif
 
 typedef st_modctx_t *(*st_hash_table_init_t)(st_modctx_t *logger_ctx);
 typedef void (*st_hash_table_quit_t)(st_modctx_t *hash_table_ctx);
 typedef st_hashtable_t *(*st_hash_table_create_t)(st_modctx_t *hash_table_ctx,
- st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc);
-typedef void (*st_hash_table_destroy_t)(st_hashtable_t *hash_table,
+ st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc);
+typedef void (*st_hash_table_destroy_t)(st_hashtable_t *hash_table);
 typedef bool (*st_hash_table_insert_t)(st_hashtable_t *hash_table,
  const void *key, void *value);
 typedef void *(*st_hash_table_get_t)(st_hashtable_t *hash_table,
