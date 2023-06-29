@@ -39,6 +39,13 @@ lint:
      -E -c "make bb_build_lint toolchain=$(TRIPLET)-gcc \
      --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
 
+iwyu:
+	docker run --net=host -i -t \
+     -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
+     --entrypoint sh steroids-deps-$(TRIPLET) \
+     -E -c "make bb_build_iwyu toolchain=$(TRIPLET)-gcc \
+     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+
 lint_build: bb_lint_build
 
 install: bb_install
