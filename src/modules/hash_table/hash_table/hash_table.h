@@ -13,13 +13,14 @@ st_hash_table_funcs_t st_hash_table_hash_table_funcs = {
     .hash_table_insert         = st_hash_table_insert,
     .hash_table_get            = st_hash_table_get,
     .hash_table_remove         = st_hash_table_remove,
+    .hash_table_clear          = st_hash_table_clear,
     .hash_table_find           = st_hash_table_find,
     .hash_table_next           = st_hash_table_next,
     .hash_table_get_iter_key   = st_hash_table_get_iter_key,
     .hash_table_get_iter_value = st_hash_table_get_iter_value,
 };
 
-#define FUNCS_COUNT 11
+#define FUNCS_COUNT 12
 st_modfuncstbl_t st_module_hash_table_hash_table_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -30,6 +31,7 @@ st_modfuncstbl_t st_module_hash_table_hash_table_funcs_table = {
         {"st_hash_table_insert"        , st_hash_table_insert},
         {"st_hash_table_get"           , st_hash_table_get},
         {"st_hash_table_remove"        , st_hash_table_remove},
+        {"st_hash_table_clear"         , st_hash_table_clear},
         {"st_hash_table_find"          , st_hash_table_find},
         {"st_hash_table_next"          , st_hash_table_next},
         {"st_hash_table_get_iter_key"  , st_hash_table_get_iter_key},
