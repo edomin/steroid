@@ -130,8 +130,8 @@ static void st_hash_table_destroy(st_hashtable_t *hash_table) {
     hash_table_destroy(hash_table->handle, NULL);
 }
 
-static bool st_hash_table_insert(st_hashtable_t *hash_table, const void *key,
- void *value) {
+static bool st_hash_table_insert(st_hashtable_t *hash_table, st_htiter_t *iter,
+ const void *key, void *value) {
     struct hash_entry *entry = hash_table_search(hash_table->handle, key);
 
     if (entry) {
@@ -144,7 +144,16 @@ static bool st_hash_table_insert(st_hashtable_t *hash_table, const void *key,
             hash_table->valdelfunc(entry->data);
     }
 
-    return hash_table_insert(hash_table->handle, key, value) != NULL;
+    entry = hash_table_insert(hash_table->handle, key, value);
+    if (!entry)
+        return false;
+
+    if (iter) {
+        iter->hash_table = hash_table;
+        iter->handle = entry;
+    }
+
+    return true;
 }
 
 static void *st_hash_table_get(st_hashtable_t *hash_table, const void *key) {

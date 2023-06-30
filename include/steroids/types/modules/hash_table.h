@@ -25,7 +25,7 @@ typedef st_hashtable_t *(*st_hash_table_create_t)(st_modctx_t *hash_table_ctx,
  st_freefunc_t valdelfunc);
 typedef void (*st_hash_table_destroy_t)(st_hashtable_t *hash_table);
 typedef bool (*st_hash_table_insert_t)(st_hashtable_t *hash_table,
- const void *key, void *value);
+ st_htiter_t *iter, const void *key, void *value);
 typedef void *(*st_hash_table_get_t)(st_hashtable_t *hash_table,
  const void *key);
 typedef bool (*st_hash_table_remove_t)(st_hashtable_t *hash_table,

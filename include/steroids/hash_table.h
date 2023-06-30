@@ -18,7 +18,7 @@ ST_VISIBILITY st_hashtable_t *st_hash_table_create(st_modctx_t *hash_table_ctx,
  st_freefunc_t valdelfunc);
 ST_VISIBILITY void st_hash_table_destroy(st_hashtable_t *hash_table);
 ST_VISIBILITY bool st_hash_table_insert(st_hashtable_t *hash_table,
- const void *key, void *value);
+ st_htiter_t *iter, const void *key, void *value);
 ST_VISIBILITY void *st_hash_table_get(st_hashtable_t *hash_table,
  const void *key);
 ST_VISIBILITY bool st_hash_table_remove(st_hashtable_t *hash_table,
