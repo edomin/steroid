@@ -13,7 +13,7 @@
 #endif
 
 typedef uint32_t (*st_u32hashfunc_t)(const void *str);
-typedef int (*st_keyeqfunc_t)(const void *left, const void *right);
+typedef bool (*st_keyeqfunc_t)(const void *left, const void *right);
 #ifndef ST_FREEFUNC_T_DEFINED
     typedef void (*st_freefunc_t)(void *ptr);
 #endif
