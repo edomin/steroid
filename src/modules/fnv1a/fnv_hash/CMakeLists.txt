@@ -1,10 +1,10 @@
-if (${ST_MODULE_FNV1_FNV_HASH} STREQUAL "no")
+if (${ST_MODULE_FNV1A_FNV_HASH} STREQUAL "no")
     return()
 endif()
 
 set(ST_MODULE_NAME "fnv_hash")
-set(ST_MODULE_TYPE ${ST_MODULE_FNV1_FNV_HASH})
-set(ST_MODULE_SUBSYSTEM "fnv1")
+set(ST_MODULE_TYPE ${ST_MODULE_FNV1A_FNV_HASH})
+set(ST_MODULE_SUBSYSTEM "fnv1a")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
@@ -33,7 +33,7 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_FNV1_FNV_HASH})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_FNV1A_FNV_HASH})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)

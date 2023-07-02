@@ -1,4 +1,0 @@
-[
-    { include: ["\"steroids/types/modules/fnv1.h\"", "private", "\"steroids/fnv1.h\"", "public"] },
-    { include: ["\"steroids/module.h\""            , "private", "\"steroids/fnv1.h\"", "public"] },
-]
