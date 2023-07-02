@@ -31,6 +31,8 @@ typedef void *(*st_hash_table_get_t)(st_hashtable_t *hash_table,
 typedef bool (*st_hash_table_remove_t)(st_hashtable_t *hash_table,
  const void *key);
 typedef void (*st_hash_table_clear_t)(st_hashtable_t *hash_table);
+typedef bool (*st_hash_table_contains_t)(st_hashtable_t *hash_table,
+ const void *key);
 typedef bool (*st_hash_table_find_t)(st_hashtable_t *hash_table,
  st_htiter_t *dst, const void *key);
 typedef bool (*st_hash_table_next_t)(st_hashtable_t *hash_table,
@@ -47,6 +49,7 @@ typedef struct {
     st_hash_table_get_t            hash_table_get;
     st_hash_table_remove_t         hash_table_remove;
     st_hash_table_clear_t          hash_table_clear;
+    st_hash_table_contains_t       hash_table_contains;
     st_hash_table_find_t           hash_table_find;
     st_hash_table_next_t           hash_table_next;
     st_hash_table_get_iter_key_t   hash_table_get_iter_key;

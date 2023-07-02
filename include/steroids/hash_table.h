@@ -24,6 +24,8 @@ ST_VISIBILITY void *st_hash_table_get(st_hashtable_t *hash_table,
 ST_VISIBILITY bool st_hash_table_remove(st_hashtable_t *hash_table,
  const void *key);
 ST_VISIBILITY void st_hash_table_clear(st_hashtable_t *hash_table);
+ST_VISIBILITY bool st_hash_table_contains(st_hashtable_t *hash_table,
+ const void *key);
 ST_VISIBILITY bool st_hash_table_find(st_hashtable_t *hash_table,
  st_htiter_t *dst, const void *key);
 ST_VISIBILITY bool st_hash_table_next(st_hashtable_t *hash_table,

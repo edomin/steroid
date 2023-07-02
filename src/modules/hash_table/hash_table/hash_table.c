@@ -199,6 +199,11 @@ static void st_hash_table_clear(st_hashtable_t *hash_table) {
     }
 }
 
+static bool st_hash_table_contains(st_hashtable_t *hash_table,
+ const void *key) {
+    return !!hash_table_search(hash_table->handle, key);
+}
+
 static bool st_hash_table_find(st_hashtable_t *hash_table, st_htiter_t *dst,
  const void *key) {
     struct hash_entry *handle;
