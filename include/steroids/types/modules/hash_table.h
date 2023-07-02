@@ -9,7 +9,10 @@
     typedef struct st_hashtable_s st_hashtable_t;
 #endif
 #ifndef ST_HTITER_T_DEFINED
-    typedef struct st_htiter_s st_htiter_t;
+    typedef struct {
+        void *private1;
+        void *private2;
+    } st_htiter_t;
 #endif
 
 typedef uint32_t (*st_u32hashfunc_t)(const void *str);

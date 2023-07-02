@@ -16,10 +16,12 @@ set(CMAKE_MODULE_PATH
 )
 
 set(ST_INTERNAL_MODULES_COUNT 0)
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1/fnv_hash"
- "${CMAKE_BINARY_DIR}/src/modules/fnv1/fnv_hash")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1a/fnv_hash"
+ "${CMAKE_BINARY_DIR}/src/modules/fnv1a/fnv_hash")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/hash_table/hash_table"
  "${CMAKE_BINARY_DIR}/src/modules/hash_table/hash_table")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/ini/inih"
+ "${CMAKE_BINARY_DIR}/src/modules/ini/inih")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/simple"
  "${CMAKE_BINARY_DIR}/src/modules/logger/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
