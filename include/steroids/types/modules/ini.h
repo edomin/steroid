@@ -25,6 +25,8 @@ typedef bool (*st_ini_key_exists_t)(const st_ini_t *ini, const char *section,
  const char *key);
 typedef const char *(*st_ini_get_str_t)(const st_ini_t *ini,
  const char *section, const char *key);
+typedef bool (*st_ini_fill_str_t)(const st_ini_t *ini, char *dst,
+ size_t dstsize, const char *section, const char *key);
 typedef bool (*st_ini_delete_section_t)(st_ini_t *ini, const char *section);
 typedef bool (*st_ini_delete_key_t)(st_ini_t *ini, const char *section,
  const char *key);
@@ -47,6 +49,7 @@ typedef struct {
     st_ini_section_exists_t ini_section_exists;
     st_ini_key_exists_t     ini_key_exists;
     st_ini_get_str_t        ini_get_str;
+    st_ini_fill_str_t       ini_fill_str;
     st_ini_delete_section_t ini_delete_section;
     st_ini_delete_key_t     ini_delete_key;
     st_ini_clear_section_t  ini_clear_section;

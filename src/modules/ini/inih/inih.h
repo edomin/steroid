@@ -15,6 +15,7 @@ st_ini_funcs_t st_ini_inih_funcs = {
     .ini_section_exists = st_ini_section_exists,
     .ini_key_exists     = st_ini_key_exists,
     .ini_get_str        = st_ini_get_str,
+    .ini_fill_str       = st_ini_fill_str,
     .ini_delete_section = st_ini_delete_section,
     .ini_delete_key     = st_ini_delete_key,
     .ini_clear_section  = st_ini_clear_section,
@@ -24,7 +25,7 @@ st_ini_funcs_t st_ini_inih_funcs = {
     .ini_save           = st_ini_save,
 };
 
-#define FUNCS_COUNT 16
+#define FUNCS_COUNT 17
 st_modfuncstbl_t st_module_ini_inih_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -37,6 +38,7 @@ st_modfuncstbl_t st_module_ini_inih_funcs_table = {
         {"st_ini_section_exists", st_ini_section_exists},
         {"st_ini_key_exists"    , st_ini_key_exists},
         {"st_ini_get_str"       , st_ini_get_str},
+        {"st_ini_fill_str"      , st_ini_fill_str},
         {"st_ini_delete_section", st_ini_delete_section},
         {"st_ini_delete_key"    , st_ini_delete_key},
         {"st_ini_clear_section" , st_ini_clear_section},

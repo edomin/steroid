@@ -28,6 +28,8 @@ ST_VISIBILITY bool st_ini_key_exists(const st_ini_t *ini, const char *section,
  const char *key);
 ST_VISIBILITY const char *st_ini_get_str(const st_ini_t *ini,
  const char *section, const char *key);
+ST_VISIBILITY bool st_ini_fill_str(const st_ini_t *ini, char *dst,
+ size_t dstsize, const char *section, const char *key);
 ST_VISIBILITY bool st_ini_delete_section(st_ini_t *ini, const char *section);
 ST_VISIBILITY bool st_ini_delete_key(st_ini_t *ini, const char *section,
  const char *key);

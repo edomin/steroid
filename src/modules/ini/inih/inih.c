@@ -282,6 +282,16 @@ static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
     return module->hash_table.get(section->data, key);
 }
 
+static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
+ const char *section_name, const char *key) {
+    const char *str = st_ini_get_str(ini, section_name, key);
+
+    if (!str)
+        return false;
+
+    return strcpy_s(dst, dstsize, str) == 0;
+}
+
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
     st_ini_inih_t *module = ini->module;
 
