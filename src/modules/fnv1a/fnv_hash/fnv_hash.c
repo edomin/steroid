@@ -1,6 +1,5 @@
 #include "fnv_hash.h"
 
-#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +11,7 @@
 #include <safeclib/safe_mem_lib.h>
 #include <safeclib/safe_str_lib.h>
 #pragma GCC diagnostic pop
+#include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
 
@@ -32,15 +32,18 @@ void *st_module_fnv1a_fnv_hash_get_func(const char *func_name) {
 
 st_moddata_t *st_module_fnv1a_fnv_hash_init(void *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
-    global_modsmgr = modsmgr;
-    if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
-     modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+    errno_t err = memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
+     modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
+
+    if (err) {
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
         fprintf(stderr, "Unable to init module \"fnv1a_fnv_hash\": %s\n",
          err_msg_buf);
 
         return NULL;
     }
+
+    global_modsmgr = modsmgr;
 
     return &st_module_fnv1a_fnv_hash_data;
 }

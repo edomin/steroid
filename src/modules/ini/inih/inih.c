@@ -7,6 +7,7 @@
 #include <safeclib/safe_mem_lib.h>
 #include <safeclib/safe_str_lib.h>
 #pragma GCC diagnostic pop
+#include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
 #define SAVE_BUFFER_SIZE 131072
@@ -37,15 +38,18 @@ void *st_module_ini_inih_get_func(const char *func_name) {
 
 st_moddata_t *st_module_ini_inih_init(void *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
-    global_modsmgr = modsmgr;
-    if (memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
-     modsmgr_funcs, sizeof(st_modsmgr_funcs_t)) != 0) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+    errno_t err = memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
+     modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
+
+    if (err) {
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
         fprintf(stderr, "Unable to init module \"ini_inih\": %s\n",
          err_msg_buf);
 
         return NULL;
     }
+
+    global_modsmgr = modsmgr;
 
     return &st_module_ini_inih_data;
 }
@@ -218,6 +222,7 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
             goto ini_destroy;
         }
     } else {
+        errno_t err;
         zero_terminated = malloc(size + 1);
 
         if (!zero_terminated) {
@@ -227,8 +232,9 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
             goto ini_destroy;
         }
 
-        if (strncpy_s(zero_terminated, size + 1, ptr, size + 1) != 0) {
-            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+        err = strncpy_s(zero_terminated, size + 1, ptr, size + 1);
+        if (err) {
+            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
             module->logger.error(module->logger.ctx,
              "ini_inih: Unable to copy ini data to temp buffer: %s",
              err_msg_buf);
