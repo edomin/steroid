@@ -18,6 +18,11 @@
 #define ERR_MSG_BUF_SIZE 1024
 #define SAVE_BUFFER_SIZE 131072
 
+typedef struct {
+    st_ini_t   *ini;
+    const char *filename;
+} st_userdata_t;
+
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
@@ -158,8 +163,9 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
 }
 
 static int st_ini_parse_handler(void *userdata, const char *section,
- const char *key, const char *value) {
-    st_ini_t *ini = userdata;
+ const char *key, const char *value, int lineno) {
+    st_userdata_t *typed_userdata = userdata;
+    st_ini_t      *ini = typed_userdata->ini;
 
     if (!key && !value)
         return st_ini_add_section(ini, section) ? 1 : 0;
@@ -193,13 +199,16 @@ static void st_process_error(int parse_result, const char *filename,
 
 static st_ini_t *st_ini_load(st_modctx_t *ini_ctx, const char *filename) {
     st_ini_inih_t *module = ini_ctx->data;
+    st_userdata_t  userdata;
     st_ini_t      *ini = st_ini_create(ini_ctx);
     int            ret;
 
     if (!ini)
         return NULL;
 
-    ret = ini_parse(filename, st_ini_parse_handler, ini);
+    userdata.ini = ini;
+    userdata.filename = filename;
+    ret = ini_parse(filename, st_ini_parse_handler, &userdata);
     if (ret != 0) {
         st_process_error(ret, filename, &module->logger);
         st_ini_destroy(ini);
