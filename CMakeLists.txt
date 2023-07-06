@@ -16,6 +16,8 @@ set(CMAKE_MODULE_PATH
 )
 
 set(ST_INTERNAL_MODULES_COUNT 0)
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/spcpaths/cfgpath"
+ "${CMAKE_BINARY_DIR}/src/modules/spcpaths/cfgpath")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1a/fnv_hash"
  "${CMAKE_BINARY_DIR}/src/modules/fnv1a/fnv_hash")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/hash_table/hash_table"
