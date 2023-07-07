@@ -88,7 +88,6 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
 
     st_opts_import_functions(opts_ctx, logger_ctx);
     opts = opts_ctx->data;
-    // opts->logger.active = true;
     opts->logger.ctx = logger_ctx;
     opts->argc = argc;
     opts->argv = argv;
@@ -285,27 +284,41 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
     size_t            optlen;
     ketopt_t          kopt = KETOPT_INIT;
 
-    if (!opt)
+    if (!opt) {
+        opts->logger.error(opts->logger.ctx, "opts_ketopt: NULL option");
+
         return false;
+    }
 
     optlen = strlen(opt);
 
-    if (optlen == 0)
+    if (optlen == 0) {
+        opts->logger.error(opts->logger.ctx, "opts_ketopt: Empty option");
+
         return false;
+    }
 
     opt_type_required = optlen == 1 ? ST_OT_SHORT : ST_OT_LONG;
 
     for (unsigned i = 0; i < opts->opts_data_count; i++) {
         if (opts->opts_data[i].short_opt != ST_OPTS_SHORT_UNSPEC) {
+            errno_t err;
             char short_opt_fmt[3] = {opts->opts_data[i].short_opt, '\0', '\0'};
 
             if (opts->opts_data[i].arg != ST_OA_NO)
                 short_opt_fmt[1] = opts->opts_data[i].arg == ST_OA_REQUIRED ?
                  ':' : '?';
 
-            if (strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt, 3)
-             != 0)
+            err = strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt,
+             3);
+            if (err) {
+                strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+                opts->logger.error(opts->logger.ctx,
+                 "opts_ketopt: Unable to construct shortopts format: %s",
+                 err_msg_buf);
+
                 return false;
+            }
         }
     }
 
@@ -331,17 +344,30 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
                 return true;
         } else {
             if (parse_result == opt[0]) {
+                printf("parse_result == opt[0]\n");
                 if (!kopt.arg) {
-                    if (strncpy_s(optarg, optarg_size_max, "", 1) != 0)
+                    if (optarg_size_max > 0)
+                        optarg[0] = '\0';
+                } else {
+                    errno_t err = strcpy_s(optarg, optarg_size_max, kopt.arg);
+
+                    if (err) {
+                        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+                        opts->logger.error(opts->logger.ctx,
+                         "opts_ketopt: Unable to get option argument: %s",
+                         err_msg_buf);
+
                         return false;
-                } else if (strcpy_s(optarg, optarg_size_max, kopt.arg) != 0) {
-                    return false;
+                    }
                 }
 
                 return true;
             }
         }
     }
+
+    opts->logger.error(opts->logger.ctx, "opts_ketopt: Missing option: %s",
+     opt);
 
     return false;
 }
