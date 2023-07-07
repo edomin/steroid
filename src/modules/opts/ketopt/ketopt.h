@@ -15,28 +15,28 @@
 #define ST_OPTS_OPTS_MAX 128
 
 typedef struct {
-    char         short_opt;
+    char        *longopt;
     int          longopt_index;
+    char         shortopt;
     st_opt_arg_t arg;
     char        *arg_fmt;
     char        *opt_descr;
-} st_opt_data_t;
+} st_opt_t;
 
 typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
+    st_modctx_t        *ctx;
+    st_logger_debug_t   debug;
+    st_logger_info_t    info;
+    st_logger_warning_t warning;
+    st_logger_error_t   error;
 } st_opts_ketopt_logger_t;
 
 typedef struct {
     st_opts_ketopt_logger_t logger;
     int                     argc;
     char                  **argv;
-    ko_longopt_t            longopts[ST_OPTS_OPTS_MAX];
-    st_opt_data_t           opts_data[ST_OPTS_OPTS_MAX];
-    unsigned                longopts_count;
-    unsigned                opts_data_count;
+    st_opt_t                opts[ST_OPTS_OPTS_MAX];
+    unsigned                opts_count;
 } st_opts_ketopt_t;
 
 st_opts_funcs_t st_opts_ketopt_funcs = {
