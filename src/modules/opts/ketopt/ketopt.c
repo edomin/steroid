@@ -77,6 +77,7 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
  st_modctx_t *logger_ctx) {
     st_modctx_t      *opts_ctx;
     st_opts_ketopt_t *opts;
+    errno_t           err;
 
     opts_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_opts_ketopt_data, sizeof(st_opts_ketopt_t));
@@ -92,17 +93,10 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     opts->argc = argc;
     opts->argv = argv;
 
-    if (memset_s(opts->longopts, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX, '\0',
-     sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX) != 0) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
-        fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
-
-        return NULL;
-    }
-
-    if (memset_s(opts->opts_data, sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX,
-     '\0', sizeof(st_opt_data_t) * ST_OPTS_OPTS_MAX) != 0) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
+    err = memset_s(opts->longopts, sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX,
+     '\0', sizeof(ko_longopt_t) * ST_OPTS_OPTS_MAX);
+    if (err) {
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
         fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
 
         return NULL;
