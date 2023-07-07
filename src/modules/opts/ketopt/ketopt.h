@@ -40,20 +40,20 @@ typedef struct {
 } st_opts_ketopt_t;
 
 st_opts_funcs_t st_opts_ketopt_funcs = {
-    .opts_init = st_opts_init,
-    .opts_quit = st_opts_quit,
+    .opts_init       = st_opts_init,
+    .opts_quit       = st_opts_quit,
     .opts_add_option = st_opts_add_option,
-    .opts_get_str = st_opts_get_str,
+    .opts_get_str    = st_opts_get_str,
 };
 
 #define FUNCS_COUNT 4
 st_modfuncstbl_t st_module_opts_ketopt_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_opts_init", st_opts_init},
-        {"st_opts_quit", st_opts_quit},
+        {"st_opts_init"      , st_opts_init},
+        {"st_opts_quit"      , st_opts_quit},
         {"st_opts_add_option", st_opts_add_option},
-        {"st_opts_get_str", st_opts_get_str},
+        {"st_opts_get_str"   , st_opts_get_str},
     }
 };
 
