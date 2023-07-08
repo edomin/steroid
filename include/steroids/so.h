@@ -14,9 +14,12 @@
 
 ST_VISIBILITY st_modctx_t *st_so_init(st_modctx_t *logger_ctx);
 ST_VISIBILITY void st_so_quit(st_modctx_t *so_ctx);
-ST_VISIBILITY bool st_so_load_module(st_modctx_t *so_ctx, const char *filename);
-ST_VISIBILITY bool st_so_memload_module(st_modctx_t *so_ctx, const void *data,
+
+ST_VISIBILITY st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename);
+ST_VISIBILITY st_so_t *st_so_memopen(st_modctx_t *so_ctx, const void *data,
  size_t size);
+ST_VISIBILITY void st_so_close(st_so_t *so);
+ST_VISIBILITY void *st_so_load_symbol(st_so_t *so, const char *name);
 
 #undef ST_VISIBILITY
 
