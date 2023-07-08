@@ -98,7 +98,7 @@ static void st_zip_quit(st_modctx_t *zip_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, zip_ctx);
 }
 
-static bool st_zip_open(st_modctx_t *spcpaths_ctx, st_zip_t *zip,
+static bool st_zip_open(st_modctx_t *zip_ctx, st_zip_t *zip,
  const char *filename) {
     st_zip_zip_t *module = zip_ctx->data;
     struct zip_t *handle;
@@ -120,7 +120,7 @@ static bool st_zip_open(st_modctx_t *spcpaths_ctx, st_zip_t *zip,
     return true;
 }
 
-static void st_zip_close(__attribute__((unused)) st_modctx_t *spcpaths_ctx,
+static void st_zip_close(__attribute__((unused)) st_modctx_t *zip_ctx,
  st_zip_t *zip) {
     zip_close(zip->handle);
 }
