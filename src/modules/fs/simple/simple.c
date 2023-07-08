@@ -95,7 +95,7 @@ static st_filetype_t st_fs_get_file_type(
     if (stat(filename, &path_stat) == -1)
         return ST_FT_UNKNOWN;
 
-    switch (path_stat.st_mode & S_IFMT) {
+    switch ((unsigned)path_stat.st_mode & (unsigned)S_IFMT) {
         case S_IFREG:
             return ST_FT_REG;
         case S_IFDIR:
