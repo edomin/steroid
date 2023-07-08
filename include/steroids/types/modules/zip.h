@@ -19,7 +19,9 @@ typedef st_modctx_t *(*st_zip_init_t)(st_modctx_t *logger_ctx);
 typedef void (*st_zip_quit_t)(st_modctx_t *zip_ctx);
 typedef bool (*st_zip_open_t)(st_modctx_t *zip_ctx, st_zip_t *zip,
  const char *filename);
-typedef void (*st_zip_close_t)(st_modctx_t *zip_ctx, st_zip_t *zip);
+typedef bool (*st_zip_memopen_t)(st_modctx_t *zip_ctx, st_zip_t *zip,
+ const void *data, size_t size);
+typedef void (*st_zip_close_t)(st_zip_t *zip);
 typedef ssize_t (*st_zip_get_entries_count_t)(st_zip_t *zip);
 typedef bool (*st_zip_get_entry_name_t)(st_zip_t *zip, char *dst,
  size_t dstsize, size_t entrynum);
@@ -32,6 +34,7 @@ typedef struct {
     st_zip_init_t              zip_init;
     st_zip_quit_t              zip_quit;
     st_zip_open_t              zip_open;
+    st_zip_memopen_t           zip_memopen;
     st_zip_close_t             zip_close;
     st_zip_get_entries_count_t zip_get_entries_count;
     st_zip_get_entry_name_t    zip_get_entry_name;

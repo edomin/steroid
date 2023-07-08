@@ -24,9 +24,15 @@ typedef struct {
     st_pathtools_concat_t concat;
 } st_zip_zip_pathtools_t;
 
+typedef enum {
+    ST_ZT_FILE,
+    ST_ZT_MEM,
+} st_ziptype_t;
+
 typedef struct {
     st_zip_zip_t *module;
     struct zip_t *handle;
+    st_ziptype_t  type;
 } st_zip_t;
 
 typedef struct {

@@ -116,13 +116,39 @@ static bool st_zip_open(st_modctx_t *zip_ctx, st_zip_t *zip,
 
     zip->module = module;
     zip->handle = handle;
+    zip->type   = ST_ZT_FILE;
 
     return true;
 }
 
-static void st_zip_close(__attribute__((unused)) st_modctx_t *zip_ctx,
- st_zip_t *zip) {
-    zip_close(zip->handle);
+static bool st_zip_memopen(st_modctx_t *zip_ctx, st_zip_t *zip,
+ const void *data, size_t size) {
+    st_zip_zip_t *module = zip_ctx->data;
+    struct zip_t *handle;
+
+    if (!zip)
+        return false;
+
+    handle = zip_stream_open(data, size, 0, 'r');
+    if (!handle) {
+        module->logger.error(module->logger.ctx,
+         "zip_zip: Unable to open zip from memory");
+
+        return false;
+    }
+
+    zip->module = module;
+    zip->handle = handle;
+    zip->type   = ST_ZT_MEM;
+
+    return true;
+}
+
+static void st_zip_close(st_zip_t *zip) {
+    if (zip->type == ST_ZT_FILE)
+        zip_close(zip->handle);
+    else
+        zip_stream_close(zip->handle);
 }
 
 static ssize_t st_zip_get_entries_count(st_zip_t *zip) {
