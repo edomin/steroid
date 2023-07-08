@@ -27,8 +27,10 @@ bb_add_more_warnings(
         basic
         array
         asciiz
+        enum
         format
         preprocessor
+        switch
     OPTIONS C_COMPILE_OPTIONS
 )
 
