@@ -30,16 +30,16 @@ typedef enum {
 } st_ziptype_t;
 
 typedef struct {
-    st_zip_zip_t *module;
-    struct zip_t *handle;
-    st_ziptype_t  type;
-} st_zip_t;
-
-typedef struct {
     st_zip_zip_fs_t        fs;
     st_zip_zip_logger_t    logger;
     st_zip_zip_pathtools_t pathtools;
 } st_zip_zip_t;
+
+typedef struct {
+    st_zip_zip_t *module;
+    struct zip_t *handle;
+    st_ziptype_t  type;
+} st_zip_t;
 
 #define ST_ZIP_T_DEFINED
 

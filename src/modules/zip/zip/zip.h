@@ -14,10 +14,11 @@ st_zip_funcs_t st_zip_zip_funcs = {
     .zip_close             = st_zip_close,
     .zip_get_entries_count = st_zip_get_entries_count,
     .zip_get_entry_name    = st_zip_get_entry_name,
+    .zip_get_entry_type    = st_zip_get_entry_type,
     .zip_extract_entry     = st_zip_extract_entry,
 };
 
-#define FUNCS_COUNT 8
+#define FUNCS_COUNT 9
 st_modfuncstbl_t st_module_zip_zip_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -28,6 +29,7 @@ st_modfuncstbl_t st_module_zip_zip_funcs_table = {
         {"st_zip_close"            , st_zip_close},
         {"st_zip_get_entries_count", st_zip_get_entries_count},
         {"st_zip_get_entry_name"   , st_zip_get_entry_name},
+        {"st_zip_get_entry_type"   , st_zip_get_entry_type},
         {"st_zip_extract_entry"    , st_zip_extract_entry},
     }
 };

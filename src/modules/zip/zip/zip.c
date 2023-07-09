@@ -55,7 +55,7 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 
 static void st_zip_import_functions(st_modctx_t *zip_ctx,
  st_modctx_t *fs_ctx, st_modctx_t *logger_ctx, st_modctx_t *pathtools_ctx) {
-    st_zip_zip_t         *module = spcpaths_ctx->data;
+    st_zip_zip_t         *module = zip_ctx->data;
     st_fs_funcs_t        *fs_funcs = (st_fs_funcs_t *)fs_ctx->funcs;
     st_logger_funcs_t    *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
     st_pathtools_funcs_t *pathtools_funcs =
@@ -70,7 +70,8 @@ static void st_zip_import_functions(st_modctx_t *zip_ctx,
     module->pathtools.concat = pathtools_funcs->pathtools_concat;
 }
 
-static st_modctx_t *st_zip_init(st_modctx_t *logger_ctx) {
+static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
+ st_modctx_t *pathtools_ctx) {
     st_modctx_t  *zip_ctx;
     st_zip_zip_t *module;
 
@@ -82,7 +83,7 @@ static st_modctx_t *st_zip_init(st_modctx_t *logger_ctx) {
 
     zip_ctx->funcs = &st_zip_zip_funcs;
 
-    st_zip_import_functions(zip_ctx, logger_ctx);
+    st_zip_import_functions(zip_ctx, fs_ctx, logger_ctx, pathtools_ctx);
     module = zip_ctx->data;
     module->logger.ctx = logger_ctx;
 
@@ -161,7 +162,7 @@ static ssize_t st_zip_get_entries_count(st_zip_t *zip) {
     ret = zip_entries_total(zip->handle);
     if (ret < 0) {
         module->logger.error(module->logger.ctx,
-         "zip_zip: Unable to get entries count: %s", zip_strerror(ret));
+         "zip_zip: Unable to get entries count: %s", zip_strerror((int)ret));
 
         return -1;
     }

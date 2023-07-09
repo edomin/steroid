@@ -15,7 +15,8 @@ typedef enum {
     ST_ZET_DIR     = 2,
 } st_zipentrytype_t;
 
-typedef st_modctx_t *(*st_zip_init_t)(st_modctx_t *logger_ctx);
+typedef st_modctx_t *(*st_zip_init_t)(st_modctx_t *fs_ctx,
+ st_modctx_t *logger_ctx, st_modctx_t *pathtools_ctx);
 typedef void (*st_zip_quit_t)(st_modctx_t *zip_ctx);
 typedef bool (*st_zip_open_t)(st_modctx_t *zip_ctx, st_zip_t *zip,
  const char *filename);
@@ -38,6 +39,7 @@ typedef struct {
     st_zip_close_t             zip_close;
     st_zip_get_entries_count_t zip_get_entries_count;
     st_zip_get_entry_name_t    zip_get_entry_name;
+    st_zip_get_entry_type_t    zip_get_entry_type;
     st_zip_extract_entry_t     zip_extract_entry;
 } st_zip_funcs_t;
 

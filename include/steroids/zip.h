@@ -12,7 +12,8 @@
     #define ST_VISIBILITY
 #endif
 
-ST_VISIBILITY st_modctx_t *st_zip_init(st_modctx_t *logger_ctx);
+ST_VISIBILITY st_modctx_t *st_zip_init(st_modctx_t *fs_ctx,
+ st_modctx_t *logger_ctx, st_modctx_t *pathtools_ctx);
 ST_VISIBILITY void st_zip_quit(st_modctx_t *zip_ctx);
 ST_VISIBILITY bool st_zip_open(st_modctx_t *zip_ctx, st_zip_t *zip,
  const char *filename);

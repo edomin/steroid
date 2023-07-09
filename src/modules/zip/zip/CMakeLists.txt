@@ -49,7 +49,7 @@ find_package(zip REQUIRED)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "cfgpath.c"
+    "zip.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
