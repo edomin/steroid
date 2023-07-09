@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #pragma GCC diagnostic push
@@ -94,15 +93,167 @@ static void st_pathtools_quit(st_modctx_t *pathtools_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, pathtools_ctx);
 }
 
-static bool st_pathtools_concat(
+static bool st_pathtools_resolve_absolute(
  __attribute__((unused)) st_modctx_t *pathtools_ctx, char *dst, size_t dstsize,
- const char *path, const char *append) {
+ const char *path) {
+    char   resolved_path[PATH_MAX] = {0};
+    char   resolved_path_last = '\0';
+    size_t resolved_path_len;
+
+    while (path) {
+        if (*path == '/') {
+            if (resolved_path_last != '/') {
+                strncat_s(resolved_path, PATH_MAX, "/", 1);
+                resolved_path_last = '/';
+                path++;
+
+                continue;
+            }
+        } else {
+            const char *slash = strchr(path, '/');
+
+            if (!slash) {
+                slash = path;
+                while (*slash)
+                    slash++;
+            }
+
+            if (path[0] == '.' && path[1] != '.') {
+                path++;
+
+                continue;
+            }
+
+            if (path[0] == '.' && path[1] == '.') {
+                char *prev_resolv_slash = strrchr(resolved_path, '/');
+
+                if (!prev_resolv_slash || prev_resolv_slash == resolved_path)
+                    return false;
+
+                *prev_resolv_slash = '\0';
+
+                path += 2;
+
+                continue;
+            }
+
+            strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
+            resolved_path_last = *(slash - 1);
+            path = slash;
+        }
+    }
+
+    resolved_path_len = strlen(resolved_path);
+    if (resolved_path[resolved_path_len - 1] == '/')
+        resolved_path[resolved_path_len - 1] = '\0';
+
+    return strncpy_s(dst, dstsize, resolved_path, PATH_MAX) == 0;
+}
+
+static bool st_pathtools_resolve_relative(
+ __attribute__((unused)) st_modctx_t *pathtools_ctx, char *dst, size_t dstsize,
+ const char *path) {
+    char   resolved_path[PATH_MAX] = {0};
+    char   resolved_path_last = '\0';
+    size_t resolved_path_len;
+
+    if (path[0] == '.' && path[1] != '/')
+        return strncpy_s(dst, dstsize, ".", 1) == 0;
+
+    if (path[0] == '.' && path[1] == '/') {
+        strncpy_s(resolved_path, PATH_MAX, "./", 2);
+        path += 2;
+    }
+
+    while (path) {
+        if (*path == '/') {
+            if (resolved_path_last != '/') {
+                strncat_s(resolved_path, PATH_MAX, "/", 1);
+                resolved_path_last = '/';
+                path++;
+
+                continue;
+            }
+        } else {
+            const char *slash = strchr(path, '/');
+
+            if (!slash) {
+                slash = path;
+                while (*slash)
+                    slash++;
+            }
+
+            if (path[0] == '.' && path[1] != '.') {
+                path++;
+
+                continue;
+            }
+
+            if (path[0] == '.' && path[1] == '.') {
+                char *prev_resolv_slash = strrchr(resolved_path, '/');
+
+                if (prev_resolv_slash[1] == '.' &&
+                 prev_resolv_slash[2] == '.') {
+                    strcat_s(resolved_path, PATH_MAX, "/..");
+                    resolved_path_last = '.';
+                    path += 2;
+
+                    continue;
+                }
+
+                if (!prev_resolv_slash) {
+                    strcpy_s(resolved_path, PATH_MAX, "/..");
+                    resolved_path_last = '.';
+                    path += 2;
+
+                    continue;
+                }
+
+                *prev_resolv_slash = '\0';
+
+                path += 2;
+
+                continue;
+            }
+
+            strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
+            resolved_path_last = *(slash - 1);
+            path = slash;
+        }
+    }
+
+    resolved_path_len = strlen(resolved_path);
+    if (resolved_path[resolved_path_len - 1] == '/')
+        resolved_path[resolved_path_len - 1] = '\0';
+
+    return strncpy_s(dst, dstsize, resolved_path, PATH_MAX) == 0;
+}
+
+static bool st_pathtools_resolve(
+ __attribute__((unused)) st_modctx_t *pathtools_ctx, char *dst, size_t dstsize,
+ const char *path) {
+    if (!path || !dst || dstsize == 0)
+        return false;
+
+    return path[0] == '/'
+     ? st_pathtools_resolve_absolute(pathtools_ctx, dst, dstsize, path)
+     : st_pathtools_resolve_relative(pathtools_ctx, dst, dstsize, path);
+}
+
+static bool st_pathtools_get_parent_dir(st_modctx_t *pathtools_ctx, char *dst,
+ size_t dstsize, const char *path) {
+    return st_pathtools_concat(pathtools_ctx, dst, dstsize, path, "..");
+}
+
+static bool st_pathtools_concat(st_modctx_t *pathtools_ctx, char *dst,
+ size_t dstsize, const char *path, const char *append) {
     char joined_path[PATH_MAX];
     char resolved_path[PATH_MAX];
 
     return strcpy_s(joined_path, PATH_MAX, path) == 0 &&
      strcat_s(joined_path, PATH_MAX, "/") == 0 &&
      strcat_s(joined_path, PATH_MAX, append) == 0 &&
-     realpath(joined_path, resolved_path) &&
+     st_pathtools_resolve(pathtools_ctx, resolved_path, PATH_MAX,
+      joined_path) &&
      strncpy_s(dst, dstsize, resolved_path, PATH_MAX) == 0;
 }

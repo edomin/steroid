@@ -14,6 +14,11 @@
 
 ST_VISIBILITY st_modctx_t *st_pathtools_init(st_modctx_t *logger_ctx);
 ST_VISIBILITY void st_pathtools_quit(st_modctx_t *pathtools_ctx);
+
+ST_VISIBILITY bool st_pathtools_resolve(st_modctx_t *pathtools_ctx, char *dst,
+ size_t dstsize, const char *path);
+ST_VISIBILITY bool st_pathtools_get_parent_dir(st_modctx_t *pathtools_ctx,
+ char *dst, size_t dstsize, const char *path);
 ST_VISIBILITY bool st_pathtools_concat(st_modctx_t *pathtools_ctx, char *dst,
  size_t dstsize, const char *path, const char *append);
 
