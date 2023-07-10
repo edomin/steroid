@@ -12,8 +12,12 @@ set(ST_MODULE_PREREQS [=[
         .subsystem = "logger",
         .name = NULL,
     },
+    {
+        .subsystem = "pathtools",
+        .name = NULL,
+    },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 1)
+set(ST_MODULE_PREREQS_COUNT 2)
 
 configure_file(
     "config.h.in"

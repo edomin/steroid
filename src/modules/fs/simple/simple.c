@@ -1,5 +1,6 @@
 #include "simple.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -52,16 +53,21 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_fs_import_functions(st_modctx_t *fs_ctx,
- st_modctx_t *logger_ctx) {
-    st_fs_simple_t    *fs = fs_ctx->data;
-    st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+static void st_fs_import_functions(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
+ st_modctx_t *pathtools_ctx) {
+    st_fs_simple_t       *fs = fs_ctx->data;
+    st_logger_funcs_t    *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_pathtools_funcs_t *pathtools_funcs =
+     (st_pathtools_funcs_t *)pathtools_ctx->funcs;
 
     fs->logger.debug = logger_funcs->logger_debug;
     fs->logger.info  = logger_funcs->logger_info;
+
+    fs->pathtools.resolve  = pathtools_funcs->pathtools_resolve;
 }
 
-static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx) {
+static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx,
+ st_modctx_t *pathtools_ctx) {
     st_modctx_t    *fs_ctx;
     st_fs_simple_t *fs;
 
@@ -73,9 +79,10 @@ static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx) {
 
     fs_ctx->funcs = &st_fs_simple_funcs;
 
-    st_fs_import_functions(fs_ctx, logger_ctx);
+    st_fs_import_functions(fs_ctx, logger_ctx, pathtools_ctx);
     fs = fs_ctx->data;
     fs->logger.ctx = logger_ctx;
+    fs->pathtools.ctx = pathtools_ctx;
 
     fs->logger.info(fs->logger.ctx,
      "fs_simple: Special paths mgr initialized.");
@@ -115,4 +122,41 @@ static st_filetype_t st_fs_get_file_type(
         default:
             return ST_FT_UNKNOWN;
     }
+}
+
+static bool st_fs_mkdir(st_modctx_t *fs_ctx, const char *dirname) {
+    st_fs_simple_t *module = fs_ctx->data;
+    char            path[PATH_MAX] = "";
+    char           *ch = path;
+    bool            last_is_slash;
+
+    if (!module->pathtools.resolve(module->pathtools.ctx, path, PATH_MAX,
+     dirname))
+        return false;
+
+    if (path[0] && !path[1])
+        return false;
+
+    if (*ch == '/')
+        ch++;
+
+    do {
+        while(*ch && *ch != '/')
+            ch++;
+
+        last_is_slash = *ch == '/';
+
+        *ch = '\0';
+
+        if (path[0] != '.' && path[1] &&
+         mkdir(path, S_IRWXU | S_IRGRP | S_IROTH) == -1) // NOLINT(hicpp-signed-bitwise)
+            return false;
+
+        if (last_is_slash)
+            *ch = '/';
+
+        ch++;
+    } while (last_is_slash);
+
+    return true;
 }
