@@ -1,9 +1,10 @@
 #include "zip.h"
 
+#include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
@@ -102,50 +103,65 @@ static void st_zip_quit(st_modctx_t *zip_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, zip_ctx);
 }
 
-static bool st_zip_open(st_modctx_t *zip_ctx, st_zip_t *zip,
- const char *filename) {
+static st_zip_t *st_zip_open(st_modctx_t *zip_ctx, const char *filename) {
     st_zip_zip_t *module = zip_ctx->data;
     struct zip_t *handle;
-
-    if (!zip)
-        return false;
+    st_zip_t     *zip;
 
     handle = zip_open(filename, 0, 'r');
     if (!handle) {
         module->logger.error(module->logger.ctx,
          "zip_zip: Unable to open file: %s", filename);
 
-        return false;
+        return NULL;
+    }
+
+    zip = malloc(sizeof(st_zip_t));
+    if (!zip) {
+        module->logger.error(module->logger.ctx,
+         "zip_zip: Unable to allocate memory for opened zip structure while "
+         "opening file \"%s\": %s", filename, strerror(errno));
+        zip_close(handle);
+
+        return NULL;
     }
 
     zip->module = module;
     zip->handle = handle;
     zip->type   = ST_ZT_FILE;
 
-    return true;
+    return zip;
 }
 
-static bool st_zip_memopen(st_modctx_t *zip_ctx, st_zip_t *zip,
- const void *data, size_t size) {
+static st_zip_t *st_zip_memopen(st_modctx_t *zip_ctx, const void *data,
+ size_t size) {
     st_zip_zip_t *module = zip_ctx->data;
     struct zip_t *handle;
-
-    if (!zip)
-        return false;
+    st_zip_t     *zip;
 
     handle = zip_stream_open(data, size, 0, 'r');
     if (!handle) {
         module->logger.error(module->logger.ctx,
          "zip_zip: Unable to open zip from memory");
 
-        return false;
+        return NULL;
+    }
+
+    zip = malloc(sizeof(st_zip_t));
+    if (!zip) {
+        module->logger.error(module->logger.ctx,
+         "zip_zip: Unable to allocate memory for opened zip structure: %s",
+         strerror(errno));
+        zip_close(handle);
+
+        return NULL;
     }
 
     zip->module = module;
     zip->handle = handle;
     zip->type   = ST_ZT_MEM;
 
-    return true;
+    return zip;
 }
 
 static void st_zip_close(st_zip_t *zip) {
@@ -153,6 +169,8 @@ static void st_zip_close(st_zip_t *zip) {
         zip_close(zip->handle);
     else
         zip_stream_close(zip->handle);
+
+    free(zip);
 }
 
 static ssize_t st_zip_get_entries_count(st_zip_t *zip) {
