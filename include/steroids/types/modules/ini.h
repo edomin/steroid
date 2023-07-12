@@ -10,7 +10,7 @@
     typedef struct st_ini_s st_ini_t;
 #endif
 
-typedef st_modctx_t *(*st_ini_init_t)(st_modctx_t *fnv1_ctx,
+typedef st_modctx_t *(*st_ini_init_t)(st_modctx_t *fnv1a_ctx,
  st_modctx_t *hash_table_ctx, st_modctx_t *logger_ctx);
 typedef void (*st_ini_quit_t)(st_modctx_t *ini_ctx);
 

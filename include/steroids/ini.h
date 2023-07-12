@@ -13,7 +13,7 @@
     #define ST_VISIBILITY
 #endif
 
-ST_VISIBILITY st_modctx_t *st_ini_init(st_modctx_t *fnv1_ctx,
+ST_VISIBILITY st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
  st_modctx_t *hash_table_ctx, st_modctx_t *logger_ctx);
 ST_VISIBILITY void st_ini_quit(st_modctx_t *ini_ctx);
 
