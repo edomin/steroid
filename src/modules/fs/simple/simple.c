@@ -84,8 +84,7 @@ static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx,
     fs->logger.ctx = logger_ctx;
     fs->pathtools.ctx = pathtools_ctx;
 
-    fs->logger.info(fs->logger.ctx,
-     "fs_simple: Special paths mgr initialized.");
+    fs->logger.info(fs->logger.ctx, "fs_simple: Filesystem mgr initialized.");
 
     return fs_ctx;
 }
@@ -93,7 +92,7 @@ static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx,
 static void st_fs_quit(st_modctx_t *fs_ctx) {
     st_fs_simple_t *fs = fs_ctx->data;
 
-    fs->logger.info(fs->logger.ctx, "fs_simple: Special paths mgr destroyed");
+    fs->logger.info(fs->logger.ctx, "fs_simple: Filesystem mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, fs_ctx);
 }
 

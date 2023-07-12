@@ -84,7 +84,7 @@ static st_modctx_t *st_hash_table_init(st_modctx_t *logger_ctx) {
     module->logger.ctx = logger_ctx;
 
     module->logger.info(module->logger.ctx,
-     "hash_table_hash_table: module initialized.");
+     "hash_table_hash_table: Module initialized.");
 
     return hash_table_ctx;
 }
@@ -93,7 +93,7 @@ static void st_hash_table_quit(st_modctx_t *hash_table_ctx) {
     st_hash_table_hash_table_t *module = hash_table_ctx->data;
 
     module->logger.info(module->logger.ctx,
-     "hash_table_hash_table: module destroyed");
+     "hash_table_hash_table: Module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, hash_table_ctx);
 }
 
@@ -106,7 +106,7 @@ static st_hashtable_t *st_hash_table_create(st_modctx_t *hash_table_ctx,
 
     if (!handle) {
         module->logger.error(module->logger.ctx,
-         "hash_table_hash_table: unable to create hash table handle");
+         "hash_table_hash_table: Unable to create hash table handle");
 
         return NULL;
     }
@@ -114,7 +114,7 @@ static st_hashtable_t *st_hash_table_create(st_modctx_t *hash_table_ctx,
     hash_table = malloc(sizeof(st_hashtable_t));
     if (!hash_table) {
         module->logger.error(module->logger.ctx,
-         "hash_table_hash_table: unable allocate memory for hash_table");
+         "hash_table_hash_table: Unable allocate memory for hash_table");
         hash_table_destroy(handle, NULL);
 
         return NULL;

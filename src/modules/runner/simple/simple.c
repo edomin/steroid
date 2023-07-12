@@ -108,7 +108,7 @@ static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
     module->plugin.ctx = plugin_ctx;
 
     module->logger.info(module->logger.ctx,
-     "runner_simple: module initialized.");
+     "runner_simple: Runner initialized.");
 
     return runner_ctx;
 }
@@ -116,7 +116,7 @@ static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
 static void st_runner_quit(st_modctx_t *runner_ctx) {
     st_runner_simple_t *module = runner_ctx->data;
 
-    module->logger.info(module->logger.ctx, "runner_simple: module destroyed");
+    module->logger.info(module->logger.ctx, "runner_simple: Runner destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, runner_ctx);
 }
 
@@ -133,11 +133,11 @@ static bool get_config_filename(st_runner_simple_t *module,
             return true;
 
         module->logger.warning(module->logger.ctx,
-         "runner_simple: unable to get cmdline option for config filename. "
+         "runner_simple: Unable to get cmdline option for config filename. "
          "Using default config file \"%s\"", DEFAULT_CONFIG_FILENAME);
     } else {
         module->logger.warning(module->logger.ctx,
-         "runner_simple: unable to set cmdline option for config filename. "
+         "runner_simple: Unable to set cmdline option for config filename. "
          "Using default config file \"%s\"", DEFAULT_CONFIG_FILENAME);
     }
 
@@ -168,14 +168,14 @@ static bool get_directory_name(st_runner_simple_t *module,
         errno_t err;
 
         module->logger.warning(module->logger.ctx,
-         "runner_simple: unable to get plugin directory name. Using default "
+         "runner_simple: Unable to get plugin directory name. Using default "
          "directory \"%s\"", DEFAULT_DIRECTORY_NAME);
 
         err = strcpy_s(dirname, PATH_MAX, DEFAULT_DIRECTORY_NAME);
         if (err) {
             strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
             module->logger.error(module->logger.ctx,
-             "runner_simple: unable to copy default plugin directory name "
+             "runner_simple: Unable to copy default plugin directory name "
              "\"%s\": %s", DEFAULT_DIRECTORY_NAME, err_msg_buf);
 
             return false;
@@ -197,7 +197,7 @@ static bool get_runnable_module_name(st_runner_simple_t *module,
     if (ini && !module->ini.fill_str(ini, runnable, RUNNABLE_MODULE_NAME_SIZE,
      "steroids.runner", "run_module")) {
         module->logger.error(module->logger.ctx,
-         "runner_simple: unable to get runnable module name");
+         "runner_simple: Unable to get runnable module name");
 
         return false;
     }
@@ -228,7 +228,7 @@ static bool load_plugins(st_runner_simple_t *module,
 
     if (!dir) {
         module->logger.error(module->logger.ctx,
-         "runner_simple: unable to open directory \"%s\": %s", dirname,
+         "runner_simple: Unable to open directory \"%s\": %s", dirname,
          strerror(errno));
 
         return false;

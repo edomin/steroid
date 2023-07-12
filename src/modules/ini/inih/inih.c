@@ -119,7 +119,7 @@ static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
     module->hash_table.ctx = hash_table_ctx;
     module->logger.ctx     = logger_ctx;
 
-    module->logger.info(module->logger.ctx, "ini_inih: module initialized.");
+    module->logger.info(module->logger.ctx, "ini_inih: Module initialized.");
 
     return ini_ctx;
 }
@@ -127,7 +127,7 @@ static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
 static void st_ini_quit(st_modctx_t *ini_ctx) {
     st_ini_inih_t *module = ini_ctx->data;
 
-    module->logger.info(module->logger.ctx, "ini_inih: module destroyed");
+    module->logger.info(module->logger.ctx, "ini_inih: Module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, ini_ctx);
 }
 
@@ -141,7 +141,7 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
 
     if (!ini) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to allocate memory for ini: %s", strerror(errno));
+         "ini_inih: Unable to allocate memory for ini: %s", strerror(errno));
 
         return NULL;
     }
@@ -153,7 +153,7 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
      st_keyeqfunc, free, st_ini_free_section);
     if (!ini->sections) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to create hashtable for sections");
+         "ini_inih: Unable to create hashtable for sections");
 
         free(ini);
         return NULL;
@@ -183,15 +183,15 @@ static void st_process_error(int parse_result, const char *filename,
             break;
         case -1:
             logger->error(logger->ctx,
-             "ini_inih: unable to open file \"%s\"", filename);
+             "ini_inih: Unable to open file \"%s\"", filename);
             break;
         case -2:
             logger->error(logger->ctx,
-             "ini_inih: memory allocation error while parsing file \"%s\"",
+             "ini_inih: Memory allocation error while parsing file \"%s\"",
              filename);
             break;
         default:
-            logger->error(logger->ctx, "ini_inih: syntax error at %s:%d",
+            logger->error(logger->ctx, "ini_inih: Syntax error at %s:%d",
              filename, parse_result);
             break;
     }
@@ -362,7 +362,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
      st_keyeqfunc, free, free);
     if (!section_ht) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to create section \"%s\"", section_name);
+         "ini_inih: Unable to create section \"%s\"", section_name);
 
         return false;
     }
@@ -370,7 +370,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     section = malloc(sizeof(st_inisection_t));
     if (!section) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to allocate memory for section \"%s\": %s",
+         "ini_inih: Unable to allocate memory for section \"%s\": %s",
          section_name, strerror(errno));
 
         goto malloc_fail;
@@ -381,7 +381,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     section_key = strdup(section_name);
     if (!section_key) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to allocate memory for section key: %s",
+         "ini_inih: Unable to allocate memory for section key: %s",
          strerror(errno));
 
         goto strdup_fail;
@@ -390,7 +390,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     if (!module->hash_table.insert(ini->sections, NULL, section_key,
      section)) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to insert unnamed section to sections table");
+         "ini_inih: Unable to insert unnamed section to sections table");
 
         goto insert_fail;
     }
@@ -422,7 +422,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     keydup = strdup(key);
     if (!keydup) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to allocate memory for key: %s", strerror(errno));
+         "ini_inih: Unable to allocate memory for key: %s", strerror(errno));
 
         return false;
     }
@@ -430,14 +430,14 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     valdup = strdup(value);
     if (!valdup) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to allocate memory for value: %s", strerror(errno));
+         "ini_inih: Unable to allocate memory for value: %s", strerror(errno));
 
         goto valdup_fail;
     }
 
     if (!module->hash_table.insert(section->data, NULL, keydup, valdup)) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to insert key \"%s\" to section \"%s\"", key,
+         "ini_inih: Unable to insert key \"%s\" to section \"%s\"", key,
          section_name);
 
         goto insert_fail;
@@ -526,7 +526,7 @@ static bool st_ini_save(const st_ini_t *ini, const char *filename) {
 
     if (!file) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: unable to open file \"%s\": %s\n", filename, err_msg_buf);
+         "ini_inih: Unable to open file \"%s\": %s\n", filename, err_msg_buf);
 
         return false;
     }
