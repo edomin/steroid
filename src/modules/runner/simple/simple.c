@@ -293,8 +293,12 @@ static void st_runner_run(st_modctx_t *runner_ctx,
         goto fail;
 
     runnable_name = strchr(runnable, ':');
-    if (!runnable_name)
+    if (!runnable_name) {
+        module->logger.error(module->logger.ctx,
+         "runner_simple: Missing name of runnable module");
+
         goto fail;
+    }
 
     *runnable_name++ = '\0';
 
