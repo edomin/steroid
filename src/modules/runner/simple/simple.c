@@ -65,7 +65,7 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 
 static bool st_runner_import_functions(st_modctx_t *runner_ctx,
  st_modctx_t *ini_ctx, st_modctx_t *logger_ctx, st_modctx_t *opts_ctx,
- st_modctx_t *plugin_ctx) {
+ st_modctx_t *pathtools_ctx, st_modctx_t *plugin_ctx) {
     st_runner_simple_t *module = runner_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function(global_modsmgr,
@@ -89,13 +89,16 @@ static bool st_runner_import_functions(st_modctx_t *runner_ctx,
     ST_LOAD_FUNCTION(opts, add_option);
     ST_LOAD_FUNCTION(opts, get_str);
 
+    ST_LOAD_FUNCTION(pathtools, concat);
+
     ST_LOAD_FUNCTION(plugin, load);
 
     return true;
 }
 
 static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *opts_ctx, st_modctx_t *plugin_ctx) {
+ st_modctx_t *logger_ctx, st_modctx_t *opts_ctx, st_modctx_t *pathtools_ctx,
+ st_modctx_t *plugin_ctx) {
     st_modctx_t        *runner_ctx;
     st_runner_simple_t *module;
 
@@ -107,13 +110,14 @@ static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
     runner_ctx->funcs = &st_runner_simple_funcs;
 
     module = runner_ctx->data;
-    module->ini.ctx    = ini_ctx;
-    module->logger.ctx = logger_ctx;
-    module->opts.ctx   = opts_ctx;
-    module->plugin.ctx = plugin_ctx;
+    module->ini.ctx       = ini_ctx;
+    module->logger.ctx    = logger_ctx;
+    module->opts.ctx      = opts_ctx;
+    module->pathtools.ctx = pathtools_ctx;
+    module->plugin.ctx    = plugin_ctx;
 
     if (!st_runner_import_functions(runner_ctx, ini_ctx, logger_ctx, opts_ctx,
-     plugin_ctx))
+     pathtools_ctx, plugin_ctx))
         return NULL;
 
     module->logger.info(module->logger.ctx,
@@ -242,8 +246,13 @@ static bool load_plugins(st_runner_simple_t *module,
 
     entry = readdir(dir);
     while (entry) {
-        if (entry->d_type == DT_REG)
-            module->plugin.load(module->plugin.ctx, entry->d_name);
+        if (entry->d_type == DT_REG) {
+            char filename[PATH_MAX];
+
+            if (module->pathtools.concat(module->pathtools.ctx, filename,
+             PATH_MAX, dirname, entry->d_name))
+                module->plugin.load(module->plugin.ctx, entry->d_name);
+        }
 
         entry = readdir(dir);
     }

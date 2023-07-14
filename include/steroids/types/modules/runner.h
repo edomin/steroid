@@ -4,7 +4,8 @@
 #include "steroids/module.h"
 
 typedef st_modctx_t *(*st_runner_init_t)(st_modctx_t *ini_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *opts_ctx, st_modctx_t *plugin_ctx);
+ st_modctx_t *logger_ctx, st_modctx_t *opts_ctx, st_modctx_t *pathtools_ctx,
+ st_modctx_t *plugin_ctx);
 typedef void (*st_runner_quit_t)(st_modctx_t *runner_ctx);
 
 typedef void (*st_runner_run_t)(st_modctx_t *runner_ctx, const void *params);

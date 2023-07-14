@@ -4,6 +4,7 @@
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/opts.h"
+#include "steroids/types/modules/pathtools.h"
 #include "steroids/types/modules/plugin.h"
 
 typedef struct {
@@ -28,15 +29,21 @@ typedef struct {
 } st_runner_simple_opts_t;
 
 typedef struct {
+    st_modctx_t          *ctx;
+    st_pathtools_concat_t concat;
+} st_runner_simple_pathtools_t;
+
+typedef struct {
     st_modctx_t         *ctx;
     st_plugin_load_t load;
 } st_runner_simple_plugin_t;
 
 typedef struct {
-    st_runner_simple_ini_t    ini;
-    st_runner_simple_logger_t logger;
-    st_runner_simple_opts_t   opts;
-    st_runner_simple_plugin_t plugin;
+    st_runner_simple_ini_t       ini;
+    st_runner_simple_logger_t    logger;
+    st_runner_simple_opts_t      opts;
+    st_runner_simple_pathtools_t pathtools;
+    st_runner_simple_plugin_t    plugin;
 } st_runner_simple_t;
 
 #endif /* ST_MODULES_RUNNER_SIMPLE_TYPES_H */
