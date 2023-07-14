@@ -125,7 +125,7 @@ static st_modctx_t *st_logger_init(void) {
     logger_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_logger_libsir_data, sizeof(st_logger_libsir_t));
 
-    if (logger_ctx == NULL)
+    if (!logger_ctx)
         return NULL;
 
     logger_ctx->funcs = &st_logger_libsir_funcs;
@@ -134,6 +134,7 @@ static st_modctx_t *st_logger_init(void) {
         st_logger_libsir_t *logger = logger_ctx->data;
 
         logger->use_fallback_module = false;
+        logger->callbacks_count = 0;
     } else {
         st_logger_init_fallback(logger_ctx);
     }
@@ -208,29 +209,73 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return sir_filelevels(file, (sir_levels)levels);
 }
 
-#define ST_LOGGER_MESSAGE_LEN_MAX 4096
-#define ST_LOGGER_LIBSIR_LOG_FUNC(st_func, st_fallback_func, sir_func)   \
-    static __attribute__ ((format (printf, 2, 3))) bool st_func(         \
-     const st_modctx_t *logger_ctx, const char* format, ...) {           \
-        st_logger_libsir_t *logger = logger_ctx->data;                   \
-        va_list args;                                                    \
-        char    message[ST_LOGGER_MESSAGE_LEN_MAX];                      \
-        va_start(args, format);                                          \
-        vsnprintf_s(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);   \
-        va_end(args);                                                    \
-        if (logger->use_fallback_module)                                 \
-            return logger->st_fallback_func(logger->logger_fallback_ctx, \
-             "%s", message);                                             \
-        return sir_func("%s", message);                                  \
+static bool st_logger_set_callback(st_modctx_t *logger_ctx,
+ st_logcbk_t callback, void *userdata, st_loglvl_t levels) {
+    st_logger_libsir_t *logger = logger_ctx->data;
+    unsigned            cbk_num = logger->callbacks_count;
+
+    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+        if (callback == logger->callbacks[logger->callbacks_count].func) {
+            cbk_num = i;
+
+            break;
+        }
     }
 
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_debug, logger_fallback_debug, sir_debug); // NOLINT(cert-err33-c)
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_info, logger_fallback_info, sir_info); // NOLINT(cert-err33-c)
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_notice, logger_fallback_notice, sir_notice); // NOLINT(cert-err33-c)
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_warning, logger_fallback_warning, sir_warn); // NOLINT(cert-err33-c)
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_error, logger_fallback_error, sir_error); // NOLINT(cert-err33-c)
+    if (cbk_num == logger->callbacks_count) {
+        if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
+            st_logger_error(logger_ctx, "%s",
+             "logger_simple: Unable to set callback because callbacks limit "
+             "reached.");
+
+            return false;
+        }
+        logger->callbacks[cbk_num].func = callback;
+        logger->callbacks[cbk_num].userdata = userdata;
+        logger->callbacks_count++;
+    }
+
+    logger->callbacks[cbk_num].log_levels = levels;
+
+    return true;
+}
+
+#define ST_LOGGER_MESSAGE_LEN_MAX 4096
+#define ST_LOGGER_LIBSIR_LOG_FUNC(st_func, st_fallback, sir_func, log_level) \
+    static __attribute__ ((format (printf, 2, 3))) void st_func(             \
+     const st_modctx_t *logger_ctx, const char* format, ...) {               \
+        st_logger_libsir_t *logger = logger_ctx->data;                       \
+        va_list             args;                                            \
+        char                message[ST_LOGGER_MESSAGE_LEN_MAX];              \
+        va_start(args, format);                                              \
+        vsnprintf_s(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);       \
+        va_end(args);                                                        \
+        if (logger->use_fallback_module)                                     \
+            logger->st_fallback(logger->logger_fallback_ctx,                 \
+             "%s", message);                                                 \
+        else                                                                 \
+            sir_func("%s", message);                                         \
+        for (unsigned i = 0; i < logger->callbacks_count; i++) {             \
+            if ((logger->callbacks[i].log_levels & (unsigned)(log_level)) == \
+             (log_level))                                                    \
+                logger->callbacks[i].func(message,                           \
+                 logger->callbacks[i].userdata);                             \
+        }                                                                    \
+    }
+
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_debug, logger_fallback_debug, sir_debug, // NOLINT(cert-err33-c)
+ ST_LL_DEBUG);
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_info, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
+ ST_LL_INFO);
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_notice, logger_fallback_notice, sir_notice, // NOLINT(cert-err33-c)
+ ST_LL_NOTICE);
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_warning, logger_fallback_warning, sir_warn, // NOLINT(cert-err33-c)
+ ST_LL_WARNING);
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_error, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
+ ST_LL_ERROR);
 ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_critical, logger_fallback_critical, // NOLINT(cert-err33-c)
- sir_crit);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_alert, logger_fallback_alert, sir_alert); // NOLINT(cert-err33-c)
+ sir_crit, ST_LL_CRITICAL);
+ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_alert, logger_fallback_alert, sir_alert, // NOLINT(cert-err33-c)
+ ST_LL_ALERT);
 ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_emergency, logger_fallback_emergency, // NOLINT(cert-err33-c)
- sir_emerg);
+ sir_emerg, ST_LL_EMERGENCY);

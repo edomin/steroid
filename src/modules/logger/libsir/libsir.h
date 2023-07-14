@@ -6,6 +6,14 @@
 #include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
 
+#define ST_LOGGER_CALLBACKS_MAX 16
+
+typedef struct {
+    st_logcbk_t func;
+    void       *userdata;
+    st_loglvl_t log_levels;
+} st_logger_libsir_callback_t;
+
 typedef struct {
     bool                          use_fallback_module;
     bool                          logger_fallback_active;
@@ -24,6 +32,8 @@ typedef struct {
     st_logger_critical_t          logger_fallback_critical;
     st_logger_alert_t             logger_fallback_alert;
     st_logger_emergency_t         logger_fallback_emergency;
+    st_logger_libsir_callback_t   callbacks[ST_LOGGER_CALLBACKS_MAX];
+    unsigned                      callbacks_count;
 } st_logger_libsir_t;
 
 st_logger_funcs_t st_logger_libsir_funcs = {
@@ -33,6 +43,7 @@ st_logger_funcs_t st_logger_libsir_funcs = {
     .logger_set_stderr_levels = st_logger_set_stderr_levels,
     .logger_set_syslog_levels = st_logger_set_syslog_levels,
     .logger_set_log_file = st_logger_set_log_file,
+    .logger_set_callback = st_logger_set_callback,
     .logger_debug = st_logger_debug,
     .logger_info = st_logger_info,
     .logger_notice = st_logger_notice,
@@ -53,6 +64,7 @@ st_modfuncstbl_t st_module_logger_libsir_funcs_table = {
         {"st_logger_set_stderr_levels", st_logger_set_stderr_levels},
         {"st_logger_set_syslog_levels", st_logger_set_syslog_levels},
         {"st_logger_set_log_file", st_logger_set_log_file},
+        {"st_logger_set_callback", st_logger_set_callback},
         {"st_logger_debug", st_logger_debug},
         {"st_logger_info", st_logger_info},
         {"st_logger_notice", st_logger_notice},

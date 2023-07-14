@@ -9,6 +9,7 @@
 // version
 
 #define ST_LOGGER_LOG_FILES_MAX 16
+#define ST_LOGGER_CALLBACKS_MAX 16
 #define ST_LOGGER_PATH_MAX      4096
 
 typedef struct {
@@ -18,11 +19,19 @@ typedef struct {
 } st_logger_simple_log_file_t;
 
 typedef struct {
+    st_logcbk_t func;
+    void       *userdata;
+    st_loglvl_t log_levels;
+} st_logger_simple_callback_t;
+
+typedef struct {
     st_loglvl_t                 stdout_levels;
     st_loglvl_t                 stderr_levels;
     st_loglvl_t                 syslog_levels;
     st_logger_simple_log_file_t log_files[ST_LOGGER_LOG_FILES_MAX];
     unsigned                    log_files_count;
+    st_logger_simple_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
+    unsigned                    callbacks_count;
 } st_logger_simple_t;
 
 st_logger_funcs_t st_logger_simple_funcs = {
@@ -32,6 +41,7 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_set_stderr_levels = st_logger_set_stderr_levels,
     .logger_set_syslog_levels = st_logger_set_syslog_levels,
     .logger_set_log_file = st_logger_set_log_file,
+    .logger_set_callback = st_logger_set_callback,
     .logger_debug = st_logger_debug,
     .logger_info = st_logger_info,
     .logger_notice = st_logger_notice,
@@ -52,6 +62,7 @@ st_modfuncstbl_t st_module_logger_simple_funcs_table = {
         {"st_logger_set_stderr_levels", st_logger_set_stderr_levels},
         {"st_logger_set_syslog_levels", st_logger_set_syslog_levels},
         {"st_logger_set_log_file", st_logger_set_log_file},
+        {"st_logger_set_callback", st_logger_set_callback},
         {"st_logger_debug", st_logger_debug},
         {"st_logger_info", st_logger_info},
         {"st_logger_notice", st_logger_notice},

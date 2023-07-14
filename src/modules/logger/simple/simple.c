@@ -13,6 +13,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
+#define CBK_BUF_SIZE     4096
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -58,7 +59,7 @@ static st_modctx_t *st_logger_init(void) {
      global_modsmgr, &st_module_logger_simple_data, sizeof(st_logger_simple_t));
     st_logger_simple_t *logger;
 
-    if (logger_ctx == NULL)
+    if (!logger_ctx)
         return NULL;
 
     logger_ctx->funcs = &st_logger_simple_funcs;
@@ -68,6 +69,7 @@ static st_modctx_t *st_logger_init(void) {
     logger->stderr_levels = ST_LL_ALL;
     logger->syslog_levels = ST_LL_NONE;
     logger->log_files_count = 0;
+    logger->callbacks_count = 0;
 
     st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized.");
 
@@ -155,6 +157,37 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return true;
 }
 
+static bool st_logger_set_callback(st_modctx_t *logger_ctx,
+ st_logcbk_t callback, void *userdata, st_loglvl_t levels) {
+    st_logger_simple_t *logger = logger_ctx->data;
+    unsigned            cbk_num = logger->callbacks_count;
+
+    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+        if (callback == logger->callbacks[logger->callbacks_count].func) {
+            cbk_num = i;
+
+            break;
+        }
+    }
+
+    if (cbk_num == logger->callbacks_count) {
+        if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
+            st_logger_error(logger_ctx, "%s",
+             "logger_simple: Unable to set callback because callbacks limit "
+             "reached.");
+
+            return false;
+        }
+        logger->callbacks[cbk_num].func = callback;
+        logger->callbacks[cbk_num].userdata = userdata;
+        logger->callbacks_count++;
+    }
+
+    logger->callbacks[cbk_num].log_levels = levels;
+
+    return true;
+}
+
 static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
     int      result = 0;
     unsigned u_log_level = log_level;
@@ -165,48 +198,47 @@ static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
     return result;
 }
 
-static inline __attribute__((format (printf, 3, 0))) bool st_logger_general(
+static inline __attribute__((format (printf, 3, 0))) void st_logger_general(
  const st_modctx_t *logger_ctx, st_loglvl_t log_level, const char *format,
  va_list args) {
     st_logger_simple_t *logger = logger_ctx->data;
 
-    if ((logger->stdout_levels & log_level) == log_level)
-        return (vprintf(format, args) > 0) && (putc('\n', stdout) != EOF);
-    if ((logger->stderr_levels & log_level) == log_level) {
-        bool vfprintf_success = vfprintf(stderr, format, args) > 0;
-        bool putc_success = putc('\n', stdout) != EOF;
-
-        return vfprintf_success && putc_success;
+    if ((logger->stdout_levels & log_level) == log_level) {
+        if (vprintf(format, args) > 0)
+            putc('\n', stdout);
     }
-    if ((logger->syslog_levels & log_level) == log_level) {
+    if ((logger->stderr_levels & log_level) == log_level) {
+        if (vfprintf(stderr, format, args) > 0)
+            putc('\n', stdout);
+    }
+    if ((logger->syslog_levels & log_level) == log_level)
         vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);
 
-        return true;
+    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+        if ((logger->log_files[i].log_levels & log_level) == log_level &&
+         vfprintf(logger->log_files[i].file, format, args) > 0)
+            fflush(logger->log_files[i].file);
+
     }
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if ((logger->log_files[i].log_levels & log_level) == log_level) {
-            bool success = vfprintf(logger->log_files[i].file, format, args) >
-             0;
+    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+        if ((logger->callbacks[i].log_levels & log_level) == log_level) {
+            char buffer[CBK_BUF_SIZE];
 
-            success = success && fflush(logger->log_files[i].file) == 0;
-
-            return success;
+            if (vsprintf_s(buffer, CBK_BUF_SIZE, format, args) > 0)
+                logger->callbacks[i].func(buffer,
+                 logger->callbacks[i].userdata);
         }
     }
-
-    return true;
 }
 
-#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                          \
-    static __attribute__((format (printf, 2, 3))) bool st_func(            \
-     const st_modctx_t *logger_ctx, const char* format, ...) {             \
-        va_list args;                                                      \
-        bool    result;                                                    \
-        va_start(args, format);                                            \
-        result = st_logger_general(logger_ctx, ST_LL_DEBUG, format, args); \
-        va_end(args);                                                      \
-        return result;                                                     \
+#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                 \
+    static __attribute__((format (printf, 2, 3))) void st_func(   \
+     const st_modctx_t *logger_ctx, const char* format, ...) {    \
+        va_list args;                                             \
+        va_start(args, format);                                   \
+        st_logger_general(logger_ctx, ST_LL_DEBUG, format, args); \
+        va_end(args);                                             \
     }
 
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug, ST_LL_DEBUG);
