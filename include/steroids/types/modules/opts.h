@@ -22,7 +22,7 @@ typedef bool (*st_opts_add_option_t)(st_modctx_t *opts_ctx, char short_option,
  const char *long_option, st_opt_arg_t arg, const char *arg_fmt,
  const char *option_descr);
 typedef bool (*st_opts_get_str_t)(st_modctx_t *opts_ctx, const char *opt,
- char *optarg, size_t optarg_size_max);
+ char *dst, size_t dstsize);
 
 typedef struct {
     st_opts_init_t       opts_init;

@@ -11,7 +11,7 @@ static void st_opts_quit(st_modctx_t *opts_ctx);
 static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
  const char *long_option, st_opt_arg_t arg, const char *arg_fmt,
  const char *option_descr);
-static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt,
- char *optarg, size_t optarg_size_max);
+static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
+ size_t dstsize);
 
 #endif

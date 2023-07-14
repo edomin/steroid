@@ -201,7 +201,7 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
 }
 
 static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
- size_t dst_size_max) {
+ size_t dstsize) {
     st_opts_ketopt_t *opts = opts_ctx->data;
     char              short_opts_fmt[SHORT_OPTS_FMT_SIZE] = "";
     ko_longopt_t      longopts[LONGOPTS_COUNT] = {0};
@@ -210,7 +210,7 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
     char              shortopt = '\0';
     ketopt_t          kopt = KETOPT_INIT;
 
-    if (!dst || !dst_size_max)
+    if (!dst || !dstsize)
         return false;
 
     if (!opt || opt[0] == '\0') {
@@ -274,7 +274,7 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
                 return true;
             }
 
-            errno_t err = strcpy_s(dst, dst_size_max, kopt.arg);
+            errno_t err = strcpy_s(dst, dstsize, kopt.arg);
             if (err) {
                 strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
                 opts->logger.error(opts->logger.ctx,
