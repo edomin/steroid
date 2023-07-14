@@ -57,21 +57,27 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_zip_import_functions(st_modctx_t *zip_ctx,
+static bool st_zip_import_functions(st_modctx_t *zip_ctx,
  st_modctx_t *fs_ctx, st_modctx_t *logger_ctx, st_modctx_t *pathtools_ctx) {
-    st_zip_zip_t         *module = zip_ctx->data;
-    st_fs_funcs_t        *fs_funcs = (st_fs_funcs_t *)fs_ctx->funcs;
-    st_logger_funcs_t    *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
-    st_pathtools_funcs_t *pathtools_funcs =
-     (st_pathtools_funcs_t *)pathtools_ctx->funcs;
+    st_zip_zip_t *module = zip_ctx->data;
 
-    module->fs.get_file_type = fs_funcs->fs_get_file_type;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "zip_zip: Unable to load function \"error\" from module \"logger\"\n");
 
-    module->logger.debug = logger_funcs->logger_debug;
-    module->logger.info  = logger_funcs->logger_info;
-    module->logger.error  = logger_funcs->logger_error;
+        return false;
+    }
 
-    module->pathtools.concat = pathtools_funcs->pathtools_concat;
+    ST_LOAD_FUNCTION(fs, get_file_type);
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    ST_LOAD_FUNCTION(pathtools, concat);
+
+    return true;
 }
 
 static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
@@ -87,9 +93,11 @@ static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
 
     zip_ctx->funcs = &st_zip_zip_funcs;
 
-    st_zip_import_functions(zip_ctx, fs_ctx, logger_ctx, pathtools_ctx);
     module = zip_ctx->data;
     module->logger.ctx = logger_ctx;
+
+    if (!st_zip_import_functions(zip_ctx, fs_ctx, logger_ctx, pathtools_ctx))
+        return NULL;
 
     module->logger.info(module->logger.ctx, "%s", "zip_zip: ZIP initialized.");
 

@@ -55,42 +55,44 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_plugin_import_functions(st_modctx_t *plugin_ctx,
+static bool st_plugin_import_functions(st_modctx_t *plugin_ctx,
  st_modctx_t *fs_ctx, st_modctx_t *logger_ctx, st_modctx_t *pathtools_ctx,
  st_modctx_t *so_ctx, st_modctx_t *spcpaths_ctx, st_modctx_t *zip_ctx) {
-    st_plugin_simple_t   *module = plugin_ctx->data;
-    st_fs_funcs_t        *fs_funcs = (st_fs_funcs_t *)fs_ctx->funcs;
-    st_logger_funcs_t    *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
-    st_pathtools_funcs_t *pathtools_funcs =
-     (st_pathtools_funcs_t *)pathtools_ctx->funcs;
-    st_so_funcs_t        *so_funcs = (st_so_funcs_t *)so_ctx->funcs;
-    st_spcpaths_funcs_t  *spcpaths_funcs =
-     (st_spcpaths_funcs_t *)spcpaths_ctx->funcs;
-    st_zip_funcs_t       *zip_funcs = (st_zip_funcs_t *)zip_ctx->funcs;
+    st_plugin_simple_t *module = plugin_ctx->data;
 
-    module->fs.mkdir                 = fs_funcs->fs_mkdir;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "plugin_simple: Unable to load function \"error\" from module "
+         "\"logger\"\n");
 
-    module->logger.debug             = logger_funcs->logger_debug;
-    module->logger.info              = logger_funcs->logger_info;
-    module->logger.error             = logger_funcs->logger_error;
+        return false;
+    }
 
-    module->pathtools.get_parent_dir =
-     pathtools_funcs->pathtools_get_parent_dir;
-    module->pathtools.concat         = pathtools_funcs->pathtools_concat;
+    ST_LOAD_FUNCTION(fs, mkdir);
 
-    module->so.open                  = so_funcs->so_open;
-    module->so.close                 = so_funcs->so_close;
-    module->so.load_symbol           = so_funcs->so_load_symbol;
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
 
-    module->spcpaths.get_cache_path  = spcpaths_funcs->spcpaths_get_cache_path;
+    ST_LOAD_FUNCTION(pathtools, get_parent_dir);
+    ST_LOAD_FUNCTION(pathtools, concat);
 
-    module->zip.open                 = zip_funcs->zip_open;
-    module->zip.memopen              = zip_funcs->zip_memopen;
-    module->zip.close                = zip_funcs->zip_close;
-    module->zip.get_entries_count    = zip_funcs->zip_get_entries_count;
-    module->zip.get_entry_name       = zip_funcs->zip_get_entry_name;
-    module->zip.get_entry_type       = zip_funcs->zip_get_entry_type;
-    module->zip.extract_entry        = zip_funcs->zip_extract_entry;
+    ST_LOAD_FUNCTION(so, open);
+    ST_LOAD_FUNCTION(so, close);
+    ST_LOAD_FUNCTION(so, load_symbol);
+
+    ST_LOAD_FUNCTION(spcpaths, get_cache_path);
+
+    ST_LOAD_FUNCTION(zip, open);
+    ST_LOAD_FUNCTION(zip, memopen);
+    ST_LOAD_FUNCTION(zip, close);
+    ST_LOAD_FUNCTION(zip, get_entries_count);
+    ST_LOAD_FUNCTION(zip, get_entry_name);
+    ST_LOAD_FUNCTION(zip, get_entry_type);
+    ST_LOAD_FUNCTION(zip, extract_entry);
+
+    return true;
 }
 
 static st_modctx_t *st_plugin_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
@@ -107,8 +109,6 @@ static st_modctx_t *st_plugin_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
 
     plugin_ctx->funcs = &st_plugin_simple_funcs;
 
-    st_plugin_import_functions(plugin_ctx, fs_ctx, logger_ctx, pathtools_ctx,
-     so_ctx, spcpaths_ctx, zip_ctx);
     module = plugin_ctx->data;
     module->fs.ctx        = fs_ctx;
     module->logger.ctx    = logger_ctx;
@@ -116,6 +116,10 @@ static st_modctx_t *st_plugin_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
     module->so.ctx        = so_ctx;
     module->spcpaths.ctx  = spcpaths_ctx;
     module->zip.ctx       = zip_ctx;
+
+    if (!st_plugin_import_functions(plugin_ctx, fs_ctx, logger_ctx,
+     pathtools_ctx, so_ctx, spcpaths_ctx, zip_ctx))
+        return NULL;
 
     module->logger.info(module->logger.ctx,
      "plugin_simple: Module initialized.");

@@ -54,14 +54,24 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_fnv1a_import_functions(st_modctx_t *fnv1a_ctx,
+static bool st_fnv1a_import_functions(st_modctx_t *fnv1a_ctx,
  st_modctx_t *logger_ctx) {
-    st_fnv1a_fnv_hash_t *fnv1a = fnv1a_ctx->data;
-    st_logger_funcs_t   *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_fnv1a_fnv_hash_t *module = fnv1a_ctx->data;
 
-    fnv1a->logger.debug = logger_funcs->logger_debug;
-    fnv1a->logger.info  = logger_funcs->logger_info;
-    fnv1a->logger.error = logger_funcs->logger_error;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "fnv1a_fnh_hash: Unable to load function \"error\" from module "
+         "\"logger\"\n");
+
+        return false;
+    }
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    return true;
 }
 
 static st_modctx_t *st_fnv1a_init(st_modctx_t *logger_ctx) {
@@ -76,9 +86,11 @@ static st_modctx_t *st_fnv1a_init(st_modctx_t *logger_ctx) {
 
     fnv1a_ctx->funcs = &st_fnv1a_fnv_hash_funcs;
 
-    st_fnv1a_import_functions(fnv1a_ctx, logger_ctx);
     fnv1a = fnv1a_ctx->data;
     fnv1a->logger.ctx = logger_ctx;
+
+    if (!st_fnv1a_import_functions(fnv1a_ctx, logger_ctx))
+        return NULL;
 
     fnv1a->logger.info(fnv1a->logger.ctx, "%s",
      "fnv1a_fnv_hash: FNV-1a hasher initialized.");

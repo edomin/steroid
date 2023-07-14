@@ -11,6 +11,15 @@
 #define ST_MT_internal 0
 #define ST_MT_shared   1
 
+#define ST_LOAD_FUNCTION(mod, function)                                \
+    module->mod.function = global_modsmgr_funcs.get_function_from_ctx( \
+     global_modsmgr, mod##_ctx, "st_" #mod "_" #function);             \
+    if (!module->mod.function) {                                       \
+        module->logger.error(module->logger.ctx,                       \
+         "runner_simple: Unable to load function \"%s\"", #function);  \
+        return false;                                                  \
+    }
+
 typedef struct {
     char      *subsystem;
     char      *name;
@@ -55,16 +64,19 @@ typedef bool (*st_modsmgr_load_module_t)(st_modsmgr_t *modsmgr,
  st_modinitfunc_t modinit_func);
 typedef void *(*st_modsmgr_get_function_t)(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name, const char *func_name);
+typedef void *(*st_modsmgr_get_function_from_ctx_t)(const st_modsmgr_t *modsmgr,
+ const st_modctx_t *ctx, const char *func_name);
 typedef st_modctx_t *(*st_modsmgr_init_module_ctx_t)(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size);
 typedef void (*st_modsmgr_free_module_ctx_t)(st_modsmgr_t *modsmgr,
  st_modctx_t *modctx);
 
 typedef struct st_modsmgr_funcs_s {
-    st_modsmgr_load_module_t     load_module;
-    st_modsmgr_get_function_t    get_function;
-    st_modsmgr_init_module_ctx_t init_module_ctx;
-    st_modsmgr_free_module_ctx_t free_module_ctx;
+    st_modsmgr_load_module_t           load_module;
+    st_modsmgr_get_function_t          get_function;
+    st_modsmgr_get_function_from_ctx_t get_function_from_ctx;
+    st_modsmgr_init_module_ctx_t       init_module_ctx;
+    st_modsmgr_free_module_ctx_t       free_module_ctx;
 } st_modsmgr_funcs_t;
 
 typedef struct {

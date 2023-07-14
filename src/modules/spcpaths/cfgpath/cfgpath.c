@@ -54,13 +54,24 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_spcpaths_import_functions(st_modctx_t *spcpaths_ctx,
+static bool st_spcpaths_import_functions(st_modctx_t *spcpaths_ctx,
  st_modctx_t *logger_ctx) {
-    st_spcpaths_cfgpath_t *spcpaths = spcpaths_ctx->data;
-    st_logger_funcs_t     *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_spcpaths_cfgpath_t *module = spcpaths_ctx->data;
 
-    spcpaths->logger.debug = logger_funcs->logger_debug;
-    spcpaths->logger.info  = logger_funcs->logger_info;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "spcpaths_cfgpath: Unable to load function \"error\" from module "
+         "\"logger\"\n");
+
+        return false;
+    }
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    return true;
 }
 
 static st_modctx_t *st_spcpaths_init(st_modctx_t *logger_ctx) {
@@ -70,16 +81,18 @@ static st_modctx_t *st_spcpaths_init(st_modctx_t *logger_ctx) {
     spcpaths_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_spcpaths_cfgpath_data, sizeof(st_spcpaths_cfgpath_t));
 
-    if (spcpaths_ctx == NULL)
+    if (!spcpaths_ctx)
         return NULL;
 
     spcpaths_ctx->funcs = &st_spcpaths_cfgpath_funcs;
 
-    st_spcpaths_import_functions(spcpaths_ctx, logger_ctx);
     spcpaths = spcpaths_ctx->data;
     spcpaths->logger.ctx = logger_ctx;
 
-    spcpaths->logger.info(spcpaths->logger.ctx, "%s",
+    if (!st_spcpaths_import_functions(spcpaths_ctx, logger_ctx))
+        return NULL;
+
+    spcpaths->logger.info(spcpaths->logger.ctx,
      "spcpaths_cfgpath: Special paths mgr initialized.");
 
     return spcpaths_ctx;
@@ -88,7 +101,7 @@ static st_modctx_t *st_spcpaths_init(st_modctx_t *logger_ctx) {
 static void st_spcpaths_quit(st_modctx_t *spcpaths_ctx) {
     st_spcpaths_cfgpath_t *spcpaths = spcpaths_ctx->data;
 
-    spcpaths->logger.info(spcpaths->logger.ctx, "%s",
+    spcpaths->logger.info(spcpaths->logger.ctx,
      "spcpaths_cfgpath: Special paths mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, spcpaths_ctx);
 }

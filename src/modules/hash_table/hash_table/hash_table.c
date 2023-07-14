@@ -51,20 +51,29 @@ st_moddata_t *st_module_hash_table_hash_table_init(void *modsmgr,
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void *modsmgr,
- st_modsmgr_funcs_t *modsmgr_funcs) {
+st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
     return st_module_hash_table_hash_table_init(modsmgr, modsmgr_funcs);
 }
 #endif
 
-static void st_hash_table_import_functions(st_modctx_t *hash_table_ctx,
+static bool st_hash_table_import_functions(st_modctx_t *hash_table_ctx,
  st_modctx_t *logger_ctx) {
-    st_hash_table_hash_table_t *ht_module = hash_table_ctx->data;
-    st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_hash_table_hash_table_t *module = hash_table_ctx->data;
 
-    ht_module->logger.debug = logger_funcs->logger_debug;
-    ht_module->logger.info  = logger_funcs->logger_info;
-    ht_module->logger.error = logger_funcs->logger_error;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "hash_table_hash_table: Unable to load function \"error\" from module "
+         "\"logger\"\n");
+
+        return false;
+    }
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    return true;
 }
 
 static st_modctx_t *st_hash_table_init(st_modctx_t *logger_ctx) {
@@ -74,14 +83,16 @@ static st_modctx_t *st_hash_table_init(st_modctx_t *logger_ctx) {
     hash_table_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_hash_table_hash_table_data, sizeof(st_hash_table_hash_table_t));
 
-    if (hash_table_ctx == NULL)
+    if (!hash_table_ctx)
         return NULL;
 
     hash_table_ctx->funcs = &st_hash_table_hash_table_funcs;
 
-    st_hash_table_import_functions(hash_table_ctx, logger_ctx);
     module = hash_table_ctx->data;
     module->logger.ctx = logger_ctx;
+
+    if (!st_hash_table_import_functions(hash_table_ctx, logger_ctx))
+        return NULL;
 
     module->logger.info(module->logger.ctx,
      "hash_table_hash_table: Module initialized.");

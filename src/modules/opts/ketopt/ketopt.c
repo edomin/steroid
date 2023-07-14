@@ -65,15 +65,25 @@ st_moddata_t *st_module_init(void *modsmgr,
 }
 #endif
 
-static void st_opts_import_functions(st_modctx_t *opts_ctx,
+static bool st_opts_import_functions(st_modctx_t *opts_ctx,
  st_modctx_t *logger_ctx) {
-    st_opts_ketopt_t  *opts = opts_ctx->data;
-    st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_opts_ketopt_t *module = opts_ctx->data;
 
-    opts->logger.debug = logger_funcs->logger_debug;
-    opts->logger.info = logger_funcs->logger_info;
-    opts->logger.warning = logger_funcs->logger_warning;
-    opts->logger.error = logger_funcs->logger_error;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "opts_ketopt: Unable to load function \"error\" from module "
+         "\"logger\"\n");
+
+        return false;
+    }
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION(logger, warning);
+
+    return true;
 }
 
 static st_modctx_t *st_opts_init(int argc, char **argv,
@@ -85,14 +95,17 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     opts_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_opts_ketopt_data, sizeof(st_opts_ketopt_t));
 
-    if (opts_ctx == NULL)
+    if (!opts_ctx)
         return NULL;
 
     opts_ctx->funcs = &st_opts_ketopt_funcs;
 
-    st_opts_import_functions(opts_ctx, logger_ctx);
     opts = opts_ctx->data;
     opts->logger.ctx = logger_ctx;
+
+    if (!st_opts_import_functions(opts_ctx, logger_ctx))
+        return NULL;
+
     opts->argc = argc;
     opts->argv = argv;
 

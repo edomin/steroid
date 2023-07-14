@@ -63,28 +63,35 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static void st_runner_import_functions(st_modctx_t *runner_ctx,
+static bool st_runner_import_functions(st_modctx_t *runner_ctx,
  st_modctx_t *ini_ctx, st_modctx_t *logger_ctx, st_modctx_t *opts_ctx,
  st_modctx_t *plugin_ctx) {
-    st_runner_simple_t *module       = runner_ctx->data;
-    st_ini_funcs_t     *ini_funcs    = (st_ini_funcs_t *)ini_ctx->funcs;
-    st_logger_funcs_t  *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
-    st_opts_funcs_t    *opts_funcs   = (st_opts_funcs_t *)opts_ctx->funcs;
-    st_plugin_funcs_t  *plugin_funcs = (st_plugin_funcs_t *)plugin_ctx->funcs;
+    st_runner_simple_t *module = runner_ctx->data;
 
-    module->ini.load        = ini_funcs->ini_load;
-    module->ini.destroy     = ini_funcs->ini_destroy;
-    module->ini.fill_str    = ini_funcs->ini_fill_str;
+    module->logger.error = global_modsmgr_funcs.get_function(global_modsmgr,
+     "logger", NULL, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "runner_simple: Unable to load function \"error\" from module "
+         "\"logger\"\n");
 
-    module->logger.debug    = logger_funcs->logger_debug;
-    module->logger.info     = logger_funcs->logger_info;
-    module->logger.warning  = logger_funcs->logger_warning;
-    module->logger.error    = logger_funcs->logger_error;
+        return false;
+    }
 
-    module->opts.add_option = opts_funcs->opts_add_option;
-    module->opts.get_str    = opts_funcs->opts_get_str;
+    ST_LOAD_FUNCTION(ini, load);
+    ST_LOAD_FUNCTION(ini, destroy);
+    ST_LOAD_FUNCTION(ini, fill_str);
 
-    module->plugin.load     = plugin_funcs->plugin_load;
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION(logger, warning);
+
+    ST_LOAD_FUNCTION(opts, add_option);
+    ST_LOAD_FUNCTION(opts, get_str);
+
+    ST_LOAD_FUNCTION(plugin, load);
+
+    return true;
 }
 
 static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
@@ -99,13 +106,15 @@ static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
 
     runner_ctx->funcs = &st_runner_simple_funcs;
 
-    st_runner_import_functions(runner_ctx, ini_ctx, logger_ctx, opts_ctx,
-     plugin_ctx);
-    module = ini_ctx->data;
+    module = runner_ctx->data;
     module->ini.ctx    = ini_ctx;
     module->logger.ctx = logger_ctx;
     module->opts.ctx   = opts_ctx;
     module->plugin.ctx = plugin_ctx;
+
+    if (!st_runner_import_functions(runner_ctx, ini_ctx, logger_ctx, opts_ctx,
+     plugin_ctx))
+        return NULL;
 
     module->logger.info(module->logger.ctx,
      "runner_simple: Runner initialized.");

@@ -72,32 +72,38 @@ st_moddata_t *st_module_init(void *modsmgr,
 }
 #endif
 
-static void st_ini_import_functions(st_modctx_t *ini_ctx,
+static bool st_ini_import_functions(st_modctx_t *ini_ctx,
  st_modctx_t *fnv1a_ctx, st_modctx_t *hash_table_ctx, st_modctx_t *logger_ctx) {
-    st_ini_inih_t         *ini_module = ini_ctx->data;
-    st_fnv1a_funcs_t      *fnv1a_funcs = (st_fnv1a_funcs_t *)fnv1a_ctx->funcs;
-    st_hash_table_funcs_t *ht_funcs =
-     (st_hash_table_funcs_t *)hash_table_ctx->funcs;
-    st_logger_funcs_t     *logger_funcs =
-     (st_logger_funcs_t *)logger_ctx->funcs;
+    st_ini_inih_t *module = ini_ctx->data;
 
-    ini_module->fnv1a.get_u32hashstr_func = fnv1a_funcs->fnv1a_get_u32hashstr_func;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "ini_inih: Unable to load function \"error\" from module \"logger\"\n"
+        );
 
-    ini_module->hash_table.create         = ht_funcs->hash_table_create;
-    ini_module->hash_table.destroy        = ht_funcs->hash_table_destroy;
-    ini_module->hash_table.insert         = ht_funcs->hash_table_insert;
-    ini_module->hash_table.get            = ht_funcs->hash_table_get;
-    ini_module->hash_table.remove         = ht_funcs->hash_table_remove;
-    ini_module->hash_table.clear          = ht_funcs->hash_table_clear;
-    ini_module->hash_table.contains       = ht_funcs->hash_table_contains;
-    ini_module->hash_table.find           = ht_funcs->hash_table_find;
-    ini_module->hash_table.next           = ht_funcs->hash_table_next;
-    ini_module->hash_table.get_iter_key   = ht_funcs->hash_table_get_iter_key;
-    ini_module->hash_table.get_iter_value = ht_funcs->hash_table_get_iter_value;
+        return false;
+    }
 
-    ini_module->logger.debug = logger_funcs->logger_debug;
-    ini_module->logger.info  = logger_funcs->logger_info;
-    ini_module->logger.error = logger_funcs->logger_error;
+    ST_LOAD_FUNCTION(fnv1a, get_u32hashstr_func);
+
+    ST_LOAD_FUNCTION(hash_table, create);
+    ST_LOAD_FUNCTION(hash_table, destroy);
+    ST_LOAD_FUNCTION(hash_table, insert);
+    ST_LOAD_FUNCTION(hash_table, get);
+    ST_LOAD_FUNCTION(hash_table, remove);
+    ST_LOAD_FUNCTION(hash_table, clear);
+    ST_LOAD_FUNCTION(hash_table, contains);
+    ST_LOAD_FUNCTION(hash_table, find);
+    ST_LOAD_FUNCTION(hash_table, next);
+    ST_LOAD_FUNCTION(hash_table, get_iter_key);
+    ST_LOAD_FUNCTION(hash_table, get_iter_value);
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    return true;
 }
 
 static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
@@ -108,16 +114,19 @@ static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
     ini_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_ini_inih_data, sizeof(st_ini_inih_t));
 
-    if (ini_ctx == NULL)
+    if (!ini_ctx)
         return NULL;
 
     ini_ctx->funcs = &st_ini_inih_funcs;
 
-    st_ini_import_functions(ini_ctx, fnv1a_ctx, hash_table_ctx, logger_ctx);
     module = ini_ctx->data;
     module->fnv1a.ctx      = fnv1a_ctx;
     module->hash_table.ctx = hash_table_ctx;
     module->logger.ctx     = logger_ctx;
+
+    if (!st_ini_import_functions(ini_ctx, fnv1a_ctx, hash_table_ctx,
+     logger_ctx))
+        return NULL;
 
     module->logger.info(module->logger.ctx, "ini_inih: Module initialized.");
 

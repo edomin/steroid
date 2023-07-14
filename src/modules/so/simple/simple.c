@@ -57,14 +57,24 @@ st_moddata_t *st_module_init(void *modsmgr,
 }
 #endif
 
-static void st_so_import_functions(st_modctx_t *so_ctx,
+static bool st_so_import_functions(st_modctx_t *so_ctx,
  st_modctx_t *logger_ctx) {
-    st_so_simple_t    *so = so_ctx->data;
-    st_logger_funcs_t *logger_funcs = (st_logger_funcs_t *)logger_ctx->funcs;
+    st_so_simple_t *module = so_ctx->data;
 
-    so->logger.debug = logger_funcs->logger_debug;
-    so->logger.info  = logger_funcs->logger_info;
-    so->logger.error = logger_funcs->logger_error;
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "st_logger_error");
+    if (!module->logger.error) {
+        fprintf(stderr,
+         "so_simple: Unable to load function \"error\" from module "
+         "\"logger\"\n");
+
+        return false;
+    }
+
+    ST_LOAD_FUNCTION(logger, debug);
+    ST_LOAD_FUNCTION(logger, info);
+
+    return true;
 }
 
 static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
@@ -79,9 +89,11 @@ static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
 
     so_ctx->funcs = &st_so_simple_funcs;
 
-    st_so_import_functions(so_ctx, logger_ctx);
     so = so_ctx->data;
     so->logger.ctx = logger_ctx;
+
+    if (!st_so_import_functions(so_ctx, logger_ctx))
+        return NULL;
 
     SLIST_INIT(&so->opened_handles); // NOLINT(altera-unroll-loops)
 

@@ -9,6 +9,7 @@ typedef struct {
     st_modctx_t      *ctx;
     st_logger_debug_t debug;
     st_logger_info_t  info;
+    st_logger_error_t error;
 } st_pathtools_simple_logger_t;
 
 typedef struct {

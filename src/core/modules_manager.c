@@ -133,10 +133,11 @@ st_modsmgr_t *st_modsmgr_init(void) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
          &(st_modsmgr_funcs_t){
-            .load_module = st_modsmgr_load_module,
-            .get_function = st_modsmgr_get_function,
-            .init_module_ctx = st_modsmgr_init_module_ctx,
-            .free_module_ctx = st_free_module_ctx,
+            .load_module           = st_modsmgr_load_module,
+            .get_function          = st_modsmgr_get_function,
+            .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
+            .init_module_ctx       = st_modsmgr_init_module_ctx,
+            .free_module_ctx       = st_free_module_ctx,
          });
         st_snode_t *node;
 
@@ -184,6 +185,21 @@ void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
      module_name);
 
     if (module_data == NULL)
+        return NULL;
+
+    return module_data->get_function(func_name);
+}
+
+void *st_modsmgr_get_function_from_ctx(const st_modsmgr_t *modsmgr,
+ const st_modctx_t *ctx, const char *func_name) {
+    st_moddata_t *module_data;
+
+    if (!ctx)
+        return NULL;
+
+    module_data = st_modsmgr_find_module(modsmgr, ctx->subsystem, ctx->name);
+
+    if (!module_data)
         return NULL;
 
     return module_data->get_function(func_name);
