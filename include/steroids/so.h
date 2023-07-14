@@ -6,21 +6,13 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/so.h"
 
-#if defined(ST_MODULE_TYPE_internal)
-    #define ST_VISIBILITY static
-#else
-    #define ST_VISIBILITY
-#endif
+static st_modctx_t *st_so_init(st_modctx_t *logger_ctx);
+static void st_so_quit(st_modctx_t *so_ctx);
 
-ST_VISIBILITY st_modctx_t *st_so_init(st_modctx_t *logger_ctx);
-ST_VISIBILITY void st_so_quit(st_modctx_t *so_ctx);
-
-ST_VISIBILITY st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename);
-ST_VISIBILITY st_so_t *st_so_memopen(st_modctx_t *so_ctx, const void *data,
+static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename);
+static st_so_t *st_so_memopen(st_modctx_t *so_ctx, const void *data,
  size_t size);
-ST_VISIBILITY void st_so_close(st_so_t *so);
-ST_VISIBILITY void *st_so_load_symbol(st_so_t *so, const char *name);
-
-#undef ST_VISIBILITY
+static void st_so_close(st_so_t *so);
+static void *st_so_load_symbol(st_so_t *so, const char *name);
 
 #endif /* ST_STEROIDS_SO_H */
