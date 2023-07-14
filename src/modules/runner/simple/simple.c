@@ -131,14 +131,11 @@ static void st_runner_quit(st_modctx_t *runner_ctx) {
 
 static bool get_config_filename(st_runner_simple_t *module,
  char filename[PATH_MAX]) {
-    bool                opt_added = module->opts.add_option(module->opts.ctx,
-     'c', "cfg", ST_OA_REQUIRED, "filename", "config file");
-    char                config_filename[PATH_MAX];
-    errno_t             err;
+    errno_t err;
 
-    if (opt_added) {
-        if (module->opts.get_str(module->opts.ctx, "cfg", config_filename,
-         PATH_MAX))
+    if (module->opts.add_option(module->opts.ctx,
+     'c', "cfg", ST_OA_REQUIRED, "filename", "config file")) {
+        if (module->opts.get_str(module->opts.ctx, "cfg", filename, PATH_MAX))
             return true;
 
         module->logger.warning(module->logger.ctx,
@@ -150,7 +147,7 @@ static bool get_config_filename(st_runner_simple_t *module,
          "Using default config file \"%s\"", DEFAULT_CONFIG_FILENAME);
     }
 
-    err = strcpy_s(config_filename, PATH_MAX, DEFAULT_CONFIG_FILENAME);
+    err = strcpy_s(filename, PATH_MAX, DEFAULT_CONFIG_FILENAME);
 
     if (err) {
         strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
