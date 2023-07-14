@@ -1,6 +1,7 @@
 #ifndef ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 #define ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
 
+#include <limits.h>
 #include <stdio.h>
 
 #include "config.h" // IWYU pragma: keep
@@ -10,11 +11,10 @@
 
 #define ST_LOGGER_LOG_FILES_MAX 16
 #define ST_LOGGER_CALLBACKS_MAX 16
-#define ST_LOGGER_PATH_MAX      4096
 
 typedef struct {
     FILE       *file;
-    char        filename[ST_LOGGER_PATH_MAX];
+    char        filename[PATH_MAX];
     st_loglvl_t log_levels;
 } st_logger_simple_log_file_t;
 
