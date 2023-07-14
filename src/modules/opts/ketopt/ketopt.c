@@ -287,8 +287,5 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
         }
     }
 
-    opts->logger.error(opts->logger.ctx, "opts_ketopt: Missing option: %s",
-     opt);
-
     return false;
 }
