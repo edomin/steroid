@@ -284,6 +284,10 @@ static bool st_zip_extract_entry(st_zip_t *zip, size_t entrynum,
     if (module->fs.get_file_type(module->fs.ctx, path) == ST_FT_DIR) {
         if (!module->pathtools.concat(module->pathtools.ctx, result_filename,
          PATH_MAX, path, zip_entry_name(zip->handle))) {
+            module->logger.error(module->logger.ctx,
+             "zip_zip: Unable get output filename for entry: %s",
+             zip_entry_name(zip->handle));
+
             zip_entry_close(zip->handle);
 
             return false;

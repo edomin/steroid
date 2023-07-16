@@ -250,8 +250,11 @@ static bool load_plugins(st_runner_simple_t *module,
             char filename[PATH_MAX];
 
             if (module->pathtools.concat(module->pathtools.ctx, filename,
-             PATH_MAX, dirname, entry->d_name))
-                module->plugin.load(module->plugin.ctx, entry->d_name);
+             PATH_MAX, dirname, entry->d_name)) {
+                if (!module->plugin.load(module->plugin.ctx, filename))
+                    module->logger.error(module->logger.ctx,
+                     "runner_simple: Unable to load plugin \"%s\"", filename);
+            }
         }
 
         entry = readdir(dir);
@@ -273,7 +276,7 @@ static void run_runnable(st_runner_simple_t *module,
     if (!runnable_init_func) {
         module->logger.error(module->logger.ctx,
          "runner_simple: Unable to load function \"init\" from module "
-         "\"%s_%s\"\n", module_subsystem, module_name);
+         "\"%s_%s\"", module_subsystem, module_name);
 
         return;
     }
@@ -283,7 +286,7 @@ static void run_runnable(st_runner_simple_t *module,
     if (!runnable_init_func) {
         module->logger.error(module->logger.ctx,
          "runner_simple: Unable to load function \"quit\" from module "
-         "\"%s_%s\"\n", module_subsystem, module_name);
+         "\"%s_%s\"", module_subsystem, module_name);
 
         return;
     }
@@ -293,7 +296,7 @@ static void run_runnable(st_runner_simple_t *module,
     if (!runnable_init_func) {
         module->logger.error(module->logger.ctx,
          "runner_simple: Unable to load function \"run\" from module "
-         "\"%s_%s\"\n", module_subsystem, module_name);
+         "\"%s_%s\"", module_subsystem, module_name);
 
         return;
     }

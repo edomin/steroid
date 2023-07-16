@@ -134,22 +134,33 @@ static void st_plugin_quit(st_modctx_t *plugin_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, plugin_ctx);
 }
 
-static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip) {
+static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
+ const char *filename) {
     st_plugin_simple_t *module = plugin_ctx->data;
     ssize_t             zip_entries_count;
     char                tmp_path[PATH_MAX];
     char                triplet_path[PATH_MAX];
 
     zip_entries_count = module->zip.get_entries_count(zip);
-    if (zip_entries_count == -1)
+    if (zip_entries_count == -1) {
+        module->logger.error(module->logger.ctx,
+         "plugin_simple: Unable to get entries count in plugin \"%s\"",
+         filename);
+
         goto fail;
+    }
 
     module->spcpaths.get_cache_path(module->spcpaths.ctx, tmp_path, PATH_MAX,
      "steroids");
 
     if (!module->pathtools.concat(module->pathtools.ctx, triplet_path,
-     PATH_MAX, tmp_path, ST_TRIPLET))
+     PATH_MAX, tmp_path, ST_TRIPLET)) {
+        module->logger.error(module->logger.ctx,
+         "plugin_simple: Unable to get triplet path for plugin \"%s\"",
+         filename);
+
         return false;
+    }
 
     for (size_t i = 0; i < (size_t)zip_entries_count; i++) {
         char             entry_name[PATH_MAX];
@@ -166,8 +177,15 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip) {
             continue;
 
         if (!module->pathtools.concat(module->pathtools.ctx, so_filename,
-          PATH_MAX, triplet_path, basename(entry_name)) ||
-         !module->fs.mkdir(module->fs.ctx, triplet_path) ||
+          PATH_MAX, triplet_path, basename(entry_name))) {
+            module->logger.error(module->logger.ctx,
+             "plugin_simple: Unable to get output filename for plugin entry "
+             "\"%s\"", entry_name);
+
+            goto fail;
+        }
+
+        if (!module->fs.mkdir(module->fs.ctx, triplet_path) ||
          !module->zip.extract_entry(zip, i, so_filename))
             goto fail;
 
@@ -177,6 +195,9 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip) {
 
         modinit_func = module->so.load_symbol(so, "st_module_init");
         if (!modinit_func) {
+            module->logger.error(module->logger.ctx,
+             "plugin_simple: Module %s has not function \"st_module_init\"");
+
             module->so.close(so);
 
             goto fail;
@@ -186,6 +207,9 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip) {
     }
 
 fail:
+    module->logger.error(module->logger.ctx,
+     "plugin_simple: Plugin \"%s\" cannot be loaded on this platform",
+     filename);
     module->zip.close(zip);
 
     return false;
@@ -198,7 +222,7 @@ static bool st_plugin_load(st_modctx_t *plugin_ctx, const char *filename) {
     if (!zip)
         return false;
 
-    return st_plugin_load_impl(plugin_ctx, zip);
+    return st_plugin_load_impl(plugin_ctx, zip, filename);
 }
 
 static bool st_plugin_memload(st_modctx_t *plugin_ctx, const void *data,
@@ -209,5 +233,5 @@ static bool st_plugin_memload(st_modctx_t *plugin_ctx, const void *data,
     if (!zip)
         return false;
 
-    return st_plugin_load_impl(plugin_ctx, zip);
+    return st_plugin_load_impl(plugin_ctx, zip, "");
 }
