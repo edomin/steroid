@@ -114,46 +114,56 @@ static bool st_pathtools_resolve_absolute(
     size_t resolved_path_len;
 
     while (*path) {
+        const char *slash;
+
         if (*path == '/') {
             if (resolved_path_last != '/') {
                 strncat_s(resolved_path, PATH_MAX, "/", 1);
                 resolved_path_last = '/';
-                path++;
-
-                continue;
-            }
-        } else {
-            const char *slash = strchr(path, '/');
-
-            if (!slash) {
-                slash = path;
-                while (*slash)
-                    slash++;
             }
 
-            if (path[0] == '.' && path[1] != '.') {
-                path++;
+            path++;
 
-                continue;
-            }
-
-            if (path[0] == '.' && path[1] == '.') {
-                char *prev_resolv_slash = strrchr(resolved_path, '/');
-
-                if (!prev_resolv_slash || prev_resolv_slash == resolved_path)
-                    return false;
-
-                *prev_resolv_slash = '\0';
-
-                path += 2;
-
-                continue;
-            }
-
-            strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
-            resolved_path_last = *(slash - 1);
-            path = slash;
+            continue;
         }
+
+        slash = strchr(path, '/');
+
+        if (!slash) {
+            slash = path;
+            while (*slash)
+                slash++;
+        }
+
+        if (path[0] == '.' && (path[1] == '/' || path[1] == '\0')) {
+            path++;
+
+            continue;
+        }
+
+        if (path[0] == '.' && path[1] == '.') {
+            char *prev_resolv_slash = strrchr(resolved_path, '/');
+            char *prev_prev_resolv_slash;
+
+            if (!prev_resolv_slash || prev_resolv_slash == resolved_path)
+                return false;
+
+            *prev_resolv_slash = '\0';
+            prev_prev_resolv_slash = strrchr(resolved_path, '/');
+            if (!prev_prev_resolv_slash ||
+             prev_prev_resolv_slash == resolved_path)
+                return false;
+
+            *prev_prev_resolv_slash = '\0';
+
+            path += 2;
+
+            continue;
+        }
+
+        strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
+        resolved_path_last = *(slash - 1);
+        path = slash;
     }
 
     resolved_path_len = strlen(resolved_path);
@@ -179,60 +189,74 @@ static bool st_pathtools_resolve_relative(
     }
 
     while (*path) {
+        const char *slash;
+
         if (*path == '/') {
             if (resolved_path_last != '/') {
                 strncat_s(resolved_path, PATH_MAX, "/", 1);
                 resolved_path_last = '/';
-                path++;
-
-                continue;
-            }
-        } else {
-            const char *slash = strchr(path, '/');
-
-            if (!slash) {
-                slash = path;
-                while (*slash)
-                    slash++;
             }
 
-            if (path[0] == '.' && path[1] != '.') {
-                path++;
+            path++;
 
-                continue;
-            }
+            continue;
+        }
 
-            if (path[0] == '.' && path[1] == '.') {
-                char *prev_resolv_slash = strrchr(resolved_path, '/');
+        slash = strchr(path, '/');
 
-                if (prev_resolv_slash[1] == '.' &&
-                 prev_resolv_slash[2] == '.') {
-                    strcat_s(resolved_path, PATH_MAX, "/..");
-                    resolved_path_last = '.';
-                    path += 2;
+        if (!slash) {
+            slash = path;
+            while (*slash)
+                slash++;
+        }
 
-                    continue;
-                }
+        if (path[0] == '.' && (path[1] == '/' || path[1] == '\0')) {
+            path++;
 
-                if (!prev_resolv_slash) {
-                    strcpy_s(resolved_path, PATH_MAX, "/..");
-                    resolved_path_last = '.';
-                    path += 2;
+            continue;
+        }
 
-                    continue;
-                }
+        if (path[0] == '.' && path[1] == '.') {
+            char *prev_resolv_slash = strrchr(resolved_path, '/');
+            char *prev_prev_resolv_slash;
 
-                *prev_resolv_slash = '\0';
-
+            if (prev_resolv_slash[1] == '.' &&
+             prev_resolv_slash[2] == '.') {
+                strcat_s(resolved_path, PATH_MAX, "/..");
+                resolved_path_last = '.';
                 path += 2;
 
                 continue;
             }
 
-            strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
-            resolved_path_last = *(slash - 1);
-            path = slash;
+            if (!prev_resolv_slash) {
+                strcpy_s(resolved_path, PATH_MAX, "..");
+                resolved_path_last = '.';
+                path += 2;
+
+                continue;
+            }
+
+            *prev_resolv_slash = '\0';
+            prev_prev_resolv_slash = strrchr(resolved_path, '/');
+            if (!prev_prev_resolv_slash) {
+                strcpy_s(resolved_path, PATH_MAX, "..");
+                resolved_path_last = '.';
+                path += 2;
+
+                continue;
+            }
+
+            *prev_prev_resolv_slash = '\0';
+
+            path += 2;
+
+            continue;
         }
+
+        strncat_s(resolved_path, PATH_MAX, path, (rsize_t)(slash - path));
+        resolved_path_last = *(slash - 1);
+        path = slash;
     }
 
     resolved_path_len = strlen(resolved_path);
