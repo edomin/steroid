@@ -141,16 +141,27 @@ static bool st_fs_mkdir(st_modctx_t *fs_ctx, const char *dirname) {
     bool            last_is_slash;
 
     if (!module->pathtools.resolve(module->pathtools.ctx, path, PATH_MAX,
-     dirname))
-        return false;
+     dirname)) {
+        module->logger.error(module->logger.ctx,
+         "fs_simple: Unable to get resolved path for directory \"%s\"",
+         dirname);
 
-    if (path[0] && !path[1])
         return false;
+    }
+
+    if (path[0] && !path[1]) {
+        module->logger.error(module->logger.ctx,
+         "fs_simple: Unable to create directory with name \"%s\"", path);
+
+        return false;
+    }
 
     if (*ch == '/')
         ch++;
 
     do {
+        struct stat unused;
+
         while(*ch && *ch != '/')
             ch++;
 
@@ -158,9 +169,15 @@ static bool st_fs_mkdir(st_modctx_t *fs_ctx, const char *dirname) {
 
         *ch = '\0';
 
-        if (path[0] != '.' && path[1] &&
-         mkdir(path, S_IRWXU | S_IRGRP | S_IROTH) == -1) // NOLINT(hicpp-signed-bitwise)
+
+
+        if (path[0] != '.' && path[1] && stat(path, &unused) != 0 &&
+         mkdir(path, S_IRWXU | S_IRGRP | S_IROTH) == -1) { // NOLINT(hicpp-signed-bitwise)
+            module->logger.error(module->logger.ctx,
+             "fs_simple: Unable to create directory \"%s\"", path);
+
             return false;
+        }
 
         if (last_is_slash)
             *ch = '/';
