@@ -113,7 +113,7 @@ static bool st_pathtools_resolve_absolute(
     char   resolved_path_last = '\0';
     size_t resolved_path_len;
 
-    while (path) {
+    while (*path) {
         if (*path == '/') {
             if (resolved_path_last != '/') {
                 strncat_s(resolved_path, PATH_MAX, "/", 1);
@@ -178,7 +178,7 @@ static bool st_pathtools_resolve_relative(
         path += 2;
     }
 
-    while (path) {
+    while (*path) {
         if (*path == '/') {
             if (resolved_path_last != '/') {
                 strncat_s(resolved_path, PATH_MAX, "/", 1);
