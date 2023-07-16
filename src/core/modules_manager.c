@@ -55,12 +55,14 @@ static bool st_modsmgr_module_have_deps(const st_modsmgr_t *modsmgr,
             continue;
 
         if (module_data->prereqs[i].name == NULL)
-            printf("Missing module of subsystem \"%s\" as prerequisite of "
-             "module \"%s_%s\"\n", module_data->prereqs[i].subsystem,
+            fprintf(stderr, "steroids: Missing module of subsystem \"%s\" as "
+             "prerequisite of module \"%s_%s\"\n",
+             module_data->prereqs[i].subsystem,
              module_data->subsystem, module_data->name);
         else
-            printf(
-             "Missing module \"%s_%s\" as prerequisite of module \"%s_%s\"\n",
+            fprintf(stderr,
+             "steroids: Missing module \"%s_%s\" as prerequisite of module "
+             "\"%s_%s\"\n",
              module_data->prereqs[i].subsystem, module_data->prereqs[i].name,
              module_data->subsystem, module_data->name);
 
@@ -101,7 +103,7 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
         .free_module_ctx = st_free_module_ctx,
      });
 
-    printf("Trying to add module \"%s_%s\"\n", module_data->subsystem,
+    printf("steroids: Trying to add module \"%s_%s\"\n", module_data->subsystem,
      module_data->name);
 
     if (!st_modsmgr_module_have_deps(modsmgr, module_data))
@@ -109,8 +111,9 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
 
     node = malloc(sizeof(st_snode_t));
     if (!node) {
-        printf("Error occured while processing found module \"%s_%s\": %s. "
-         "Module skipped.\n", module_data->subsystem, module_data->name,
+        fprintf(stderr, "steroids: Error occured while processing found module "
+         "\"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
+         module_data->name,
          strerror(errno));
         return false;
     }
@@ -128,7 +131,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
 
     SLIST_INIT(&modsmgr->modules_data); // NOLINT(altera-unroll-loops)
 
-    printf("Searching internal modules...\n");
+    printf("steroids: Searching internal modules...\n");
     for (size_t i = 0; i < ST_INTERNAL_MODULES_COUNT; i++) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
@@ -144,13 +147,13 @@ st_modsmgr_t *st_modsmgr_init(void) {
         if (!module_data)
             continue;
 
-        printf("Found module \"%s_%s\"\n", module_data->subsystem,
+        printf("steroids: Found module \"%s_%s\"\n", module_data->subsystem,
          module_data->name);
 
         node = malloc(sizeof(st_snode_t));
         if (!node) {
-            fprintf(stderr, "Error occured while processing found module: "
-             "\"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
+            fprintf(stderr, "steroids: Error occured while processing found "
+             "module: \"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
              module_data->name, strerror(errno));
             continue;
         }
