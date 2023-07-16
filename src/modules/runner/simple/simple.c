@@ -270,14 +270,33 @@ static void run_runnable(st_runner_simple_t *module,
 
     runnable_init_func = global_modsmgr_funcs.get_function(global_modsmgr,
      module_subsystem, module_name, "init");
+    if (!runnable_init_func) {
+        module->logger.error(module->logger.ctx,
+         "runner_simple: Unable to load function \"init\" from module "
+         "\"%s_%s\"\n", module_subsystem, module_name);
+
+        return;
+    }
+
     runnable_quit_func = global_modsmgr_funcs.get_function(global_modsmgr,
      module_subsystem, module_name, "quit");
+    if (!runnable_init_func) {
+        module->logger.error(module->logger.ctx,
+         "runner_simple: Unable to load function \"quit\" from module "
+         "\"%s_%s\"\n", module_subsystem, module_name);
+
+        return;
+    }
+
     runnable_run_func = global_modsmgr_funcs.get_function(global_modsmgr,
      module_subsystem, module_name, "run");
+    if (!runnable_init_func) {
+        module->logger.error(module->logger.ctx,
+         "runner_simple: Unable to load function \"run\" from module "
+         "\"%s_%s\"\n", module_subsystem, module_name);
 
-
-    if (!runnable_init_func || !runnable_quit_func || !runnable_run_func)
         return;
+    }
 
     runnable_ctx = runnable_init_func(module->logger.ctx);
     if (!runnable_ctx)
