@@ -59,7 +59,7 @@ static bool st_pathtools_import_functions(st_modctx_t *pathtools_ctx,
     st_pathtools_simple_t *module = pathtools_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "pathtools_simple: Unable to load function \"error\" from module "

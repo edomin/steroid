@@ -61,7 +61,7 @@ static bool st_hash_table_import_functions(st_modctx_t *hash_table_ctx,
     st_hash_table_hash_table_t *module = hash_table_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "hash_table_hash_table: Unable to load function \"error\" from module "

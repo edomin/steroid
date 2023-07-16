@@ -59,7 +59,7 @@ static bool st_fnv1a_import_functions(st_modctx_t *fnv1a_ctx,
     st_fnv1a_fnv_hash_t *module = fnv1a_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "fnv1a_fnh_hash: Unable to load function \"error\" from module "

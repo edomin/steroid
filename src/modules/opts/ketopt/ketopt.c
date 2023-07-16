@@ -70,7 +70,7 @@ static bool st_opts_import_functions(st_modctx_t *opts_ctx,
     st_opts_ketopt_t *module = opts_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "opts_ketopt: Unable to load function \"error\" from module "

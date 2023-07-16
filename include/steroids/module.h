@@ -13,7 +13,7 @@
 
 #define ST_LOAD_FUNCTION(mod, function)                                \
     module->mod.function = global_modsmgr_funcs.get_function_from_ctx( \
-     global_modsmgr, mod##_ctx, "st_" #mod "_" #function);             \
+     global_modsmgr, mod##_ctx, #function);             \
     if (!module->mod.function) {                                       \
         module->logger.error(module->logger.ctx,                       \
          "runner_simple: Unable to load function \"%s\"", #function);  \

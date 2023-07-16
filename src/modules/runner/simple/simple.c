@@ -69,7 +69,7 @@ static bool st_runner_import_functions(st_modctx_t *runner_ctx,
     st_runner_simple_t *module = runner_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function(global_modsmgr,
-     "logger", NULL, "st_logger_error");
+     "logger", NULL, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "runner_simple: Unable to load function \"error\" from module "

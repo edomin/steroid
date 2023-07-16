@@ -62,7 +62,7 @@ static bool st_so_import_functions(st_modctx_t *so_ctx,
     st_so_simple_t *module = so_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "so_simple: Unable to load function \"error\" from module "

@@ -58,7 +58,7 @@ static bool st_fs_import_functions(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
     st_fs_simple_t *module = fs_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "fs_simple: Unable to load function \"error\" from module \"logger\"\n"

@@ -24,6 +24,7 @@ typedef struct {
     st_logger_set_stderr_levels_t logger_fallback_set_stderr_levels;
     st_logger_set_syslog_levels_t logger_fallback_set_syslog_levels;
     st_logger_set_log_file_t      logger_fallback_set_log_file;
+    st_logger_set_callback_t      logger_fallback_set_callback;
     st_logger_debug_t             logger_fallback_debug;
     st_logger_info_t              logger_fallback_info;
     st_logger_notice_t            logger_fallback_notice;
@@ -58,21 +59,21 @@ st_logger_funcs_t st_logger_libsir_funcs = {
 st_modfuncstbl_t st_module_logger_libsir_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_logger_init", st_logger_init},
-        {"st_logger_quit", st_logger_quit},
-        {"st_logger_set_stdout_levels", st_logger_set_stdout_levels},
-        {"st_logger_set_stderr_levels", st_logger_set_stderr_levels},
-        {"st_logger_set_syslog_levels", st_logger_set_syslog_levels},
-        {"st_logger_set_log_file", st_logger_set_log_file},
-        {"st_logger_set_callback", st_logger_set_callback},
-        {"st_logger_debug", st_logger_debug},
-        {"st_logger_info", st_logger_info},
-        {"st_logger_notice", st_logger_notice},
-        {"st_logger_warning", st_logger_warning},
-        {"st_logger_error", st_logger_error},
-        {"st_logger_critical", st_logger_critical},
-        {"st_logger_alert", st_logger_alert},
-        {"st_logger_emergency", st_logger_emergency},
+        {"init",              st_logger_init},
+        {"quit",              st_logger_quit},
+        {"set_stdout_levels", st_logger_set_stdout_levels},
+        {"set_stderr_levels", st_logger_set_stderr_levels},
+        {"set_syslog_levels", st_logger_set_syslog_levels},
+        {"set_log_file",      st_logger_set_log_file},
+        {"set_callback",      st_logger_set_callback},
+        {"debug",             st_logger_debug},
+        {"info",              st_logger_info},
+        {"notice",            st_logger_notice},
+        {"warning",           st_logger_warning},
+        {"error",             st_logger_error},
+        {"critical",          st_logger_critical},
+        {"alert",             st_logger_alert},
+        {"emergency",         st_logger_emergency},
     }
 };
 

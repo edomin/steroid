@@ -28,8 +28,9 @@ static st_hash_table_quit_t st_hash_table_quit;
 static st_ini_init_t st_ini_init;
 static st_ini_quit_t st_ini_quit;
 
-static st_logger_init_t st_logger_init;
-static st_logger_quit_t st_logger_quit;
+static st_logger_init_t  st_logger_init;
+static st_logger_error_t st_logger_error;
+static st_logger_quit_t  st_logger_quit;
 
 static st_opts_init_t st_opts_init;
 static st_opts_quit_t st_opts_quit;
@@ -53,70 +54,51 @@ static st_spcpaths_quit_t st_spcpaths_quit;
 static st_zip_init_t st_zip_init;
 static st_zip_quit_t st_zip_quit;
 
-static bool init_funcs(st_modsmgr_t *modsmgr) {
-    // TODO(edomin): check getted functions
+#define LOAD_FUNCTION(module, function)                                        \
+    st_##module##_##function = st_modsmgr_get_function(modsmgr, #module, NULL, \
+     #function);                                                               \
+    if (!st_##module##_##function) {                                           \
+        st_logger_error(logger, "steroids: Unable to load function \"%s\"",    \
+         #function);                                                           \
+        return false;                                                          \
+    }
 
-    st_fnv1a_init = st_modsmgr_get_function(modsmgr, "fnv1a", NULL,
-     "st_fnv1a_init");
-    st_fnv1a_quit = st_modsmgr_get_function(modsmgr, "fnv1a", NULL,
-     "st_fnv1a_quit");
+static bool init_funcs(st_modsmgr_t *modsmgr, st_modctx_t *logger) {
+    LOAD_FUNCTION(fnv1a, init);
+    LOAD_FUNCTION(fnv1a, quit);
 
-    st_fs_init = st_modsmgr_get_function(modsmgr, "fs", NULL, "st_fs_init");
-    st_fs_quit = st_modsmgr_get_function(modsmgr, "fs", NULL, "st_fs_quit");
+    LOAD_FUNCTION(fs, init);
+    LOAD_FUNCTION(fs, quit);
 
-    st_hash_table_init = st_modsmgr_get_function(modsmgr, "hash_table", NULL,
-     "st_hash_table_init");
-    st_hash_table_quit = st_modsmgr_get_function(modsmgr, "hash_table", NULL,
-     "st_hash_table_quit");
+    LOAD_FUNCTION(hash_table, init);
+    LOAD_FUNCTION(hash_table, quit);
 
-    st_ini_init = st_modsmgr_get_function(modsmgr, "ini", NULL, "st_ini_init");
-    st_ini_quit = st_modsmgr_get_function(modsmgr, "ini", NULL, "st_ini_quit");
+    LOAD_FUNCTION(ini, init);
+    LOAD_FUNCTION(ini, quit);
 
-    st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL,
-     "st_logger_init");
-    st_logger_quit = st_modsmgr_get_function(modsmgr, "logger", NULL,
-     "st_logger_quit");
+    LOAD_FUNCTION(opts, init);
+    LOAD_FUNCTION(opts, quit);
 
-    st_opts_init = st_modsmgr_get_function(modsmgr, "opts", NULL,
-     "st_opts_init");
-    st_opts_quit = st_modsmgr_get_function(modsmgr, "opts", NULL,
-     "st_opts_quit");
+    LOAD_FUNCTION(runner, init);
+    LOAD_FUNCTION(runner, quit);
+    LOAD_FUNCTION(runner, run);
 
-    st_runner_init = st_modsmgr_get_function(modsmgr, "runner", NULL,
-     "st_runner_init");
-    st_runner_quit = st_modsmgr_get_function(modsmgr, "runner", NULL,
-     "st_runner_quit");
-    st_runner_run = st_modsmgr_get_function(modsmgr, "runner", NULL,
-     "st_runner_run");
+    LOAD_FUNCTION(pathtools, init);
+    LOAD_FUNCTION(pathtools, quit);
 
-    st_pathtools_init = st_modsmgr_get_function(modsmgr, "pathtools", NULL,
-     "st_pathtools_init");
-    st_pathtools_quit = st_modsmgr_get_function(modsmgr, "pathtools", NULL,
-     "st_pathtools_quit");
+    LOAD_FUNCTION(plugin, init);
+    LOAD_FUNCTION(plugin, quit);
 
-    st_plugin_init = st_modsmgr_get_function(modsmgr, "plugin", NULL,
-     "st_plugin_init");
-    st_plugin_quit = st_modsmgr_get_function(modsmgr, "plugin", NULL,
-     "st_plugin_quit");
+    LOAD_FUNCTION(so, init);
+    LOAD_FUNCTION(so, quit);
 
-    st_so_init = st_modsmgr_get_function(modsmgr, "so", NULL, "st_so_init");
-    st_so_quit = st_modsmgr_get_function(modsmgr, "so", NULL, "st_so_quit");
+    LOAD_FUNCTION(spcpaths, init);
+    LOAD_FUNCTION(spcpaths, quit);
 
-    st_spcpaths_init = st_modsmgr_get_function(modsmgr, "spcpaths", NULL,
-     "st_spcpaths_init");
-    st_spcpaths_quit = st_modsmgr_get_function(modsmgr, "spcpaths", NULL,
-     "st_spcpaths_quit");
+    LOAD_FUNCTION(zip, init);
+    LOAD_FUNCTION(zip, quit);
 
-    st_zip_init = st_modsmgr_get_function(modsmgr, "zip", NULL, "st_zip_init");
-    st_zip_quit = st_modsmgr_get_function(modsmgr, "zip", NULL, "st_zip_quit");
-
-    return st_fnv1a_init && st_fnv1a_quit && st_fs_init && st_fs_quit &&
-     st_hash_table_init && st_hash_table_quit && st_ini_init && st_ini_quit &&
-     st_logger_init && st_logger_quit && st_opts_init && st_opts_quit &&
-     st_runner_init && st_runner_quit && st_runner_run && st_pathtools_init &&
-     st_pathtools_quit && st_plugin_init && st_plugin_quit && st_so_init &&
-     st_so_quit && st_spcpaths_init && st_spcpaths_quit && st_zip_init &&
-     st_zip_quit;
+    return true;
 }
 
 int main(int argc, char **argv) {
@@ -134,10 +116,14 @@ int main(int argc, char **argv) {
     st_modctx_t  *spcpaths;
     st_modctx_t  *zip;
 
-    if (init_funcs(modsmgr))
+    st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL, "init");
+    st_logger_quit = st_modsmgr_get_function(modsmgr, "logger", NULL, "quit");
+    st_logger_error = st_modsmgr_get_function(modsmgr, "logger", NULL, "error");
+    logger = st_logger_init();
+
+    if (!init_funcs(modsmgr, logger))
         return EXIT_FAILURE;
 
-    logger = st_logger_init();
     fnv1a = st_fnv1a_init(logger);
     hash_table = st_hash_table_init(logger);
     ini = st_ini_init(fnv1a, hash_table, logger);
@@ -148,7 +134,7 @@ int main(int argc, char **argv) {
     spcpaths = st_spcpaths_init(logger);
     zip = st_zip_init(fs, logger, pathtools);
     plugin = st_plugin_init(fs, logger, pathtools, so, spcpaths, zip);
-    runner = st_runner_init(ini, logger, opts, plugin);
+    runner = st_runner_init(ini, logger, opts, pathtools, plugin);
 
     st_runner_run(runner, NULL);
 

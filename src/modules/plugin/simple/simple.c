@@ -61,7 +61,7 @@ static bool st_plugin_import_functions(st_modctx_t *plugin_ctx,
     st_plugin_simple_t *module = plugin_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "plugin_simple: Unable to load function \"error\" from module "

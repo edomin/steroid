@@ -99,6 +99,7 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
      &(st_modsmgr_funcs_t){
         .load_module = st_modsmgr_load_module,
         .get_function = st_modsmgr_get_function,
+        .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
         .init_module_ctx = st_modsmgr_init_module_ctx,
         .free_module_ctx = st_free_module_ctx,
      });

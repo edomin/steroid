@@ -77,7 +77,7 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
     st_ini_inih_t *module = ini_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "ini_inih: Unable to load function \"error\" from module \"logger\"\n"

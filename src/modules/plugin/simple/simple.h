@@ -16,10 +16,10 @@ st_plugin_funcs_t st_plugin_simple_funcs = {
 st_modfuncstbl_t st_module_plugin_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_plugin_init"   , st_plugin_init},
-        {"st_plugin_quit"   , st_plugin_quit},
-        {"st_plugin_load"   , st_plugin_load},
-        {"st_plugin_memload", st_plugin_memload},
+        {"init"   , st_plugin_init},
+        {"quit"   , st_plugin_quit},
+        {"load"   , st_plugin_load},
+        {"memload", st_plugin_memload},
     }
 };
 

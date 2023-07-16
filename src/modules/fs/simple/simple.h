@@ -34,10 +34,10 @@ st_fs_funcs_t st_fs_simple_funcs = {
 st_modfuncstbl_t st_module_fs_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_fs_init"         , st_fs_init},
-        {"st_fs_quit"         , st_fs_quit},
-        {"st_fs_get_file_type", st_fs_get_file_type},
-        {"st_fs_mkdir"        , st_fs_mkdir},
+        {"init"         , st_fs_init},
+        {"quit"         , st_fs_quit},
+        {"get_file_type", st_fs_get_file_type},
+        {"mkdir"        , st_fs_mkdir},
     }
 };
 

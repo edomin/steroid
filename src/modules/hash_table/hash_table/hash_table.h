@@ -25,19 +25,19 @@ st_hash_table_funcs_t st_hash_table_hash_table_funcs = {
 st_modfuncstbl_t st_module_hash_table_hash_table_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"st_hash_table_init"          , st_hash_table_init},
-        {"st_hash_table_quit"          , st_hash_table_quit},
-        {"st_hash_table_create"        , st_hash_table_create},
-        {"st_hash_table_destroy"       , st_hash_table_destroy},
-        {"st_hash_table_insert"        , st_hash_table_insert},
-        {"st_hash_table_get"           , st_hash_table_get},
-        {"st_hash_table_remove"        , st_hash_table_remove},
-        {"st_hash_table_clear"         , st_hash_table_clear},
-        {"st_hash_table_contains"      , st_hash_table_contains},
-        {"st_hash_table_find"          , st_hash_table_find},
-        {"st_hash_table_next"          , st_hash_table_next},
-        {"st_hash_table_get_iter_key"  , st_hash_table_get_iter_key},
-        {"st_hash_table_get_iter_value", st_hash_table_get_iter_value},
+        {"init"          , st_hash_table_init},
+        {"quit"          , st_hash_table_quit},
+        {"create"        , st_hash_table_create},
+        {"destroy"       , st_hash_table_destroy},
+        {"insert"        , st_hash_table_insert},
+        {"get"           , st_hash_table_get},
+        {"remove"        , st_hash_table_remove},
+        {"clear"         , st_hash_table_clear},
+        {"contains"      , st_hash_table_contains},
+        {"find"          , st_hash_table_find},
+        {"next"          , st_hash_table_next},
+        {"get_iter_key"  , st_hash_table_get_iter_key},
+        {"get_iter_value", st_hash_table_get_iter_value},
     }
 };
 

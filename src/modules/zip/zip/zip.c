@@ -62,7 +62,7 @@ static bool st_zip_import_functions(st_modctx_t *zip_ctx,
     st_zip_zip_t *module = zip_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "zip_zip: Unable to load function \"error\" from module \"logger\"\n");

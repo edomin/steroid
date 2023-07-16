@@ -63,33 +63,35 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
     logger->logger_fallback_active = true;
 
     logger->logger_fallback_init = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_init");
+     global_modsmgr, "logger", "simple", "init");
     logger->logger_fallback_quit = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_quit");
+     global_modsmgr, "logger", "simple", "quit");
     logger->logger_fallback_set_stdout_levels =
      global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
-      "st_logger_set_stdout_levels");
+      "set_stdout_levels");
     logger->logger_fallback_set_stderr_levels =
      global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
-      "st_logger_set_stderr_levels");
+      "set_stderr_levels");
     logger->logger_fallback_set_log_file = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_set_log_file");
+     global_modsmgr, "logger", "simple", "set_log_file");
+    logger->logger_fallback_set_callback = global_modsmgr_funcs.get_function(
+     global_modsmgr, "logger", "simple", "set_callback");
     logger->logger_fallback_debug = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_debug");
+     global_modsmgr, "logger", "simple", "debug");
     logger->logger_fallback_info = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_info");
+     global_modsmgr, "logger", "simple", "info");
     logger->logger_fallback_notice = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_notice");
+     global_modsmgr, "logger", "simple", "notice");
     logger->logger_fallback_warning = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_warning");
+     global_modsmgr, "logger", "simple", "warning");
     logger->logger_fallback_error = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_error");
+     global_modsmgr, "logger", "simple", "error");
     logger->logger_fallback_critical = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_critical");
+     global_modsmgr, "logger", "simple", "critical");
     logger->logger_fallback_alert = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_alert");
+     global_modsmgr, "logger", "simple", "alert");
     logger->logger_fallback_emergency = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "st_logger_emergency");
+     global_modsmgr, "logger", "simple", "emergency");
 
     logger->logger_fallback_ctx = logger->logger_fallback_init();
     logger->logger_fallback_warning(logger->logger_fallback_ctx, "%s\n",

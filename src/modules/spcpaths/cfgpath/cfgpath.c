@@ -59,7 +59,7 @@ static bool st_spcpaths_import_functions(st_modctx_t *spcpaths_ctx,
     st_spcpaths_cfgpath_t *module = spcpaths_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "st_logger_error");
+     global_modsmgr, logger_ctx, "error");
     if (!module->logger.error) {
         fprintf(stderr,
          "spcpaths_cfgpath: Unable to load function \"error\" from module "
