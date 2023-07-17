@@ -16,8 +16,6 @@ function(st_add_module ST_TARGET ST_BUILD_MODE)
     bb_add_library(${ST_TARGET} ${ST_LIBRARY_MODE})
 
     if (ST_BUILD_MODE STREQUAL "shared")
-        # get_filename_component(WITHOUT_EXT ${ST_TARGET} <COMP> [CACHE])
-
         add_custom_target(${ST_TARGET}.stp
             ALL
             COMMAND
@@ -32,6 +30,8 @@ function(st_add_module ST_TARGET ST_BUILD_MODE)
             DEPENDS
                 ${ST_TARGET}
         )
+
+        add_dependencies(copy_plugins ${ST_TARGET}.stp)
     endif()
 endfunction()
 

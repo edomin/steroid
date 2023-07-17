@@ -40,18 +40,6 @@ target_link_libraries(steroids PRIVATE
     ${XMEMPOOL_LIBRARY}
 )
 
-add_custom_target(${ST_TARGET}.stp
-    ALL
-    COMMAND
-        ${CMAKE_COMMAND} -E copy steroids ${CMAKE_BINARY_DIR}
-    COMMAND
-        ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/plugins
-    COMMAND
-        ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.stp ${CMAKE_BINARY_DIR}/plugins
-    DEPENDS
-        steroids
-)
-
 file(WRITE ${CMAKE_BINARY_DIR}/steroids.ini
 "[steroids.runner]
 plugin_path=cmake_build/plugins

@@ -15,6 +15,14 @@ set(CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake/modules"
 )
 
+add_custom_target(copy_plugins
+    ALL
+    COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/plugins
+    COMMAND
+        ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.stp ${CMAKE_BINARY_DIR}/plugins
+)
+
 set(ST_INTERNAL_MODULES_COUNT 0)
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/spcpaths/cfgpath"
  "${CMAKE_BINARY_DIR}/src/modules/spcpaths/cfgpath")
@@ -63,3 +71,11 @@ configure_file (
 )
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/core" "${CMAKE_BINARY_DIR}/src/core")
+
+add_custom_target(copy_core
+    ALL
+    COMMAND
+        ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/core/steroids ${CMAKE_BINARY_DIR}
+    DEPENDS
+        steroids
+)
