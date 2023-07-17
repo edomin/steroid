@@ -83,17 +83,20 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 
 static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
  st_modctx_t *lua_ctx, st_modctx_t *logger_ctx) {
-    // st_luabind_logger_t *module = luabind_ctx->data;
+    st_luabind_logger_t *module = luabind_ctx->data;
 
-    st_logger_error = global_modsmgr_funcs.get_function_from_ctx(global_modsmgr,
-     logger_ctx, "error");
-    if (!st_logger_error) {
+    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, logger_ctx, "error");
+    if (!module->logger.error) {
         fprintf(stderr,
          "luabind_logger: Unable to load function \"error\" from module "
          "\"logger\"\n");
 
         return false;
     }
+
+    ST_LOAD_FUNCTION("luabind_logger", logger, debug);
+    ST_LOAD_FUNCTION("luabind_logger", logger, info);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, quit);
@@ -149,7 +152,7 @@ static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
 
     st_luabind_bind_all(luabind_ctx);
 
-    st_logger_info(luabind->logger.ctx,
+    luabind->logger.info(luabind->logger.ctx,
      "luabind_logger: Logger binding initialized");
 
     return luabind_ctx;
@@ -158,7 +161,7 @@ static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
 static void st_luabind_quit(st_modctx_t *luabind_ctx) {
     st_luabind_logger_t *module = luabind_ctx->data;
 
-    st_logger_info(module->logger.ctx,
+    module->logger.info(module->logger.ctx,
      "luabind_logger: Logger binding destroyed.");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, luabind_ctx);
 }

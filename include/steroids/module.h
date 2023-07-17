@@ -21,13 +21,14 @@
         return false;                                                    \
     }
 
-#define ST_LOAD_GLOBAL_FUNCTION(this_mod, module, function)                \
-    st_##module##_##function = global_modsmgr_funcs.get_function_from_ctx( \
-     global_modsmgr, module##_ctx, #function);                             \
-    if (!st_##module##_##function) {                                       \
-        st_logger_error(module##_ctx,                                      \
-         #this_mod ": Unable to load function \"%s\"", #function);         \
-        return false;                                                      \
+#define ST_LOAD_GLOBAL_FUNCTION(this_mod, mod, function)                      \
+    st_##mod##_##function = global_modsmgr_funcs.get_function(global_modsmgr, \
+     #mod, NULL, #function);                                                  \
+    if (!st_##mod##_##function) {                                             \
+        module->logger.error(module->logger.ctx,                              \
+         this_mod ": Unable to load function \"%s\" from module \"%s\"",      \
+         #function, #mod);                                                    \
+        return false;                                                         \
     }
 
 typedef struct {
