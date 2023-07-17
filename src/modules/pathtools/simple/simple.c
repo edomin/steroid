@@ -68,8 +68,8 @@ static bool st_pathtools_import_functions(st_modctx_t *pathtools_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION("pathtools_simple", logger, debug);
+    ST_LOAD_FUNCTION("pathtools_simple", logger, info);
 
     return true;
 }

@@ -70,12 +70,12 @@ static bool st_zip_import_functions(st_modctx_t *zip_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(fs, get_file_type);
+    ST_LOAD_FUNCTION("zip_zip", fs, get_file_type);
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION("zip_zip", logger, debug);
+    ST_LOAD_FUNCTION("zip_zip", logger, info);
 
-    ST_LOAD_FUNCTION(pathtools, concat);
+    ST_LOAD_FUNCTION("zip_zip", pathtools, concat);
 
     return true;
 }

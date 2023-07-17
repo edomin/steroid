@@ -86,22 +86,22 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(fnv1a, get_u32hashstr_func);
+    ST_LOAD_FUNCTION("ini_inih", fnv1a, get_u32hashstr_func);
 
-    ST_LOAD_FUNCTION(hash_table, create);
-    ST_LOAD_FUNCTION(hash_table, destroy);
-    ST_LOAD_FUNCTION(hash_table, insert);
-    ST_LOAD_FUNCTION(hash_table, get);
-    ST_LOAD_FUNCTION(hash_table, remove);
-    ST_LOAD_FUNCTION(hash_table, clear);
-    ST_LOAD_FUNCTION(hash_table, contains);
-    ST_LOAD_FUNCTION(hash_table, find);
-    ST_LOAD_FUNCTION(hash_table, next);
-    ST_LOAD_FUNCTION(hash_table, get_iter_key);
-    ST_LOAD_FUNCTION(hash_table, get_iter_value);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, create);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, destroy);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, insert);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, get);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, remove);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, clear);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, contains);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, find);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, next);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, get_iter_key);
+    ST_LOAD_FUNCTION("ini_inih", hash_table, get_iter_value);
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION("ini_inih", logger, debug);
+    ST_LOAD_FUNCTION("ini_inih", logger, info);
 
     return true;
 }

@@ -11,12 +11,12 @@
 #define ST_MT_internal 0
 #define ST_MT_shared   1
 
-#define ST_LOAD_FUNCTION(mod, function)                                \
+#define ST_LOAD_FUNCTION(this_mod, mod, function)                      \
     module->mod.function = global_modsmgr_funcs.get_function_from_ctx( \
-     global_modsmgr, mod##_ctx, #function);             \
+     global_modsmgr, mod##_ctx, #function);                            \
     if (!module->mod.function) {                                       \
         module->logger.error(module->logger.ctx,                       \
-         "runner_simple: Unable to load function \"%s\"", #function);  \
+         this_mod ": Unable to load function \"%s\"", #function);      \
         return false;                                                  \
     }
 

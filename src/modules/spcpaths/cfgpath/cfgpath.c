@@ -68,8 +68,8 @@ static bool st_spcpaths_import_functions(st_modctx_t *spcpaths_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION("spcpaths_cfgpath", logger, debug);
+    ST_LOAD_FUNCTION("spcpaths_cfgpath", logger, info);
 
     return true;
 }

@@ -79,9 +79,9 @@ static bool st_opts_import_functions(st_modctx_t *opts_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
-    ST_LOAD_FUNCTION(logger, warning);
+    ST_LOAD_FUNCTION("opts_ketopt", logger, debug);
+    ST_LOAD_FUNCTION("opts_ketopt", logger, info);
+    ST_LOAD_FUNCTION("opts_ketopt", logger, warning);
 
     return true;
 }

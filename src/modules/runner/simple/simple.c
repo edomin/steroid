@@ -78,20 +78,20 @@ static bool st_runner_import_functions(st_modctx_t *runner_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(ini, load);
-    ST_LOAD_FUNCTION(ini, destroy);
-    ST_LOAD_FUNCTION(ini, fill_str);
+    ST_LOAD_FUNCTION("runner_simple", ini, load);
+    ST_LOAD_FUNCTION("runner_simple", ini, destroy);
+    ST_LOAD_FUNCTION("runner_simple", ini, fill_str);
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
-    ST_LOAD_FUNCTION(logger, warning);
+    ST_LOAD_FUNCTION("runner_simple", logger, debug);
+    ST_LOAD_FUNCTION("runner_simple", logger, info);
+    ST_LOAD_FUNCTION("runner_simple", logger, warning);
 
-    ST_LOAD_FUNCTION(opts, add_option);
-    ST_LOAD_FUNCTION(opts, get_str);
+    ST_LOAD_FUNCTION("runner_simple", opts, add_option);
+    ST_LOAD_FUNCTION("runner_simple", opts, get_str);
 
-    ST_LOAD_FUNCTION(pathtools, concat);
+    ST_LOAD_FUNCTION("runner_simple", pathtools, concat);
 
-    ST_LOAD_FUNCTION(plugin, load);
+    ST_LOAD_FUNCTION("runner_simple", plugin, load);
 
     return true;
 }

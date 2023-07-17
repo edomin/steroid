@@ -70,8 +70,8 @@ static bool st_hash_table_import_functions(st_modctx_t *hash_table_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION(logger, debug);
-    ST_LOAD_FUNCTION(logger, info);
+    ST_LOAD_FUNCTION("hash_table_hash_table", logger, debug);
+    ST_LOAD_FUNCTION("hash_table_hash_table", logger, info);
 
     return true;
 }
