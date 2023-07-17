@@ -20,6 +20,15 @@
         return false;                                                  \
     }
 
+#define ST_LOAD_GLOBAL_FUNCTION(this_mod, module, function)                \
+    st_##module##_##function = global_modsmgr_funcs.get_function_from_ctx( \
+     global_modsmgr, module##_ctx, #function);                             \
+    if (!st_##module##_##function) {                                       \
+        st_logger_error(module##_ctx,                                      \
+         #this_mod ": Unable to load function \"%s\"", #function);         \
+        return false;                                                      \
+    }
+
 typedef struct {
     char      *subsystem;
     char      *name;
