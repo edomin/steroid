@@ -109,6 +109,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, info);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, notice);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, warning);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, error);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, critical);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, alert);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, emergency);
