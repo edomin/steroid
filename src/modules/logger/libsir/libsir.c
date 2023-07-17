@@ -100,7 +100,7 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
 }
 
 static st_modctx_t *st_logger_init(void) {
-    sirinit      initOptions = {
+    sirinit      init_options = {
         .d_stdout = {
             .levels = ST_LL_NONE,
             .opts = (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
@@ -132,7 +132,7 @@ static st_modctx_t *st_logger_init(void) {
 
     logger_ctx->funcs = &st_logger_libsir_funcs;
 
-    if (sir_init(&initOptions)) {
+    if (sir_init(&init_options)) {
         st_logger_libsir_t *logger = logger_ctx->data;
 
         logger->use_fallback_module = false;
