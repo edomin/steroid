@@ -107,9 +107,14 @@ static void st_so_quit(st_modctx_t *so_ctx) {
 
     while (!SLIST_EMPTY(&module->opened_handles)) {
         st_snode_t *node = SLIST_FIRST(&module->opened_handles);
+        st_so_t    *so = node->data;
 
         SLIST_REMOVE_HEAD(&module->opened_handles, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-        st_so_close(node->data);
+        if (dlclose(so->handle) != 0) {
+            module->logger.error(module->logger.ctx,
+             "so_simple: Unable to close so file. %s", dlerror());
+        }
+        free(so);
         free(node);
     }
 
