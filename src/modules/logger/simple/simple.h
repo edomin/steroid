@@ -52,7 +52,7 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_emergency = st_logger_emergency,
 };
 
-#define FUNCS_COUNT 14
+#define FUNCS_COUNT 15
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
