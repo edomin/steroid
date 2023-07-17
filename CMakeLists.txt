@@ -34,6 +34,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/lua/luajit"
  "${CMAKE_BINARY_DIR}/src/modules/lua/luajit")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/logger"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/logger")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/simple"
  "${CMAKE_BINARY_DIR}/src/modules/pathtools/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/plugin/simple"
