@@ -56,8 +56,12 @@ def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
         f.write(
             "FROM {baseImageName} as build \n"
             "MAINTAINER Vasiliy Edomin <Vasiliy.Edomin@gmail.com> \n"
+            "ARG USER_ID \n"
+            "ARG GROUP_ID \n"
             "WORKDIR /tmp/.steroids \n"
-            "RUN python3 -m venv ./.venv --system-site-packages \\\n"
+            "RUN addgroup --gid $GROUP_ID user \\\n"
+            "&& adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user \\\n"
+            "&& python3 -m venv ./.venv --system-site-packages \\\n"
             "&& . ./.venv/bin/activate \\\n"
             "&& python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
             "&& echo \"#!/usr/bin/env python3\" >> ./deps_installer.py \\\n"
@@ -81,6 +85,7 @@ def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
             "&& chmod u+x ./deps_installer.py \\\n"
             "&& python3 -u ./deps_installer.py \n"
             "WORKDIR /mnt/steroids \n"
+            "USER user \n"
             "".format(arch = targetArch, os = targetOs, abi = targetAbi)
         )
 

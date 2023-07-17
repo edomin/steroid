@@ -58,4 +58,5 @@ dockerfiles/deps-$(TRIPLET).dockerfile: deps/$(TRIPLET) scripts/build_dockerfile
 build-image: dockerfiles/deps-$(TRIPLET).dockerfile
 	docker build --network=host --no-cache \
      -f dockerfiles/deps-$(TRIPLET).dockerfile \
-     -t steroids-deps-$(TRIPLET) .
+     -t steroids-deps-$(TRIPLET) --build-arg USER_ID=$(SUDO_UID) \
+     --build-arg GROUP_ID=$(SUDO_GID) .
