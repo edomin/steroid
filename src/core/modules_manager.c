@@ -8,6 +8,11 @@
 #include <string.h>
 #include <sys/queue.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#include <safeclib/safe_str_lib.h>
+#pragma GCC diagnostic pop
+
 #include <xmempool.h>
 
 #include "genid.h"
@@ -88,6 +93,33 @@ static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readabili
     }
 }
 
+static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
+ size_t mods_count, size_t modname_size, const char *subsystem) {
+    st_snode_t *node;
+    size_t      mod_index = 0;
+
+    if (!modsmgr || !subsystem || !dst || !mods_count || !modname_size)
+        return;
+
+    SLIST_FOREACH(node, &modsmgr->modules_data, ST_SNODE_NEXT) {
+        st_moddata_t *module_data = node->data;
+        char         *modname;
+
+        if (!st_utl_strings_equal(module_data->subsystem, subsystem))
+            continue;
+
+        modname = dst[mod_index];
+        if (!modname)
+            break;
+
+        if (strcpy_s(modname, modname_size, module_data->name) != 0)
+            continue;
+
+        if (++mod_index == mods_count)
+            break;
+    }
+}
+
 /*
  * Load noninternal module. Internal modules being loaded by function
  * st_modsmgr_init
@@ -97,6 +129,7 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
     st_snode_t   *node;
     st_moddata_t *module_data = modinit_func(modsmgr,
      &(st_modsmgr_funcs_t){
+        .get_module_names      = st_modsmgr_get_module_names,
         .load_module = st_modsmgr_load_module,
         .get_function = st_modsmgr_get_function,
         .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
@@ -137,6 +170,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
          &(st_modsmgr_funcs_t){
+            .get_module_names      = st_modsmgr_get_module_names,
             .load_module           = st_modsmgr_load_module,
             .get_function          = st_modsmgr_get_function,
             .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
