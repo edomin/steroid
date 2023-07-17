@@ -19,6 +19,8 @@ static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
+static void st_lua_bind_all(st_modctx_t *lua_ctx);
+
 void *st_module_lua_luajit_get_func(const char *func_name) {
     st_modfuncstbl_t *funcs_table = &st_module_lua_luajit_funcs_table;
 
@@ -184,6 +186,7 @@ static st_modctx_t *st_lua_init(st_modctx_t *logger_ctx,
     module->state = luaL_newstate();
     luaL_openlibs(module->state);
 
+    st_lua_bind_all(lua_ctx);
     st_lua_init_bindings(logger_ctx, lua_ctx);
 
     module->logger.info(module->logger.ctx, "lua_luajit: Lua initialized.");
@@ -220,6 +223,17 @@ static st_modctx_t *st_lua_get_opts_ctx(st_modctx_t *lua_ctx) {
     st_lua_luajit_t *module = lua_ctx->data;
 
     return module->opts.ctx;
+}
+
+static void st_lua_bind_all(st_modctx_t *lua_ctx) {
+    st_lua_luajit_t *module = lua_ctx->data;
+
+    lua_pushlightuserdata(module->state, lua_ctx);
+    lua_setglobal(module->state, "__st_lua_ctx");
+    lua_pushlightuserdata(module->state, module->logger.ctx);
+    lua_setglobal(module->state, "__st_logger_ctx");
+    lua_pushlightuserdata(module->state, module->opts.ctx);
+    lua_setglobal(module->state, "__st_opts_ctx");
 }
 
 static bool st_lua_run(st_modctx_t *lua_ctx,
@@ -288,6 +302,12 @@ static void st_lua_set_cfunction_to_field(st_luastate_t *lua_state,
     lua_setfield((lua_State *)lua_state, -2, name);
 }
 
+static void st_lua_set_copy_to_field(st_luastate_t *lua_state,
+ const char *name, int index) {
+    lua_pushvalue((lua_State *)lua_state, index);
+    lua_setfield((lua_State *)lua_state, -2, name);
+}
+
 static ptrdiff_t st_lua_get_integer(st_luastate_t *lua_state, int index) {
     return luaL_checkinteger((lua_State *)lua_state, index);
 }
@@ -299,6 +319,17 @@ static const char *st_lua_get_string(st_luastate_t *lua_state, int index) {
 static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
  const char *name) {
     return luaL_checkudata((lua_State *)lua_state, index, name);
+}
+
+static void *st_lua_get_global_userdata(st_luastate_t *lua_state,
+ const char *name) {
+    void *userdata;
+
+    lua_getglobal((lua_State *)lua_state, name);
+    userdata = lua_touserdata((lua_State *)lua_state, -1);
+    lua_pop((lua_State *)lua_state, 1);
+
+    return userdata;
 }
 
 static void st_lua_register_cfunction(st_luastate_t *lua_state,
