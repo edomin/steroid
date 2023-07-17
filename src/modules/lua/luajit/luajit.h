@@ -27,7 +27,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_pop                    = st_lua_pop,
 };
 
-#define FUNCS_COUNT 19
+#define FUNCS_COUNT 20
 st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
