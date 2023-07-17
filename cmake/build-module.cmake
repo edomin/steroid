@@ -14,6 +14,25 @@ function(st_add_module ST_TARGET ST_BUILD_MODE)
     endif()
 
     bb_add_library(${ST_TARGET} ${ST_LIBRARY_MODE})
+
+    if (ST_BUILD_MODE STREQUAL "shared")
+        # get_filename_component(WITHOUT_EXT ${ST_TARGET} <COMP> [CACHE])
+
+        add_custom_target(${ST_TARGET}.stp
+            ALL
+            COMMAND
+                ${CMAKE_COMMAND} -E make_directory ${BB_TRIPLET}
+            COMMAND
+                ${CMAKE_COMMAND} -E copy lib${ST_TARGET}.so ${BB_TRIPLET}
+            COMMAND
+                ${CMAKE_COMMAND} -E tar cfv
+                ${ST_TARGET}.stp --format=zip ${BB_TRIPLET}/lib${ST_TARGET}.so
+            COMMAND
+                ${CMAKE_COMMAND} -E copy ${ST_TARGET}.stp ${CMAKE_BINARY_DIR}
+            DEPENDS
+                ${ST_TARGET}
+        )
+    endif()
 endfunction()
 
 macro(st_process_internal_module ST_TARGET ST_MODULE_TYPE)
