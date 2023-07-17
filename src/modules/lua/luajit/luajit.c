@@ -11,7 +11,9 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
+#define ERR_MSG_BUF_SIZE  1024
+#define BINDING_NAME_SIZE 32
+#define BINDINGS_COUNT    256
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -73,6 +75,89 @@ static bool st_lua_import_functions(st_modctx_t *lua_ctx,
     return true;
 }
 
+static void st_lua_init_bindings(st_modctx_t *logger_ctx,
+ st_modctx_t *lua_ctx) {
+    st_lua_luajit_t *module = lua_ctx->data;
+    char             bindings_names[BINDING_NAME_SIZE][BINDINGS_COUNT] = {0};
+    char            *pbindingsnames[BINDINGS_COUNT];
+    char            *binding_name;
+
+    for (size_t i = 0; i < BINDINGS_COUNT; i++)
+        pbindingsnames[i] = bindings_names[i];
+
+    module->logger.info(module->logger.ctx,
+     "lua_luajit: Searching luabind modules");
+
+    global_modsmgr_funcs.get_module_names(global_modsmgr, pbindingsnames,
+     BINDINGS_COUNT, BINDING_NAME_SIZE, "luabind");
+
+    SLIST_INIT(&module->bindings);
+
+    for (size_t i = 0; i < BINDINGS_COUNT; i++) {
+        st_luabind_init_t        init_func;
+        st_luabind_quit_t        quit_func;
+        st_modctx_t             *ctx;
+        st_lua_luajit_binding_t *binding;
+        st_snode_t              *node;
+
+        binding_name = pbindingsnames[i];
+
+        if (!*binding_name)
+            break;
+
+        module->logger.info(module->logger.ctx,
+         "lua_luajit: Found module \"luabind_%s\"", binding_name);
+
+        init_func = global_modsmgr_funcs.get_function(global_modsmgr,
+         "luabind", binding_name, "init");
+        if (!init_func) {
+            module->logger.error(module->logger.ctx,
+             "lua_luajit: Unable to get function \"init\" from module "
+             "\"luabind_%s\"", binding_name);
+
+            continue;
+        }
+
+        quit_func = global_modsmgr_funcs.get_function(global_modsmgr,
+         "luabind", binding_name, "quit");
+        if (!init_func) {
+            module->logger.error(module->logger.ctx,
+             "lua_luajit: Unable to get function \"quit\" from module "
+             "\"luabind_%s\"", binding_name);
+
+            continue;
+        }
+
+        ctx = init_func(logger_ctx, lua_ctx);
+
+        binding = malloc(sizeof(st_lua_luajit_binding_t));
+        if (!binding) {
+            module->logger.error(module->logger.ctx,
+             "lua_luajit: Unable to allocate memory for binding entry of "
+             "module \"luabind_%s\": %s", binding_name, strerror(errno));
+            quit_func(ctx);
+
+            continue;
+        }
+        binding->ctx = ctx;
+        binding->quit = quit_func;
+
+        node = malloc(sizeof(st_snode_t));
+        if (!node) {
+            module->logger.error(module->logger.ctx,
+             "lua_luajit: Unable to allocate memory for binding entry node of "
+             "module \"luabind_%s\": %s", binding_name, strerror(errno));
+            free(binding);
+            quit_func(ctx);
+
+            continue;
+        }
+
+        node->data = binding;
+        SLIST_INSERT_HEAD(&module->bindings, node, ST_SNODE_NEXT);
+    }
+}
+
 static st_modctx_t *st_lua_init(st_modctx_t *logger_ctx,
  st_modctx_t *opts_ctx) {
     st_modctx_t     *lua_ctx;
@@ -90,11 +175,16 @@ static st_modctx_t *st_lua_init(st_modctx_t *logger_ctx,
     module->logger.ctx = logger_ctx;
     module->opts.ctx = opts_ctx;
 
-    if (!st_lua_import_functions(lua_ctx, logger_ctx))
+    if (!st_lua_import_functions(lua_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, lua_ctx);
+
         return NULL;
+    }
 
     module->state = luaL_newstate();
     luaL_openlibs(module->state);
+
+    st_lua_init_bindings(logger_ctx, lua_ctx);
 
     module->logger.info(module->logger.ctx, "lua_luajit: Lua initialized.");
 
@@ -102,11 +192,21 @@ static st_modctx_t *st_lua_init(st_modctx_t *logger_ctx,
 }
 
 static void st_lua_quit(st_modctx_t *lua_ctx) {
-    st_lua_luajit_t *lua = lua_ctx->data;
+    st_lua_luajit_t *module = lua_ctx->data;
 
-    lua_close(lua->state);
+    lua_close(module->state);
 
-    lua->logger.info(lua->logger.ctx, "lua_luajit: Lua destroyed.");
+    while (!SLIST_EMPTY(&module->bindings)) {
+        st_snode_t              *node = SLIST_FIRST(&module->bindings);
+        st_lua_luajit_binding_t *binding = node->data;
+
+        SLIST_REMOVE_HEAD(&module->bindings, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        binding->quit(binding->ctx);
+        free(binding);
+        free(node);
+    }
+
+    module->logger.info(module->logger.ctx, "lua_luajit: Lua destroyed.");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, lua_ctx);
 }
 
