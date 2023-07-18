@@ -1,0 +1,21 @@
+#ifndef ST_SRC_MODULES_RBUF_LWRB_CONFIG_H_IN
+#define ST_SRC_MODULES_RBUF_LWRB_CONFIG_H_IN
+
+#include "steroids/module.h"
+
+#define ST_MODULE_TYPE_@ST_MODULE_TYPE@
+
+void *st_module_rbuf_lwrb_get_func(const char *func_name);
+
+st_moddata_t st_module_rbuf_lwrb_data = {
+    .name = "@ST_MODULE_NAME@",
+    .type = "@ST_MODULE_TYPE@",
+    .subsystem = "@ST_MODULE_SUBSYSTEM@",
+    .prereqs = (st_modprerq_t[]){
+        @ST_MODULE_PREREQS@
+    },
+    .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
+    .get_function = st_module_rbuf_lwrb_get_func,
+};
+
+#endif /* ST_SRC_MODULES_RBUF_LWRB_CONFIG_H_IN */

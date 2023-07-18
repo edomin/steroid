@@ -10,6 +10,7 @@ iwyu
 ketopt
 libsir
 luajit
+lwrb
 make
 safeclib
 x86_64-linux-gnu-gcc
