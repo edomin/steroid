@@ -11,7 +11,10 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sir.h>
+#pragma GCC diagnostic pop
 
 #define ERR_MSG_BUF_SIZE 1024
 
@@ -103,21 +106,23 @@ static st_modctx_t *st_logger_init(void) {
     sirinit      init_options = {
         .d_stdout = {
             .levels = ST_LL_NONE,
-            .opts = (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
-             (sir_options)SIRO_NOTID,
+            .opts = (sir_options)SIRO_NOHOST | (sir_options)SIRO_NONAME |
+             (sir_options)SIRO_NOPID | (sir_options)SIRO_NOTID,
         },
         .d_stderr = {
             .levels = ST_LL_ALL,
-            .opts = (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
-             (sir_options)SIRO_NOTID,
+            .opts = (sir_options)SIRO_NOHOST | (sir_options)SIRO_NONAME |
+             (sir_options)SIRO_NOPID | (sir_options)SIRO_NOTID,
         },
         .d_syslog = {
             .levels = ST_LL_NONE,
-            .includePID = true,
+            .opts = (sir_options)SIRO_NOHOST,
+            .identity = "",
+            .category = "",
         },
-        .processName = "steroids", /* TODO(edomin): move name management to
-                                    * module
-                                    */
+        .name = "steroids", /* TODO(edomin): move name management to
+                             * module
+                             */
     };
     st_modctx_t *logger_ctx;
 
@@ -195,7 +200,7 @@ static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
     st_logger_libsir_t *logger = logger_ctx->data;
-    sirfileid_t file;
+    sirfileid file;
 
     if (logger->use_fallback_module)
         return logger->logger_fallback_set_log_file(
@@ -205,7 +210,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
      (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
      (sir_options)SIRO_NOTID);
 
-    if (file == NULL)
+    if (file)
         return false;
 
     return sir_filelevels(file, (sir_levels)levels);
