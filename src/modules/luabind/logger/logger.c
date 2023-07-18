@@ -192,8 +192,11 @@ static int st_logger_get_instance_bind(st_luastate_t *lua_state) {
 static int st_logger_quit_bind(st_luastate_t *lua_state) {
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
+    st_modctx_t *logger_ctx_instance = st_lua_get_global_userdata(lua_state,
+     "__st_logger_ctx");
 
-    st_logger_quit(logger_ctx);
+    if (logger_ctx != logger_ctx_instance)
+        st_logger_quit(logger_ctx);
 
     return 0;
 }
@@ -350,6 +353,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
     // st_lua_set_cfunction_to_field(lua_state, "__gc", st_logger_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "__gc", st_logger_quit_bind);
     st_lua_set_cfunction_to_field(lua_state, "quit", st_logger_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "set_stdout_levels",
