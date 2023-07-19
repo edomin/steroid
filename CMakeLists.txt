@@ -24,6 +24,8 @@ add_custom_target(copy_plugins
 )
 
 set(ST_INTERNAL_MODULES_COUNT 0)
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/events/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/events/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1a/fnv_hash"
  "${CMAKE_BINARY_DIR}/src/modules/fnv1a/fnv_hash")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fs/simple"
