@@ -251,12 +251,8 @@ static inline __attribute__((format (printf, 3, 0))) void st_logger_general(
 
 ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_debug_nolock    , ST_LL_DEBUG);
 ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_info_nolock     , ST_LL_INFO);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_notice_nolock   , ST_LL_NOTICE);
 ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_warning_nolock  , ST_LL_WARNING);
 ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_error_nolock    , ST_LL_ERROR);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_critical_nolock , ST_LL_CRITICAL);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_alert_nolock    , ST_LL_ALERT);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_emergency_nolock, ST_LL_EMERGENCY);
 
 #define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \
@@ -273,9 +269,5 @@ ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_emergency_nolock, ST_LL_EMERGENCY);
 
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info     , st_logger_info_nolock);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_notice   , st_logger_notice_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning  , st_logger_warning_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error    , st_logger_error_nolock);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_critical , st_logger_critical_nolock);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_alert    , st_logger_alert_nolock);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_emergency, st_logger_emergency_nolock);

@@ -8,7 +8,7 @@
 #include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
 
-// version
+// TODO(edomin): version
 
 #define ST_LOGGER_LOG_FILES_MAX 16
 #define ST_LOGGER_CALLBACKS_MAX 16
@@ -37,24 +37,20 @@ typedef struct {
 } st_logger_simple_t;
 
 st_logger_funcs_t st_logger_simple_funcs = {
-    .logger_init = st_logger_init,
-    .logger_quit = st_logger_quit,
+    .logger_init              = st_logger_init,
+    .logger_quit              = st_logger_quit,
     .logger_set_stdout_levels = st_logger_set_stdout_levels,
     .logger_set_stderr_levels = st_logger_set_stderr_levels,
     .logger_set_syslog_levels = st_logger_set_syslog_levels,
-    .logger_set_log_file = st_logger_set_log_file,
-    .logger_set_callback = st_logger_set_callback,
-    .logger_debug = st_logger_debug,
-    .logger_info = st_logger_info,
-    .logger_notice = st_logger_notice,
-    .logger_warning = st_logger_warning,
-    .logger_error = st_logger_error,
-    .logger_critical = st_logger_critical,
-    .logger_alert = st_logger_alert,
-    .logger_emergency = st_logger_emergency,
+    .logger_set_log_file      = st_logger_set_log_file,
+    .logger_set_callback      = st_logger_set_callback,
+    .logger_debug             = st_logger_debug,
+    .logger_info              = st_logger_info,
+    .logger_warning           = st_logger_warning,
+    .logger_error             = st_logger_error,
 };
 
-#define FUNCS_COUNT 15
+#define FUNCS_COUNT 11
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -67,12 +63,8 @@ st_modfuncstbl_t st_module_logger_simple_funcs_table = {
         {"set_callback",      st_logger_set_callback},
         {"debug",             st_logger_debug},
         {"info",              st_logger_info},
-        {"notice",            st_logger_notice},
         {"warning",           st_logger_warning},
         {"error",             st_logger_error},
-        {"critical",          st_logger_critical},
-        {"alert",             st_logger_alert},
-        {"emergency",         st_logger_emergency},
     }
 };
 

@@ -23,17 +23,9 @@ static void st_logger_debug(const st_modctx_t *logger_ctx, const char* format,
  ...);
 static void st_logger_info(const st_modctx_t *logger_ctx, const char* format,
  ...);
-static void st_logger_notice(const st_modctx_t *logger_ctx, const char* format,
- ...);
 static void st_logger_warning(const st_modctx_t *logger_ctx, const char* format,
  ...);
 static void st_logger_error(const st_modctx_t *logger_ctx, const char* format,
  ...);
-static void st_logger_critical(const st_modctx_t *logger_ctx,
- const char* format, ...);
-static void st_logger_alert(const st_modctx_t *logger_ctx, const char* format,
- ...);
-static void st_logger_emergency(const st_modctx_t *logger_ctx,
- const char* format, ...);
 
 #endif

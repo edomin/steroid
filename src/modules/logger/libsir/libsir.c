@@ -84,18 +84,10 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
      global_modsmgr, "logger", "simple", "debug");
     logger->logger_fallback_info = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "info");
-    logger->logger_fallback_notice = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "notice");
     logger->logger_fallback_warning = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "warning");
     logger->logger_fallback_error = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "error");
-    logger->logger_fallback_critical = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "critical");
-    logger->logger_fallback_alert = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "alert");
-    logger->logger_fallback_emergency = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "emergency");
 
     logger->logger_fallback_ctx = logger->logger_fallback_init();
     logger->logger_fallback_warning(logger->logger_fallback_ctx, "%s\n",
@@ -285,18 +277,10 @@ ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, logger_fallback_debug, sir_debug, 
  ST_LL_DEBUG);
 ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
  ST_LL_INFO);
-ST_LOGGER_NOLOCK_FUNC(st_logger_notice_nolock, logger_fallback_notice, // NOLINT(cert-err33-c)
- sir_notice, ST_LL_NOTICE);
 ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, logger_fallback_warning, // NOLINT(cert-err33-c)
  sir_warn, ST_LL_WARNING);
 ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
  ST_LL_ERROR);
-ST_LOGGER_NOLOCK_FUNC(st_logger_critical_nolock, logger_fallback_critical, // NOLINT(cert-err33-c)
- sir_crit, ST_LL_CRITICAL);
-ST_LOGGER_NOLOCK_FUNC(st_logger_alert_nolock, logger_fallback_alert, sir_alert, // NOLINT(cert-err33-c)
- ST_LL_ALERT);
-ST_LOGGER_NOLOCK_FUNC(st_logger_emergency_nolock, logger_fallback_emergency, // NOLINT(cert-err33-c)
- sir_emerg, ST_LL_EMERGENCY);
 
 #define ST_LOGGER_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \
@@ -313,9 +297,5 @@ ST_LOGGER_NOLOCK_FUNC(st_logger_emergency_nolock, logger_fallback_emergency, // 
 
 ST_LOGGER_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
 ST_LOGGER_LOG_FUNC(st_logger_info     , st_logger_info_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_notice   , st_logger_notice_nolock);
 ST_LOGGER_LOG_FUNC(st_logger_warning  , st_logger_warning_nolock);
 ST_LOGGER_LOG_FUNC(st_logger_error    , st_logger_error_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_critical , st_logger_critical_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_alert    , st_logger_alert_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_emergency, st_logger_emergency_nolock);

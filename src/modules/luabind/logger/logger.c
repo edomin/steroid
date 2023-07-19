@@ -23,12 +23,8 @@ static st_logger_set_log_file_t        st_logger_set_log_file;
 static st_logger_set_callback_t        st_logger_set_callback;
 static st_logger_debug_t               st_logger_debug;
 static st_logger_info_t                st_logger_info;
-static st_logger_notice_t              st_logger_notice;
 static st_logger_warning_t             st_logger_warning;
 static st_logger_error_t               st_logger_error;
-static st_logger_critical_t            st_logger_critical;
-static st_logger_alert_t               st_logger_alert;
-static st_logger_emergency_t           st_logger_emergency;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -108,12 +104,8 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_callback);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, debug);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, info);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, notice);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, warning);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, error);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, critical);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, alert);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, emergency);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, create_userdata);
@@ -283,16 +275,6 @@ static int st_logger_info_bind(st_luastate_t *lua_state) {
     return 0;
 }
 
-static int st_logger_notice_bind(st_luastate_t *lua_state) {
-    st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, METATABLE_NAME);
-    const char  *msg = st_lua_get_string(lua_state, 2);
-
-    st_logger_notice(logger_ctx, msg);
-
-    return 0;
-}
-
 static int st_logger_warning_bind(st_luastate_t *lua_state) {
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
@@ -309,36 +291,6 @@ static int st_logger_error_bind(st_luastate_t *lua_state) {
     const char  *msg = st_lua_get_string(lua_state, 2);
 
     st_logger_error(logger_ctx, msg);
-
-    return 0;
-}
-
-static int st_logger_critical_bind(st_luastate_t *lua_state) {
-    st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, METATABLE_NAME);
-    const char  *msg = st_lua_get_string(lua_state, 2);
-
-    st_logger_critical(logger_ctx, msg);
-
-    return 0;
-}
-
-static int st_logger_alert_bind(st_luastate_t *lua_state) {
-    st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, METATABLE_NAME);
-    const char  *msg = st_lua_get_string(lua_state, 2);
-
-    st_logger_alert(logger_ctx, msg);
-
-    return 0;
-}
-
-static int st_logger_emergency_bind(st_luastate_t *lua_state) {
-    st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, METATABLE_NAME);
-    const char  *msg = st_lua_get_string(lua_state, 2);
-
-    st_logger_emergency(logger_ctx, msg);
 
     return 0;
 }
@@ -368,21 +320,11 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_logger_set_callback_bind);
     st_lua_set_cfunction_to_field(lua_state, "debug", st_logger_debug_bind);
     st_lua_set_cfunction_to_field(lua_state, "info", st_logger_info_bind);
-    st_lua_set_cfunction_to_field(lua_state, "notice", st_logger_notice_bind);
     st_lua_set_cfunction_to_field(lua_state, "warning", st_logger_warning_bind);
     st_lua_set_cfunction_to_field(lua_state, "error", st_logger_error_bind);
-    st_lua_set_cfunction_to_field(lua_state, "critical",
-     st_logger_critical_bind);
-    st_lua_set_cfunction_to_field(lua_state, "alert", st_logger_alert_bind);
-    st_lua_set_cfunction_to_field(lua_state, "emergency",
-     st_logger_emergency_bind);
     st_lua_set_integer_to_field(lua_state, "ll_none", ST_LL_NONE);
-    st_lua_set_integer_to_field(lua_state, "ll_emergency", ST_LL_EMERGENCY);
-    st_lua_set_integer_to_field(lua_state, "ll_alert", ST_LL_ALERT);
-    st_lua_set_integer_to_field(lua_state, "ll_critical", ST_LL_CRITICAL);
     st_lua_set_integer_to_field(lua_state, "ll_error", ST_LL_ERROR);
     st_lua_set_integer_to_field(lua_state, "ll_warning", ST_LL_WARNING);
-    st_lua_set_integer_to_field(lua_state, "ll_notice", ST_LL_NOTICE);
     st_lua_set_integer_to_field(lua_state, "ll_info", ST_LL_INFO);
     st_lua_set_integer_to_field(lua_state, "ll_debug", ST_LL_DEBUG);
     st_lua_set_integer_to_field(lua_state, "ll_all", ST_LL_ALL);
