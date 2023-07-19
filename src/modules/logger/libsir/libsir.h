@@ -2,6 +2,7 @@
 #define ST_MODULES_LOGGER_LIBSIR_LIBSIR_H
 
 #include <stdbool.h>
+#include <threads.h>
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
@@ -35,6 +36,7 @@ typedef struct {
     st_logger_emergency_t         logger_fallback_emergency;
     st_logger_libsir_callback_t   callbacks[ST_LOGGER_CALLBACKS_MAX];
     unsigned                      callbacks_count;
+    mtx_t                         lock;
 } st_logger_libsir_t;
 
 st_logger_funcs_t st_logger_libsir_funcs = {

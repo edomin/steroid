@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <syslog.h>
+#include <threads.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -71,6 +72,14 @@ static st_modctx_t *st_logger_init(void) {
     logger->log_files_count = 0;
     logger->callbacks_count = 0;
 
+    if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
+        fprintf(stderr,
+         "logger_simple: Unable to init lock mutex while initializing logger");
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
+
+        return NULL;
+    }
+
     st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized.");
 
     return logger_ctx;
@@ -88,6 +97,8 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         (void)fflush(logger->log_files[i].file);
         (void)fclose(logger->log_files[i].file);
     }
+
+    mtx_destroy(&logger->lock);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
 }
@@ -232,20 +243,39 @@ static inline __attribute__((format (printf, 3, 0))) void st_logger_general(
     }
 }
 
-#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, level)                 \
+#define ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_func, level)                 \
+    static __attribute__((format (printf, 2, 0))) void st_func(   \
+     const st_modctx_t *logger_ctx, const char* format, va_list args) {    \
+        st_logger_general(logger_ctx, level, format, args); \
+    }
+
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_debug_nolock    , ST_LL_DEBUG);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_info_nolock     , ST_LL_INFO);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_notice_nolock   , ST_LL_NOTICE);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_warning_nolock  , ST_LL_WARNING);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_error_nolock    , ST_LL_ERROR);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_critical_nolock , ST_LL_CRITICAL);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_alert_nolock    , ST_LL_ALERT);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_emergency_nolock, ST_LL_EMERGENCY);
+
+#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \
      const st_modctx_t *logger_ctx, const char* format, ...) {    \
-        va_list args;                                             \
+        st_logger_simple_t *module = logger_ctx->data;            \
+        va_list             args;                                 \
+        if (mtx_lock(&module->lock) == thrd_error)                \
+            return;                                               \
         va_start(args, format);                                   \
-        st_logger_general(logger_ctx, ST_LL_DEBUG, format, args); \
+        st_nolock_func(logger_ctx, format, args);                 \
+        mtx_unlock(&module->lock);                                \
         va_end(args);                                             \
     }
 
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug, ST_LL_DEBUG);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info, ST_LL_INFO);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_notice, ST_LL_NOTICE);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning, ST_LL_WARNING);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error, ST_LL_ERROR);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_critical, ST_LL_CRITICAL);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_alert, ST_LL_ALERT);
-ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_emergency, ST_LL_EMERGENCY);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info     , st_logger_info_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_notice   , st_logger_notice_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning  , st_logger_warning_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error    , st_logger_error_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_critical , st_logger_critical_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_alert    , st_logger_alert_nolock);
+ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_emergency, st_logger_emergency_nolock);

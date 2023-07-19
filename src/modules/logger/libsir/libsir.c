@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <threads.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -103,6 +104,7 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
 }
 
 static st_modctx_t *st_logger_init(void) {
+    bool         use_fallback = false;
     sirinit      init_options = {
         .d_stdout = {
             .levels = ST_LL_NONE,
@@ -142,13 +144,23 @@ static st_modctx_t *st_logger_init(void) {
 
         logger->use_fallback_module = false;
         logger->callbacks_count = 0;
+        if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
+            fprintf(stderr,
+             "logger_libsir: Unable to init lock mutex while initializing "
+             "logger");
+            global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
+            use_fallback = true;
+        }
     } else {
-        st_logger_init_fallback(logger_ctx);
+        use_fallback = true;
     }
+
+    if (use_fallback)
+        st_logger_init_fallback(logger_ctx);
 
     global_sir_inited = true;
 
-    st_logger_info(logger_ctx, "%s", "logger_libsir: Logger initialized.");
+    st_logger_info(logger_ctx, "logger_libsir: Logger initialized");
 
     return logger_ctx;
 }
@@ -156,10 +168,12 @@ static st_modctx_t *st_logger_init(void) {
 static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_libsir_t *logger = logger_ctx->data;
 
-    st_logger_info(logger_ctx, "%s", "logger_libsir: Destroying logger.");
+    st_logger_info(logger_ctx, "logger_libsir: Destroying logger");
     if (logger->use_fallback_module)
         logger->logger_fallback_quit(logger->logger_fallback_ctx);
     sir_cleanup();
+    mtx_destroy(&logger->lock);
+
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
     global_sir_inited = false;
 }
@@ -248,15 +262,12 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
 }
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 4096
-#define ST_LOGGER_LIBSIR_LOG_FUNC(st_func, st_fallback, sir_func, log_level) \
-    static __attribute__ ((format (printf, 2, 3))) void st_func(             \
-     const st_modctx_t *logger_ctx, const char* format, ...) {               \
+#define ST_LOGGER_NOLOCK_FUNC(st_func, st_fallback, sir_func, log_level)     \
+    static __attribute__ ((format (printf, 2, 0))) void st_func(             \
+     const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
         st_logger_libsir_t *logger = logger_ctx->data;                       \
-        va_list             args;                                            \
         char                message[ST_LOGGER_MESSAGE_LEN_MAX];              \
-        va_start(args, format);                                              \
         vsnprintf_s(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);       \
-        va_end(args);                                                        \
         if (logger->use_fallback_module)                                     \
             logger->st_fallback(logger->logger_fallback_ctx,                 \
              "%s", message);                                                 \
@@ -270,19 +281,41 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
         }                                                                    \
     }
 
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_debug, logger_fallback_debug, sir_debug, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, logger_fallback_debug, sir_debug, // NOLINT(cert-err33-c)
  ST_LL_DEBUG);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_info, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
  ST_LL_INFO);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_notice, logger_fallback_notice, sir_notice, // NOLINT(cert-err33-c)
- ST_LL_NOTICE);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_warning, logger_fallback_warning, sir_warn, // NOLINT(cert-err33-c)
- ST_LL_WARNING);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_error, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_notice_nolock, logger_fallback_notice, // NOLINT(cert-err33-c)
+ sir_notice, ST_LL_NOTICE);
+ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, logger_fallback_warning, // NOLINT(cert-err33-c)
+ sir_warn, ST_LL_WARNING);
+ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
  ST_LL_ERROR);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_critical, logger_fallback_critical, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_critical_nolock, logger_fallback_critical, // NOLINT(cert-err33-c)
  sir_crit, ST_LL_CRITICAL);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_alert, logger_fallback_alert, sir_alert, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_alert_nolock, logger_fallback_alert, sir_alert, // NOLINT(cert-err33-c)
  ST_LL_ALERT);
-ST_LOGGER_LIBSIR_LOG_FUNC(st_logger_emergency, logger_fallback_emergency, // NOLINT(cert-err33-c)
+ST_LOGGER_NOLOCK_FUNC(st_logger_emergency_nolock, logger_fallback_emergency, // NOLINT(cert-err33-c)
  sir_emerg, ST_LL_EMERGENCY);
+
+#define ST_LOGGER_LOG_FUNC(st_func, st_nolock_func) \
+    static __attribute__((format (printf, 2, 3))) void st_func(   \
+     const st_modctx_t *logger_ctx, const char* format, ...) {    \
+        st_logger_libsir_t *module = logger_ctx->data;            \
+        va_list             args;                                 \
+        if (mtx_lock(&module->lock) == thrd_error)                \
+            return;                                               \
+        va_start(args, format);                                   \
+        st_nolock_func(logger_ctx, format, args);                 \
+        mtx_unlock(&module->lock);                                \
+        va_end(args);                                             \
+    }
+
+ST_LOGGER_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_info     , st_logger_info_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_notice   , st_logger_notice_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_warning  , st_logger_warning_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_error    , st_logger_error_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_critical , st_logger_critical_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_alert    , st_logger_alert_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_emergency, st_logger_emergency_nolock);

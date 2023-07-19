@@ -3,6 +3,7 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <threads.h>
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
@@ -32,6 +33,7 @@ typedef struct {
     unsigned                    log_files_count;
     st_logger_simple_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
     unsigned                    callbacks_count;
+    mtx_t                       lock;
 } st_logger_simple_t;
 
 st_logger_funcs_t st_logger_simple_funcs = {
