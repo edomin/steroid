@@ -1,34 +1,35 @@
-#ifndef ST_MODULES_LUABIND_LOGGER_LOGGER_H
-#define ST_MODULES_LUABIND_LOGGER_LOGGER_H
+#ifndef ST_MODULES_LUABIND_OPTS_OPTS_H
+#define ST_MODULES_LUABIND_OPTS_OPTS_H
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/luabind.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/lua.h"
+#include "steroids/types/modules/opts.h"
 
 typedef struct {
     st_modctx_t      *ctx;
     st_logger_debug_t debug;
     st_logger_info_t  info;
     st_logger_error_t error;
-} st_luabind_logger_logger_t;
+} st_luabind_opts_logger_t;
 
 typedef struct {
     st_modctx_t *ctx;
-} st_luabind_logger_lua_t;
+} st_luabind_opts_lua_t;
 
 typedef struct {
-    st_luabind_logger_lua_t    lua;
-    st_luabind_logger_logger_t logger;
-} st_luabind_logger_t;
+    st_luabind_opts_logger_t logger;
+    st_luabind_opts_lua_t    lua;
+} st_luabind_opts_t;
 
-st_luabind_funcs_t st_luabind_logger_funcs = {
+st_luabind_funcs_t st_luabind_opts_funcs = {
     .luabind_init = st_luabind_init,
     .luabind_quit = st_luabind_quit,
 };
 
 #define FUNCS_COUNT 2
-st_modfuncstbl_t st_module_luabind_logger_funcs_table = {
+st_modfuncstbl_t st_module_luabind_opts_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
         {"init", st_luabind_init},
@@ -36,4 +37,4 @@ st_modfuncstbl_t st_module_luabind_logger_funcs_table = {
     }
 };
 
-#endif /* ST_MODULES_LUABIND_LOGGER_LOGGER_H */
+#endif /* ST_MODULES_LUABIND_OPTS_OPTS_H */
