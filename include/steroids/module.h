@@ -21,6 +21,16 @@
         return false;                                                    \
     }
 
+#define ST_LOAD_FUNCTION(this_mod, subsystem, name, function)            \
+    module->subsystem.function = global_modsmgr_funcs.get_function(      \
+     global_modsmgr, #subsystem, name, #function);                       \
+    if (!module->subsystem.function) {                                   \
+        module->logger.error(module->logger.ctx,                         \
+         this_mod ": Unable to load function \"%s\" from module \"%s\"", \
+         #function, #subsystem);                                         \
+        return false;                                                    \
+    }
+
 #define ST_LOAD_GLOBAL_FUNCTION(this_mod, mod, function)                      \
     st_##mod##_##function = global_modsmgr_funcs.get_function(global_modsmgr, \
      #mod, NULL, #function);                                                  \

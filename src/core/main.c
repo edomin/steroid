@@ -3,9 +3,7 @@
 
 #include "modules_manager.h"
 
-#include "steroids/types/modules/fnv1a.h"
 #include "steroids/types/modules/fs.h"
-#include "steroids/types/modules/htable.h"
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/opts.h"
@@ -16,21 +14,15 @@
 #include "steroids/types/modules/spcpaths.h"
 #include "steroids/types/modules/zip.h"
 
-static st_fnv1a_init_t st_fnv1a_init;
-static st_fnv1a_quit_t st_fnv1a_quit;
-
 static st_fs_init_t st_fs_init;
 static st_fs_quit_t st_fs_quit;
-
-static st_htable_init_t st_htable_init;
-static st_htable_quit_t st_htable_quit;
 
 static st_ini_init_t st_ini_init;
 static st_ini_quit_t st_ini_quit;
 
-static st_logger_init_t          st_logger_init;
-static st_logger_error_t         st_logger_error;
-static st_logger_quit_t          st_logger_quit;
+static st_logger_init_t  st_logger_init;
+static st_logger_error_t st_logger_error;
+static st_logger_quit_t  st_logger_quit;
 
 static st_opts_init_t st_opts_init;
 static st_opts_quit_t st_opts_quit;
@@ -64,14 +56,8 @@ static st_zip_quit_t st_zip_quit;
     }
 
 static bool init_funcs(st_modsmgr_t *modsmgr, st_modctx_t *logger) {
-    LOAD_FUNCTION(fnv1a, init);
-    LOAD_FUNCTION(fnv1a, quit);
-
     LOAD_FUNCTION(fs, init);
     LOAD_FUNCTION(fs, quit);
-
-    LOAD_FUNCTION(htable, init);
-    LOAD_FUNCTION(htable, quit);
 
     LOAD_FUNCTION(ini, init);
     LOAD_FUNCTION(ini, quit);
@@ -103,9 +89,7 @@ static bool init_funcs(st_modsmgr_t *modsmgr, st_modctx_t *logger) {
 
 int main(int argc, char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
-    st_modctx_t  *fnv1a;
     st_modctx_t  *fs;
-    st_modctx_t  *htable;
     st_modctx_t  *ini;
     st_modctx_t  *logger;
     st_modctx_t  *opts;
@@ -128,9 +112,7 @@ int main(int argc, char **argv) {
         goto init_funcs_fail;
     }
 
-    fnv1a = st_fnv1a_init(logger);
-    htable = st_htable_init(logger);
-    ini = st_ini_init(fnv1a, htable, logger);
+    ini = st_ini_init(logger);
     opts = st_opts_init(argc, argv, logger);
     pathtools = st_pathtools_init(logger);
     fs = st_fs_init(logger, pathtools);
@@ -151,8 +133,6 @@ int main(int argc, char **argv) {
     st_pathtools_quit(pathtools);
     st_opts_quit(opts);
     st_ini_quit(ini);
-    st_htable_quit(htable);
-    st_fnv1a_quit(fnv1a);
 init_funcs_fail:
     st_logger_quit(logger);
 

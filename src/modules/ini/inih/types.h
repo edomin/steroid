@@ -6,12 +6,13 @@
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
-    st_modctx_t                   *ctx;
     st_fnv1a_get_u32hashstr_func_t get_u32hashstr_func;
 } st_ini_inih_fnv1a_t;
 
 typedef struct {
     st_modctx_t               *ctx;
+    st_htable_init_t           init;
+    st_htable_quit_t           quit;
     st_htable_create_t         create;
     st_htable_destroy_t        destroy;
     st_htable_insert_t         insert;

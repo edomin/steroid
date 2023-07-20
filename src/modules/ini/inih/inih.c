@@ -73,7 +73,7 @@ st_moddata_t *st_module_init(void *modsmgr,
 #endif
 
 static bool st_ini_import_functions(st_modctx_t *ini_ctx,
- st_modctx_t *fnv1a_ctx, st_modctx_t *htable_ctx, st_modctx_t *logger_ctx) {
+ st_modctx_t *logger_ctx) {
     st_ini_inih_t *module = ini_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -86,19 +86,19 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", fnv1a, get_u32hashstr_func);
+    ST_LOAD_FUNCTION("ini_inih", fnv1a, NULL, get_u32hashstr_func);
 
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, create);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, destroy);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, insert);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, remove);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, clear);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, contains);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, find);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, next);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get_iter_key);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get_iter_value);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, create);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, destroy);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, insert);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, remove);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, clear);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, contains);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, find);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, next);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_key);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_value);
 
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, info);
@@ -106,8 +106,7 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
     return true;
 }
 
-static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
- st_modctx_t *htable_ctx, st_modctx_t *logger_ctx) {
+static st_modctx_t *st_ini_init(st_modctx_t *logger_ctx) {
     st_modctx_t   *ini_ctx;
     st_ini_inih_t *module;
 
@@ -117,24 +116,54 @@ static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
     if (!ini_ctx)
         return NULL;
 
+    module = ini_ctx->data;
+
+    module->htable.init = global_modsmgr_funcs.get_function(global_modsmgr,
+     "htable", NULL, "init");
+    if (!module->htable.init) {
+        fprintf(stderr,
+         "ini_inih: Unable to load function \"init\" from module \"htable\"\n");
+
+        goto get_func_fail;
+    }
+
+    module->htable.quit = global_modsmgr_funcs.get_function(global_modsmgr,
+     "htable", NULL, "quit");
+    if (!module->htable.quit) {
+        fprintf(stderr,
+         "ini_inih: Unable to load function \"quit\" from module \"htable\"\n");
+
+        goto get_func_fail;
+    }
+
     ini_ctx->funcs = &st_ini_inih_funcs;
 
-    module = ini_ctx->data;
-    module->fnv1a.ctx      = fnv1a_ctx;
-    module->htable.ctx = htable_ctx;
-    module->logger.ctx     = logger_ctx;
+    module->htable.ctx = module->htable.init(logger_ctx);
+    if (!module->htable.ctx)
+        goto htable_init_fail;
 
-    if (!st_ini_import_functions(ini_ctx, fnv1a_ctx, htable_ctx,
-     logger_ctx))
-        return NULL;
+    module->logger.ctx = logger_ctx;
+
+    if (!st_ini_import_functions(ini_ctx, logger_ctx))
+        goto import_funcs_fail;
 
     module->logger.info(module->logger.ctx, "ini_inih: Module initialized.");
 
     return ini_ctx;
+
+import_funcs_fail:
+    module->htable.quit(module->htable.ctx);
+htable_init_fail:
+get_func_fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, ini_ctx);
+
+    return NULL;
 }
 
 static void st_ini_quit(st_modctx_t *ini_ctx) {
     st_ini_inih_t *module = ini_ctx->data;
+
+    module->htable.quit(module->htable.ctx);
 
     module->logger.info(module->logger.ctx, "ini_inih: Module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, ini_ctx);
@@ -157,8 +186,7 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
 
     ini->module = module;
     ini->sections = module->htable.create(module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(
-      module->fnv1a.ctx),
+     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
      st_keyeqfunc, free, st_ini_free_section);
     if (!ini->sections) {
         module->logger.error(module->logger.ctx,
@@ -366,8 +394,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
 
     st_htable_t *section_ht = module->htable.create(
      module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(
-      module->fnv1a.ctx),
+     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
      st_keyeqfunc, free, free);
     if (!section_ht) {
         module->logger.error(module->logger.ctx,

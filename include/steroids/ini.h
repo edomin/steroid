@@ -7,8 +7,7 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/ini.h"
 
-static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
- st_modctx_t *htable_ctx, st_modctx_t *logger_ctx);
+static st_modctx_t *st_ini_init(st_modctx_t *logger_ctx);
 static void st_ini_quit(st_modctx_t *ini_ctx);
 
 static st_ini_t *st_ini_create(st_modctx_t *ini_ctx);
