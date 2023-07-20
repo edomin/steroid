@@ -60,7 +60,8 @@ st_moddata_t *st_module_init(void *modsmgr,
 }
 #endif
 
-static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
+static void st_logger_init_fallback(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx) {
     st_logger_libsir_t *logger = logger_ctx->data;
 
     logger->use_fallback_module = true;
@@ -89,13 +90,13 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx) {
     logger->logger_fallback_error = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "error");
 
-    logger->logger_fallback_ctx = logger->logger_fallback_init();
+    logger->logger_fallback_ctx = logger->logger_fallback_init(events_ctx);
     logger->logger_fallback_warning(logger->logger_fallback_ctx, "%s\n",
      "logger_libsir: Unable to initialize \"logger_libsir\" properly. Using "
      "fallback module \"logger_simple\" internally.");
 }
 
-static st_modctx_t *st_logger_init(void) {
+static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     bool         use_fallback = false;
     sirinit      init_options = {
         .d_stdout = {
@@ -135,10 +136,14 @@ static st_modctx_t *st_logger_init(void) {
         st_logger_libsir_t *logger = logger_ctx->data;
 
         logger->use_fallback_module = false;
-        logger->events.ctx = NULL;
+        logger->events.ctx = events_ctx;
         logger->callbacks_count = 0;
+
+        if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
+            logger->events.ctx = NULL;
+
         if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
-            fprintf(stderr,
+            st_logger_error(logger_ctx,
              "logger_libsir: Unable to init lock mutex while initializing "
              "logger");
             global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
@@ -149,7 +154,7 @@ static st_modctx_t *st_logger_init(void) {
     }
 
     if (use_fallback)
-        st_logger_init_fallback(logger_ctx);
+        st_logger_init_fallback(logger_ctx, events_ctx);
 
     global_sir_inited = true;
 

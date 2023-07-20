@@ -6,7 +6,7 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/logger.h"
 
-static st_modctx_t *st_logger_init(void);
+static st_modctx_t *st_logger_init(st_modctx_t *events_ctx);
 static void st_logger_quit(st_modctx_t *logger_ctx);
 
 static bool st_logger_enable_events(st_modctx_t *logger_ctx,

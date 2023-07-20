@@ -28,9 +28,9 @@ static st_hash_table_quit_t st_hash_table_quit;
 static st_ini_init_t st_ini_init;
 static st_ini_quit_t st_ini_quit;
 
-static st_logger_init_t  st_logger_init;
-static st_logger_error_t st_logger_error;
-static st_logger_quit_t  st_logger_quit;
+static st_logger_init_t          st_logger_init;
+static st_logger_error_t         st_logger_error;
+static st_logger_quit_t          st_logger_quit;
 
 static st_opts_init_t st_opts_init;
 static st_opts_quit_t st_opts_quit;
@@ -115,14 +115,18 @@ int main(int argc, char **argv) {
     st_modctx_t  *so;
     st_modctx_t  *spcpaths;
     st_modctx_t  *zip;
+    int           exitcode = EXIT_SUCCESS;
 
-    st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL, "init");
-    st_logger_quit = st_modsmgr_get_function(modsmgr, "logger", NULL, "quit");
+    st_logger_init  = st_modsmgr_get_function(modsmgr, "logger", NULL, "init");
+    st_logger_quit  = st_modsmgr_get_function(modsmgr, "logger", NULL, "quit");
     st_logger_error = st_modsmgr_get_function(modsmgr, "logger", NULL, "error");
-    logger = st_logger_init();
+    logger = st_logger_init(NULL);
 
-    if (!init_funcs(modsmgr, logger))
-        return EXIT_FAILURE;
+    if (!init_funcs(modsmgr, logger)) {
+        exitcode = EXIT_FAILURE;
+
+        goto init_funcs_fail;
+    }
 
     fnv1a = st_fnv1a_init(logger);
     hash_table = st_hash_table_init(logger);
@@ -149,9 +153,10 @@ int main(int argc, char **argv) {
     st_ini_quit(ini);
     st_hash_table_quit(hash_table);
     st_fnv1a_quit(fnv1a);
+init_funcs_fail:
     st_logger_quit(logger);
 
     st_modsmgr_destroy(modsmgr);
 
-    return EXIT_SUCCESS;
+    return exitcode;
 }

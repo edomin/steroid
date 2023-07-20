@@ -55,7 +55,7 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 }
 #endif
 
-static st_modctx_t *st_logger_init(void) {
+static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     st_modctx_t        *logger_ctx = global_modsmgr_funcs.init_module_ctx(
      global_modsmgr, &st_module_logger_simple_data, sizeof(st_logger_simple_t));
     st_logger_simple_t *logger;
@@ -66,15 +66,18 @@ static st_modctx_t *st_logger_init(void) {
     logger_ctx->funcs = &st_logger_simple_funcs;
 
     logger = logger_ctx->data;
-    logger->events.ctx = NULL;
+    logger->events.ctx = events_ctx;
     logger->stdout_levels = ST_LL_NONE;
     logger->stderr_levels = ST_LL_ALL;
     logger->syslog_levels = ST_LL_NONE;
     logger->log_files_count = 0;
     logger->callbacks_count = 0;
 
+    if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
+        logger->events.ctx = NULL;
+
     if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
-        fprintf(stderr,
+        st_logger_error(logger_ctx,
          "logger_simple: Unable to init lock mutex while initializing logger");
         global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
 

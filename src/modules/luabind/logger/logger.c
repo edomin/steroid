@@ -10,36 +10,37 @@
 #define ERR_MSG_BUF_SIZE 1024
 #define METATABLE_NAME   "st_logger"
 
-static void              *global_modsmgr;
-static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
+static void                               *global_modsmgr;
+static st_modsmgr_funcs_t                  global_modsmgr_funcs;
+static char                                err_msg_buf[ERR_MSG_BUF_SIZE];
 
-static st_logger_init_t                st_logger_init;
-static st_logger_quit_t                st_logger_quit;
-static st_logger_set_stdout_levels_t   st_logger_set_stdout_levels;
-static st_logger_set_stderr_levels_t   st_logger_set_stderr_levels;
-static st_logger_set_syslog_levels_t   st_logger_set_syslog_levels;
-static st_logger_set_log_file_t        st_logger_set_log_file;
-static st_logger_set_callback_t        st_logger_set_callback;
-static st_logger_debug_t               st_logger_debug;
-static st_logger_info_t                st_logger_info;
-static st_logger_warning_t             st_logger_warning;
-static st_logger_error_t               st_logger_error;
+static st_logger_init_t                    st_logger_init;
+static st_logger_quit_t                    st_logger_quit;
+static st_logger_set_stdout_levels_t       st_logger_set_stdout_levels;
+static st_logger_set_stderr_levels_t       st_logger_set_stderr_levels;
+static st_logger_set_syslog_levels_t       st_logger_set_syslog_levels;
+static st_logger_set_log_file_t            st_logger_set_log_file;
+static st_logger_set_callback_t            st_logger_set_callback;
+static st_logger_debug_t                   st_logger_debug;
+static st_logger_info_t                    st_logger_info;
+static st_logger_warning_t                 st_logger_warning;
+static st_logger_error_t                   st_logger_error;
 
-static st_lua_get_state_t              st_lua_get_state;
-static st_lua_create_userdata_t        st_lua_create_userdata;
-static st_lua_create_metatable_t       st_lua_create_metatable;
-static st_lua_set_metatable_t          st_lua_set_metatable;
-static st_lua_push_bool_t              st_lua_push_bool;
-static st_lua_set_integer_to_field_t   st_lua_set_integer_to_field;
-static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
-static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
-static st_lua_get_integer_t            st_lua_get_integer;
-static st_lua_get_string_t             st_lua_get_string;
-static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
-static st_lua_get_global_userdata_t    st_lua_get_global_userdata;
-static st_lua_register_cfunction_t     st_lua_register_cfunction;
-static st_lua_pop_t                    st_lua_pop;
+static st_lua_get_state_t                  st_lua_get_state;
+static st_lua_create_userdata_t            st_lua_create_userdata;
+static st_lua_create_metatable_t           st_lua_create_metatable;
+static st_lua_set_metatable_t              st_lua_set_metatable;
+static st_lua_push_bool_t                  st_lua_push_bool;
+static st_lua_set_integer_to_field_t       st_lua_set_integer_to_field;
+static st_lua_set_cfunction_to_field_t     st_lua_set_cfunction_to_field;
+static st_lua_set_copy_to_field_t          st_lua_set_copy_to_field;
+static st_lua_get_integer_t                st_lua_get_integer;
+static st_lua_get_string_t                 st_lua_get_string;
+static st_lua_get_named_userdata_t         st_lua_get_named_userdata;
+static st_lua_get_named_userdata_or_null_t st_lua_get_named_userdata_or_null;
+static st_lua_get_global_userdata_t        st_lua_get_global_userdata;
+static st_lua_register_cfunction_t         st_lua_register_cfunction;
+static st_lua_pop_t                        st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
 
@@ -118,6 +119,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_string);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_named_userdata);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_named_userdata_or_null);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_global_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, register_cfunction);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, pop);
@@ -163,9 +165,13 @@ static void st_luabind_quit(st_modctx_t *luabind_ctx) {
 }
 
 static int st_logger_init_bind(st_luastate_t *lua_state) {
-    void *userdata = st_lua_create_userdata(lua_state, sizeof(st_modctx_t *));
+    void        *userdata = st_lua_create_userdata(lua_state,
+     sizeof(st_modctx_t *));
+    st_modctx_t *events_ctx =
+     *(st_modctx_t **)st_lua_get_named_userdata_or_null(lua_state, 1,
+      "st_events");
 
-    *(st_modctx_t **)userdata = st_logger_init();
+    *(st_modctx_t **)userdata = st_logger_init(events_ctx);
     st_lua_set_metatable(lua_state, METATABLE_NAME);
 
     return 1;
@@ -242,10 +248,31 @@ static int st_logger_set_log_file_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
+// typedef struct {
+//     st_luastate_t *lua_state;
+//     int            func_index;
+//     int            arg_index;
+// } st_cbkdata_t;
+
+// static void st_logger_callback(const char *msg, void *userdata) {
+//     st_cbkdata_t
+// }
+
 // TODO(edomin): implement later
 static int st_logger_set_callback_bind(st_luastate_t *lua_state) {
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
+
+ //    lua_pushvalue(lua_state, 2);
+ //    int func_index = luaL_ref(lua_state, LUA_REGISTRYINDEX);
+ //    st_lua_pop(lua_state);
+
+ //    lua_pushvalue(lua_state, 3);
+ //    int arg_index = luaL_ref(lua_state, LUA_REGISTRYINDEX);
+ //    st_lua_pop(lua_state);
+
+ //    bool success = st_logger_set_callback(logger_ctx,
+ // st_logger_callback, void *userdata, st_loglvl_t levels);
 
     st_logger_error(logger_ctx, "luabind_logger: Binding for function "
      "st_logger_set_callback is not implemented");
@@ -304,7 +331,6 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_logger_get_instance_bind);
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
-    // st_lua_set_cfunction_to_field(lua_state, "__gc", st_logger_quit_bind);
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_logger_quit_bind);
     st_lua_set_cfunction_to_field(lua_state, "quit", st_logger_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);

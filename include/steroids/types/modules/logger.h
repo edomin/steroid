@@ -18,7 +18,7 @@ typedef enum {
 
 typedef void (*st_logcbk_t)(const char *msg, void *userdata);
 
-typedef st_modctx_t *(*st_logger_init_t)(void);
+typedef st_modctx_t *(*st_logger_init_t)(st_modctx_t *events_ctx);
 typedef void (*st_logger_quit_t)(st_modctx_t *logger_ctx);
 
 typedef bool (*st_logger_enable_events_t)(st_modctx_t *logger_ctx,
