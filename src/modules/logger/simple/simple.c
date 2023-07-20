@@ -129,7 +129,7 @@ static bool st_logger_enable_events(st_modctx_t *logger_ctx,
     st_logger_simple_t *module = logger_ctx->data;
 
     if (!st_logger_import_events_functions(logger_ctx, events_ctx))
-        return false;
+        goto import_fail;
 
     module->events.ctx = events_ctx;
     module->ev_log_output_debug = module->events.register_type(
@@ -157,8 +157,9 @@ static bool st_logger_enable_events(st_modctx_t *logger_ctx,
     return true;
 
 register_fail:
-    st_logger_error(logger_ctx, "logger_simple: Unable to enable events");
     module->events.ctx = NULL;
+import_fail:
+    st_logger_error(logger_ctx, "logger_simple: Unable to enable events");
 
     return false;
 }
