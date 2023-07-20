@@ -251,7 +251,7 @@ static bool load_plugins(st_runner_simple_t *module,
 
             if (module->pathtools.concat(module->pathtools.ctx, filename,
              PATH_MAX, dirname, entry->d_name)) {
-                if (!module->plugin.load(module->plugin.ctx, filename))
+                if (!module->plugin.load(module->plugin.ctx, filename, true))
                     module->logger.error(module->logger.ctx,
                      "runner_simple: Unable to load plugin \"%s\"", filename);
             }
@@ -259,6 +259,8 @@ static bool load_plugins(st_runner_simple_t *module,
 
         entry = readdir(dir);
     }
+
+    global_modsmgr_funcs.process_deps(global_modsmgr);
 
     return true;
 }

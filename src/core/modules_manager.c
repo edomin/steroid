@@ -19,6 +19,17 @@
 #include "internal_modules.h"
 #include "utils.h"
 
+#define ST_MODSMGR_FUNCS                                           \
+    &(st_modsmgr_funcs_t){                                         \
+        .get_module_names      = st_modsmgr_get_module_names,      \
+        .load_module           = st_modsmgr_load_module,           \
+        .process_deps          = st_modsmgr_process_deps,          \
+        .get_function          = st_modsmgr_get_function,          \
+        .get_function_from_ctx = st_modsmgr_get_function_from_ctx, \
+        .init_module_ctx       = st_modsmgr_init_module_ctx,       \
+        .free_module_ctx       = st_free_module_ctx,               \
+     }
+
 st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size);
 void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx);
@@ -125,22 +136,14 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
  * st_modsmgr_init
  */
 bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
- st_modinitfunc_t modinit_func) {
+ st_modinitfunc_t modinit_func, bool force) {
     st_snode_t   *node;
-    st_moddata_t *module_data = modinit_func(modsmgr,
-     &(st_modsmgr_funcs_t){
-        .get_module_names      = st_modsmgr_get_module_names,
-        .load_module = st_modsmgr_load_module,
-        .get_function = st_modsmgr_get_function,
-        .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
-        .init_module_ctx = st_modsmgr_init_module_ctx,
-        .free_module_ctx = st_free_module_ctx,
-     });
+    st_moddata_t *module_data = modinit_func(modsmgr, ST_MODSMGR_FUNCS);
 
     printf("steroids: Trying to add module \"%s_%s\"\n", module_data->subsystem,
      module_data->name);
 
-    if (!st_modsmgr_module_have_deps(modsmgr, module_data))
+    if (!force && !st_modsmgr_module_have_deps(modsmgr, module_data))
         return false;
 
     node = malloc(sizeof(st_snode_t));
@@ -169,14 +172,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
     for (size_t i = 0; i < ST_INTERNAL_MODULES_COUNT; i++) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
-         &(st_modsmgr_funcs_t){
-            .get_module_names      = st_modsmgr_get_module_names,
-            .load_module           = st_modsmgr_load_module,
-            .get_function          = st_modsmgr_get_function,
-            .get_function_from_ctx = st_modsmgr_get_function_from_ctx,
-            .init_module_ctx       = st_modsmgr_init_module_ctx,
-            .free_module_ctx       = st_free_module_ctx,
-         });
+          ST_MODSMGR_FUNCS);
         st_snode_t *node;
 
         if (!module_data)

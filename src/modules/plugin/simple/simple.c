@@ -135,7 +135,7 @@ static void st_plugin_quit(st_modctx_t *plugin_ctx) {
 }
 
 static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
- const char *filename) {
+ const char *filename, bool force) {
     st_plugin_simple_t *module = plugin_ctx->data;
     ssize_t             zip_entries_count;
     char                tmp_path[PATH_MAX];
@@ -203,7 +203,8 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
             goto fail;
         }
 
-        return global_modsmgr_funcs.load_module(global_modsmgr, modinit_func);
+        return global_modsmgr_funcs.load_module(global_modsmgr, modinit_func,
+         force);
     }
 
 fail:
@@ -215,23 +216,24 @@ fail:
     return false;
 }
 
-static bool st_plugin_load(st_modctx_t *plugin_ctx, const char *filename) {
+static bool st_plugin_load(st_modctx_t *plugin_ctx, const char *filename,
+ bool force) {
     st_plugin_simple_t *module = plugin_ctx->data;
     st_zip_t           *zip = module->zip.open(module->zip.ctx, filename);
 
     if (!zip)
         return false;
 
-    return st_plugin_load_impl(plugin_ctx, zip, filename);
+    return st_plugin_load_impl(plugin_ctx, zip, filename, force);
 }
 
 static bool st_plugin_memload(st_modctx_t *plugin_ctx, const void *data,
- size_t size) {
+ size_t size, bool force) {
     st_plugin_simple_t *module = plugin_ctx->data;
     st_zip_t           *zip = module->zip.memopen(module->zip.ctx, data, size);
 
     if (!zip)
         return false;
 
-    return st_plugin_load_impl(plugin_ctx, zip, "");
+    return st_plugin_load_impl(plugin_ctx, zip, "", force);
 }

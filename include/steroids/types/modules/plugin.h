@@ -11,9 +11,10 @@ typedef st_modctx_t *(*st_plugin_init_t)(st_modctx_t *fs_ctx,
  st_modctx_t *spcpaths_ctx, st_modctx_t *zip_ctx);
 typedef void (*st_plugin_quit_t)(st_modctx_t *plugin_ctx);
 
-typedef bool (*st_plugin_load_t)(st_modctx_t *plugin_ctx, const char *filename);
+typedef bool (*st_plugin_load_t)(st_modctx_t *plugin_ctx, const char *filename,
+ bool force);
 typedef bool (*st_plugin_memload_t)(st_modctx_t *plugin_ctx, const void *data,
- size_t size);
+ size_t size, bool force);
 
 typedef struct {
     st_plugin_init_t    plugin_init;
