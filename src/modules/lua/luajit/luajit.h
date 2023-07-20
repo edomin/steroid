@@ -17,20 +17,26 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_create_metatable           = st_lua_create_metatable,
     .lua_set_metatable              = st_lua_set_metatable,
     .lua_push_bool                  = st_lua_push_bool,
+    .lua_push_nil                   = st_lua_push_nil,
+    .lua_push_string                = st_lua_push_string,
     .lua_set_nil_to_field           = st_lua_set_nil_to_field,
     .lua_set_integer_to_field       = st_lua_set_integer_to_field,
     .lua_set_cfunction_to_field     = st_lua_set_cfunction_to_field,
     .lua_set_copy_to_field          = st_lua_set_copy_to_field,
+    .lua_get_char                   = st_lua_get_char,
     .lua_get_integer                = st_lua_get_integer,
+    .lua_get_lstring_or_null        = st_lua_get_lstring_or_null,
     .lua_get_string                 = st_lua_get_string,
+    .lua_get_string_or_null         = st_lua_get_string_or_null,
     .lua_get_named_userdata         = st_lua_get_named_userdata,
     .lua_get_named_userdata_or_null = st_lua_get_named_userdata_or_null,
     .lua_get_global_userdata        = st_lua_get_global_userdata,
     .lua_register_cfunction         = st_lua_register_cfunction,
     .lua_pop                        = st_lua_pop,
+    .lua_raise_error                = st_lua_raise_error,
 };
 
-#define FUNCS_COUNT 23
+#define FUNCS_COUNT 29
 st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -46,17 +52,23 @@ st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
         {"create_metatable",           st_lua_create_metatable},
         {"set_metatable",              st_lua_set_metatable},
         {"push_bool",                  st_lua_push_bool},
+        {"push_nil",                   st_lua_push_nil},
+        {"push_string",                st_lua_push_string},
         {"set_nil_to_field",           st_lua_set_nil_to_field},
         {"set_integer_to_field",       st_lua_set_integer_to_field},
         {"set_cfunction_to_field",     st_lua_set_cfunction_to_field},
         {"set_copy_to_field",          st_lua_set_copy_to_field},
+        {"get_char",                   st_lua_get_char},
         {"get_integer",                st_lua_get_integer},
+        {"get_lstring_or_null",        st_lua_get_lstring_or_null},
         {"get_string",                 st_lua_get_string},
+        {"get_string_or_null",         st_lua_get_string_or_null},
         {"get_named_userdata",         st_lua_get_named_userdata},
         {"get_named_userdata_or_null", st_lua_get_named_userdata_or_null},
         {"get_global_userdata",        st_lua_get_global_userdata},
         {"register_cfunction",         st_lua_register_cfunction},
         {"pop",                        st_lua_pop},
+        {"raise_error",                st_lua_raise_error},
     }
 };
 

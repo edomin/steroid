@@ -284,6 +284,14 @@ static void st_lua_push_bool(st_luastate_t *lua_state, bool val) {
     lua_pushboolean((lua_State *)lua_state, val);
 }
 
+static void st_lua_push_nil(st_luastate_t *lua_state) {
+    lua_pushnil((lua_State *)lua_state);
+}
+
+static void st_lua_push_string(st_luastate_t *lua_state, const char *str) {
+    lua_pushstring((lua_State *)lua_state, str);
+}
+
 static void st_lua_set_nil_to_field(st_luastate_t *lua_state,
  const char *name) {
     lua_pushnil((lua_State *)lua_state);
@@ -308,12 +316,32 @@ static void st_lua_set_copy_to_field(st_luastate_t *lua_state,
     lua_setfield((lua_State *)lua_state, -2, name);
 }
 
+static char st_lua_get_char(st_luastate_t *lua_state, int index) {
+    size_t      len;
+    const char *str = lua_tolstring((lua_State *)lua_state, index, &len);
+
+    if (len != 1)
+        return '\0';
+
+    return str[0];
+}
+
 static ptrdiff_t st_lua_get_integer(st_luastate_t *lua_state, int index) {
     return luaL_checkinteger((lua_State *)lua_state, index);
 }
 
+static const char *st_lua_get_lstring_or_null(st_luastate_t *lua_state,
+ int index, size_t *len) {
+    return lua_tolstring((lua_State *)lua_state, index, len);
+}
+
 static const char *st_lua_get_string(st_luastate_t *lua_state, int index) {
     return luaL_checkstring((lua_State *)lua_state, index);
+}
+
+static const char *st_lua_get_string_or_null(st_luastate_t *lua_state,
+ int index) {
+    return lua_tostring((lua_State *)lua_state, index);
 }
 
 static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
@@ -344,4 +372,8 @@ static void st_lua_register_cfunction(st_luastate_t *lua_state,
 
 static void st_lua_pop(st_luastate_t *lua_state, size_t elements_count) {
     lua_pop((lua_State *)lua_state, (int)elements_count);
+}
+
+static void st_lua_raise_error(st_luastate_t *lua_state, const char *msg) {
+    luaL_error((lua_State *)lua_state, "%s", msg);
 }
