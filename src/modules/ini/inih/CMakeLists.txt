@@ -13,7 +13,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
     {
-        .subsystem = "hash_table",
+        .subsystem = "htable",
         .name = NULL,
     },
     {

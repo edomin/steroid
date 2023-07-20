@@ -1,10 +1,10 @@
-if (${ST_MODULE_HASH_TABLE_HASH_TABLE} STREQUAL "no")
+if (${ST_MODULE_HTABLE_HASH_TABLE} STREQUAL "no")
     return()
 endif()
 
 set(ST_MODULE_NAME "hash_table")
-set(ST_MODULE_TYPE ${ST_MODULE_HASH_TABLE_HASH_TABLE})
-set(ST_MODULE_SUBSYSTEM "hash_table")
+set(ST_MODULE_TYPE ${ST_MODULE_HTABLE_HASH_TABLE})
+set(ST_MODULE_SUBSYSTEM "htable")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
@@ -33,7 +33,7 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_HASH_TABLE_HASH_TABLE})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_HTABLE_HASH_TABLE})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)

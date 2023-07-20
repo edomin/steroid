@@ -31,7 +31,7 @@ static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
     st_ini_inih_t   *module = section->module;
 
-    module->hash_table.clear(section->data);
+    module->htable.clear(section->data);
     free(section);
 }
 
@@ -73,7 +73,7 @@ st_moddata_t *st_module_init(void *modsmgr,
 #endif
 
 static bool st_ini_import_functions(st_modctx_t *ini_ctx,
- st_modctx_t *fnv1a_ctx, st_modctx_t *hash_table_ctx, st_modctx_t *logger_ctx) {
+ st_modctx_t *fnv1a_ctx, st_modctx_t *htable_ctx, st_modctx_t *logger_ctx) {
     st_ini_inih_t *module = ini_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -88,17 +88,17 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
 
     ST_LOAD_FUNCTION("ini_inih", fnv1a, get_u32hashstr_func);
 
-    ST_LOAD_FUNCTION("ini_inih", hash_table, create);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, destroy);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, insert);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, get);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, remove);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, clear);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, contains);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, find);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, next);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, get_iter_key);
-    ST_LOAD_FUNCTION("ini_inih", hash_table, get_iter_value);
+    ST_LOAD_FUNCTION("ini_inih", htable, create);
+    ST_LOAD_FUNCTION("ini_inih", htable, destroy);
+    ST_LOAD_FUNCTION("ini_inih", htable, insert);
+    ST_LOAD_FUNCTION("ini_inih", htable, get);
+    ST_LOAD_FUNCTION("ini_inih", htable, remove);
+    ST_LOAD_FUNCTION("ini_inih", htable, clear);
+    ST_LOAD_FUNCTION("ini_inih", htable, contains);
+    ST_LOAD_FUNCTION("ini_inih", htable, find);
+    ST_LOAD_FUNCTION("ini_inih", htable, next);
+    ST_LOAD_FUNCTION("ini_inih", htable, get_iter_key);
+    ST_LOAD_FUNCTION("ini_inih", htable, get_iter_value);
 
     ST_LOAD_FUNCTION("ini_inih", logger, debug);
     ST_LOAD_FUNCTION("ini_inih", logger, info);
@@ -107,7 +107,7 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
 }
 
 static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
- st_modctx_t *hash_table_ctx, st_modctx_t *logger_ctx) {
+ st_modctx_t *htable_ctx, st_modctx_t *logger_ctx) {
     st_modctx_t   *ini_ctx;
     st_ini_inih_t *module;
 
@@ -121,10 +121,10 @@ static st_modctx_t *st_ini_init(st_modctx_t *fnv1a_ctx,
 
     module = ini_ctx->data;
     module->fnv1a.ctx      = fnv1a_ctx;
-    module->hash_table.ctx = hash_table_ctx;
+    module->htable.ctx = htable_ctx;
     module->logger.ctx     = logger_ctx;
 
-    if (!st_ini_import_functions(ini_ctx, fnv1a_ctx, hash_table_ctx,
+    if (!st_ini_import_functions(ini_ctx, fnv1a_ctx, htable_ctx,
      logger_ctx))
         return NULL;
 
@@ -156,13 +156,13 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
     }
 
     ini->module = module;
-    ini->sections = module->hash_table.create(module->hash_table.ctx,
+    ini->sections = module->htable.create(module->htable.ctx,
      (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(
       module->fnv1a.ctx),
      st_keyeqfunc, free, st_ini_free_section);
     if (!ini->sections) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to create hashtable for sections");
+         "ini_inih: Unable to create hash table for sections");
 
         free(ini);
         return NULL;
@@ -285,14 +285,14 @@ ini_destroy:
 
 static void st_ini_destroy(st_ini_t *ini) {
     st_ini_inih_t *module = ini->module;
-    module->hash_table.clear(ini->sections);
+    module->htable.clear(ini->sections);
     free(ini);
 }
 
 static bool st_ini_section_exists(const st_ini_t *ini, const char *section) {
     st_ini_inih_t *module = ini->module;
 
-    return !!module->hash_table.get(ini->sections, !!section ? section : "");
+    return !!module->htable.get(ini->sections, !!section ? section : "");
 }
 
 static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
@@ -303,13 +303,13 @@ static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
 static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
  const char *key) {
     st_ini_inih_t *module = ini->module;
-    st_inisection_t *section = module->hash_table.get(ini->sections,
+    st_inisection_t *section = module->htable.get(ini->sections,
      !!section_name ? section_name : "");
 
     if (!section)
         return false;
 
-    return module->hash_table.get(section->data, key);
+    return module->htable.get(section->data, key);
 }
 
 static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
@@ -325,7 +325,7 @@ static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
     st_ini_inih_t *module = ini->module;
 
-    return module->hash_table.remove(ini->sections, section);
+    return module->htable.remove(ini->sections, section);
 }
 
 static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
@@ -334,12 +334,12 @@ static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
-    if (!module->hash_table.find(ini->sections, &section_iter, section_name))
+    if (!module->htable.find(ini->sections, &section_iter, section_name))
         return false;
 
-    section = module->hash_table.get_iter_value(&section_iter);
+    section = module->htable.get_iter_value(&section_iter);
 
-    return module->hash_table.remove(section->data, key);
+    return module->htable.remove(section->data, key);
 }
 
 static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
@@ -347,11 +347,11 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
-    if (!module->hash_table.find(ini->sections, &section_iter, section_name))
+    if (!module->htable.find(ini->sections, &section_iter, section_name))
         return false;
 
-    section = module->hash_table.get_iter_value(&section_iter);
-    module->hash_table.clear(section->data);
+    section = module->htable.get_iter_value(&section_iter);
+    module->htable.clear(section->data);
 
     return true;
 }
@@ -361,11 +361,11 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     st_inisection_t  *section;
     char          *section_key;
 
-    if (module->hash_table.contains(ini->sections, section_name))
+    if (module->htable.contains(ini->sections, section_name))
         return true;
 
-    st_hashtable_t *section_ht = module->hash_table.create(
-     module->hash_table.ctx,
+    st_htable_t *section_ht = module->htable.create(
+     module->htable.ctx,
      (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(
       module->fnv1a.ctx),
      st_keyeqfunc, free, free);
@@ -396,7 +396,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
         goto strdup_fail;
     }
 
-    if (!module->hash_table.insert(ini->sections, NULL, section_key,
+    if (!module->htable.insert(ini->sections, NULL, section_key,
      section)) {
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to insert unnamed section to sections table");
@@ -411,7 +411,7 @@ insert_fail:
 strdup_fail:
     free(section);
 malloc_fail:
-    module->hash_table.destroy(section_ht);
+    module->htable.destroy(section_ht);
 
     return false;
 }
@@ -426,7 +426,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     if (!st_ini_add_section(ini, section_name))
         return false;
 
-    section = module->hash_table.get(ini->sections, section_name);
+    section = module->htable.get(ini->sections, section_name);
 
     keydup = strdup(key);
     if (!keydup) {
@@ -444,7 +444,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
         goto valdup_fail;
     }
 
-    if (!module->hash_table.insert(section->data, NULL, keydup, valdup)) {
+    if (!module->htable.insert(section->data, NULL, keydup, valdup)) {
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to insert key \"%s\" to section \"%s\"", key,
          section_name);
@@ -467,12 +467,12 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
     st_htiter_t    section_it;
     size_t         bufoffset;
 
-    if (!module->hash_table.next(ini->sections, &section_it, NULL))
+    if (!module->htable.next(ini->sections, &section_it, NULL))
         return true;
 
     do {
-        const char      *sec_key = module->hash_table.get_iter_key(&section_it);
-        st_inisection_t *section = module->hash_table.get_iter_value(&section_it);
+        const char      *sec_key = module->htable.get_iter_key(&section_it);
+        st_inisection_t *section = module->htable.get_iter_value(&section_it);
         st_htiter_t      key_it;
         int              sec_ret = 0;
 
@@ -490,12 +490,12 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         buffer += sec_ret;
         bufsize -= (size_t)sec_ret;
 
-        if (module->hash_table.next(section->data, &key_it, NULL))
+        if (module->htable.next(section->data, &key_it, NULL))
             continue;
 
         do {
-            const char *key = module->hash_table.get_iter_key(&key_it);
-            char       *value = module->hash_table.get_iter_value(&key_it);
+            const char *key = module->htable.get_iter_key(&key_it);
+            char       *value = module->htable.get_iter_value(&key_it);
             int         ret = snprintf_s(buffer, bufsize, "%s=%s\n", key, value);
 
             if (ret < 0) {
@@ -508,12 +508,12 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
 
             buffer += ret;
             bufsize -= (size_t)ret;
-        } while (module->hash_table.next(section->data, &key_it, &key_it));
+        } while (module->htable.next(section->data, &key_it, &key_it));
 
         snprintf_s(buffer, bufsize, "\n");
         buffer++;
         bufsize--;
-    } while (module->hash_table.next(ini->sections, &section_it, &section_it));
+    } while (module->htable.next(ini->sections, &section_it, &section_it));
 
     buffer[bufsize - 1] = '\n';
 

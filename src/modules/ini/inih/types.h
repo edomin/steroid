@@ -2,7 +2,7 @@
 #define ST_MODULES_INI_INIH_TYPES_H
 
 #include "steroids/types/modules/fnv1a.h"
-#include "steroids/types/modules/hash_table.h"
+#include "steroids/types/modules/htable.h"
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
@@ -11,19 +11,19 @@ typedef struct {
 } st_ini_inih_fnv1a_t;
 
 typedef struct {
-    st_modctx_t                   *ctx;
-    st_hash_table_create_t         create;
-    st_hash_table_destroy_t        destroy;
-    st_hash_table_insert_t         insert;
-    st_hash_table_get_t            get;
-    st_hash_table_remove_t         remove;
-    st_hash_table_clear_t          clear;
-    st_hash_table_contains_t       contains;
-    st_hash_table_find_t           find;
-    st_hash_table_next_t           next;
-    st_hash_table_get_iter_key_t   get_iter_key;
-    st_hash_table_get_iter_value_t get_iter_value;
-} st_ini_inih_hash_table_t;
+    st_modctx_t               *ctx;
+    st_htable_create_t         create;
+    st_htable_destroy_t        destroy;
+    st_htable_insert_t         insert;
+    st_htable_get_t            get;
+    st_htable_remove_t         remove;
+    st_htable_clear_t          clear;
+    st_htable_contains_t       contains;
+    st_htable_find_t           find;
+    st_htable_next_t           next;
+    st_htable_get_iter_key_t   get_iter_key;
+    st_htable_get_iter_value_t get_iter_value;
+} st_ini_inih_htable_t;
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -33,19 +33,19 @@ typedef struct {
 } st_ini_inih_logger_t;
 
 typedef struct {
-    st_ini_inih_fnv1a_t      fnv1a;
-    st_ini_inih_hash_table_t hash_table;
-    st_ini_inih_logger_t     logger;
+    st_ini_inih_fnv1a_t  fnv1a;
+    st_ini_inih_htable_t htable;
+    st_ini_inih_logger_t logger;
 } st_ini_inih_t;
 
 typedef struct {
-    st_ini_inih_t  *module;
-    st_hashtable_t *data;
+    st_ini_inih_t *module;
+    st_htable_t   *data;
 } st_inisection_t;
 
 typedef struct {
-    st_ini_inih_t  *module;
-    st_hashtable_t *sections;
+    st_ini_inih_t *module;
+    st_htable_t   *sections;
 } st_ini_t;
 
 #define ST_INI_T_DEFINED
