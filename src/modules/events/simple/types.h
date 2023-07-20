@@ -20,6 +20,8 @@ typedef struct {
 
 typedef struct {
     st_modctx_t             *ctx;
+    st_rbuf_init_t           init;
+    st_rbuf_quit_t           quit;
     st_rbuf_create_t         create;
     st_rbuf_destroy_t        destroy;
     st_rbuf_push_t           push;

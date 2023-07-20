@@ -49,7 +49,7 @@ st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
 #endif
 
 static bool st_events_import_functions(st_modctx_t *events_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *rbuf_ctx) {
+ st_modctx_t *logger_ctx) {
     st_events_simple_t *module = events_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -62,26 +62,25 @@ static bool st_events_import_functions(st_modctx_t *events_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("events_simple", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("events_simple", logger, info);
 
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, create);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, destroy);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, push);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, peek);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, pop);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, drop);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, clear);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, get_free_space);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, is_empty);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, create);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, destroy);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, push);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, peek);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, pop);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, drop);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, clear);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, get_free_space);
+    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, is_empty);
 
     return true;
 }
 
-static st_modctx_t *st_events_init(st_modctx_t *logger_ctx,
- st_modctx_t *rbuf_ctx) {
+static st_modctx_t *st_events_init(st_modctx_t *logger_ctx) {
     st_modctx_t        *events_ctx;
-    st_events_simple_t *events;
+    st_events_simple_t *module;
 
     events_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_events_simple_data, sizeof(st_events_simple_t));
@@ -89,21 +88,52 @@ static st_modctx_t *st_events_init(st_modctx_t *logger_ctx,
     if (events_ctx == NULL)
         return NULL;
 
+    module = events_ctx->data;
+
+    module->rbuf.init = global_modsmgr_funcs.get_function(global_modsmgr,
+     "rbuf", NULL, "init");
+    if (!module->rbuf.init) {
+        fprintf(stderr,
+         "events_simple: Unable to load function \"init\" from module "
+         "\"rbuf\"\n");
+
+        goto get_func_fail;
+    }
+
+    module->rbuf.quit = global_modsmgr_funcs.get_function(global_modsmgr,
+     "rbuf", NULL, "quit");
+    if (!module->rbuf.quit) {
+        fprintf(stderr,
+         "events_simple: Unable to load function \"quit\" from module "
+         "\"rbuf\"\n");
+
+        goto get_func_fail;
+    }
+
     events_ctx->funcs = &st_events_simple_funcs;
 
-    events = events_ctx->data;
-    events->logger.ctx = logger_ctx;
-    events->rbuf.ctx = rbuf_ctx;
+    module->logger.ctx = logger_ctx;
+    module->rbuf.ctx = module->rbuf.init(logger_ctx);
+    if (!module->rbuf.ctx)
+        goto rbuf_init_fail;
 
-    if (!st_events_import_functions(events_ctx, logger_ctx, rbuf_ctx))
-        return NULL;
+    if (!st_events_import_functions(events_ctx, logger_ctx))
+        goto import_funcs_fail;
 
-    events->types_count = 0;
+    module->types_count = 0;
 
-    events->logger.info(events->logger.ctx,
+    module->logger.info(module->logger.ctx,
      "events_simple: Event subsystem initialized.");
 
     return events_ctx;
+
+import_funcs_fail:
+    module->rbuf.quit(module->rbuf.ctx);
+rbuf_init_fail:
+get_func_fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, events_ctx);
+
+    return NULL;
 }
 
 static void st_events_quit(st_modctx_t *events_ctx) {
@@ -112,6 +142,8 @@ static void st_events_quit(st_modctx_t *events_ctx) {
     // TODO(edomin):
     // Unsubscribe all queues
     // Delete queues
+
+    module->rbuf.quit(module->rbuf.ctx);
 
     module->logger.info(module->logger.ctx,
      "events_simple: Event subsystem destroyed");

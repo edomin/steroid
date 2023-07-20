@@ -7,8 +7,7 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/events.h"
 
-static st_modctx_t *st_events_init(st_modctx_t *logger_ctx,
- st_modctx_t *rbuf_ctx);
+static st_modctx_t *st_events_init(st_modctx_t *logger_ctx);
 static void st_events_quit(st_modctx_t *events_ctx);
 
 static st_evtypeid_t st_events_register_type(st_modctx_t *events_ctx,

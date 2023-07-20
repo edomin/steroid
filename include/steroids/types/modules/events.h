@@ -14,8 +14,7 @@ typedef int st_evtypeid_t;
     typedef struct st_evq_s st_evq_t;
 #endif
 
-typedef st_modctx_t *(*st_events_init_t)(st_modctx_t *logger_ctx,
- st_modctx_t *rbuf_ctx);
+typedef st_modctx_t *(*st_events_init_t)(st_modctx_t *logger_ctx);
 typedef void (*st_events_quit_t)(st_modctx_t *events_ctx);
 
 typedef st_evtypeid_t (*st_events_register_type_t)(st_modctx_t *events_ctx,
