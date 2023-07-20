@@ -135,6 +135,7 @@ static st_modctx_t *st_logger_init(void) {
         st_logger_libsir_t *logger = logger_ctx->data;
 
         logger->use_fallback_module = false;
+        logger->events.ctx = NULL;
         logger->callbacks_count = 0;
         if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
             fprintf(stderr,
@@ -168,6 +169,65 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
     global_sir_inited = false;
+}
+
+#define ST_LOGGER_LOAD_FUNCTION(mod, function)                               \
+    module->mod.function = global_modsmgr_funcs.get_function_from_ctx(       \
+     global_modsmgr, mod##_ctx, #function);                                  \
+    if (!module->mod.function) {                                             \
+        st_logger_error(logger_ctx,                                          \
+         "logger_libsir: Unable to load function \"%s\" from module \"%s\"", \
+         #function, #mod);                                                   \
+        return false;                                                        \
+    }
+
+static bool st_logger_import_events_functions(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx) {
+    st_logger_libsir_t *module = logger_ctx->data;
+
+    ST_LOGGER_LOAD_FUNCTION(events, register_type);
+    ST_LOGGER_LOAD_FUNCTION(events, push);
+
+    return true;
+}
+
+static bool st_logger_enable_events(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx) {
+    st_logger_libsir_t *module = logger_ctx->data;
+
+    if (!st_logger_import_events_functions(logger_ctx, events_ctx))
+        return false;
+
+    module->events.ctx = events_ctx;
+    module->ev_log_output_debug = module->events.register_type(
+     module->events.ctx, "log_output_debug", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_debug == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_info = module->events.register_type(
+     module->events.ctx, "log_output_info", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_info == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_warning = module->events.register_type(
+     module->events.ctx, "log_output_warning", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_warning == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_error = module->events.register_type(
+     module->events.ctx, "log_output_error", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_error == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    st_logger_info(logger_ctx, "logger_libsir: Events enabled");
+
+    return true;
+
+register_fail:
+    st_logger_error(logger_ctx, "logger_libsir: Unable to enable events");
+    module->events.ctx = NULL;
+
+    return false;
 }
 
 static bool st_logger_set_stdout_levels( st_modctx_t *logger_ctx,
@@ -254,7 +314,8 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
 }
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 4096
-#define ST_LOGGER_NOLOCK_FUNC(st_func, st_fallback, sir_func, log_level)     \
+#define ST_LOGGER_NOLOCK_FUNC(st_func, st_fallback, sir_func, log_level,     \
+ evtype_id_field)                                                            \
     static __attribute__ ((format (printf, 2, 0))) void st_func(             \
      const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
         st_logger_libsir_t *logger = logger_ctx->data;                       \
@@ -271,16 +332,21 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
                 logger->callbacks[i].func(message,                           \
                  logger->callbacks[i].userdata);                             \
         }                                                                    \
+        if (logger->events.ctx) {                                            \
+            message[ST_EV_LOG_MSG_SIZE - 1] = '\0';                          \
+            logger->events.push(logger->events.ctx, logger->evtype_id_field, \
+             message);                                                       \
+        }                                                                    \
     }
 
 ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, logger_fallback_debug, sir_debug, // NOLINT(cert-err33-c)
- ST_LL_DEBUG);
+ ST_LL_DEBUG, ev_log_output_debug);
 ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
- ST_LL_INFO);
+ ST_LL_INFO, ev_log_output_info);
 ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, logger_fallback_warning, // NOLINT(cert-err33-c)
- sir_warn, ST_LL_WARNING);
+ sir_warn, ST_LL_WARNING, ev_log_output_warning);
 ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
- ST_LL_ERROR);
+ ST_LL_ERROR, ev_log_output_warning);
 
 #define ST_LOGGER_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \

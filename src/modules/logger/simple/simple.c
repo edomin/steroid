@@ -66,6 +66,7 @@ static st_modctx_t *st_logger_init(void) {
     logger_ctx->funcs = &st_logger_simple_funcs;
 
     logger = logger_ctx->data;
+    logger->events.ctx = NULL;
     logger->stdout_levels = ST_LL_NONE;
     logger->stderr_levels = ST_LL_ALL;
     logger->syslog_levels = ST_LL_NONE;
@@ -80,7 +81,7 @@ static st_modctx_t *st_logger_init(void) {
         return NULL;
     }
 
-    st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized.");
+    st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized");
 
     return logger_ctx;
 }
@@ -88,7 +89,7 @@ static st_modctx_t *st_logger_init(void) {
 static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_simple_t *logger = logger_ctx->data; // NOLINT(altera-id-dependent-backward-branch)
 
-    st_logger_info(logger_ctx, "%s", "logger_simple: Destroying logger.");
+    st_logger_info(logger_ctx, "%s", "logger_simple: Destroying logger");
 
     if (logger->syslog_levels != ST_LL_NONE)
         closelog();
@@ -101,6 +102,65 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
     mtx_destroy(&logger->lock);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
+}
+
+#define ST_LOGGER_LOAD_FUNCTION(mod, function)                               \
+    module->mod.function = global_modsmgr_funcs.get_function_from_ctx(       \
+     global_modsmgr, mod##_ctx, #function);                                  \
+    if (!module->mod.function) {                                             \
+        st_logger_error(logger_ctx,                                          \
+         "logger_simple: Unable to load function \"%s\" from module \"%s\"", \
+         #function, #mod);                                                   \
+        return false;                                                        \
+    }
+
+static bool st_logger_import_events_functions(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx) {
+    st_logger_simple_t *module = logger_ctx->data;
+
+    ST_LOGGER_LOAD_FUNCTION(events, register_type);
+    ST_LOGGER_LOAD_FUNCTION(events, push);
+
+    return true;
+}
+
+static bool st_logger_enable_events(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx) {
+    st_logger_simple_t *module = logger_ctx->data;
+
+    if (!st_logger_import_events_functions(logger_ctx, events_ctx))
+        return false;
+
+    module->events.ctx = events_ctx;
+    module->ev_log_output_debug = module->events.register_type(
+     module->events.ctx, "log_output_debug", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_debug == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_info = module->events.register_type(
+     module->events.ctx, "log_output_info", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_info == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_warning = module->events.register_type(
+     module->events.ctx, "log_output_warning", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_warning == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    module->ev_log_output_error = module->events.register_type(
+     module->events.ctx, "log_output_error", ST_EV_LOG_MSG_SIZE);
+    if (module->ev_log_output_error == ST_EVTYPE_ID_NONE)
+        goto register_fail;
+
+    st_logger_info(logger_ctx, "logger_simple: Events enabled");
+
+    return true;
+
+register_fail:
+    st_logger_error(logger_ctx, "logger_simple: Unable to enable events");
+    module->events.ctx = NULL;
+
+    return false;
 }
 
 static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
@@ -209,10 +269,11 @@ static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
     return result;
 }
 
-static inline __attribute__((format (printf, 3, 0))) void st_logger_general(
- const st_modctx_t *logger_ctx, st_loglvl_t log_level, const char *format,
- va_list args) {
+static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
+ const st_modctx_t *logger_ctx, st_loglvl_t log_level, st_evtypeid_t evtype_id,
+ const char *format, va_list args) {
     st_logger_simple_t *logger = logger_ctx->data;
+    char                buffer[CBK_BUF_SIZE];
 
     if ((logger->stdout_levels & log_level) == log_level) {
         if (vprintf(format, args) > 0)
@@ -229,30 +290,39 @@ static inline __attribute__((format (printf, 3, 0))) void st_logger_general(
         if ((logger->log_files[i].log_levels & log_level) == log_level &&
          vfprintf(logger->log_files[i].file, format, args) > 0)
             fflush(logger->log_files[i].file);
-
     }
 
-    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if ((logger->callbacks[i].log_levels & log_level) == log_level) {
-            char buffer[CBK_BUF_SIZE];
-
-            if (vsprintf_s(buffer, CBK_BUF_SIZE, format, args) > 0)
+    if (vsprintf_s(buffer, CBK_BUF_SIZE, format, args) > 0) {
+        for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+            if ((logger->callbacks[i].log_levels & log_level) == log_level) {
                 logger->callbacks[i].func(buffer,
                  logger->callbacks[i].userdata);
+            }
         }
+    }
+
+    if (logger->events.ctx) {
+        buffer[ST_EV_LOG_MSG_SIZE - 1] = '\0';
+        logger->events.push(logger->events.ctx, evtype_id, buffer);
     }
 }
 
-#define ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_func, level)                 \
-    static __attribute__((format (printf, 2, 0))) void st_func(   \
-     const st_modctx_t *logger_ctx, const char* format, va_list args) {    \
-        st_logger_general(logger_ctx, level, format, args); \
+#define ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_func, level, evtype_id_field)         \
+    static __attribute__((format (printf, 2, 0))) void st_func(               \
+     const st_modctx_t *logger_ctx, const char* format, va_list args) {       \
+        st_logger_simple_t *module = logger_ctx->data;                        \
+        st_logger_general(logger_ctx, level, module->evtype_id_field, format, \
+         args);                                                               \
     }
 
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_debug_nolock    , ST_LL_DEBUG);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_info_nolock     , ST_LL_INFO);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_warning_nolock  , ST_LL_WARNING);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_error_nolock    , ST_LL_ERROR);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_debug_nolock, ST_LL_DEBUG,
+ ev_log_output_debug);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_info_nolock, ST_LL_INFO,
+ ev_log_output_info);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_warning_nolock, ST_LL_WARNING,
+ ev_log_output_warning);
+ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_error_nolock, ST_LL_ERROR,
+ ev_log_output_error);
 
 #define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \

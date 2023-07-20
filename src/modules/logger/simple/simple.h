@@ -7,11 +7,18 @@
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/logger.h"
+#include "steroids/types/modules/events.h"
 
 // TODO(edomin): version
 
 #define ST_LOGGER_LOG_FILES_MAX 16
 #define ST_LOGGER_CALLBACKS_MAX 16
+
+typedef struct {
+    st_modctx_t              *ctx;
+    st_events_register_type_t register_type;
+    st_events_push_t          push;
+} st_logger_simple_events_t;
 
 typedef struct {
     FILE       *file;
@@ -26,6 +33,11 @@ typedef struct {
 } st_logger_simple_callback_t;
 
 typedef struct {
+    st_logger_simple_events_t   events;
+    st_evtypeid_t               ev_log_output_debug;
+    st_evtypeid_t               ev_log_output_info;
+    st_evtypeid_t               ev_log_output_warning;
+    st_evtypeid_t               ev_log_output_error;
     st_loglvl_t                 stdout_levels;
     st_loglvl_t                 stderr_levels;
     st_loglvl_t                 syslog_levels;
@@ -39,6 +51,7 @@ typedef struct {
 st_logger_funcs_t st_logger_simple_funcs = {
     .logger_init              = st_logger_init,
     .logger_quit              = st_logger_quit,
+    .logger_enable_events     = st_logger_enable_events,
     .logger_set_stdout_levels = st_logger_set_stdout_levels,
     .logger_set_stderr_levels = st_logger_set_stderr_levels,
     .logger_set_syslog_levels = st_logger_set_syslog_levels,
@@ -50,12 +63,13 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_error             = st_logger_error,
 };
 
-#define FUNCS_COUNT 11
+#define FUNCS_COUNT 12
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
         {"init",              st_logger_init},
         {"quit",              st_logger_quit},
+        {"enable_events",     st_logger_enable_events},
         {"set_stdout_levels", st_logger_set_stdout_levels},
         {"set_stderr_levels", st_logger_set_stderr_levels},
         {"set_syslog_levels", st_logger_set_syslog_levels},

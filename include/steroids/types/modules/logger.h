@@ -5,6 +5,8 @@
 
 #include "steroids/module.h"
 
+#define ST_EV_LOG_MSG_SIZE 1000
+
 typedef enum {
     ST_LL_NONE    = 0x0,
     ST_LL_ERROR   = 0x8,
@@ -19,6 +21,8 @@ typedef void (*st_logcbk_t)(const char *msg, void *userdata);
 typedef st_modctx_t *(*st_logger_init_t)(void);
 typedef void (*st_logger_quit_t)(st_modctx_t *logger_ctx);
 
+typedef bool (*st_logger_enable_events_t)(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx);
 typedef bool (*st_logger_set_stdout_levels_t)(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
 typedef bool (*st_logger_set_stderr_levels_t)(st_modctx_t *logger_ctx,
@@ -41,6 +45,7 @@ typedef void (*st_logger_error_t)(const st_modctx_t *logger_ctx,
 typedef struct {
     st_logger_init_t              logger_init;
     st_logger_quit_t              logger_quit;
+    st_logger_enable_events_t     logger_enable_events;
     st_logger_set_stdout_levels_t logger_set_stdout_levels;
     st_logger_set_stderr_levels_t logger_set_stderr_levels;
     st_logger_set_syslog_levels_t logger_set_syslog_levels;

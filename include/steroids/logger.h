@@ -9,6 +9,8 @@
 static st_modctx_t *st_logger_init(void);
 static void st_logger_quit(st_modctx_t *logger_ctx);
 
+static bool st_logger_enable_events(st_modctx_t *logger_ctx,
+ st_modctx_t *events_ctx);
 static bool st_logger_set_stdout_levels(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
 static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
