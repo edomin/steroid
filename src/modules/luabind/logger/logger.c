@@ -248,31 +248,10 @@ static int st_logger_set_log_file_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
-// typedef struct {
-//     st_luastate_t *lua_state;
-//     int            func_index;
-//     int            arg_index;
-// } st_cbkdata_t;
-
-// static void st_logger_callback(const char *msg, void *userdata) {
-//     st_cbkdata_t
-// }
-
 // TODO(edomin): implement later
 static int st_logger_set_callback_bind(st_luastate_t *lua_state) {
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
-
- //    lua_pushvalue(lua_state, 2);
- //    int func_index = luaL_ref(lua_state, LUA_REGISTRYINDEX);
- //    st_lua_pop(lua_state);
-
- //    lua_pushvalue(lua_state, 3);
- //    int arg_index = luaL_ref(lua_state, LUA_REGISTRYINDEX);
- //    st_lua_pop(lua_state);
-
- //    bool success = st_logger_set_callback(logger_ctx,
- // st_logger_callback, void *userdata, st_loglvl_t levels);
 
     st_logger_error(logger_ctx, "luabind_logger: Binding for function "
      "st_logger_set_callback is not implemented");
