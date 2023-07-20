@@ -17,6 +17,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_create_metatable           = st_lua_create_metatable,
     .lua_set_metatable              = st_lua_set_metatable,
     .lua_push_bool                  = st_lua_push_bool,
+    .lua_push_integer               = st_lua_push_integer,
     .lua_push_nil                   = st_lua_push_nil,
     .lua_push_string                = st_lua_push_string,
     .lua_set_nil_to_field           = st_lua_set_nil_to_field,
@@ -36,7 +37,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_raise_error                = st_lua_raise_error,
 };
 
-#define FUNCS_COUNT 29
+#define FUNCS_COUNT 30
 st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -52,6 +53,7 @@ st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
         {"create_metatable",           st_lua_create_metatable},
         {"set_metatable",              st_lua_set_metatable},
         {"push_bool",                  st_lua_push_bool},
+        {"push_integer",               st_lua_push_integer},
         {"push_nil",                   st_lua_push_nil},
         {"push_string",                st_lua_push_string},
         {"set_nil_to_field",           st_lua_set_nil_to_field},
