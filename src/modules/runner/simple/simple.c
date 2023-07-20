@@ -19,7 +19,8 @@
 #define ERR_MSG_BUF_SIZE          1024
 #define RUNNABLE_MODULE_NAME_SIZE 256
 
-typedef st_modctx_t *(*runnable_init_func_t)(st_modctx_t *logger_ctx);
+typedef st_modctx_t *(*runnable_init_func_t)(st_modctx_t *logger_ctx,
+ st_modctx_t *opts_ctx);
 typedef void (*runnable_quit_func_t)(st_modctx_t *runnable_ctx);
 typedef void (*runnable_run_func_t)(st_modctx_t *runner_ctx,
  const void *params);
@@ -303,7 +304,7 @@ static void run_runnable(st_runner_simple_t *module,
         return;
     }
 
-    runnable_ctx = runnable_init_func(module->logger.ctx);
+    runnable_ctx = runnable_init_func(module->logger.ctx, module->opts.ctx);
     if (!runnable_ctx)
         return;
 
