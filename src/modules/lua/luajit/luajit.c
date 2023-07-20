@@ -321,6 +321,11 @@ static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
     return luaL_checkudata((lua_State *)lua_state, index, name);
 }
 
+static void *st_lua_get_named_userdata_or_null(st_luastate_t *lua_state,
+ int index, const char *name) {
+    return luaL_testudata((lua_State *)lua_state, index, name);
+}
+
 static void *st_lua_get_global_userdata(st_luastate_t *lua_state,
  const char *name) {
     void *userdata;

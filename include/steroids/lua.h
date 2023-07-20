@@ -31,6 +31,8 @@ static ptrdiff_t st_lua_get_integer(st_luastate_t *lua_state, int index);
 static const char *st_lua_get_string(st_luastate_t *lua_state, int index);
 static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
  const char *name);
+static void *st_lua_get_named_userdata_or_null(st_luastate_t *lua_state,
+ int index, const char *name);
 static void *st_lua_get_global_userdata(st_luastate_t *lua_state,
  const char *name);
 static void st_lua_register_cfunction(st_luastate_t *lua_state,
