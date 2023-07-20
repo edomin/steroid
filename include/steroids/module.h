@@ -11,7 +11,7 @@
 #define ST_MT_internal 0
 #define ST_MT_shared   1
 
-#define ST_LOAD_FUNCTION(this_mod, mod, function)                        \
+#define ST_LOAD_FUNCTION_FROM_CTX(this_mod, mod, function)               \
     module->mod.function = global_modsmgr_funcs.get_function_from_ctx(   \
      global_modsmgr, mod##_ctx, #function);                              \
     if (!module->mod.function) {                                         \

@@ -67,10 +67,10 @@ static bool st_fs_import_functions(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("fs_simple", logger, debug);
-    ST_LOAD_FUNCTION("fs_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("fs_simple", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("fs_simple", logger, info);
 
-    ST_LOAD_FUNCTION("fs_simple", pathtools, resolve);
+    ST_LOAD_FUNCTION_FROM_CTX("fs_simple", pathtools, resolve);
 
     return true;
 }

@@ -71,8 +71,8 @@ static bool st_lua_import_functions(st_modctx_t *lua_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("lua_luajit", logger, debug);
-    ST_LOAD_FUNCTION("lua_luajit", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("lua_luajit", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("lua_luajit", logger, info);
 
     return true;
 }

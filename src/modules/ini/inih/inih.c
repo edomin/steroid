@@ -86,22 +86,22 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("ini_inih", fnv1a, get_u32hashstr_func);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", fnv1a, get_u32hashstr_func);
 
-    ST_LOAD_FUNCTION("ini_inih", htable, create);
-    ST_LOAD_FUNCTION("ini_inih", htable, destroy);
-    ST_LOAD_FUNCTION("ini_inih", htable, insert);
-    ST_LOAD_FUNCTION("ini_inih", htable, get);
-    ST_LOAD_FUNCTION("ini_inih", htable, remove);
-    ST_LOAD_FUNCTION("ini_inih", htable, clear);
-    ST_LOAD_FUNCTION("ini_inih", htable, contains);
-    ST_LOAD_FUNCTION("ini_inih", htable, find);
-    ST_LOAD_FUNCTION("ini_inih", htable, next);
-    ST_LOAD_FUNCTION("ini_inih", htable, get_iter_key);
-    ST_LOAD_FUNCTION("ini_inih", htable, get_iter_value);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, create);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, destroy);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, insert);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, remove);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, clear);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, contains);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, find);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, next);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get_iter_key);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", htable, get_iter_value);
 
-    ST_LOAD_FUNCTION("ini_inih", logger, debug);
-    ST_LOAD_FUNCTION("ini_inih", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, info);
 
     return true;
 }

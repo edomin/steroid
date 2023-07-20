@@ -93,8 +93,8 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("luabind_logger", logger, debug);
-    ST_LOAD_FUNCTION("luabind_logger", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("luabind_logger", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("luabind_logger", logger, info);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, quit);

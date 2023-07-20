@@ -71,8 +71,8 @@ static bool st_so_import_functions(st_modctx_t *so_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("so_simple", logger, debug);
-    ST_LOAD_FUNCTION("so_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("so_simple", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("so_simple", logger, info);
 
     return true;
 }

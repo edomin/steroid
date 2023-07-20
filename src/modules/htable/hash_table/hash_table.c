@@ -70,8 +70,8 @@ static bool st_htable_import_functions(st_modctx_t *htable_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("htable_hash_table", logger, debug);
-    ST_LOAD_FUNCTION("htable_hash_table", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("htable_hash_table", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("htable_hash_table", logger, info);
 
     return true;
 }

@@ -85,8 +85,8 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("luabind_pathtools", logger, debug);
-    ST_LOAD_FUNCTION("luabind_pathtools", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("luabind_pathtools", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("luabind_pathtools", logger, info);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_pathtools", pathtools, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_pathtools", pathtools, quit);

@@ -70,27 +70,27 @@ static bool st_plugin_import_functions(st_modctx_t *plugin_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("plugin_simple", fs, mkdir);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", fs, mkdir);
 
-    ST_LOAD_FUNCTION("plugin_simple", logger, debug);
-    ST_LOAD_FUNCTION("plugin_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", logger, info);
 
-    ST_LOAD_FUNCTION("plugin_simple", pathtools, get_parent_dir);
-    ST_LOAD_FUNCTION("plugin_simple", pathtools, concat);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", pathtools, get_parent_dir);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", pathtools, concat);
 
-    ST_LOAD_FUNCTION("plugin_simple", so, open);
-    ST_LOAD_FUNCTION("plugin_simple", so, close);
-    ST_LOAD_FUNCTION("plugin_simple", so, load_symbol);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, open);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, close);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, load_symbol);
 
-    ST_LOAD_FUNCTION("plugin_simple", spcpaths, get_cache_path);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", spcpaths, get_cache_path);
 
-    ST_LOAD_FUNCTION("plugin_simple", zip, open);
-    ST_LOAD_FUNCTION("plugin_simple", zip, memopen);
-    ST_LOAD_FUNCTION("plugin_simple", zip, close);
-    ST_LOAD_FUNCTION("plugin_simple", zip, get_entries_count);
-    ST_LOAD_FUNCTION("plugin_simple", zip, get_entry_name);
-    ST_LOAD_FUNCTION("plugin_simple", zip, get_entry_type);
-    ST_LOAD_FUNCTION("plugin_simple", zip, extract_entry);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, open);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, memopen);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, close);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entries_count);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entry_name);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entry_type);
+    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, extract_entry);
 
     return true;
 }

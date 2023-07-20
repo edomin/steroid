@@ -69,8 +69,8 @@ static bool st_rbuf_import_functions(st_modctx_t *rbuf_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("rbuf_lwrb", logger, debug);
-    ST_LOAD_FUNCTION("rbuf_lwrb", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_lwrb", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_lwrb", logger, info);
 
     return true;
 }

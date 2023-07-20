@@ -62,18 +62,18 @@ static bool st_events_import_functions(st_modctx_t *events_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("rbuf_simple", logger, debug);
-    ST_LOAD_FUNCTION("rbuf_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", logger, info);
 
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, create);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, destroy);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, push);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, peek);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, pop);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, drop);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, clear);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, get_free_space);
-    ST_LOAD_FUNCTION("rbuf_simple", rbuf, is_empty);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, create);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, destroy);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, push);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, peek);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, pop);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, drop);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, clear);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, get_free_space);
+    ST_LOAD_FUNCTION_FROM_CTX("rbuf_simple", rbuf, is_empty);
 
     return true;
 }

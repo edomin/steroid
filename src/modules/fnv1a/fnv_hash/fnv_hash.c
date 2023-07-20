@@ -68,8 +68,8 @@ static bool st_fnv1a_import_functions(st_modctx_t *fnv1a_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("fnv1a_fnv_hash", logger, debug);
-    ST_LOAD_FUNCTION("fnv1a_fnv_hash", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("fnv1a_fnv_hash", logger, debug);
+    ST_LOAD_FUNCTION_FROM_CTX("fnv1a_fnv_hash", logger, info);
 
     return true;
 }
