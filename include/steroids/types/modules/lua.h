@@ -11,8 +11,6 @@ typedef struct st_luastate_s st_luastate_t;
 typedef st_modctx_t *(*st_lua_init_t)(st_modctx_t *logger_ctx,
  st_modctx_t *opts_ctx);
 typedef void (*st_lua_quit_t)(st_modctx_t *lua_ctx);
-typedef st_modctx_t *(*st_lua_get_logger_ctx_t)(st_modctx_t *lua_ctx);
-typedef st_modctx_t *(*st_lua_get_opts_ctx_t)(st_modctx_t *lua_ctx);
 typedef bool (*st_lua_run_string_t)(st_modctx_t *lua_ctx, const char *string);
 typedef bool (*st_lua_run_file_t)(st_modctx_t *lua_ctx, const char *filename);
 
@@ -56,8 +54,6 @@ typedef void (*st_lua_raise_error_t)(st_luastate_t *lua_state, const char *msg);
 typedef struct {
     st_lua_init_t                       lua_init;
     st_lua_quit_t                       lua_quit;
-    st_lua_get_logger_ctx_t             lua_get_logger_ctx;
-    st_lua_get_opts_ctx_t               lua_get_opts_ctx;
     st_lua_run_string_t                 lua_run_string;
     st_lua_run_file_t                   lua_run_file;
 

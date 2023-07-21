@@ -213,18 +213,6 @@ static void st_lua_quit(st_modctx_t *lua_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, lua_ctx);
 }
 
-static st_modctx_t *st_lua_get_logger_ctx(st_modctx_t *lua_ctx) {
-    st_lua_luajit_t *module = lua_ctx->data;
-
-    return module->logger.ctx;
-}
-
-static st_modctx_t *st_lua_get_opts_ctx(st_modctx_t *lua_ctx) {
-    st_lua_luajit_t *module = lua_ctx->data;
-
-    return module->opts.ctx;
-}
-
 static void st_lua_bind_all(st_modctx_t *lua_ctx) {
     st_lua_luajit_t *module = lua_ctx->data;
 

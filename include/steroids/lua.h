@@ -10,8 +10,6 @@
 static st_modctx_t *st_lua_init(st_modctx_t *logger_ctx,
  st_modctx_t *opts_ctx);
 static void st_lua_quit(st_modctx_t *lua_ctx);
-static st_modctx_t *st_lua_get_logger_ctx(st_modctx_t *lua_ctx);
-static st_modctx_t *st_lua_get_opts_ctx(st_modctx_t *lua_ctx);
 static bool st_lua_run_string(st_modctx_t *lua_ctx, const char *string);
 static bool st_lua_run_file(st_modctx_t *lua_ctx, const char *filename);
 

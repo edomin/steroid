@@ -8,8 +8,6 @@
 st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_init                       = st_lua_init,
     .lua_quit                       = st_lua_quit,
-    .lua_get_logger_ctx             = st_lua_get_logger_ctx,
-    .lua_get_opts_ctx               = st_lua_get_opts_ctx,
     .lua_run_string                 = st_lua_run_string,
     .lua_run_file                   = st_lua_run_file,
     .lua_get_state                  = st_lua_get_state,
@@ -37,14 +35,12 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_raise_error                = st_lua_raise_error,
 };
 
-#define FUNCS_COUNT 30
+#define FUNCS_COUNT 28
 st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
         {"init",                       st_lua_init},
         {"quit",                       st_lua_quit},
-        {"get_logger_ctx",             st_lua_get_logger_ctx},
-        {"get_opts_ctx",               st_lua_get_opts_ctx},
         {"run",                        st_lua_run_file},
         {"run_string",                 st_lua_run_string},
         {"run_file",                   st_lua_run_file},
