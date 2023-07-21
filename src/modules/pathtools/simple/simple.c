@@ -158,6 +158,8 @@ static bool st_pathtools_resolve_absolute(
 
             path += 2;
 
+            resolved_path_last = '.';
+
             continue;
         }
 
@@ -250,6 +252,8 @@ static bool st_pathtools_resolve_relative(
             *prev_prev_resolv_slash = '\0';
 
             path += 2;
+
+            resolved_path_last = '.';
 
             continue;
         }
