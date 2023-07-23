@@ -101,6 +101,8 @@ def main():
     targetArch = GetTargetArch(args.target)
     targetOs = GetTargetOs(args.target)
     targetAbi = GetTargetAbi(args.target)
+    if not os.path.exists("./dockerfiles"):
+        os.makedirs("./dockerfiles")
     GenerateDockerfile(dockerfileName, baseImageName, targetArch, targetOs,
         targetAbi, deps)
 
