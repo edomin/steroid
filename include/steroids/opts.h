@@ -13,5 +13,7 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
  const char *option_descr);
 static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
  size_t dstsize);
+static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
+ size_t columns);
 
 #endif

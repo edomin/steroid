@@ -19,6 +19,8 @@
 #define SHORT_OPTS_FMT_SIZE          100
 #define LONGOPTS_COUNT               64
 #define ERR_MSG_BUF_SIZE             1024
+#define OPTS_COLUMNS_MAX             1024
+#define HELP_COLUMNS_MIN             8
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -288,4 +290,112 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
     }
 
     return false;
+}
+
+static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
+ size_t columns) {
+    st_opts_ketopt_t *module = opts_ctx->data;
+    size_t            block_size;
+    errno_t           err;
+    size_t            opts_columns;
+
+    if (columns <= HELP_COLUMNS_MIN)
+        columns = HELP_COLUMNS_MIN;
+
+    opts_columns = columns / 2 - 1;
+
+    err = strcpy_s(dst, dstsize, module->argv[0]);
+    if (err) {
+        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        module->logger.error(module->logger.ctx, "opts_ketopt: strcpy_s: %s",
+         err_msg_buf);
+
+        return false;
+    }
+
+    if (strcat_s(dst, dstsize, " [OPTS]\n\n") != 0)
+        return false;
+
+    for (unsigned i = 0; i < module->opts_count; i++) {
+        char   opts[OPTS_COLUMNS_MAX] = {0};
+        size_t opts_len;
+        size_t descr_len;
+
+        if (module->opts[i].shortopt != ST_OPTS_SHORT_UNSPEC) {
+            opts[0] = '-';
+            opts[1] = module->opts[i].shortopt;
+            opts[2] = '\0';
+        } else {
+            opts[0] = ' ';
+            opts[1] = ' ';
+            opts[2] = '\0';
+        }
+
+        if (module->opts[i].longopt) {
+            opts[2] = module->opts[i].shortopt == ST_OPTS_SHORT_UNSPEC
+             ? ' '
+             : ',';
+            opts[3] = ' ';
+            opts[4] = '-';
+            opts[5] = '-'; // NOLINT(readability-magic-numbers)
+            opts[6] = '\0'; // NOLINT(readability-magic-numbers)
+
+            if (strcat_s(opts, OPTS_COLUMNS_MAX, module->opts[i].longopt) != 0)
+                return false;
+        }
+
+        if (module->opts[i].arg != ST_OA_NO) {
+            if (module->opts[i].arg == ST_OA_OPTIONAL) {
+                if (strncat_s(opts, OPTS_COLUMNS_MAX, "[", 1) != 0)
+                    return false;
+            }
+
+            if (module->opts[i].longopt) {
+                if (strncat_s(opts, OPTS_COLUMNS_MAX, "=", 1) != 0)
+                    return false;
+            } else {
+                if (strncat_s(opts, OPTS_COLUMNS_MAX, " ", 1) != 0)
+                    return false;
+            }
+
+            if (strcat_s(opts, OPTS_COLUMNS_MAX, module->opts[i].arg_fmt) != 0)
+                return false;
+
+            if (module->opts[i].arg == ST_OA_OPTIONAL) {
+                if (strncat_s(opts, OPTS_COLUMNS_MAX, "]", 1) != 0)
+                    return false;
+            }
+        }
+
+        opts_len = strlen(opts);
+        if (strncat_s(dst, dstsize, opts, opts_len) != 0)
+            return false;
+
+        if (opts_len > opts_columns) {
+            if (strncat_s(dst, dstsize, "\n", 1) != 0)
+                return false;
+            for (unsigned column = 0; column <= opts_columns; column++) {
+                if (strncat_s(dst, dstsize, " ", 1) != 0)
+                    return false;
+            }
+        } else {
+            for (unsigned column = 0; column <= opts_columns - opts_len;
+             column++) {
+                if (strncat_s(dst, dstsize, " ", 1) != 0)
+                    return false;
+            }
+        }
+
+        if (strncat_s(dst, dstsize, " ", 1) != 0)
+            return false;
+
+        descr_len = strlen(module->opts[i].opt_descr);
+        if (strncat_s(dst, dstsize, module->opts[i].opt_descr, descr_len) != 0)
+            return false;
+
+        if (strncat_s(dst, dstsize, "\n", 1) != 0)
+            return false;
+    }
+
+    return true;
 }

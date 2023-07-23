@@ -23,12 +23,15 @@ typedef bool (*st_opts_add_option_t)(st_modctx_t *opts_ctx, char short_option,
  const char *option_descr);
 typedef bool (*st_opts_get_str_t)(st_modctx_t *opts_ctx, const char *opt,
  char *dst, size_t dstsize);
+typedef bool (*st_opts_get_help_t)(st_modctx_t *opts_ctx, char *dst,
+ size_t dstsize, size_t columns);
 
 typedef struct {
     st_opts_init_t       opts_init;
     st_opts_quit_t       opts_quit;
     st_opts_add_option_t opts_add_option;
     st_opts_get_str_t    opts_get_str;
+    st_opts_get_help_t   opts_get_help;
 } st_opts_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_OPTS_H */

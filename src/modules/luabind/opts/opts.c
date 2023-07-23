@@ -7,9 +7,10 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "st_opts"
-#define ST_OPT_SIZE_MAX  256
+#define ERR_MSG_BUF_SIZE     1024
+#define METATABLE_NAME       "st_opts"
+#define ST_OPT_SIZE_MAX      256
+#define HELP_BUFFER_SIZE_MAX 131072
 
 static void                               *global_modsmgr;
 static st_modsmgr_funcs_t                  global_modsmgr_funcs;
@@ -19,6 +20,7 @@ static st_opts_init_t                      st_opts_init;
 static st_opts_quit_t                      st_opts_quit;
 static st_opts_add_option_t                st_opts_add_option;
 static st_opts_get_str_t                   st_opts_get_str;
+static st_opts_get_help_t                  st_opts_get_help;
 
 static st_lua_get_state_t                  st_lua_get_state;
 static st_lua_create_userdata_t            st_lua_create_userdata;
@@ -98,6 +100,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", opts, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", opts, add_option);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", opts, get_str);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", opts, get_help);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_userdata);
@@ -223,6 +226,21 @@ static int st_opts_get_str_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
+static int st_opts_get_help_bind(st_luastate_t *lua_state) {
+    st_modctx_t *opts_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, METATABLE_NAME);
+    ptrdiff_t    columns = st_lua_get_integer(lua_state, 2);
+    char         buffer[HELP_BUFFER_SIZE_MAX];
+
+    if (st_opts_get_help(opts_ctx, buffer, HELP_BUFFER_SIZE_MAX,
+     (size_t)columns))
+        st_lua_push_string(lua_state, buffer);
+    else
+        st_lua_push_nil(lua_state);
+
+    return 1;
+}
+
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_opts_t *module = luabind_ctx->data;
     st_luastate_t     *lua_state = st_lua_get_state(module->lua.ctx);
@@ -238,6 +256,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "add_option",
      st_opts_add_option_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_str", st_opts_get_str_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_help", st_opts_get_help_bind);
     st_lua_set_integer_to_field(lua_state, "oa_no", ST_OA_NO);
     st_lua_set_integer_to_field(lua_state, "oa_required", ST_OA_REQUIRED);
     st_lua_set_integer_to_field(lua_state, "oa_optional", ST_OA_OPTIONAL);

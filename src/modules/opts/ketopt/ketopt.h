@@ -44,9 +44,10 @@ st_opts_funcs_t st_opts_ketopt_funcs = {
     .opts_quit       = st_opts_quit,
     .opts_add_option = st_opts_add_option,
     .opts_get_str    = st_opts_get_str,
+    .opts_get_help   = st_opts_get_help,
 };
 
-#define FUNCS_COUNT 4
+#define FUNCS_COUNT 5
 st_modfuncstbl_t st_module_opts_ketopt_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -54,6 +55,7 @@ st_modfuncstbl_t st_module_opts_ketopt_funcs_table = {
         {"quit"      , st_opts_quit},
         {"add_option", st_opts_add_option},
         {"get_str"   , st_opts_get_str},
+        {"get_help"  , st_opts_get_help},
     }
 };
 
