@@ -48,6 +48,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/opts"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/opts")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/pathtools"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/pathtools")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/monitor/xlib"
+ "${CMAKE_BINARY_DIR}/src/modules/monitor/xlib")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/simple"
