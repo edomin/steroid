@@ -1,3 +1,9 @@
+## events
+```luau
+st_events(logger: st_logger): st_events
+st_events:quit()
+```
+
 ## fs
 ```luau
 st_fs(logger: st_logger, pathtools: st_pathtools): st_fs
@@ -51,7 +57,7 @@ st_opts.oa_optional: integer
 
 ## pathtools
 ```luau
-st_pathtools(): st_pathtools
+st_pathtools(logger: st_logger): st_pathtools
 st_pathtools:quit()
 st_pathtools:get_parent_dir(path: string): ?string
 st_pathtools:concat(path: string, append: string): ?string
