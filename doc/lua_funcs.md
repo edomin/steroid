@@ -62,3 +62,11 @@ st_pathtools:quit()
 st_pathtools:get_parent_dir(path: string): ?string
 st_pathtools:concat(path: string, append: string): ?string
 ```
+
+## terminal
+```luau
+st_terminal(logger: st_logger): st_terminal
+st_terminal:quit()
+st_terminal:get_rows_count(): integer
+st_terminal:get_cols_count(): integer
+```
