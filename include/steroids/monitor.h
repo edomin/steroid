@@ -13,4 +13,4 @@ static void st_monitor_release(st_monitor_t *monitor);
 static unsigned st_monitor_get_width(st_monitor_t *monitor);
 static unsigned st_monitor_get_height(st_monitor_t *monitor);
 
-#endif /* ST_STEROIDS_SPCPATHS_H */
+#endif /* ST_STEROIDS_MONITOR_H */
