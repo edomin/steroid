@@ -1,5 +1,5 @@
-#ifndef ST_MODULES_LUABIND_TIMER_OPTS_H
-#define ST_MODULES_LUABIND_TIMER_OPTS_H
+#ifndef ST_MODULES_LUABIND_TIMER_TIMER_H
+#define ST_MODULES_LUABIND_TIMER_TIMER_H
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/luabind.h"
@@ -37,4 +37,4 @@ st_modfuncstbl_t st_module_luabind_timer_funcs_table = {
     }
 };
 
-#endif /* ST_MODULES_LUABIND_TIMER_OPTS_H */
+#endif /* ST_MODULES_LUABIND_TIMER_TIMER_H */
