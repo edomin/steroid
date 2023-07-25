@@ -22,6 +22,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_set_integer_to_field       = st_lua_set_integer_to_field,
     .lua_set_cfunction_to_field     = st_lua_set_cfunction_to_field,
     .lua_set_copy_to_field          = st_lua_set_copy_to_field,
+    .lua_get_bool                   = st_lua_get_bool,
     .lua_get_char                   = st_lua_get_char,
     .lua_get_integer                = st_lua_get_integer,
     .lua_get_lstring_or_null        = st_lua_get_lstring_or_null,
@@ -35,7 +36,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_raise_error                = st_lua_raise_error,
 };
 
-#define FUNCS_COUNT 28
+#define FUNCS_COUNT 29
 st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -56,6 +57,7 @@ st_modfuncstbl_t st_module_lua_luajit_funcs_table = {
         {"set_integer_to_field",       st_lua_set_integer_to_field},
         {"set_cfunction_to_field",     st_lua_set_cfunction_to_field},
         {"set_copy_to_field",          st_lua_set_copy_to_field},
+        {"get_bool",                   st_lua_get_bool},
         {"get_char",                   st_lua_get_char},
         {"get_integer",                st_lua_get_integer},
         {"get_lstring_or_null",        st_lua_get_lstring_or_null},

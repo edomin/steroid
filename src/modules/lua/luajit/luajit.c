@@ -308,6 +308,10 @@ static void st_lua_set_copy_to_field(st_luastate_t *lua_state,
     lua_setfield((lua_State *)lua_state, -2, name);
 }
 
+static bool st_lua_get_bool(st_luastate_t *lua_state, int index) {
+    return lua_toboolean((lua_State *)lua_state, index);
+}
+
 static char st_lua_get_char(st_luastate_t *lua_state, int index) {
     size_t      len;
     const char *str = lua_tolstring((lua_State *)lua_state, index, &len);
