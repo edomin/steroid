@@ -63,6 +63,16 @@ st_pathtools:get_parent_dir(path: string): ?string
 st_pathtools:concat(path: string, append: string): ?string
 ```
 
+## timer
+```luau
+st_timer(logger: st_logger): st_timer
+st_timer:quit()
+st_timer:start(): integer
+st_timer:get_elapsed(start: integer): integer
+st_timer:sleep(ms: integer)
+st_timer:sleep_for_fps(fps: integer)
+```
+
 ## terminal
 ```luau
 st_terminal(logger: st_logger): st_terminal
