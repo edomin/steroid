@@ -25,7 +25,7 @@ st_timer_funcs_t st_timer_simple_funcs = {
     .timer_sleep_for_fps = st_timer_sleep_for_fps,
 };
 
-#define FUNCS_COUNT 5
+#define FUNCS_COUNT 6
 st_modfuncstbl_t st_module_timer_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
