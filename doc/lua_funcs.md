@@ -91,3 +91,12 @@ st_terminal:quit()
 st_terminal:get_rows_count(): integer
 st_terminal:get_cols_count(): integer
 ```
+
+## window
+```luau
+st_window_ctx(events: st_events, logger: st_logger, monitor_ctx: st_monitor_ctx): st_window_ctx
+st_window_ctx:quit()
+st_window_ctx:create(monitor: st_monitor, x: integer, y: integer, width: integer, height: integer, fullscreen: bool, title: string): st_window
+st_window:destroy()
+st_window_ctx:process()
+```
