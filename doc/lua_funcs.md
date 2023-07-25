@@ -42,6 +42,17 @@ st_logger.ll_debug: integer
 st_logger.ll_all: integer
 ```
 
+## monitor
+```luau
+st_monitor_ctx(logger: st_logger): st_monitor_ctx
+st_monitor_ctx:quit()
+st_monitor_ctx:get_monitors_count(): integer
+st_monitor_ctx:open(index: integer): st_monitor
+st_monitor:release()
+st_monitor:get_width(): integer
+st_monitor:get_height(): integer
+```
+
 ## opts
 ```luau
 st_opts_init(): nil
