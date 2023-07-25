@@ -2,6 +2,7 @@
 #define ST_STEROIDS_WINDOW_H
 
 #include "steroids/module.h"
+#include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
 
 static st_modctx_t *st_window_init(st_modctx_t *events_ctx,

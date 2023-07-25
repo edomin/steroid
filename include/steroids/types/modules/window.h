@@ -2,6 +2,7 @@
 #define ST_STEROIDS_TYPES_MODULES_WINDOW_H
 
 #include "steroids/module.h"
+#include "steroids/types/modules/monitor.h"
 
 #ifndef ST_WINDOW_T_DEFINED
     typedef struct st_window_s st_window_t;
