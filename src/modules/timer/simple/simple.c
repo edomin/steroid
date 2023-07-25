@@ -112,7 +112,7 @@ static unsigned st_timer_get_elapsed(st_modctx_t *timer_ctx, uint64_t start) {
      (uint64_t)(CLOCKS_PER_SEC / 1000)); // NOLINT(readability-magic-numbers)
 }
 
-static void st_timer_sleep(st_modctx_t *timer_ctx, uint64_t ms) {
+static void st_timer_sleep(st_modctx_t *timer_ctx, unsigned ms) {
     int             ret;
     struct timespec ts = {
         .tv_sec  = (long)ms / 1000, // NOLINT(readability-magic-numbers)
