@@ -107,12 +107,12 @@ static int st_terminal_get_rows_count(
  __attribute__((unused)) st_modctx_t *terminal_ctx) {
     struct winsize ws;
 
-    return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_col : -1;
+    return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_row : -1;
 }
 
 static int st_terminal_get_cols_count(
  __attribute__((unused)) st_modctx_t *terminal_ctx) {
     struct winsize ws;
 
-    return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_row : -1;
+    return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_col : -1;
 }
