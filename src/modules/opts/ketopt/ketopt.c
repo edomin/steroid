@@ -298,11 +298,13 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
     size_t            block_size;
     errno_t           err;
     size_t            opts_columns;
+    size_t            descr_columns;
 
     if (columns <= HELP_COLUMNS_MIN)
         columns = HELP_COLUMNS_MIN;
 
     opts_columns = columns / 2 - 1;
+    descr_columns = columns / 2 - 1;
 
     err = strcpy_s(dst, dstsize, module->argv[0]);
     if (err) {
@@ -317,9 +319,10 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
         return false;
 
     for (unsigned i = 0; i < module->opts_count; i++) {
-        char   opts[OPTS_COLUMNS_MAX] = {0};
-        size_t opts_len;
-        size_t descr_len;
+        char        opts[OPTS_COLUMNS_MAX] = {0};
+        size_t      opts_len;
+        const char *descr = module->opts[i].opt_descr;
+        size_t      descr_len = strlen(descr);
 
         if (module->opts[i].shortopt != ST_OPTS_SHORT_UNSPEC) {
             opts[0] = '-';
@@ -389,9 +392,26 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
         if (strncat_s(dst, dstsize, " ", 1) != 0)
             return false;
 
-        descr_len = strlen(module->opts[i].opt_descr);
-        if (strncat_s(dst, dstsize, module->opts[i].opt_descr, descr_len) != 0)
-            return false;
+
+        while (descr_len > 0) {
+            size_t to_copy_len = descr_len > descr_columns
+             ? descr_columns
+             : descr_len;
+
+            if (strncat_s(dst, dstsize, descr, to_copy_len) != 0)
+                return false;
+
+            if (to_copy_len < descr_len) {
+                for (unsigned column = 0; column <= opts_columns + 1;
+                 column++) {
+                    if (strncat_s(dst, dstsize, " ", 1) != 0)
+                        return false;
+                }
+            }
+
+            descr_len -= to_copy_len;
+            descr += to_copy_len;
+        }
 
         if (strncat_s(dst, dstsize, "\n", 1) != 0)
             return false;
