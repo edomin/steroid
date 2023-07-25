@@ -66,6 +66,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/spcpaths/cfgpath"
  "${CMAKE_BINARY_DIR}/src/modules/spcpaths/cfgpath")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/terminal/simple"
  "${CMAKE_BINARY_DIR}/src/modules/terminal/simple")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/timer/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/timer/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/window/xlib"
  "${CMAKE_BINARY_DIR}/src/modules/window/xlib")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/zip/zip"
