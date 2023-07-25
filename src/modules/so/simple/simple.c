@@ -154,7 +154,7 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     if (!node) {
         module->logger.error(module->logger.ctx,
          "Error occured while allocating memory for so handle entry: \"%s\": "
-         "%s. Module skipped.\n", filename, strerror(errno));
+         "%s. Module skipped", filename, strerror(errno));
         free(so);
         dlclose(handle);
 
