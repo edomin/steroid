@@ -126,7 +126,7 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     Display           *display;
     st_monitor_t      *monitor;
 
-    if (snprintf_s(display_name, DISPLAY_NAME_SIZE_MAX, "localhost:0.%i",
+    if (snprintf_s(display_name, DISPLAY_NAME_SIZE_MAX, ":0.%i",
      index) < 0) {
         module->logger.error(module->logger.ctx,
          "monitor_xlib: Unable to construct display name: %s", strerror(errno));
@@ -154,6 +154,7 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     }
 
     monitor->root_window = DefaultRootWindow(monitor->display);
+    monitor->index = index;
 
     return monitor;
 }
@@ -164,20 +165,14 @@ static void st_monitor_release(st_monitor_t *monitor) {
 }
 
 static unsigned st_monitor_get_width(st_monitor_t *monitor) {
-    unsigned width;
+    int width = XDisplayWidth(monitor->display, (int)monitor->index);
 
-    return XGetGeometry(monitor->display, monitor->root_window, NULL, NULL,
-     NULL, &width, NULL, NULL, NULL)
-        ? width
-        : 0;
+    return width > 0 ? (unsigned)width : 0u;
 }
 
 static unsigned st_monitor_get_height(st_monitor_t *monitor) {
-    unsigned height;
+    int height = XDisplayHeight(monitor->display, (int)monitor->index);
 
-    return XGetGeometry(monitor->display, monitor->root_window, NULL, NULL,
-     NULL, NULL, &height, NULL, NULL)
-        ? height
-        : 0;
+    return height > 0 ? (unsigned)height : 0u;
 }
 

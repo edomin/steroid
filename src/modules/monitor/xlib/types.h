@@ -20,6 +20,7 @@ typedef struct {
     st_monitor_xlib_t *module;
     Display           *display;
     Window             root_window;
+    unsigned           index;
 } st_monitor_t;
 
 #define ST_MONITOR_T_DEFINED
