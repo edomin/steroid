@@ -10,28 +10,28 @@
 #define ERR_MSG_BUF_SIZE 1024
 #define METATABLE_NAME   "st_fs"
 
-static void                               *global_modsmgr;
-static st_modsmgr_funcs_t                  global_modsmgr_funcs;
-static char                                err_msg_buf[ERR_MSG_BUF_SIZE];
+static void                           *global_modsmgr;
+static st_modsmgr_funcs_t              global_modsmgr_funcs;
+static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
-static st_fs_init_t                      st_fs_init;
-static st_fs_quit_t                      st_fs_quit;
-static st_fs_get_file_type_t                st_fs_get_file_type;
+static st_fs_init_t                    st_fs_init;
+static st_fs_quit_t                    st_fs_quit;
+static st_fs_get_file_type_t           st_fs_get_file_type;
 static st_fs_mkdir_t                   st_fs_mkdir;
 
-static st_lua_get_state_t                  st_lua_get_state;
-static st_lua_create_userdata_t            st_lua_create_userdata;
-static st_lua_create_metatable_t           st_lua_create_metatable;
-static st_lua_set_metatable_t              st_lua_set_metatable;
-static st_lua_push_bool_t                  st_lua_push_bool;
-static st_lua_push_integer_t               st_lua_push_integer;
-static st_lua_set_integer_to_field_t       st_lua_set_integer_to_field;
-static st_lua_set_cfunction_to_field_t     st_lua_set_cfunction_to_field;
-static st_lua_set_copy_to_field_t          st_lua_set_copy_to_field;
-static st_lua_get_string_t                 st_lua_get_string;
-static st_lua_get_named_userdata_t         st_lua_get_named_userdata;
-static st_lua_register_cfunction_t         st_lua_register_cfunction;
-static st_lua_pop_t                        st_lua_pop;
+static st_lua_get_state_t              st_lua_get_state;
+static st_lua_create_userdata_t        st_lua_create_userdata;
+static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_set_metatable_t          st_lua_set_metatable;
+static st_lua_push_bool_t              st_lua_push_bool;
+static st_lua_push_integer_t           st_lua_push_integer;
+static st_lua_set_integer_to_field_t   st_lua_set_integer_to_field;
+static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
+static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
+static st_lua_get_string_t             st_lua_get_string;
+static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
+static st_lua_register_cfunction_t     st_lua_register_cfunction;
+static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
 
@@ -92,19 +92,19 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", fs, get_file_type);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", fs, mkdir);
 
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, get_state);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_userdata);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_metatable);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, set_metatable);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, push_bool);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, push_integer);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, set_integer_to_field);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, set_cfunction_to_field);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, set_copy_to_field);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, get_string);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, get_named_userdata);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, register_cfunction);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, pop);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, get_state);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, create_userdata);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, set_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, push_bool);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, push_integer);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, set_integer_to_field);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, set_cfunction_to_field);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, set_copy_to_field);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, get_string);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, get_named_userdata);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, register_cfunction);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, pop);
 
     return true;
 }
