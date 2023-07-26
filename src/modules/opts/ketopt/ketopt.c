@@ -306,7 +306,10 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
     opts_columns = columns / 2 - 1;
     descr_columns = columns / 2 - 1;
 
-    err = strcpy_s(dst, dstsize, module->argv[0]);
+    if (strcpy_s(dst, dstsize, "Usage:\n") != 0)
+        return false;
+
+    err = strcat_s(dst, dstsize, module->argv[0]);
     if (err) {
         strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
         module->logger.error(module->logger.ctx, "opts_ketopt: strcpy_s: %s",
