@@ -41,20 +41,23 @@ typedef void (*st_logger_warning_t)(const st_modctx_t *logger_ctx,
  const char* format, ...);
 typedef void (*st_logger_error_t)(const st_modctx_t *logger_ctx,
  const char* format, ...);
+typedef void (*st_logger_set_postmortem_msg_t)(st_modctx_t *logger_ctx,
+ const char *msg);
 
 typedef struct {
-    st_logger_init_t              logger_init;
-    st_logger_quit_t              logger_quit;
-    st_logger_enable_events_t     logger_enable_events;
-    st_logger_set_stdout_levels_t logger_set_stdout_levels;
-    st_logger_set_stderr_levels_t logger_set_stderr_levels;
-    st_logger_set_syslog_levels_t logger_set_syslog_levels;
-    st_logger_set_log_file_t      logger_set_log_file;
-    st_logger_set_callback_t      logger_set_callback;
-    st_logger_debug_t             logger_debug;
-    st_logger_info_t              logger_info;
-    st_logger_warning_t           logger_warning;
-    st_logger_error_t             logger_error;
+    st_logger_init_t               logger_init;
+    st_logger_quit_t               logger_quit;
+    st_logger_enable_events_t      logger_enable_events;
+    st_logger_set_stdout_levels_t  logger_set_stdout_levels;
+    st_logger_set_stderr_levels_t  logger_set_stderr_levels;
+    st_logger_set_syslog_levels_t  logger_set_syslog_levels;
+    st_logger_set_log_file_t       logger_set_log_file;
+    st_logger_set_callback_t       logger_set_callback;
+    st_logger_debug_t              logger_debug;
+    st_logger_info_t               logger_info;
+    st_logger_warning_t            logger_warning;
+    st_logger_error_t              logger_error;
+    st_logger_set_postmortem_msg_t logger_set_postmortem_msg;
 } st_logger_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_LOGGER_H */

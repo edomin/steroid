@@ -102,6 +102,8 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         (void)fclose(logger->log_files[i].file);
     }
 
+    printf("%s", logger->postmortem_msg);
+
     mtx_destroy(&logger->lock);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
@@ -345,3 +347,10 @@ ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_info     , st_logger_info_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_warning  , st_logger_warning_nolock);
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_error    , st_logger_error_nolock);
+
+static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
+ const char *msg) {
+    st_logger_simple_t *module = logger_ctx->data;
+
+    strcpy_s(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, msg);
+}

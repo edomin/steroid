@@ -34,6 +34,7 @@ st_logger:debug(msg: string)
 st_logger:info(msg: string)
 st_logger:warning(msg: string)
 st_logger:error(msg: string)
+st_logger:set_postmortem_msg(msg: string)
 st_logger.ll_none: integer
 st_logger.ll_error: integer
 st_logger.ll_warning: integer

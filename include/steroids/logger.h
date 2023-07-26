@@ -29,5 +29,7 @@ static void st_logger_warning(const st_modctx_t *logger_ctx, const char* format,
  ...);
 static void st_logger_error(const st_modctx_t *logger_ctx, const char* format,
  ...);
+static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
+ const char *msg);
 
 #endif

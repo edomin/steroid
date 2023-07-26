@@ -11,8 +11,9 @@
 
 // TODO(edomin): version
 
-#define ST_LOGGER_LOG_FILES_MAX 16
-#define ST_LOGGER_CALLBACKS_MAX 16
+#define ST_LOGGER_LOG_FILES_MAX    16
+#define ST_LOGGER_CALLBACKS_MAX    16
+#define ST_POSTMORTEM_MSG_SIZE_MAX 131072
 
 typedef struct {
     st_modctx_t              *ctx;
@@ -46,39 +47,42 @@ typedef struct {
     st_logger_simple_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
     unsigned                    callbacks_count;
     mtx_t                       lock;
+    char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
 } st_logger_simple_t;
 
 st_logger_funcs_t st_logger_simple_funcs = {
-    .logger_init              = st_logger_init,
-    .logger_quit              = st_logger_quit,
-    .logger_enable_events     = st_logger_enable_events,
-    .logger_set_stdout_levels = st_logger_set_stdout_levels,
-    .logger_set_stderr_levels = st_logger_set_stderr_levels,
-    .logger_set_syslog_levels = st_logger_set_syslog_levels,
-    .logger_set_log_file      = st_logger_set_log_file,
-    .logger_set_callback      = st_logger_set_callback,
-    .logger_debug             = st_logger_debug,
-    .logger_info              = st_logger_info,
-    .logger_warning           = st_logger_warning,
-    .logger_error             = st_logger_error,
+    .logger_init               = st_logger_init,
+    .logger_quit               = st_logger_quit,
+    .logger_enable_events      = st_logger_enable_events,
+    .logger_set_stdout_levels  = st_logger_set_stdout_levels,
+    .logger_set_stderr_levels  = st_logger_set_stderr_levels,
+    .logger_set_syslog_levels  = st_logger_set_syslog_levels,
+    .logger_set_log_file       = st_logger_set_log_file,
+    .logger_set_callback       = st_logger_set_callback,
+    .logger_debug              = st_logger_debug,
+    .logger_info               = st_logger_info,
+    .logger_warning            = st_logger_warning,
+    .logger_error              = st_logger_error,
+    .logger_set_postmortem_msg = st_logger_set_postmortem_msg,
 };
 
-#define FUNCS_COUNT 12
+#define FUNCS_COUNT 13
 st_modfuncstbl_t st_module_logger_simple_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
-        {"init",              st_logger_init},
-        {"quit",              st_logger_quit},
-        {"enable_events",     st_logger_enable_events},
-        {"set_stdout_levels", st_logger_set_stdout_levels},
-        {"set_stderr_levels", st_logger_set_stderr_levels},
-        {"set_syslog_levels", st_logger_set_syslog_levels},
-        {"set_log_file",      st_logger_set_log_file},
-        {"set_callback",      st_logger_set_callback},
-        {"debug",             st_logger_debug},
-        {"info",              st_logger_info},
-        {"warning",           st_logger_warning},
-        {"error",             st_logger_error},
+        {"init",               st_logger_init},
+        {"quit",               st_logger_quit},
+        {"enable_events",      st_logger_enable_events},
+        {"set_stdout_levels",  st_logger_set_stdout_levels},
+        {"set_stderr_levels",  st_logger_set_stderr_levels},
+        {"set_syslog_levels",  st_logger_set_syslog_levels},
+        {"set_log_file",       st_logger_set_log_file},
+        {"set_callback",       st_logger_set_callback},
+        {"debug",              st_logger_debug},
+        {"info",               st_logger_info},
+        {"warning",            st_logger_warning},
+        {"error",              st_logger_error},
+        {"set_postmortem_msg", st_logger_set_postmortem_msg},
     }
 };
 
