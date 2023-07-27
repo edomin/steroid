@@ -47,16 +47,16 @@ typedef struct {
 } st_window_xlib_t;
 
 typedef struct {
-    st_window_xlib_t *module;
-    Window            handle;
-    Display          *display;
-} st_window_t;
-
-typedef struct {
     void    *private;
-    Display *display;
+    Display *handle;
     Window   root_window;
 } st_monitor_t;
+
+typedef struct {
+    st_window_xlib_t *module;
+    Window            handle;
+    st_monitor_t     *monitor;
+} st_window_t;
 
 #define ST_WINDOW_T_DEFINED
 #define ST_MONITOR_T_DEFINED

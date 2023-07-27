@@ -138,7 +138,7 @@ static void st_window_quit(st_modctx_t *window_ctx) {
         st_window_t *window = node->data;
 
         SLIST_REMOVE_HEAD(&module->windows, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-        XDestroyWindow(window->display, window->handle);
+        XDestroyWindow(window->monitor->handle, window->handle);
         free(window);
         free(node);
     }
@@ -186,22 +186,22 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         return NULL;
     }
 
-    window->handle = XCreateWindow(monitor->display, monitor->root_window,
+    window->handle = XCreateWindow(monitor->handle, monitor->root_window,
      x, y, width, height, 0, CopyFromParent, InputOutput, CopyFromParent,
      CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
-    XChangeWindowAttributes(monitor->display, window->handle,
+    XChangeWindowAttributes(monitor->handle, window->handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
-    XChangeProperty(monitor->display, window->handle,
-     XInternAtom(monitor->display, "_HILDON_NON_COMPOSITED_WINDOW", False),
+    XChangeProperty(monitor->handle, window->handle,
+     XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
      XA_INTEGER, 32, PropModeReplace, (unsigned char*)(int[]){1}, 1); // NOLINT(readability-magic-numbers)
 
-    XSetWMHints(monitor->display, window->handle, &hints);
-    XMapWindow(monitor->display, window->handle);
-    XStoreName(monitor->display, window->handle, title);
+    XSetWMHints(monitor->handle, window->handle, &hints);
+    XMapWindow(monitor->handle, window->handle);
+    XStoreName(monitor->handle, window->handle, title);
 
-    wm_state = XInternAtom(monitor->display, "_NET_WM_STATE", False);
-    wm_fullscreen = XInternAtom(monitor->display, "_NET_WM_STATE_FULLSCREEN",
+    wm_state = XInternAtom(monitor->handle, "_NET_WM_STATE", False);
+    wm_fullscreen = XInternAtom(monitor->handle, "_NET_WM_STATE_FULLSCREEN",
      False);
 
     ev_mask.type                 = ClientMessage;
@@ -211,10 +211,10 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     ev_mask.xclient.data.l[0]    = 1;
     ev_mask.xclient.data.l[1]    = (long)wm_fullscreen;
 
-    XSendEvent(monitor->display, DefaultRootWindow(monitor->display), False,
+    XSendEvent(monitor->handle, DefaultRootWindow(monitor->handle), False,
      SubstructureNotifyMask, &ev_mask);  // NOLINT(hicpp-signed-bitwise)
 
-    window->display = monitor->display;
+    window->monitor = monitor;
     node->data = window;
     SLIST_INSERT_HEAD(&module->windows, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
 
@@ -229,7 +229,7 @@ static void st_window_destroy(st_window_t *window) {
 
         if (node->data == window) {
             SLIST_REMOVE_HEAD(&module->windows, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-            XDestroyWindow(window->display, window->handle);
+            XDestroyWindow(window->monitor->handle, window->handle);
             free(window);
             free(node);
 
@@ -260,10 +260,10 @@ static void st_window_process(st_modctx_t *window_ctx) {
     SLIST_FOREACH(node, &module->windows, ST_SNODE_NEXT) {
         st_window_t *window = node->data;
 
-        while (XPending(window->display)) {
+        while (XPending(window->monitor->handle)) {
             XEvent xevent;
 
-            XNextEvent(window->display, &xevent);
+            XNextEvent(window->monitor->handle, &xevent);
             switch (xevent.type) {
                 case ButtonPress:
                     /* TODO(edomin): Mouse button event structure required */
@@ -371,4 +371,12 @@ static void st_window_process(st_modctx_t *window_ctx) {
             }
         }
     }
+}
+
+static st_monitor_t *st_window_get_monitor(st_window_t *window) {
+    return window->monitor;
+}
+
+static void *st_window_get_handle(st_window_t *window) {
+    return (void *)(uintptr_t)window->handle;
 }
