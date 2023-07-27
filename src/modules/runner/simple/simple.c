@@ -138,8 +138,8 @@ static bool get_config_filename(st_runner_simple_t *module,
  char filename[PATH_MAX]) {
     errno_t err;
 
-    if (module->opts.add_option(module->opts.ctx,
-     'c', "cfg", ST_OA_REQUIRED, "filename", "Config file")) {
+    if (module->opts.add_option(module->opts.ctx, 'c', "cfg", ST_OA_REQUIRED,
+     "filename", "Config file")) {
         if (module->opts.get_str(module->opts.ctx, "cfg", filename, PATH_MAX))
             return true;
 
