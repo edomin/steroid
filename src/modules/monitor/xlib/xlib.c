@@ -123,7 +123,6 @@ static unsigned st_monitor_get_monitors_count(st_modctx_t *monitor_ctx) {
 static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     st_monitor_xlib_t *module = monitor_ctx->data;
     char               display_name[DISPLAY_NAME_SIZE_MAX];
-    Display           *display;
     st_monitor_t      *monitor;
 
     if (snprintf_s(display_name, DISPLAY_NAME_SIZE_MAX, ":0.%i",
@@ -143,9 +142,9 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
         return NULL;
     }
 
-    monitor->display = XOpenDisplay(display_name);
+    monitor->handle = XOpenDisplay(display_name);
 
-    if (!monitor->display) {
+    if (!monitor->handle) {
         module->logger.error(module->logger.ctx,
          "monitor_xlib: Unable to open display");
         free(monitor);
@@ -153,26 +152,29 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
         return NULL;
     }
 
-    monitor->root_window = DefaultRootWindow(monitor->display);
+    monitor->root_window = DefaultRootWindow(monitor->handle);
     monitor->index = index;
 
     return monitor;
 }
 
 static void st_monitor_release(st_monitor_t *monitor) {
-    XCloseDisplay(monitor->display);
+    XCloseDisplay(monitor->handle);
     free(monitor);
 }
 
 static unsigned st_monitor_get_width(st_monitor_t *monitor) {
-    int width = XDisplayWidth(monitor->display, (int)monitor->index);
+    int width = XDisplayWidth(monitor->handle, (int)monitor->index);
 
     return width > 0 ? (unsigned)width : 0u;
 }
 
 static unsigned st_monitor_get_height(st_monitor_t *monitor) {
-    int height = XDisplayHeight(monitor->display, (int)monitor->index);
+    int height = XDisplayHeight(monitor->handle, (int)monitor->index);
 
     return height > 0 ? (unsigned)height : 0u;
 }
 
+static void *st_monitor_get_handle(st_monitor_t *monitor) {
+    return monitor->handle;
+}

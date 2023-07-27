@@ -13,9 +13,10 @@ st_monitor_funcs_t st_monitor_xlib_funcs = {
     .monitor_release            = st_monitor_release,
     .monitor_get_width          = st_monitor_get_width,
     .monitor_get_height         = st_monitor_get_height,
+    .monitor_get_handle         = st_monitor_get_handle,
 };
 
-#define FUNCS_COUNT 7
+#define FUNCS_COUNT 8
 st_modfuncstbl_t st_module_monitor_xlib_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -26,6 +27,7 @@ st_modfuncstbl_t st_module_monitor_xlib_funcs_table = {
         {"release"           , st_monitor_release},
         {"get_width"         , st_monitor_get_width},
         {"get_height"        , st_monitor_get_height},
+        {"get_handle"        , st_monitor_get_handle},
     }
 };
 

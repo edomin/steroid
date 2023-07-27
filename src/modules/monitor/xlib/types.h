@@ -18,7 +18,7 @@ typedef struct {
 
 typedef struct {
     st_monitor_xlib_t *module;
-    Display           *display;
+    Display           *handle;
     Window             root_window;
     unsigned           index;
 } st_monitor_t;

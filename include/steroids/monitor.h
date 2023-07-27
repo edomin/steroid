@@ -12,5 +12,6 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index);
 static void st_monitor_release(st_monitor_t *monitor);
 static unsigned st_monitor_get_width(st_monitor_t *monitor);
 static unsigned st_monitor_get_height(st_monitor_t *monitor);
+static void *st_monitor_get_handle(st_monitor_t *monitor);
 
 #endif /* ST_STEROIDS_MONITOR_H */

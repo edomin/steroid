@@ -16,6 +16,7 @@ typedef st_monitor_t *(*st_monitor_open_t)(st_modctx_t *monitor_ctx,
 typedef void (*st_monitor_release_t)(st_monitor_t *monitor);
 typedef unsigned (*st_monitor_get_width_t)(st_monitor_t *monitor);
 typedef unsigned (*st_monitor_get_height_t)(st_monitor_t *monitor);
+typedef void *(*st_monitor_get_handle_t)(st_monitor_t *monitor);
 
 typedef struct {
     st_monitor_init_t               monitor_init;
@@ -25,6 +26,7 @@ typedef struct {
     st_monitor_release_t            monitor_release;
     st_monitor_get_width_t          monitor_get_width;
     st_monitor_get_height_t         monitor_get_height;
+    st_monitor_get_handle_t         monitor_get_handle;
 } st_monitor_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_MONITOR_H */
