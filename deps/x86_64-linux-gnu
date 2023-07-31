@@ -12,6 +12,7 @@ libsir
 luajit
 lwrb
 make
+opengl
 safeclib
 x86_64-linux-gnu-gcc
 x86_64-linux-gnu-pkg-config
