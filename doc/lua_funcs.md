@@ -20,6 +20,41 @@ st_fs.ft_link: integer
 st_fs.ft_sock: integer
 ```
 
+## gfxctx
+```luau
+st_gfxctx_ctx(logger: st_logger, monitor_ctx: st_monitor_ctx, window_ctx: st_window_ctx): st_gfxctx_ctx
+st_gfxctx_ctx:quit()
+st_gfxctx_ctx:create(monitor: st_monitor, window: st_window, api: integer): st_gfxctx
+st_gfxctx_ctx:create_shared(monitor: st_monitor, window: st_window, gfxctx: st_gfxctx): st_gfxctx
+st_gfxctx:make_current(): bool
+st_gfxctx:swap_buffers(): bool
+st_gfxctx:destroy()
+st_gfxctx_ctx.gapi_gl11: integer
+st_gfxctx_ctx.gapi_gl12: integer
+st_gfxctx_ctx.gapi_gl13: integer
+st_gfxctx_ctx.gapi_gl14: integer
+st_gfxctx_ctx.gapi_gl15: integer
+st_gfxctx_ctx.gapi_gl2: integer
+st_gfxctx_ctx.gapi_gl21: integer
+st_gfxctx_ctx.gapi_gl3: integer
+st_gfxctx_ctx.gapi_gl31: integer
+st_gfxctx_ctx.gapi_gl32: integer
+st_gfxctx_ctx.gapi_gl33: integer
+st_gfxctx_ctx.gapi_gl4: integer
+st_gfxctx_ctx.gapi_gl41: integer
+st_gfxctx_ctx.gapi_gl42: integer
+st_gfxctx_ctx.gapi_gl43: integer
+st_gfxctx_ctx.gapi_gl44: integer
+st_gfxctx_ctx.gapi_gl45: integer
+st_gfxctx_ctx.gapi_gl46: integer
+st_gfxctx_ctx.gapi_es1: integer
+st_gfxctx_ctx.gapi_es11: integer
+st_gfxctx_ctx.gapi_es2: integer
+st_gfxctx_ctx.gapi_es3: integer
+st_gfxctx_ctx.gapi_es31: integer
+st_gfxctx_ctx.gapi_es32: integer
+```
+
 ## logger
 ```luau
 st_logger(): st_logger
