@@ -15,7 +15,7 @@ st_window_funcs_t st_window_xlib_funcs = {
     .window_get_handle  = st_window_get_handle,
 };
 
-#define FUNCS_COUNT 5
+#define FUNCS_COUNT 7
 st_modfuncstbl_t st_module_window_xlib_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
