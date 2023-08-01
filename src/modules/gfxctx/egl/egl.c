@@ -248,15 +248,12 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
  EGLint major, EGLint minor, EGLContext shared_context) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
     EGLint           egl_cfg_attr[] = {
-        EGL_RED_SIZE,                        RED_BITS,
-        EGL_GREEN_SIZE,                      GREEN_BITS,
-        EGL_BLUE_SIZE,                       BLUE_BITS,
-        EGL_ALPHA_SIZE,                      ALPHA_BITS,
-        EGL_RENDERABLE_TYPE,                 renderable_type,
-        EGL_CONTEXT_MAJOR_VERSION_KHR,       major,
-        EGL_CONTEXT_MINOR_VERSION_KHR,       minor,
-        EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
-        EGL_CONFIG_CAVEAT,                   EGL_NONE,
+        EGL_RED_SIZE,        RED_BITS,
+        EGL_GREEN_SIZE,      GREEN_BITS,
+        EGL_BLUE_SIZE,       BLUE_BITS,
+        EGL_ALPHA_SIZE,      ALPHA_BITS,
+        EGL_RENDERABLE_TYPE, renderable_type,
+        EGL_CONFIG_CAVEAT,   EGL_NONE,
         EGL_NONE,
     };
     EGLint           egl_ctx_attr[] = {
