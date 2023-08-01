@@ -2,6 +2,8 @@
 #define ST_STEROIDS_TYPES_MODULES_GFXCTX_H
 
 #include "steroids/module.h"
+#include "steroids/types/modules/monitor.h"
+#include "steroids/types/modules/window.h"
 
 #ifndef ST_GFXCTX_T_DEFINED
     typedef struct st_gfxctx_s st_gfxctx_t;
