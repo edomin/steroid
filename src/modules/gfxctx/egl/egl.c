@@ -664,6 +664,10 @@ static bool st_gfxctx_swap_buffers(st_gfxctx_t *gfxctx) {
     return eglSwapBuffers(gfxctx->display, gfxctx->surface);
 }
 
+static st_gapi_t st_gfxctx_get_api(st_gfxctx_t *gfxctx) {
+    return (st_gapi_t)gfxctx->gapi;
+}
+
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
     if (eglGetCurrentContext() == gfxctx->handle)
         eglMakeCurrent(gfxctx->display, EGL_NO_SURFACE, EGL_NO_SURFACE,

@@ -21,6 +21,7 @@ static st_gfxctx_create_t              st_gfxctx_create;
 static st_gfxctx_create_shared_t       st_gfxctx_create_shared;
 static st_gfxctx_make_current_t        st_gfxctx_make_current;
 static st_gfxctx_swap_buffers_t        st_gfxctx_swap_buffers;
+static st_gfxctx_get_api_t             st_gfxctx_get_api;
 static st_gfxctx_destroy_t             st_gfxctx_destroy;
 
 static st_lua_get_state_t              st_lua_get_state;
@@ -28,6 +29,7 @@ static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_push_bool_t              st_lua_push_bool;
+static st_lua_push_integer_t           st_lua_push_integer;
 static st_lua_set_integer_to_field_t   st_lua_set_integer_to_field;
 static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
 static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
@@ -96,6 +98,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", gfxctx, create_shared);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", gfxctx, make_current);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", gfxctx, swap_buffers);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", gfxctx, get_api);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", gfxctx, destroy);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, get_state);
@@ -103,6 +106,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, create_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, push_bool);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, push_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, set_integer_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, set_cfunction_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_gfxctx", lua, set_copy_to_field);
@@ -234,6 +238,15 @@ static int st_gfxctx_swap_buffers_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
+static int st_gfxctx_get_api_bind(st_luastate_t *lua_state) {
+    st_gfxctx_t *gfxctx = *(st_gfxctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, GFXCTX_METATABLE_NAME);
+
+    st_lua_push_integer(lua_state, st_gfxctx_get_api(gfxctx));
+
+    return 1;
+}
+
 static int st_gfxctx_destroy_bind(st_luastate_t *lua_state) {
     st_gfxctx_t *gfxctx = *(st_gfxctx_t **)st_lua_get_named_userdata(
      lua_state, 1, GFXCTX_METATABLE_NAME);
@@ -291,6 +304,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_gfxctx_make_current_bind);
     st_lua_set_cfunction_to_field(lua_state, "swap_buffers",
      st_gfxctx_swap_buffers_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_api", st_gfxctx_get_api_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
 
     st_lua_pop(lua_state, 1);

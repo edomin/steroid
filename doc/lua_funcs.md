@@ -28,6 +28,7 @@ st_gfxctx_ctx:create(monitor: st_monitor, window: st_window, api: integer): st_g
 st_gfxctx_ctx:create_shared(monitor: st_monitor, window: st_window, gfxctx: st_gfxctx): st_gfxctx
 st_gfxctx:make_current(): bool
 st_gfxctx:swap_buffers(): bool
+st_gfxctx:get_api(): integer
 st_gfxctx:destroy()
 st_gfxctx_ctx.gapi_gl11: integer
 st_gfxctx_ctx.gapi_gl12: integer

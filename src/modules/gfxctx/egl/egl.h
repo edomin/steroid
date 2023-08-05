@@ -12,10 +12,11 @@ st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_create_shared = st_gfxctx_create_shared,
     .gfxctx_make_current  = st_gfxctx_make_current,
     .gfxctx_swap_buffers  = st_gfxctx_swap_buffers,
+    .gfxctx_get_api       = st_gfxctx_get_api,
     .gfxctx_destroy       = st_gfxctx_destroy,
 };
 
-#define FUNCS_COUNT 7
+#define FUNCS_COUNT 8
 st_modfuncstbl_t st_module_gfxctx_egl_funcs_table = {
     .funcs_count = FUNCS_COUNT,
     .entries = {
@@ -25,6 +26,7 @@ st_modfuncstbl_t st_module_gfxctx_egl_funcs_table = {
         {"create_shared", st_gfxctx_create_shared},
         {"make_current" , st_gfxctx_make_current},
         {"swap_buffers" , st_gfxctx_swap_buffers},
+        {"get_api"      , st_gfxctx_get_api},
         {"destroy"      , st_gfxctx_destroy},
     }
 };
