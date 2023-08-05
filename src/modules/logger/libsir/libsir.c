@@ -89,6 +89,9 @@ static void st_logger_init_fallback(st_modctx_t *logger_ctx,
      global_modsmgr, "logger", "simple", "warning");
     logger->logger_fallback_error = global_modsmgr_funcs.get_function(
      global_modsmgr, "logger", "simple", "error");
+    logger->logger_fallback_set_postmortem_msg =
+     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
+      "set_postmortem_msg");
 
     logger->logger_fallback_ctx = logger->logger_fallback_init(events_ctx);
     logger->logger_fallback_warning(logger->logger_fallback_ctx, "%s\n",
@@ -295,6 +298,10 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
     st_logger_libsir_t *logger = logger_ctx->data;
     unsigned            cbk_num = logger->callbacks_count;
 
+    if (logger->use_fallback_module)
+        return logger->logger_fallback_set_callback(
+         logger->logger_fallback_ctx, callback, userdata, levels);
+
     for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
         if (callback == logger->callbacks[logger->callbacks_count].func) {
             cbk_num = i;
@@ -377,6 +384,13 @@ ST_LOGGER_LOG_FUNC(st_logger_error,   st_logger_error_nolock);
 static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
  const char *msg) {
     st_logger_libsir_t *module = logger_ctx->data;
+
+    if (module->use_fallback_module) {
+        module->logger_fallback_set_postmortem_msg(module->logger_fallback_ctx,
+         msg);
+
+        return;
+    }
 
     strcpy_s(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, msg);
 }
