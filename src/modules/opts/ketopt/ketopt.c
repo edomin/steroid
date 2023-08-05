@@ -401,20 +401,37 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
 
 
         while (descr_len > 0) {
-            size_t to_copy_len = descr_len > descr_columns
-             ? descr_columns
-             : descr_len;
+            size_t      to_copy_len;
+            const char *space = NULL;
+
+            if (descr_len > descr_columns) {
+                space = descr + descr_columns;
+
+                while (*space != ' ' && space != descr)
+                    space--;
+
+                to_copy_len = (space == descr)
+                    ? descr_columns
+                    : (size_t)(space - descr);
+            } else {
+                to_copy_len = descr_len;
+            }
 
             if (strncat_s(dst, dstsize, descr, to_copy_len) != 0)
                 return false;
 
             if (to_copy_len < descr_len) {
-                for (unsigned column = 0; column <= opts_columns + 1;
+                if (strncat_s(dst, dstsize, "\n", 1) != 0)
+                    return false;
+                for (unsigned column = 0; column <= opts_columns;
                  column++) {
                     if (strncat_s(dst, dstsize, " ", 1) != 0)
                         return false;
                 }
             }
+
+            if (descr == space)
+                to_copy_len++;
 
             descr_len -= to_copy_len;
             descr += to_copy_len;
