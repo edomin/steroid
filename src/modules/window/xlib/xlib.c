@@ -124,6 +124,24 @@ static void st_window_quit(st_modctx_t *window_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, window_ctx);
 }
 
+void fullscreen_window(Display* display, Window window) {
+    XWindowAttributes attrs;
+    XEvent            event = {0};
+    XGetWindowAttributes(display, window, &attrs);
+
+
+    event.xclient.type = ClientMessage;
+    event.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", false);
+    event.xclient.display = display;
+    event.xclient.window = window;
+    event.xclient.format = ATOM_BITS;
+    event.xclient.data.l[0] = 1;
+    event.xclient.data.l[1] = (long)XInternAtom(display,
+     "_NET_WM_STATE_FULLSCREEN", false);
+    XSendEvent(display, attrs.root, false,
+     SubstructureNotifyMask | SubstructureRedirectMask, &event); // NOLINT(hicpp-signed-bitwise)
+}
+
 static st_window_t *st_window_create(st_modctx_t *window_ctx,
  st_monitor_t *monitor, int x, int y, unsigned width, unsigned height,
  bool fullscreen, const char *title) {
@@ -138,9 +156,6 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         .override_redirect = False,
     };
     XWMHints             hints = { .input = True, .flags = InputHint }; // NOLINT(hicpp-signed-bitwise)
-    Atom                 wm_state;
-    Atom                 wm_fullscreen;
-    XEvent               ev_mask = {0};
     st_snode_t          *node;
     st_window_t         *window = malloc(sizeof(st_window_t));
 
@@ -168,27 +183,17 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     XChangeWindowAttributes(monitor->handle, window->handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
-    XChangeProperty(monitor->handle, window->handle,
-     XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
-     XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
-
     XSetWMHints(monitor->handle, window->handle, &hints);
     XMapWindow(monitor->handle, window->handle);
     XStoreName(monitor->handle, window->handle, title);
 
-    wm_state = XInternAtom(monitor->handle, "_NET_WM_STATE", False);
-    wm_fullscreen = XInternAtom(monitor->handle, "_NET_WM_STATE_FULLSCREEN",
-     False);
-
-    ev_mask.type                 = ClientMessage;
-    ev_mask.xclient.window       = window->handle;
-    ev_mask.xclient.message_type = wm_state;
-    ev_mask.xclient.format       = ATOM_BITS;
-    ev_mask.xclient.data.l[0]    = 1;
-    ev_mask.xclient.data.l[1]    = (long)wm_fullscreen;
-
-    XSendEvent(monitor->handle, DefaultRootWindow(monitor->handle), False,
-     SubstructureNotifyMask, &ev_mask);  // NOLINT(hicpp-signed-bitwise)
+    if (fullscreen) {
+        fullscreen_window(monitor->handle, window->handle);
+    } else {
+        XChangeProperty(monitor->handle, window->handle,
+         XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
+         XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
+    }
 
     window->monitor = monitor;
     node->data = window;
