@@ -12,35 +12,35 @@
 #define ST_OPT_SIZE_MAX      256
 #define HELP_BUFFER_SIZE_MAX 131072
 
-static void                               *global_modsmgr;
-static st_modsmgr_funcs_t                  global_modsmgr_funcs;
-static char                                err_msg_buf[ERR_MSG_BUF_SIZE];
+static st_modsmgr_t                   *global_modsmgr;
+static st_modsmgr_funcs_t              global_modsmgr_funcs;
+static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
-static st_opts_init_t                      st_opts_init;
-static st_opts_quit_t                      st_opts_quit;
-static st_opts_add_option_t                st_opts_add_option;
-static st_opts_get_str_t                   st_opts_get_str;
-static st_opts_get_help_t                  st_opts_get_help;
+static st_opts_init_t                  st_opts_init;
+static st_opts_quit_t                  st_opts_quit;
+static st_opts_add_option_t            st_opts_add_option;
+static st_opts_get_str_t               st_opts_get_str;
+static st_opts_get_help_t              st_opts_get_help;
 
-static st_lua_get_state_t                  st_lua_get_state;
-static st_lua_create_userdata_t            st_lua_create_userdata;
-static st_lua_create_metatable_t           st_lua_create_metatable;
-static st_lua_set_metatable_t              st_lua_set_metatable;
-static st_lua_push_bool_t                  st_lua_push_bool;
-static st_lua_push_nil_t                   st_lua_push_nil;
-static st_lua_push_string_t                st_lua_push_string;
-static st_lua_raise_error_t                st_lua_raise_error;
-static st_lua_set_integer_to_field_t       st_lua_set_integer_to_field;
-static st_lua_set_cfunction_to_field_t     st_lua_set_cfunction_to_field;
-static st_lua_set_copy_to_field_t          st_lua_set_copy_to_field;
-static st_lua_get_char_t                   st_lua_get_char;
-static st_lua_get_integer_t                st_lua_get_integer;
-static st_lua_get_string_t                 st_lua_get_string;
-static st_lua_get_string_or_null_t         st_lua_get_string_or_null;
-static st_lua_get_named_userdata_t         st_lua_get_named_userdata;
-static st_lua_get_global_userdata_t        st_lua_get_global_userdata;
-static st_lua_register_cfunction_t         st_lua_register_cfunction;
-static st_lua_pop_t                        st_lua_pop;
+static st_lua_get_state_t              st_lua_get_state;
+static st_lua_create_userdata_t        st_lua_create_userdata;
+static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_set_metatable_t          st_lua_set_metatable;
+static st_lua_push_bool_t              st_lua_push_bool;
+static st_lua_push_nil_t               st_lua_push_nil;
+static st_lua_push_string_t            st_lua_push_string;
+static st_lua_raise_error_t            st_lua_raise_error;
+static st_lua_set_integer_to_field_t   st_lua_set_integer_to_field;
+static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
+static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
+static st_lua_get_char_t               st_lua_get_char;
+static st_lua_get_integer_t            st_lua_get_integer;
+static st_lua_get_string_t             st_lua_get_string;
+static st_lua_get_string_or_null_t     st_lua_get_string_or_null;
+static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
+static st_lua_get_global_userdata_t    st_lua_get_global_userdata;
+static st_lua_register_cfunction_t     st_lua_register_cfunction;
+static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
 
@@ -55,7 +55,7 @@ void *st_module_luabind_opts_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_luabind_opts_init(void *modsmgr,
+st_moddata_t *st_module_luabind_opts_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
     errno_t err = memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
      modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
@@ -74,7 +74,8 @@ st_moddata_t *st_module_luabind_opts_init(void *modsmgr,
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void *modsmgr, st_modsmgr_funcs_t *modsmgr_funcs) {
+st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
+ st_modsmgr_funcs_t *modsmgr_funcs) {
     return st_module_luabind_opts_init(modsmgr, modsmgr_funcs);
 }
 #endif

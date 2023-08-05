@@ -22,7 +22,7 @@
 #define OPTS_COLUMNS_MAX             1024
 #define HELP_COLUMNS_MIN             8
 
-static void              *global_modsmgr;
+static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
@@ -42,7 +42,7 @@ void *st_module_opts_ketopt_get_func(const char *func_name) {
     return NULL;
 }
 
-st_moddata_t *st_module_opts_ketopt_init(void *modsmgr,
+st_moddata_t *st_module_opts_ketopt_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
     errno_t err = memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
      modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
@@ -61,7 +61,7 @@ st_moddata_t *st_module_opts_ketopt_init(void *modsmgr,
 }
 
 #ifdef ST_MODULE_TYPE_shared
-st_moddata_t *st_module_init(void *modsmgr,
+st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {
     return st_module_opts_ketopt_init(modsmgr, modsmgr_funcs);
 }

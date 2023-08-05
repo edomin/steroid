@@ -15,7 +15,7 @@
 #define BINDING_NAME_SIZE 32
 #define BINDINGS_COUNT    256
 
-static void              *global_modsmgr;
+static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
