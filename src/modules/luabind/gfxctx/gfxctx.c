@@ -40,16 +40,7 @@ static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
 
-void *st_module_luabind_gfxctx_get_func(const char *func_name) {
-    st_modfuncstbl_t *funcs_table = &st_module_luabind_gfxctx_funcs_table;
-
-    for (size_t i = 0; i < FUNCS_COUNT; i++) {
-        if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
-            return funcs_table->entries[i].func_pointer;
-    }
-
-    return NULL;
-}
+ST_MODULE_DEF_GET_FUNC(luabind_gfxctx)
 
 st_moddata_t *st_module_luabind_gfxctx_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {

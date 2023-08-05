@@ -15,18 +15,15 @@ st_window_funcs_t st_window_xlib_funcs = {
     .window_get_handle  = st_window_get_handle,
 };
 
-#define FUNCS_COUNT 7
-st_modfuncstbl_t st_module_window_xlib_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"       , st_window_init},
-        {"quit"       , st_window_quit},
-        {"create"     , st_window_create},
-        {"destroy"    , st_window_destroy},
-        {"process"    , st_window_process},
-        {"get_monitor", st_window_get_monitor},
-        {"get_handle" , st_window_get_handle},
-    }
+st_modfuncentry_t st_module_window_xlib_funcs[] = {
+    {"init"       , st_window_init},
+    {"quit"       , st_window_quit},
+    {"create"     , st_window_create},
+    {"destroy"    , st_window_destroy},
+    {"process"    , st_window_process},
+    {"get_monitor", st_window_get_monitor},
+    {"get_handle" , st_window_get_handle},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_WINDOW_XLIB_XLIB_H */

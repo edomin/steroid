@@ -25,17 +25,14 @@ st_timer_funcs_t st_timer_simple_funcs = {
     .timer_sleep_for_fps = st_timer_sleep_for_fps,
 };
 
-#define FUNCS_COUNT 6
-st_modfuncstbl_t st_module_timer_simple_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"         , st_timer_init},
-        {"quit"         , st_timer_quit},
-        {"start"        , st_timer_start},
-        {"get_elapsed"  , st_timer_get_elapsed},
-        {"sleep"        , st_timer_sleep},
-        {"sleep_for_fps", st_timer_sleep_for_fps},
-    }
+st_modfuncentry_t st_module_timer_simple_funcs[] = {
+    {"init"         , st_timer_init},
+    {"quit"         , st_timer_quit},
+    {"start"        , st_timer_start},
+    {"get_elapsed"  , st_timer_get_elapsed},
+    {"sleep"        , st_timer_sleep},
+    {"sleep_for_fps", st_timer_sleep_for_fps},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_TIMER_SIMPLE_SIMPLE_H */

@@ -16,19 +16,16 @@ st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_destroy       = st_gfxctx_destroy,
 };
 
-#define FUNCS_COUNT 8
-st_modfuncstbl_t st_module_gfxctx_egl_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"         , st_gfxctx_init},
-        {"quit"         , st_gfxctx_quit},
-        {"create"       , st_gfxctx_create},
-        {"create_shared", st_gfxctx_create_shared},
-        {"make_current" , st_gfxctx_make_current},
-        {"swap_buffers" , st_gfxctx_swap_buffers},
-        {"get_api"      , st_gfxctx_get_api},
-        {"destroy"      , st_gfxctx_destroy},
-    }
+st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
+    {"init"         , st_gfxctx_init},
+    {"quit"         , st_gfxctx_quit},
+    {"create"       , st_gfxctx_create},
+    {"create_shared", st_gfxctx_create_shared},
+    {"make_current" , st_gfxctx_make_current},
+    {"swap_buffers" , st_gfxctx_swap_buffers},
+    {"get_api"      , st_gfxctx_get_api},
+    {"destroy"      , st_gfxctx_destroy},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_GFXCTX_EGL_SIMPLE_H */

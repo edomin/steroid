@@ -25,28 +25,25 @@ st_events_funcs_t st_events_simple_funcs = {
     .events_clear           = st_events_clear,
 };
 
-#define FUNCS_COUNT 17
-st_modfuncstbl_t st_module_events_simple_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init",            st_events_init},
-        {"quit",            st_events_quit},
-        {"register_type",   st_events_register_type},
-        {"get_type_id",     st_events_get_type_id},
-        {"create_queue",    st_events_create_queue},
-        {"destroy_queue",   st_events_destroy_queue},
-        {"subscribe",       st_events_subscribe},
-        {"unsubscribe",     st_events_unsubscribe},
-        {"unsubscribe_all", st_events_unsubscribe_all},
-        {"suspend",         st_events_suspend},
-        {"resume",          st_events_resume},
-        {"push",            st_events_push},
-        {"is_empty",        st_events_is_empty},
-        {"peek_type",       st_events_peek_type},
-        {"pop",             st_events_pop},
-        {"drop",            st_events_drop},
-        {"clear",           st_events_clear},
-    }
+st_modfuncentry_t st_module_events_simple_funcs[] = {
+    {"init",            st_events_init},
+    {"quit",            st_events_quit},
+    {"register_type",   st_events_register_type},
+    {"get_type_id",     st_events_get_type_id},
+    {"create_queue",    st_events_create_queue},
+    {"destroy_queue",   st_events_destroy_queue},
+    {"subscribe",       st_events_subscribe},
+    {"unsubscribe",     st_events_unsubscribe},
+    {"unsubscribe_all", st_events_unsubscribe_all},
+    {"suspend",         st_events_suspend},
+    {"resume",          st_events_resume},
+    {"push",            st_events_push},
+    {"is_empty",        st_events_is_empty},
+    {"peek_type",       st_events_peek_type},
+    {"pop",             st_events_pop},
+    {"drop",            st_events_drop},
+    {"clear",           st_events_clear},
+    {NULL, NULL},
 };
 
 #endif /* ST_SRC_MODULES_EVENTS_SIMPLE_SIMPLE_H */

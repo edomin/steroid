@@ -28,13 +28,10 @@ st_luabind_funcs_t st_luabind_events_funcs = {
     .luabind_quit = st_luabind_quit,
 };
 
-#define FUNCS_COUNT 2
-st_modfuncstbl_t st_module_luabind_events_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init", st_luabind_init},
-        {"quit", st_luabind_quit},
-    }
+st_modfuncentry_t st_module_luabind_events_funcs[] = {
+    {"init", st_luabind_init},
+    {"quit", st_luabind_quit},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_LUABIND_EVENTS_EVENTS_H */

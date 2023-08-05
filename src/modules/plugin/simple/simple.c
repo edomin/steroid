@@ -20,16 +20,7 @@ static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
-void *st_module_plugin_simple_get_func(const char *func_name) {
-    st_modfuncstbl_t *funcs_table = &st_module_plugin_simple_funcs_table;
-
-    for (size_t i = 0; i < FUNCS_COUNT; i++) {
-        if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
-            return funcs_table->entries[i].func_pointer;
-    }
-
-    return NULL;
-}
+ST_MODULE_DEF_GET_FUNC(plugin_simple)
 
 st_moddata_t *st_module_plugin_simple_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {

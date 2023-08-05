@@ -16,19 +16,16 @@ st_monitor_funcs_t st_monitor_xlib_funcs = {
     .monitor_get_handle         = st_monitor_get_handle,
 };
 
-#define FUNCS_COUNT 8
-st_modfuncstbl_t st_module_monitor_xlib_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"              , st_monitor_init},
-        {"quit"              , st_monitor_quit},
-        {"get_monitors_count", st_monitor_get_monitors_count},
-        {"open"              , st_monitor_open},
-        {"release"           , st_monitor_release},
-        {"get_width"         , st_monitor_get_width},
-        {"get_height"        , st_monitor_get_height},
-        {"get_handle"        , st_monitor_get_handle},
-    }
+st_modfuncentry_t st_module_monitor_xlib_funcs[] = {
+    {"init"              , st_monitor_init},
+    {"quit"              , st_monitor_quit},
+    {"get_monitors_count", st_monitor_get_monitors_count},
+    {"open"              , st_monitor_open},
+    {"release"           , st_monitor_release},
+    {"get_width"         , st_monitor_get_width},
+    {"get_height"        , st_monitor_get_height},
+    {"get_handle"        , st_monitor_get_handle},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_MONITOR_XLIB_XLIB_H */

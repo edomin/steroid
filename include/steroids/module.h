@@ -41,6 +41,17 @@
         return false;                                                         \
     }
 
+#define ST_MODULE_DEF_GET_FUNC(modname)                                       \
+    void *st_module_##modname##_get_func(const char *func_name) {             \
+        size_t entry_index = 0;                                               \
+        do {                                                                  \
+            if (strcmp(st_module_##modname##_funcs[entry_index].func_name,    \
+             func_name) == 0)                                                 \
+                return st_module_##modname##_funcs[entry_index].func_pointer; \
+        } while (st_module_##modname##_funcs[++entry_index].func_name);       \
+        return NULL;                                                          \
+    }
+
 typedef struct {
     char      *subsystem;
     char      *name;
@@ -109,10 +120,5 @@ typedef struct {
     const char *func_name;
     void       *func_pointer;
 } st_modfuncentry_t;
-
-typedef struct {
-    size_t            funcs_count;
-    st_modfuncentry_t entries[];
-} st_modfuncstbl_t;
 
 #endif

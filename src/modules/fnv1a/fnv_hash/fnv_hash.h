@@ -25,17 +25,14 @@ st_fnv1a_funcs_t st_fnv1a_fnv_hash_funcs = {
     .fnv1a_get_u32hashbytes_func = st_fnv1a_get_u32hashbytes_func,
 };
 
-#define FUNCS_COUNT 6
-st_modfuncstbl_t st_module_fnv1a_fnv_hash_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"                 , st_fnv1a_init},
-        {"quit"                 , st_fnv1a_quit},
-        {"u32hash_string"       , st_fnv1a_u32hash_string},
-        {"u32hash_bytes"        , st_fnv1a_u32hash_bytes},
-        {"get_u32hashstr_func"  , st_fnv1a_get_u32hashstr_func},
-        {"get_u32hashbytes_func", st_fnv1a_get_u32hashbytes_func},
-    }
+st_modfuncentry_t st_module_fnv1a_fnv_hash_funcs[] = {
+    {"init"                 , st_fnv1a_init},
+    {"quit"                 , st_fnv1a_quit},
+    {"u32hash_string"       , st_fnv1a_u32hash_string},
+    {"u32hash_bytes"        , st_fnv1a_u32hash_bytes},
+    {"get_u32hashstr_func"  , st_fnv1a_get_u32hashstr_func},
+    {"get_u32hashbytes_func", st_fnv1a_get_u32hashbytes_func},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_FNV1A_FNV_HASH_FNV_HASH_H */

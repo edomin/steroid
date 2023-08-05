@@ -24,16 +24,13 @@ st_spcpaths_funcs_t st_spcpaths_cfgpath_funcs = {
     .spcpaths_get_cache_path  = st_spcpaths_get_cache_path,
 };
 
-#define FUNCS_COUNT 5
-st_modfuncstbl_t st_module_spcpaths_cfgpath_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"           , st_spcpaths_init},
-        {"quit"           , st_spcpaths_quit},
-        {"get_config_path", st_spcpaths_get_config_path},
-        {"get_data_path"  , st_spcpaths_get_data_path},
-        {"get_cache_path" , st_spcpaths_get_cache_path},
-    }
+st_modfuncentry_t st_module_spcpaths_cfgpath_funcs[] = {
+    {"init"           , st_spcpaths_init},
+    {"quit"           , st_spcpaths_quit},
+    {"get_config_path", st_spcpaths_get_config_path},
+    {"get_data_path"  , st_spcpaths_get_data_path},
+    {"get_cache_path" , st_spcpaths_get_cache_path},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_SPCPATHS_CFGPATH_CFGPATH_H */

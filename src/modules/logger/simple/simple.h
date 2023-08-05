@@ -66,24 +66,21 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_set_postmortem_msg = st_logger_set_postmortem_msg,
 };
 
-#define FUNCS_COUNT 13
-st_modfuncstbl_t st_module_logger_simple_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init",               st_logger_init},
-        {"quit",               st_logger_quit},
-        {"enable_events",      st_logger_enable_events},
-        {"set_stdout_levels",  st_logger_set_stdout_levels},
-        {"set_stderr_levels",  st_logger_set_stderr_levels},
-        {"set_syslog_levels",  st_logger_set_syslog_levels},
-        {"set_log_file",       st_logger_set_log_file},
-        {"set_callback",       st_logger_set_callback},
-        {"debug",              st_logger_debug},
-        {"info",               st_logger_info},
-        {"warning",            st_logger_warning},
-        {"error",              st_logger_error},
-        {"set_postmortem_msg", st_logger_set_postmortem_msg},
-    }
+st_modfuncentry_t st_module_logger_simple_funcs[] = {
+    {"init",               st_logger_init},
+    {"quit",               st_logger_quit},
+    {"enable_events",      st_logger_enable_events},
+    {"set_stdout_levels",  st_logger_set_stdout_levels},
+    {"set_stderr_levels",  st_logger_set_stderr_levels},
+    {"set_syslog_levels",  st_logger_set_syslog_levels},
+    {"set_log_file",       st_logger_set_log_file},
+    {"set_callback",       st_logger_set_callback},
+    {"debug",              st_logger_debug},
+    {"info",               st_logger_info},
+    {"warning",            st_logger_warning},
+    {"error",              st_logger_error},
+    {"set_postmortem_msg", st_logger_set_postmortem_msg},
+    {NULL, NULL},
 };
 
 #endif

@@ -21,16 +21,7 @@ static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static void st_lua_bind_all(st_modctx_t *lua_ctx);
 
-void *st_module_lua_luajit_get_func(const char *func_name) {
-    st_modfuncstbl_t *funcs_table = &st_module_lua_luajit_funcs_table;
-
-    for (size_t i = 0; i < funcs_table->funcs_count; i++) {
-        if (strcmp(funcs_table->entries[i].func_name, func_name) == 0)
-            return funcs_table->entries[i].func_pointer;
-    }
-
-    return NULL;
-}
+ST_MODULE_DEF_GET_FUNC(lua_luajit)
 
 st_moddata_t *st_module_lua_luajit_init(st_modsmgr_t *modsmgr,
  st_modsmgr_funcs_t *modsmgr_funcs) {

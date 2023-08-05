@@ -24,16 +24,13 @@ st_pathtools_funcs_t st_pathtools_simple_funcs = {
     .pathtools_concat         = st_pathtools_concat,
 };
 
-#define FUNCS_COUNT 5
-st_modfuncstbl_t st_module_pathtools_simple_funcs_table = {
-    .funcs_count = FUNCS_COUNT,
-    .entries = {
-        {"init"          , st_pathtools_init},
-        {"quit"          , st_pathtools_quit},
-        {"resolve"       , st_pathtools_resolve},
-        {"get_parent_dir", st_pathtools_get_parent_dir},
-        {"concat"        , st_pathtools_concat},
-    }
+st_modfuncentry_t st_module_pathtools_simple_funcs[] = {
+    {"init"          , st_pathtools_init},
+    {"quit"          , st_pathtools_quit},
+    {"resolve"       , st_pathtools_resolve},
+    {"get_parent_dir", st_pathtools_get_parent_dir},
+    {"concat"        , st_pathtools_concat},
+    {NULL, NULL},
 };
 
 #endif /* ST_MODULES_PATHTOOLS_SIMPLE_SIMPLE_H */
