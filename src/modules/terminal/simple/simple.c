@@ -86,8 +86,11 @@ static st_modctx_t *st_terminal_init(st_modctx_t *logger_ctx) {
     module = terminal_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_terminal_import_functions(terminal_ctx, logger_ctx))
+    if (!st_terminal_import_functions(terminal_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, terminal_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "terminal_simple: Terminal utils initialized.");

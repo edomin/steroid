@@ -89,8 +89,11 @@ static st_modctx_t *st_spcpaths_init(st_modctx_t *logger_ctx) {
     spcpaths = spcpaths_ctx->data;
     spcpaths->logger.ctx = logger_ctx;
 
-    if (!st_spcpaths_import_functions(spcpaths_ctx, logger_ctx))
+    if (!st_spcpaths_import_functions(spcpaths_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, spcpaths_ctx);
+
         return NULL;
+    }
 
     spcpaths->logger.info(spcpaths->logger.ctx,
      "spcpaths_cfgpath: Special paths mgr initialized.");

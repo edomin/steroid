@@ -91,8 +91,11 @@ static st_modctx_t *st_htable_init(st_modctx_t *logger_ctx) {
     module = htable_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_htable_import_functions(htable_ctx, logger_ctx))
+    if (!st_htable_import_functions(htable_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, htable_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "htable_hash_table: Module initialized.");

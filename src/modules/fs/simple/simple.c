@@ -92,8 +92,11 @@ static st_modctx_t *st_fs_init(st_modctx_t *logger_ctx,
     fs->logger.ctx = logger_ctx;
     fs->pathtools.ctx = pathtools_ctx;
 
-    if (!st_fs_import_functions(fs_ctx, logger_ctx, pathtools_ctx))
+    if (!st_fs_import_functions(fs_ctx, logger_ctx, pathtools_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, fs_ctx);
+
         return NULL;
+    }
 
     fs->logger.info(fs->logger.ctx, "fs_simple: Filesystem mgr initialized.");
 

@@ -90,8 +90,11 @@ static st_modctx_t *st_rbuf_init(st_modctx_t *logger_ctx) {
     module = rbuf_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_rbuf_import_functions(rbuf_ctx, logger_ctx))
+    if (!st_rbuf_import_functions(rbuf_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, rbuf_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx, "rbuf_lwrb: Module initialized");
 

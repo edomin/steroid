@@ -89,8 +89,11 @@ static st_modctx_t *st_fnv1a_init(st_modctx_t *logger_ctx) {
     fnv1a = fnv1a_ctx->data;
     fnv1a->logger.ctx = logger_ctx;
 
-    if (!st_fnv1a_import_functions(fnv1a_ctx, logger_ctx))
+    if (!st_fnv1a_import_functions(fnv1a_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, fnv1a_ctx);
+
         return NULL;
+    }
 
     fnv1a->logger.info(fnv1a->logger.ctx, "%s",
      "fnv1a_fnv_hash: FNV-1a hasher initialized.");

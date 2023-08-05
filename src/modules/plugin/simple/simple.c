@@ -118,8 +118,11 @@ static st_modctx_t *st_plugin_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
     module->zip.ctx       = zip_ctx;
 
     if (!st_plugin_import_functions(plugin_ctx, fs_ctx, logger_ctx,
-     pathtools_ctx, so_ctx, spcpaths_ctx, zip_ctx))
+     pathtools_ctx, so_ctx, spcpaths_ctx, zip_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, plugin_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "plugin_simple: Module initialized.");

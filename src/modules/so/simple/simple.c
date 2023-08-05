@@ -92,8 +92,11 @@ static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
     so = so_ctx->data;
     so->logger.ctx = logger_ctx;
 
-    if (!st_so_import_functions(so_ctx, logger_ctx))
+    if (!st_so_import_functions(so_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, so_ctx);
+
         return NULL;
+    }
 
     SLIST_INIT(&so->opened_handles); // NOLINT(altera-unroll-loops)
 

@@ -86,8 +86,11 @@ static st_modctx_t *st_monitor_init(st_modctx_t *logger_ctx) {
     module = monitor_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_monitor_import_functions(monitor_ctx, logger_ctx))
+    if (!st_monitor_import_functions(monitor_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, monitor_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "monitor_xlib: Monitors mgr initialized.");

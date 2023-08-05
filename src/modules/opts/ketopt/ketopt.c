@@ -105,8 +105,11 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     opts = opts_ctx->data;
     opts->logger.ctx = logger_ctx;
 
-    if (!st_opts_import_functions(opts_ctx, logger_ctx))
+    if (!st_opts_import_functions(opts_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
+
         return NULL;
+    }
 
     opts->argc = argc;
     opts->argv = argv;
@@ -116,6 +119,7 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     if (err) {
         strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
         fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
 
         return NULL;
     }

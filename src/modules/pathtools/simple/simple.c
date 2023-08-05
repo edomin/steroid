@@ -89,8 +89,11 @@ static st_modctx_t *st_pathtools_init(st_modctx_t *logger_ctx) {
     pathtools = pathtools_ctx->data;
     pathtools->logger.ctx = logger_ctx;
 
-    if (!st_pathtools_import_functions(pathtools_ctx, logger_ctx))
+    if (!st_pathtools_import_functions(pathtools_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, pathtools_ctx);
+
         return NULL;
+    }
 
     pathtools->logger.info(pathtools->logger.ctx,
      "pathtools_simple: Path tools initialized.");

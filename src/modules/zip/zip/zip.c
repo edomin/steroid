@@ -96,8 +96,11 @@ static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
     module = zip_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_zip_import_functions(zip_ctx, fs_ctx, logger_ctx, pathtools_ctx))
+    if (!st_zip_import_functions(zip_ctx, fs_ctx, logger_ctx, pathtools_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, zip_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx, "%s", "zip_zip: ZIP initialized.");
 

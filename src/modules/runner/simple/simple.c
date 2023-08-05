@@ -118,8 +118,11 @@ static st_modctx_t *st_runner_init(st_modctx_t *ini_ctx,
     module->plugin.ctx    = plugin_ctx;
 
     if (!st_runner_import_functions(runner_ctx, ini_ctx, logger_ctx, opts_ctx,
-     pathtools_ctx, plugin_ctx))
+     pathtools_ctx, plugin_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, runner_ctx);
+
         return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "runner_simple: Runner initialized.");

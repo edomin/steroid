@@ -147,8 +147,11 @@ static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
     luabind->lua.ctx = lua_ctx;
     luabind->logger.ctx = logger_ctx;
 
-    if (!st_luabind_import_functions(luabind_ctx, lua_ctx, logger_ctx))
+    if (!st_luabind_import_functions(luabind_ctx, lua_ctx, logger_ctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, luabind_ctx);
+
         return NULL;
+    }
 
     st_luabind_bind_all(luabind_ctx);
 
