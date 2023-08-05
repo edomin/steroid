@@ -52,6 +52,22 @@
         return NULL;                                                          \
     }
 
+#define ST_MODULE_DEF_INIT_FUNC(modname)                                    \
+    st_moddata_t *st_module_##modname##_init(st_modsmgr_t *modsmgr,         \
+     st_modsmgr_funcs_t *modsmgr_funcs) {                                   \
+        errno_t err = memcpy_s(&global_modsmgr_funcs,                       \
+         sizeof(st_modsmgr_funcs_t), modsmgr_funcs,                         \
+         sizeof(st_modsmgr_funcs_t));                                       \
+        if (err) {                                                          \
+            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);                 \
+            fprintf(stderr, "Unable to init module \"" #modname "\": %s\n", \
+             err_msg_buf);                                                  \
+            return NULL;                                                    \
+        }                                                                   \
+        global_modsmgr = modsmgr;                                           \
+        return &st_module_##modname##_data;                                 \
+    }
+
 typedef struct {
     char      *subsystem;
     char      *name;

@@ -30,24 +30,7 @@ static st_lua_pop_t                    st_lua_pop;
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
 
 ST_MODULE_DEF_GET_FUNC(luabind_events)
-
-st_moddata_t *st_module_luabind_events_init(st_modsmgr_t *modsmgr,
- st_modsmgr_funcs_t *modsmgr_funcs) {
-    errno_t err = memcpy_s(&global_modsmgr_funcs, sizeof(st_modsmgr_funcs_t),
-     modsmgr_funcs, sizeof(st_modsmgr_funcs_t));
-
-    if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
-        fprintf(stderr, "Unable to init module \"luabind_events\": %s\n",
-         err_msg_buf);
-
-        return NULL;
-    }
-
-    global_modsmgr = modsmgr;
-
-    return &st_module_luabind_events_data;
-}
+ST_MODULE_DEF_INIT_FUNC(luabind_events)
 
 #ifdef ST_MODULE_TYPE_shared
 st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
