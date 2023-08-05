@@ -13,7 +13,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE      1024
+#define ERR_MSG_BUF_SIZE 1024
+#define ATOM_BITS        32
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -194,7 +195,7 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
 
     XChangeProperty(monitor->handle, window->handle,
      XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
-     XA_INTEGER, 32, PropModeReplace, (unsigned char*)(int[]){1}, 1); // NOLINT(readability-magic-numbers)
+     XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
 
     XSetWMHints(monitor->handle, window->handle, &hints);
     XMapWindow(monitor->handle, window->handle);
@@ -207,7 +208,7 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     ev_mask.type                 = ClientMessage;
     ev_mask.xclient.window       = window->handle;
     ev_mask.xclient.message_type = wm_state;
-    ev_mask.xclient.format       = 32; // NOLINT(readability-magic-numbers)
+    ev_mask.xclient.format       = ATOM_BITS;
     ev_mask.xclient.data.l[0]    = 1;
     ev_mask.xclient.data.l[1]    = (long)wm_fullscreen;
 
