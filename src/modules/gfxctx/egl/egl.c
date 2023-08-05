@@ -10,11 +10,40 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-#define RED_BITS         8
-#define GREEN_BITS       8
-#define BLUE_BITS        8
-#define ALPHA_BITS       8
+#define ERR_MSG_BUF_SIZE               1024
+#define GAPI_STR_SIZE_MAX                32
+#define RED_BITS                          8
+#define GREEN_BITS                        8
+#define BLUE_BITS                         8
+#define ALPHA_BITS                        8
+
+#define RED_SIZE_INDEX                    0
+#define GREEN_SIZE_INDEX                  2
+#define BLUE_SIZE_INDEX                   4
+#define ALPHA_SIZE_INDEX                  6
+#define CONFIG_CAVEAT_INDEX               8
+#define RENDERABLE_TYPE_INDEX            10
+#define CFG_ATTR_END_INDEX               12
+#define CFG_ATTRS_LEN                    13
+
+#define CONTEXT_MAJOR_VERSION_INDEX       0
+#define CONTEXT_MINOR_VERSION_INDEX       2
+#define CONTEXT_OPENGL_PROFILE_MASK_INDEX 4
+#define CTX_ATTR_END_INDEX                6
+#define CTX_ATTRS_LEN                     7
+
+typedef struct {
+    EGLint red_size;
+    EGLint green_size;
+    EGLint blue_size;
+    EGLint alpha_size;
+    EGLint renderable_type;
+} cfg_attrs_t;
+
+typedef struct {
+    EGLint context_major_version;
+    EGLint context_minor_version;
+} ctx_attrs_t;
 
 static void              *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -107,7 +136,7 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     }
 
     module->logger.info(module->logger.ctx,
-     "gfxctx_egl: Graphics context initialized");
+     "gfxctx_egl: Graphics context mgr initialized");
 
     return gfxctx_ctx;
 }
@@ -116,8 +145,17 @@ static void st_gfxctx_quit(st_modctx_t *gfxctx_ctx) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
 
     module->logger.info(module->logger.ctx,
-     "gfxctx_egl: Graphics context destroyed");
+     "gfxctx_egl: Graphics context mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, gfxctx_ctx);
+}
+
+static EGLenum getegl_api_by_gapi(st_gapi_t api) {
+    if (api >= ST_GAPI_GL11 && api <= ST_GAPI_GL46)
+        return EGL_OPENGL_API;
+    if (api >= ST_GAPI_ES1 && api <= ST_GAPI_ES32)
+        return  EGL_OPENGL_ES_API;
+
+    return (EGLenum)-1;
 }
 
 static EGLint get_renderable_type_by_gapi(st_gapi_t api) {
@@ -243,27 +281,234 @@ const char *get_egl_error_str(EGLint errorcode) {
     return "Unknown error";
 }
 
+static bool extension_supported(EGLDisplay display, const char *ext) {
+    const char *extensions = eglQueryString(display, EGL_EXTENSIONS);
+
+    return extensions && strstr(extensions, ext);
+}
+
+static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
+ EGLint egl_version_minor, bool have_ctx_extension) {
+    bool attrs_changed = false;
+
+    switch (egl_version_minor) {
+        case 0:
+        case 1:
+            if (cfg_arrts->renderable_type != EGL_OPENGL_ES_BIT ||
+             ctx_attrs->context_major_version != 1 ||
+             ctx_attrs->context_minor_version != 0) {
+                attrs_changed = true;
+                cfg_arrts->renderable_type = EGL_OPENGL_ES_BIT;
+                ctx_attrs->context_major_version = 1;
+                ctx_attrs->context_minor_version = 0;
+            }
+            break;
+        case 2:
+            if (cfg_arrts->renderable_type == EGL_OPENGL_ES_BIT &&
+             (ctx_attrs->context_major_version != 1 ||
+             ctx_attrs->context_minor_version != 0)) {
+                attrs_changed = true;
+                ctx_attrs->context_major_version = 1;
+                ctx_attrs->context_minor_version = 0;
+            } else if (cfg_arrts->renderable_type != EGL_OPENGL_ES2_BIT) {
+                attrs_changed = true;
+                cfg_arrts->renderable_type = EGL_OPENGL_ES2_BIT;
+                ctx_attrs->context_major_version = 2;
+                ctx_attrs->context_minor_version = 0;
+            }
+            break;
+        case 4:
+            if ((cfg_arrts->renderable_type == EGL_OPENGL_ES_BIT ||
+             cfg_arrts->renderable_type == EGL_OPENGL_BIT) &&
+             (!have_ctx_extension && ctx_attrs->context_minor_version != 0)) {
+                attrs_changed = true;
+                ctx_attrs->context_minor_version = 0;
+            } else if (cfg_arrts->renderable_type == EGL_OPENGL_ES3_BIT_KHR &&
+             !have_ctx_extension) {
+                cfg_arrts->renderable_type = EGL_OPENGL_ES2_BIT;
+                ctx_attrs->context_major_version = 2;
+                ctx_attrs->context_minor_version = 0;
+            }
+            break;
+        case 5: // NOLINT(readability-magic-numbers)
+            if (cfg_arrts->renderable_type == EGL_OPENGL_ES3_BIT_KHR)
+                cfg_arrts->renderable_type = EGL_OPENGL_ES3_BIT;
+        default:
+            break;
+    }
+
+    return attrs_changed;
+}
+
+static void fill_cfg_attrs(EGLint dst[CFG_ATTRS_LEN], cfg_attrs_t *attrs,
+ EGLint egl_version_minor) {
+    dst[RED_SIZE_INDEX] = EGL_RED_SIZE;
+    dst[RED_SIZE_INDEX + 1] = attrs->red_size;
+    dst[GREEN_SIZE_INDEX] = EGL_GREEN_SIZE;
+    dst[GREEN_SIZE_INDEX + 1] = attrs->green_size;
+    dst[BLUE_SIZE_INDEX] = EGL_BLUE_SIZE;
+    dst[BLUE_SIZE_INDEX + 1] = attrs->blue_size;
+    dst[ALPHA_SIZE_INDEX] = EGL_ALPHA_SIZE;
+    dst[ALPHA_SIZE_INDEX + 1] = attrs->alpha_size;
+    dst[CONFIG_CAVEAT_INDEX] = EGL_CONFIG_CAVEAT;
+    dst[CONFIG_CAVEAT_INDEX + 1] = EGL_NONE;
+    dst[RENDERABLE_TYPE_INDEX] = EGL_RENDERABLE_TYPE;
+    if (attrs->renderable_type == EGL_OPENGL_ES3_BIT_KHR) {
+        if (egl_version_minor == 5) // NOLINT(readability-magic-numbers)
+            dst[RENDERABLE_TYPE_INDEX + 1] = EGL_OPENGL_ES3_BIT;
+    }
+    dst[CFG_ATTR_END_INDEX] = EGL_NONE;
+}
+
+static void fill_ctx_attrs(EGLint dst[CTX_ATTRS_LEN], ctx_attrs_t *attrs,
+ EGLint egl_version_minor, bool have_ctx_extension) {
+    if (attrs->context_major_version == EGL_NONE) {
+        dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_NONE;
+    } else {
+        if (egl_version_minor < 4 ||
+         (egl_version_minor == 4 && !have_ctx_extension)) {
+            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_CLIENT_VERSION;
+            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
+            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_NONE;
+        } else if (egl_version_minor == 4 && have_ctx_extension) {
+            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
+            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_CONTEXT_MINOR_VERSION_KHR;
+            dst[CONTEXT_MINOR_VERSION_INDEX + 1] = attrs->context_minor_version;
+            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX] =
+             EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX + 1] =
+             EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
+            dst[CTX_ATTR_END_INDEX] = EGL_NONE;
+        } else {
+            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_MAJOR_VERSION;
+            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
+            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_CONTEXT_MINOR_VERSION;
+            dst[CONTEXT_MINOR_VERSION_INDEX + 1] = attrs->context_minor_version;
+            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX] =
+             EGL_CONTEXT_OPENGL_PROFILE_MASK;
+            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX + 1] =
+             EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
+            dst[CTX_ATTR_END_INDEX] = EGL_NONE;
+        }
+    }
+}
+
+static void attrs_fill_gapi_str(char dst[GAPI_STR_SIZE_MAX],
+ cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs) {
+    const char *api_name;
+
+    switch (cfg_arrts->renderable_type) {
+        case EGL_OPENGL_ES_BIT:
+        case EGL_OPENGL_ES2_BIT:
+        case EGL_OPENGL_ES3_BIT:
+        #if EGL_OPENGL_ES3_BIT_KHR != EGL_OPENGL_ES3_BIT
+        case EGL_OPENGL_ES3_BIT_KHR:
+        #endif
+            api_name = "OpenGL ES";
+            break;
+        case EGL_OPENGL_BIT:
+            api_name = "OpenGL";
+            break;
+        default:
+            api_name = "Unknown";
+            break;
+    }
+
+    sprintf_s(dst, GAPI_STR_SIZE_MAX, "%s %i.%i", api_name,
+     ctx_attrs->context_major_version, ctx_attrs->context_minor_version);
+}
+
+static int gapi_from_attrs(cfg_attrs_t *cfg_arrts,
+ ctx_attrs_t *ctx_attrs) {
+    switch (cfg_arrts->renderable_type) {
+        case EGL_OPENGL_ES_BIT:
+        case EGL_OPENGL_ES2_BIT:
+        case EGL_OPENGL_ES3_BIT:
+        #if EGL_OPENGL_ES3_BIT_KHR != EGL_OPENGL_ES3_BIT
+        case EGL_OPENGL_ES3_BIT_KHR:
+        #endif
+            switch (ctx_attrs->context_major_version) {
+                case 1:
+                    return (const int[]){
+                        ST_GAPI_ES1,
+                        ST_GAPI_ES11,
+                    }[ctx_attrs->context_minor_version];
+                case 2:
+                    return ST_GAPI_ES2;
+                case 3:
+                    return (const int[]){
+                        ST_GAPI_ES3,
+                        ST_GAPI_ES31,
+                        ST_GAPI_ES32,
+                    }[ctx_attrs->context_minor_version];
+                default:
+                    return ST_GAPI_UNKNOWN;
+            }
+        case EGL_OPENGL_BIT:
+            switch (ctx_attrs->context_major_version) {
+                case 1:
+                    return (const int[]){
+                        ST_GAPI_UNKNOWN,
+                        ST_GAPI_GL11,
+                        ST_GAPI_GL12,
+                        ST_GAPI_GL13,
+                        ST_GAPI_GL14,
+                        ST_GAPI_GL15,
+                    }[ctx_attrs->context_minor_version];
+                case 2:
+                    return (const int[]){
+                        ST_GAPI_GL2,
+                        ST_GAPI_GL21,
+                    }[ctx_attrs->context_minor_version];
+                case 3:
+                    return (const int[]){
+                        ST_GAPI_GL3,
+                        ST_GAPI_GL31,
+                        ST_GAPI_GL32,
+                        ST_GAPI_GL33,
+                    }[ctx_attrs->context_minor_version];
+                case 4:
+                    return (const int[]){
+                        ST_GAPI_GL4,
+                        ST_GAPI_GL41,
+                        ST_GAPI_GL42,
+                        ST_GAPI_GL43,
+                        ST_GAPI_GL44,
+                        ST_GAPI_GL45,
+                        ST_GAPI_GL46,
+                    }[ctx_attrs->context_minor_version];
+                default:
+                    return ST_GAPI_UNKNOWN;
+            }
+        default:
+            return ST_GAPI_UNKNOWN;
+    }
+}
+
 static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, EGLint renderable_type,
- EGLint major, EGLint minor, EGLContext shared_context) {
+ EGLint major, EGLint minor, st_gfxctx_t *shared) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
-    EGLint           egl_cfg_attr[] = {
-        EGL_RED_SIZE,        RED_BITS,
-        EGL_GREEN_SIZE,      GREEN_BITS,
-        EGL_BLUE_SIZE,       BLUE_BITS,
-        EGL_ALPHA_SIZE,      ALPHA_BITS,
-        EGL_RENDERABLE_TYPE, renderable_type,
-        EGL_CONFIG_CAVEAT,   EGL_NONE,
-        EGL_NONE,
+    cfg_attrs_t cfg_attrs = {
+        .red_size        = RED_BITS,
+        .green_size      = GREEN_BITS,
+        .blue_size       = BLUE_BITS,
+        .alpha_size      = ALPHA_BITS,
+        .renderable_type = renderable_type,
     };
-    EGLint           egl_ctx_attr[] = {
-        EGL_CONTEXT_MAJOR_VERSION_KHR,       major,
-        EGL_CONTEXT_MINOR_VERSION_KHR,       minor,
-        EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
-        EGL_NONE,
+    ctx_attrs_t ctx_attrs = {
+        .context_major_version = major,
+        .context_minor_version = minor,
     };
+    EGLint           egl_cfg_attrs[CFG_ATTRS_LEN];
+    EGLint           egl_ctx_attrs[CTX_ATTRS_LEN];
     EGLint           configs_count;
     st_gfxctx_t     *gfxctx;
+    bool             egl_khr_create_context_supported;
+    EGLint           egl_version_major;
+    EGLint           egl_version_minor;
+    bool             attrs_changed = false;
 
     gfxctx = malloc(sizeof(st_gfxctx_t));
     if (!gfxctx) {
@@ -284,7 +529,11 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto get_display_fail;
     }
 
-    if (eglInitialize(gfxctx->display, NULL, NULL) == EGL_FALSE) {
+    egl_khr_create_context_supported = extension_supported(gfxctx->display,
+     "EGL_KHR_create_context");
+
+    if (eglInitialize(gfxctx->display, &egl_version_major, &egl_version_minor)
+     == EGL_FALSE) {
         module->logger.error(module->logger.ctx,
          "gfxctx_egl: Unable to initialize EGL: %s",
          get_egl_error_str(eglGetError()));
@@ -292,7 +541,35 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto egl_init_fail;
     }
 
-    if (eglChooseConfig(gfxctx->display, egl_cfg_attr, &gfxctx->cfg, 1,
+    attrs_changed = process_attrs(&cfg_attrs, &ctx_attrs, egl_version_minor,
+     egl_khr_create_context_supported);
+
+    if (attrs_changed && !shared) {
+        char gapi_str[GAPI_STR_SIZE_MAX];
+
+        attrs_fill_gapi_str(gapi_str, &cfg_attrs, &ctx_attrs);
+
+        module->logger.warning(module->logger.ctx,
+         "gfxctx_egl: Unable to create context with required version. Possible "
+         "reasons: required version of context or minor version of context may "
+         "be not supported by current version of EGL or EGL_KHR_create_context "
+         "extension is not present");
+        module->logger.warning(module->logger.ctx,
+         "gfxctx_egl: Current version of EGL: 1.%i", egl_version_minor);
+        module->logger.warning(module->logger.ctx,
+         "gfxctx_egl: Fallback context created: %s", gapi_str);
+    }
+
+    fill_cfg_attrs(egl_cfg_attrs, &cfg_attrs, egl_version_minor);
+    fill_ctx_attrs(egl_ctx_attrs, &ctx_attrs, egl_version_minor,
+     egl_khr_create_context_supported);
+
+    if (shared)
+        gfxctx->gapi = shared->gapi;
+    else
+        gfxctx->gapi = gapi_from_attrs(&cfg_attrs, &ctx_attrs);
+
+    if (eglChooseConfig(gfxctx->display, egl_cfg_attrs, &gfxctx->cfg, 1,
      &configs_count) == EGL_FALSE || configs_count != 1) {
         module->logger.error(module->logger.ctx,
          "gfxctx_egl: Unable to get matching frame buffer configuration: %s",
@@ -301,8 +578,17 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto choose_config_fail;
     }
 
-    gfxctx->surface = eglCreatePlatformWindowSurface(gfxctx->display,
-     gfxctx->cfg, module->window.get_handle(window), NULL);
+    if (eglBindAPI(getegl_api_by_gapi((st_gapi_t)gfxctx->gapi)) == EGL_FALSE) {
+        module->logger.error(module->logger.ctx,
+         "gfxctx_egl: Unable to bind EGL API: %s",
+         get_egl_error_str(eglGetError()));
+
+        goto bind_api_fail;
+    }
+
+    gfxctx->surface = eglCreateWindowSurface(gfxctx->display,
+     gfxctx->cfg,
+     (EGLNativeWindowType)*(void *[]){module->window.get_handle(window)}, NULL);
     if (gfxctx->surface == EGL_NO_SURFACE) {
         module->logger.error(module->logger.ctx,
          "gfxctx_egl: Unable to create EGL window surface: %s",
@@ -311,20 +597,18 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto create_surface_fail;
     }
 
-    // TODO(edomin): share data with other context
     gfxctx->handle = eglCreateContext(gfxctx->display, gfxctx->cfg,
-     shared_context, egl_ctx_attr);
-
+     shared ? shared->handle : EGL_NO_CONTEXT, egl_ctx_attrs);
     if (gfxctx->handle == EGL_NO_CONTEXT) {
         module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to create EGL render context");
+         "gfxctx_egl: Unable to create EGL render context: %s",
+         get_egl_error_str(eglGetError()));
 
         goto create_context_fail;
     }
 
     eglMakeCurrent(gfxctx->display, gfxctx->surface, gfxctx->surface,
      gfxctx->handle);
-
     if (eglSwapInterval(gfxctx->display, 1) == EGL_FALSE)
         module->logger.warning(module->logger.ctx,
          "gfxctx_egl: Unable to set swap interval: %s",
@@ -334,6 +618,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
 
 create_context_fail:
     eglDestroySurface(gfxctx->display, gfxctx->surface);
+bind_api_fail:
 create_surface_fail:
 choose_config_fail:
     eglTerminate(gfxctx->display);
@@ -356,45 +641,18 @@ static st_gfxctx_t *st_gfxctx_create(st_modctx_t *gfxctx_ctx,
 
     return st_gfxctx_create_impl(gfxctx_ctx, monitor, window,
      get_renderable_type_by_gapi(api), get_major_version_by_gapi(api),
-     get_minor_version_by_gapi(api), EGL_NO_CONTEXT);
+     get_minor_version_by_gapi(api), NULL);
 }
 
 static st_gfxctx_t *st_gfxctx_create_shared(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, st_gfxctx_t *other) {
-    st_gfxctx_egl_t *module = gfxctx_ctx->data;
-    EGLint           renderable_type;
-    EGLint           major;
-    EGLint           minor;
-
-    if (eglGetConfigAttrib(other->display, other->cfg, EGL_RENDERABLE_TYPE,
-     &renderable_type) == EGL_FALSE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to get renderable type of gfx context: %s",
-         get_egl_error_str(eglGetError()));
-
+    if (!monitor || !window || !other)
         return NULL;
-    }
 
-    if (eglGetConfigAttrib(other->display, other->cfg,
-     EGL_CONTEXT_MAJOR_VERSION_KHR, &major) == EGL_FALSE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to get major version of gfx context: %s",
-         get_egl_error_str(eglGetError()));
-
-        return NULL;
-    }
-
-    if (eglGetConfigAttrib(other->display, other->cfg,
-     EGL_CONTEXT_MINOR_VERSION_KHR, &minor) == EGL_FALSE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to get minor version of gfx context: %s",
-         get_egl_error_str(eglGetError()));
-
-        return NULL;
-    }
-
-    return st_gfxctx_create_impl(gfxctx_ctx, monitor, window, renderable_type,
-     major, minor, other->handle);
+    return st_gfxctx_create_impl(gfxctx_ctx, monitor, window,
+     get_renderable_type_by_gapi((st_gapi_t)other->gapi),
+     get_major_version_by_gapi((st_gapi_t)other->gapi),
+     get_minor_version_by_gapi((st_gapi_t)other->gapi), other->handle);
 }
 
 static bool st_gfxctx_make_current(st_gfxctx_t *gfxctx) {

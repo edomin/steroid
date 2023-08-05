@@ -36,6 +36,7 @@ typedef enum {
     ST_GAPI_ES32,
 
     ST_GAPI_MAX,
+    ST_GAPI_UNKNOWN = ST_GAPI_MAX,
 } st_gapi_t;
 
 typedef st_modctx_t *(*st_gfxctx_init_t)(st_modctx_t *logger_ctx,

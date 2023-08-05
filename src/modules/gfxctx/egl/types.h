@@ -37,6 +37,7 @@ typedef struct {
     EGLConfig        cfg;
     EGLSurface       surface;
     EGLContext       handle;
+    int              gapi;
 } st_gfxctx_t;
 
 #define ST_GFXCTX_T_DEFINED
