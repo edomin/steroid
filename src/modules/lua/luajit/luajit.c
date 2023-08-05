@@ -198,13 +198,37 @@ static void st_lua_bind_all(st_modctx_t *lua_ctx) {
     lua_setglobal(module->state, "__st_opts_ctx");
 }
 
+static int traceback(lua_State *lua_state) {
+    lua_getfield(lua_state, LUA_GLOBALSINDEX, "debug");
+    lua_getfield(lua_state, -1, "traceback");
+    lua_pushvalue(lua_state, 1);
+    lua_pushinteger(lua_state, 2);
+    lua_call(lua_state, 2, 1);
+
+    return 1;
+}
+
 static bool st_lua_run(st_modctx_t *lua_ctx,
  int (*func)(lua_State *, const char *), const char *arg) {
     st_lua_luajit_t *lua = lua_ctx->data;
-    bool             success = (func(lua->state, arg) ||
-     lua_pcall(lua->state, 0, LUA_MULTRET, 0)) == LUA_OK;
+    bool             loaded;
+    bool             success_call;
 
-    if (success) {
+    lua_pushcfunction(lua->state, traceback);
+
+    loaded = func(lua->state, arg) == LUA_OK;
+    if (!loaded) {
+        lua->logger.error(lua->logger.ctx,
+         "lua_luajit: Unable to load Lua script: %s",
+         lua_tostring(lua->state, -1));
+
+        return false;
+    }
+
+    success_call = lua_pcall(lua->state, 0, 0, lua_gettop(lua->state) - 1) ==
+     LUA_OK;
+
+    if (success_call) {
         lua_pop(lua->state, lua_gettop(lua->state));
     } else {
         const char *error = lua_tostring(lua->state, lua_gettop(lua->state));
@@ -212,7 +236,7 @@ static bool st_lua_run(st_modctx_t *lua_ctx,
         lua->logger.error(lua->logger.ctx, "lua_luajit: %s", error);
     }
 
-    return success;
+    return success_call;
 }
 
 static bool st_lua_run_string(st_modctx_t *lua_ctx, const char *string) {
