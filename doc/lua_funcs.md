@@ -1,3 +1,12 @@
+## bitmap
+```luau
+Bitmap = require "Bitmap"
+
+Bitmap.new_ctx(logger_ctx: logger_ctx): bitmap_ctx
+
+bitmap_ctx:destroy()
+```
+
 ## events
 ```luau
 Events = require "Events"

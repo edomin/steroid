@@ -46,6 +46,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
  "${CMAKE_BINARY_DIR}/src/modules/logger/libsir")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/lua/luajit"
  "${CMAKE_BINARY_DIR}/src/modules/lua/luajit")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/bitmap"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/bitmap")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/events"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/events")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/fs"
