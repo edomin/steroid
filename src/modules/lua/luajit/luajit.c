@@ -262,6 +262,14 @@ static void st_lua_create_metatable(st_luastate_t *lua_state,
     luaL_newmetatable((lua_State *)lua_state, name);
 }
 
+static void st_lua_create_module(st_luastate_t *lua_state, const char *name) {
+    lua_getfield((lua_State *)lua_state, LUA_GLOBALSINDEX, "package");
+    lua_getfield((lua_State *)lua_state, -1, "loaded");
+    lua_newtable((lua_State *)lua_state);
+    lua_setfield((lua_State *)lua_state, -2, name);
+    lua_getfield((lua_State *)lua_state, -1, name);
+}
+
 static void st_lua_set_metatable(st_luastate_t *lua_state, const char *name) {
     luaL_setmetatable((lua_State *)lua_state, name);
 }

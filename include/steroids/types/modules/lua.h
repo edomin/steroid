@@ -19,6 +19,8 @@ typedef void *(*st_lua_create_userdata_t)(st_luastate_t *lua_state,
  size_t size);
 typedef void (*st_lua_create_metatable_t)(st_luastate_t *lua_state,
  const char *name);
+typedef void (*st_lua_create_module_t)(st_luastate_t *lua_state,
+ const char *name);
 typedef void (*st_lua_set_metatable_t)(st_luastate_t *lua_state,
  const char *name);
 typedef void (*st_lua_push_bool_t)(st_luastate_t *lua_state, bool val);
@@ -61,6 +63,7 @@ typedef struct {
     st_lua_get_state_t                  lua_get_state;
     st_lua_create_userdata_t            lua_create_userdata;
     st_lua_create_metatable_t           lua_create_metatable;
+    st_lua_create_module_t              lua_create_module;
     st_lua_set_metatable_t              lua_set_metatable;
     st_lua_push_bool_t                  lua_push_bool;
     st_lua_push_integer_t               lua_push_integer;

@@ -16,6 +16,7 @@ static bool st_lua_run_file(st_modctx_t *lua_ctx, const char *filename);
 static st_luastate_t *st_lua_get_state(st_modctx_t *lua_ctx);
 static void *st_lua_create_userdata(st_luastate_t *lua_state, size_t size);
 static void st_lua_create_metatable(st_luastate_t *lua_state, const char *name);
+static void st_lua_create_module(st_luastate_t *lua_state, const char *name);
 static void st_lua_set_metatable(st_luastate_t *lua_state, const char *name);
 static void st_lua_push_bool(st_luastate_t *lua_state, bool val);
 static void st_lua_push_integer(st_luastate_t *lua_state, ptrdiff_t val);
