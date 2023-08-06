@@ -8,7 +8,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "st_fs"
+#define METATABLE_NAME   "fs_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
@@ -22,6 +22,7 @@ static st_fs_mkdir_t                   st_fs_mkdir;
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_push_bool_t              st_lua_push_bool;
 static st_lua_push_integer_t           st_lua_push_integer;
@@ -70,6 +71,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, push_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_fs", lua, push_integer);
@@ -128,9 +130,9 @@ static int st_fs_init_bind(st_luastate_t *lua_state) {
     void        *userdata = st_lua_create_userdata(lua_state,
      sizeof(st_modctx_t *));
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, "st_logger");
+     lua_state, 1, "logger_ctx");
     st_modctx_t *pathtools_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 2, "st_pathtools");
+     lua_state, 2, "pathtools_ctx");
 
     *(st_modctx_t **)userdata = st_fs_init(logger_ctx, pathtools_ctx);
     st_lua_set_metatable(lua_state, METATABLE_NAME);
@@ -171,15 +173,8 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_fs_t *module = luabind_ctx->data;
     st_luastate_t   *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, METATABLE_NAME, st_fs_init_bind);
-    st_lua_create_metatable(lua_state, METATABLE_NAME);
-
-    st_lua_set_cfunction_to_field(lua_state, "__gc", st_fs_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_fs_quit_bind);
-    st_lua_set_copy_to_field(lua_state, "__index", -1);
-    st_lua_set_cfunction_to_field(lua_state, "get_file_type",
-     fs_get_file_type_bind);
-    st_lua_set_cfunction_to_field(lua_state, "mkdir", fs_mkdir_bind);
+    st_lua_create_module(lua_state, "Fs");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_fs_init_bind);
     st_lua_set_integer_to_field(lua_state, "ft_unknown", ST_FT_UNKNOWN);
     st_lua_set_integer_to_field(lua_state, "ft_reg", ST_FT_REG);
     st_lua_set_integer_to_field(lua_state, "ft_dir", ST_FT_DIR);
@@ -188,6 +183,17 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_integer_to_field(lua_state, "ft_fifo", ST_FT_FIFO);
     st_lua_set_integer_to_field(lua_state, "ft_link", ST_FT_LINK);
     st_lua_set_integer_to_field(lua_state, "ft_sock", ST_FT_SOCK);
+
+    st_lua_pop(lua_state, 3);
+
+    st_lua_create_metatable(lua_state, METATABLE_NAME);
+
+    st_lua_set_cfunction_to_field(lua_state, "__gc", st_fs_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_fs_quit_bind);
+    st_lua_set_copy_to_field(lua_state, "__index", -1);
+    st_lua_set_cfunction_to_field(lua_state, "get_file_type",
+     fs_get_file_type_bind);
+    st_lua_set_cfunction_to_field(lua_state, "mkdir", fs_mkdir_bind);
 
     st_lua_pop(lua_state, 1);
 }

@@ -8,7 +8,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "st_events"
+#define METATABLE_NAME   "events_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
@@ -20,6 +20,7 @@ static st_events_quit_t                st_events_quit;
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
 static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
@@ -62,6 +63,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, set_cfunction_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_events", lua, set_copy_to_field);
@@ -116,7 +118,7 @@ static int st_events_init_bind(st_luastate_t *lua_state) {
     void        *userdata = st_lua_create_userdata(lua_state,
      sizeof(st_modctx_t *));
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, "st_logger");
+     lua_state, 1, "logger_ctx");
 
     *(st_modctx_t **)userdata = st_events_init(logger_ctx);
     st_lua_set_metatable(lua_state, METATABLE_NAME);
@@ -137,11 +139,15 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_events_t *module = luabind_ctx->data;
     st_luastate_t       *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, METATABLE_NAME, st_events_init_bind);
+    st_lua_create_module(lua_state, "Events");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_events_init_bind);
+
+    st_lua_pop(lua_state, 3);
+
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_events_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_events_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_events_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
 
     st_lua_pop(lua_state, 1);

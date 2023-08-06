@@ -8,7 +8,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE     1024
-#define METATABLE_NAME       "st_opts"
+#define METATABLE_NAME       "opts"
 #define ST_OPT_SIZE_MAX      256
 #define HELP_BUFFER_SIZE_MAX 131072
 
@@ -25,6 +25,7 @@ static st_opts_get_help_t              st_opts_get_help;
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_push_bool_t              st_lua_push_bool;
 static st_lua_push_nil_t               st_lua_push_nil;
@@ -80,6 +81,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, push_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_opts", lua, push_nil);
@@ -223,21 +225,25 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_opts_t *module = luabind_ctx->data;
     st_luastate_t     *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, METATABLE_NAME, st_opts_init_bind);
-    st_lua_register_cfunction(lua_state, "st_opts_get_instance",
+    st_lua_create_module(lua_state, "Opts");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_opts_init_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_ctx",
      st_opts_get_instance_bind);
+    st_lua_set_integer_to_field(lua_state, "oa_no", ST_OA_NO);
+    st_lua_set_integer_to_field(lua_state, "oa_required", ST_OA_REQUIRED);
+    st_lua_set_integer_to_field(lua_state, "oa_optional", ST_OA_OPTIONAL);
+
+    st_lua_pop(lua_state, 3);
+
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_opts_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_opts_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_opts_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "add_option",
      st_opts_add_option_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_str", st_opts_get_str_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_help", st_opts_get_help_bind);
-    st_lua_set_integer_to_field(lua_state, "oa_no", ST_OA_NO);
-    st_lua_set_integer_to_field(lua_state, "oa_required", ST_OA_REQUIRED);
-    st_lua_set_integer_to_field(lua_state, "oa_optional", ST_OA_OPTIONAL);
 
     st_lua_pop(lua_state, 1);
 }

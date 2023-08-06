@@ -8,8 +8,8 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE      1024
-#define CTX_METATABLE_NAME    "st_window_ctx"
-#define WINDOW_METATABLE_NAME "st_window"
+#define CTX_METATABLE_NAME    "window_ctx"
+#define WINDOW_METATABLE_NAME "window"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
@@ -24,6 +24,7 @@ static st_window_process_t             st_window_process;
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
 static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
@@ -72,6 +73,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, set_cfunction_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, set_copy_to_field);
@@ -129,11 +131,11 @@ static int st_window_init_bind(st_luastate_t *lua_state) {
     void        *userdata = st_lua_create_userdata(lua_state,
      sizeof(st_modctx_t *));
     st_modctx_t *events_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, "st_events");
+     lua_state, 1, "events_ctx");
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 2, "st_logger");
+     lua_state, 2, "logger_ctx");
     st_modctx_t *monitor_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 3, "st_monitor_ctx");
+     lua_state, 3, "monitor_ctx");
 
     *(st_modctx_t **)userdata = st_window_init(events_ctx, logger_ctx,
      monitor_ctx);
@@ -155,7 +157,7 @@ static int st_window_create_bind(st_luastate_t *lua_state) {
     st_modctx_t  *window_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, CTX_METATABLE_NAME);
     st_monitor_t *monitor = *(st_monitor_t **)st_lua_get_named_userdata(
-     lua_state, 2, "st_monitor");
+     lua_state, 2, "monitor");
     ptrdiff_t     x = st_lua_get_integer(lua_state, 3);
     ptrdiff_t     y = st_lua_get_integer(lua_state, 4);
     ptrdiff_t     width = st_lua_get_integer(lua_state, 5); // NOLINT(readability-magic-numbers)
@@ -194,12 +196,15 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_window_t *module = luabind_ctx->data;
     st_luastate_t       *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, CTX_METATABLE_NAME,
-     st_window_init_bind);
+    st_lua_create_module(lua_state, "Window");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_window_init_bind);
+
+    st_lua_pop(lua_state, 3);
+
     st_lua_create_metatable(lua_state, CTX_METATABLE_NAME);
 
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_window_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_window_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_window_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "create", st_window_create_bind);
     st_lua_set_cfunction_to_field(lua_state, "process", st_window_process_bind);

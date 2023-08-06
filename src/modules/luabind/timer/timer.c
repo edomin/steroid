@@ -8,7 +8,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "st_timer"
+#define METATABLE_NAME   "timer_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
@@ -24,6 +24,7 @@ static st_timer_sleep_for_fps_t        st_timer_sleep_for_fps;
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
+static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
 static st_lua_push_integer_t           st_lua_push_integer;
 static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
@@ -72,6 +73,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, push_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_timer", lua, set_cfunction_to_field);
@@ -128,7 +130,7 @@ static int st_timer_init_bind(st_luastate_t *lua_state) {
     void        *userdata = st_lua_create_userdata(lua_state,
      sizeof(st_modctx_t *));
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, "st_logger");
+     lua_state, 1, "logger_ctx");
 
     *(st_modctx_t **)userdata = st_timer_init(logger_ctx);
     st_lua_set_metatable(lua_state, METATABLE_NAME);
@@ -189,11 +191,15 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_timer_t *module = luabind_ctx->data;
     st_luastate_t      *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, METATABLE_NAME, st_timer_init_bind);
+    st_lua_create_module(lua_state, "Timer");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_timer_init_bind);
+
+    st_lua_pop(lua_state, 3);
+
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_timer_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_timer_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_timer_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "start", timer_start_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_elapsed",

@@ -8,7 +8,7 @@
 #include <safeclib/safe_types.h>
 
 #define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "st_logger"
+#define METATABLE_NAME   "logger_ctx"
 
 static st_modsmgr_t                       *global_modsmgr;
 static st_modsmgr_funcs_t                  global_modsmgr_funcs;
@@ -30,6 +30,7 @@ static st_logger_set_postmortem_msg_t      st_logger_set_postmortem_msg;
 static st_lua_get_state_t                  st_lua_get_state;
 static st_lua_create_userdata_t            st_lua_create_userdata;
 static st_lua_create_metatable_t           st_lua_create_metatable;
+static st_lua_create_module_t              st_lua_create_module;
 static st_lua_set_metatable_t              st_lua_set_metatable;
 static st_lua_push_bool_t                  st_lua_push_bool;
 static st_lua_set_integer_to_field_t       st_lua_set_integer_to_field;
@@ -88,6 +89,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, create_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, create_metatable);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, set_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, push_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", lua, set_integer_to_field);
@@ -295,13 +297,23 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_logger_t *module = luabind_ctx->data;
     st_luastate_t       *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_register_cfunction(lua_state, METATABLE_NAME, st_logger_init_bind);
-    st_lua_register_cfunction(lua_state, "st_logger_get_instance",
+    st_lua_create_module(lua_state, "Logger");
+    st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_logger_init_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_ctx",
      st_logger_get_instance_bind);
+    st_lua_set_integer_to_field(lua_state, "ll_none", ST_LL_NONE);
+    st_lua_set_integer_to_field(lua_state, "ll_error", ST_LL_ERROR);
+    st_lua_set_integer_to_field(lua_state, "ll_warning", ST_LL_WARNING);
+    st_lua_set_integer_to_field(lua_state, "ll_info", ST_LL_INFO);
+    st_lua_set_integer_to_field(lua_state, "ll_debug", ST_LL_DEBUG);
+    st_lua_set_integer_to_field(lua_state, "ll_all", ST_LL_ALL);
+
+    st_lua_pop(lua_state, 3);
+
     st_lua_create_metatable(lua_state, METATABLE_NAME);
 
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_logger_quit_bind);
-    st_lua_set_cfunction_to_field(lua_state, "quit", st_logger_quit_bind);
+    st_lua_set_cfunction_to_field(lua_state, "destroy", st_logger_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "set_stdout_levels",
      st_logger_set_stdout_levels_bind);
@@ -319,12 +331,6 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "error", st_logger_error_bind);
     st_lua_set_cfunction_to_field(lua_state, "set_postmortem_msg",
      st_logger_set_postmortem_msg_bind);
-    st_lua_set_integer_to_field(lua_state, "ll_none", ST_LL_NONE);
-    st_lua_set_integer_to_field(lua_state, "ll_error", ST_LL_ERROR);
-    st_lua_set_integer_to_field(lua_state, "ll_warning", ST_LL_WARNING);
-    st_lua_set_integer_to_field(lua_state, "ll_info", ST_LL_INFO);
-    st_lua_set_integer_to_field(lua_state, "ll_debug", ST_LL_DEBUG);
-    st_lua_set_integer_to_field(lua_state, "ll_all", ST_LL_ALL);
 
     st_lua_pop(lua_state, 1);
 }
