@@ -1,6 +1,7 @@
 #ifndef ST_MODULES_SO_SIMPLE_TYPES_H
 #define ST_MODULES_SO_SIMPLE_TYPES_H
 
+#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
 
 typedef struct {

@@ -4,7 +4,6 @@
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
 #include "steroids/so.h"
-#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
 
 st_so_funcs_t st_so_simple_funcs = {
