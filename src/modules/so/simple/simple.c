@@ -47,6 +47,7 @@ static bool st_so_import_functions(st_modctx_t *so_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("so_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("so_simple", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("so_simple", logger, warning);
 
     return true;
 }
@@ -88,7 +89,7 @@ static void st_so_quit(st_modctx_t *so_ctx) {
 
         SLIST_REMOVE_HEAD(&module->opened_handles, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
         if (dlclose(so->handle) != 0) {
-            module->logger.error(module->logger.ctx,
+            module->logger.warning(module->logger.ctx,
              "so_simple: Unable to close so file. %s", dlerror());
         }
         free(so);
@@ -119,7 +120,7 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     if (!so) {
         module->logger.error(module->logger.ctx,
          "so_simple: Unable to allocate memory for so entry while opening "
-         "file \"%s\": %s. Module skipped.\n", filename, strerror(errno));
+         "file \"%s\": %s", filename, strerror(errno));
         dlclose(handle);
 
         return NULL;
@@ -130,8 +131,8 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     node = malloc(sizeof(st_snode_t));
     if (!node) {
         module->logger.error(module->logger.ctx,
-         "Error occured while allocating memory for so handle entry: \"%s\": "
-         "%s. Module skipped", filename, strerror(errno));
+         "so_simple: Error occured while allocating memory for so handle "
+         "entry: \"%s\": %s", filename, strerror(errno));
         free(so);
         dlclose(handle);
 
@@ -163,7 +164,7 @@ static void st_so_close(st_so_t *so) {
         if (node->data == so) {
             SLIST_REMOVE_HEAD(&module->opened_handles, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
             if (dlclose(so->handle) != 0) {
-                module->logger.error(module->logger.ctx,
+                module->logger.warning(module->logger.ctx,
                  "so_simple: Unable to close so file. %s", dlerror());
             }
             free(so);
