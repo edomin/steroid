@@ -23,8 +23,6 @@ add_custom_target(copy_plugins
         ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.stp ${CMAKE_BINARY_DIR}/plugins
 )
 
-set(PKG_CONFIG_EXECUTABLE /usr/local/bin/${BB_TRIPLET}-pkg-config)
-
 set(ST_INTERNAL_MODULES_COUNT 0)
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bitmap/simple"
  "${CMAKE_BINARY_DIR}/src/modules/bitmap/simple")
