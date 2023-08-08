@@ -1,5 +1,9 @@
 #include "simple.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <sys/queue.h>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #include <safeclib/safe_mem_lib.h>
@@ -64,6 +68,8 @@ static st_modctx_t *st_bitmap_init(st_modctx_t *logger_ctx) {
         return NULL;
     }
 
+    SLIST_INIT(&module->codecs);
+
     module->logger.info(module->logger.ctx,
      "bitmap_simple: Bitmaps mgr initialized.");
 
@@ -73,9 +79,155 @@ static st_modctx_t *st_bitmap_init(st_modctx_t *logger_ctx) {
 static void st_bitmap_quit(st_modctx_t *bitmap_ctx) {
     st_bitmap_simple_t *module = bitmap_ctx->data;
 
+    while (!SLIST_EMPTY(&module->codecs)) {
+        st_snode_t               *node = SLIST_FIRST(&module->codecs);
+        st_bitmap_simple_codec_t *codec = node->data;
+
+        SLIST_REMOVE_HEAD(&module->codecs, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        free(codec);
+        free(node);
+    }
+
     module->logger.info(module->logger.ctx,
      "bitmap_simple: Bitmaps mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, bitmap_ctx);
+}
+
+static void st_bitmap_add_codec(st_modctx_t *bitmap_ctx,
+ st_modctx_t *codec_ctx) {
+    st_bitmap_simple_t       *module = bitmap_ctx->data;
+    st_bitmap_simple_codec_t *codec;
+    st_snode_t               *node;
+
+    codec = malloc(sizeof(st_bitmap_simple_codec_t));
+    if (!codec) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Error occured while allocating memory for codec "
+         "struct: %s", strerror(errno));
+
+        return;
+    }
+
+    codec->load = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, codec_ctx, "load");
+    if (!codec->load ) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Unable to load function \"load\" from codec");
+
+        goto fail;
+    }
+
+    codec->memload = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, codec_ctx, "memload");
+    if (!codec->memload) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Unable to load function \"memload\" from codec");
+
+        goto fail;
+    }
+
+    codec->save = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, codec_ctx, "save");
+    if (!codec->save) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Unable to load function \"save\" from codec");
+
+        goto fail;
+    }
+
+    codec->memsave = global_modsmgr_funcs.get_function_from_ctx(
+     global_modsmgr, codec_ctx, "memsave");
+    if (!codec->memsave) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Unable to load function \"memsave\" from codec");
+
+        goto fail;
+    }
+
+    codec->ctx = codec_ctx;
+
+    node = malloc(sizeof(st_snode_t));
+    if (!node) {
+        module->logger.error(module->logger.ctx,
+         "bitmap_simple: Error occured while allocating memory for codec node: "
+         "%s", strerror(errno));
+
+        goto fail;
+    }
+
+    node->data = codec;
+    SLIST_INSERT_HEAD(&module->codecs, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+
+    return;
+
+fail:
+    free(codec);
+}
+
+static st_bitmap_t *st_bitmap_load(st_modctx_t *bitmap_ctx,
+ const char *filename) {
+    st_bitmap_simple_t *module = bitmap_ctx->data;
+    st_snode_t         *node;
+
+    SLIST_FOREACH(node, &module->codecs, ST_SNODE_NEXT) {
+        st_bitmap_simple_codec_t *codec  = node->data;
+        st_bitmap_t              *bitmap = codec->load(codec->ctx, filename);
+
+        if (bitmap)
+            return bitmap;
+    }
+
+    return NULL;
+}
+
+static st_bitmap_t *st_bitmap_memload(st_modctx_t *bitmap_ctx, const void *data,
+ size_t size) {
+    st_bitmap_simple_t *module = bitmap_ctx->data;
+    st_snode_t         *node;
+
+    SLIST_FOREACH(node, &module->codecs, ST_SNODE_NEXT) {
+        st_bitmap_simple_codec_t *codec  = node->data;
+        st_bitmap_t              *bitmap = codec->memload(codec->ctx, data,
+         size);
+
+        if (bitmap)
+            return bitmap;
+    }
+
+    return NULL;
+}
+
+static bool st_bitmap_save(const st_bitmap_t *bitmap, const char *filename) {
+    st_bitmap_simple_t *module = bitmap->module;
+    st_snode_t         *node;
+
+    SLIST_FOREACH(node, &module->codecs, ST_SNODE_NEXT) {
+        st_bitmap_simple_codec_t *codec = node->data;
+        bool                      saved = codec->save(codec->ctx, bitmap,
+         filename);
+
+        if (saved)
+            return true;
+    }
+
+    return false;
+}
+
+static const char *st_bitmap_memsave(void *dst, size_t *size,
+ const st_bitmap_t *bitmap) {
+    st_bitmap_simple_t *module = bitmap->module;
+    st_snode_t         *node;
+
+    SLIST_FOREACH(node, &module->codecs, ST_SNODE_NEXT) {
+        st_bitmap_simple_codec_t *codec = node->data;
+        const char               *fmtname = codec->memsave(codec->ctx, dst,
+         size, bitmap);
+
+        if (fmtname)
+            return fmtname;
+    }
+
+    return NULL;
 }
 
 static unsigned pxfmt_to_bytes_per_pixel(st_pxfmt_t pixel_format) {
