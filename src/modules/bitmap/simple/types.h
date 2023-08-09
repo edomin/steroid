@@ -1,8 +1,9 @@
 #ifndef ST_MODULES_BITMAP_SIMPLE_TYPES_H
 #define ST_MODULES_BITMAP_SIMPLE_TYPES_H
 
-#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
+
+#define CODECS_MAX 32
 
 struct st_bitmap_s;
 
@@ -32,7 +33,8 @@ typedef struct {
 
 typedef struct {
     st_bitmap_simple_logger_t logger;
-    st_slist_t                codecs;
+    st_bitmap_simple_codec_t  codecs[CODECS_MAX];
+    size_t                    codecs_count;
 } st_bitmap_simple_t;
 
 typedef struct st_bitmap_s {
