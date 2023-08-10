@@ -39,10 +39,10 @@ typedef const char *(*st_bitmap_memsave_t)(void *dst, size_t *size,
 typedef st_bitmap_t *(*st_bitmap_import_t)(st_modctx_t *bitmap_ctx,
  const void *data, unsigned width, unsigned height, st_pxfmt_t pixel_format);
 typedef void (*st_bitmap_destroy_t)(st_bitmap_t *bitmap);
-typedef void *(*st_bitmap_get_data_t)(st_bitmap_t *bitmap);
-typedef unsigned (*st_bitmap_get_width_t)(st_bitmap_t *bitmap);
-typedef unsigned (*st_bitmap_get_height_t)(st_bitmap_t *bitmap);
-typedef st_pxfmt_t (*st_bitmap_get_pixel_format_t)(st_bitmap_t *bitmap);
+typedef const void *(*st_bitmap_get_data_t)(const st_bitmap_t *bitmap);
+typedef unsigned (*st_bitmap_get_width_t)(const st_bitmap_t *bitmap);
+typedef unsigned (*st_bitmap_get_height_t)(const st_bitmap_t *bitmap);
+typedef st_pxfmt_t (*st_bitmap_get_pixel_format_t)(const st_bitmap_t *bitmap);
 
 typedef struct {
     st_bitmap_init_t             bitmap_init;

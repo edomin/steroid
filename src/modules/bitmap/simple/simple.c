@@ -254,18 +254,18 @@ static void st_bitmap_destroy(st_bitmap_t *bitmap) {
     free(bitmap);
 }
 
-static void *st_bitmap_get_data(st_bitmap_t *bitmap) {
+static const void *st_bitmap_get_data(const st_bitmap_t *bitmap) {
     return bitmap ? bitmap->data : NULL;
 }
 
-static unsigned st_bitmap_get_width(st_bitmap_t *bitmap) {
+static unsigned st_bitmap_get_width(const st_bitmap_t *bitmap) {
     return bitmap ? bitmap->width : 0;
 }
 
-static unsigned st_bitmap_get_height(st_bitmap_t *bitmap) {
+static unsigned st_bitmap_get_height(const st_bitmap_t *bitmap) {
     return bitmap ? bitmap->height : 0;
 }
 
-static st_pxfmt_t st_bitmap_get_pixel_format(st_bitmap_t *bitmap) {
+static st_pxfmt_t st_bitmap_get_pixel_format(const st_bitmap_t *bitmap) {
     return bitmap ? (st_pxfmt_t)bitmap->pixel_format : PF_UNKNOWN;
 }
