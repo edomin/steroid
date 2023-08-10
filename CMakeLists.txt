@@ -74,6 +74,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/simple"
  "${CMAKE_BINARY_DIR}/src/modules/pathtools/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/plugin/simple"
  "${CMAKE_BINARY_DIR}/src/modules/plugin/simple")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/png/libpng"
+ "${CMAKE_BINARY_DIR}/src/modules/png/libpng")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/rbuf/lwrb"
  "${CMAKE_BINARY_DIR}/src/modules/rbuf/lwrb")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/runner/simple"

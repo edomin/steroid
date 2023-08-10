@@ -10,6 +10,8 @@
 typedef enum {
     PF_UNKNOWN,
     PF_RGBA,
+
+    PF_MAX,
 } st_pxfmt_t;
 
 #ifndef ST_BITMAP_CODEC_FUNCS_DEFINED

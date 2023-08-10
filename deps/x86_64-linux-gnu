@@ -8,6 +8,7 @@ hash_table
 inih
 iwyu
 ketopt
+libpng
 libsir
 luajit
 lwrb
