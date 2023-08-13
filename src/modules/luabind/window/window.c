@@ -32,7 +32,6 @@ static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
 static st_lua_get_bool_t               st_lua_get_bool;
 static st_lua_get_integer_t            st_lua_get_integer;
 static st_lua_get_string_t             st_lua_get_string;
-static st_lua_register_cfunction_t     st_lua_register_cfunction;
 static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
@@ -81,7 +80,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_string);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, register_cfunction);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, pop);
 
     return true;

@@ -33,7 +33,6 @@ static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
 static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
 static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
 static st_lua_get_integer_t            st_lua_get_integer;
-static st_lua_register_cfunction_t     st_lua_register_cfunction;
 static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
@@ -83,7 +82,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, set_copy_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, get_named_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, get_integer);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, register_cfunction);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, pop);
 
     return true;
