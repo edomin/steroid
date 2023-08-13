@@ -143,6 +143,15 @@ pathtools_ctx:get_parent_dir(path: string): ?string
 pathtools_ctx:concat(path: string, append: string): ?string
 ```
 
+## png
+```luau
+Png = require "Png"
+
+Png.new_ctx(logger_ctx: logger_ctx): png_ctx
+
+png_ctx:destroy()
+```
+
 ## timer
 ```luau
 Timer = require "Timer"
