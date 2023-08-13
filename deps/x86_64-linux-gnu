@@ -4,6 +4,7 @@ cmake
 cmake_barebones
 fnv_hash
 freebsd-queue
+glu
 hash_table
 inih
 iwyu
