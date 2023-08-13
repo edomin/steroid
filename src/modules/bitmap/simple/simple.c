@@ -140,6 +140,9 @@ static st_bitmap_t *st_bitmap_load(st_modctx_t *bitmap_ctx,
             return bitmap;
     }
 
+    module->logger.error(module->logger.ctx,
+     "bitmap_simple: No suitable codec for loading bitmap \"%s\"", filename);
+
     return NULL;
 }
 
@@ -155,6 +158,9 @@ static st_bitmap_t *st_bitmap_memload(st_modctx_t *bitmap_ctx, const void *data,
         if (bitmap)
             return bitmap;
     }
+
+    module->logger.error(module->logger.ctx,
+     "bitmap_simple: No suitable codec for loading bitmap");
 
     return NULL;
 }
