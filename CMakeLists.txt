@@ -34,6 +34,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fs/simple"
  "${CMAKE_BINARY_DIR}/src/modules/fs/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/gfxctx/egl"
  "${CMAKE_BINARY_DIR}/src/modules/gfxctx/egl")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/glloader/egl"
+ "${CMAKE_BINARY_DIR}/src/modules/glloader/egl")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/htable/hash_table"
  "${CMAKE_BINARY_DIR}/src/modules/htable/hash_table")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/ini/inih"
