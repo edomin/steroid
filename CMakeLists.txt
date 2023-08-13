@@ -66,6 +66,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/png"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/png")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/terminal"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/terminal")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/texture"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/texture")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/timer"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/timer")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/window"

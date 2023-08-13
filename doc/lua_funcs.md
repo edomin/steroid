@@ -176,6 +176,20 @@ terminal_ctx:get_rows_count(): integer
 terminal_ctx:get_cols_count(): integer
 ```
 
+## texture
+```luau
+Texture = require "Texture"
+
+Texture.new_ctx(bitmap_ctx: bitmap_ctx, logger_ctx: logger_ctx, api: int): texture_ctx
+
+texture_ctx:destroy()
+texture_ctx:load(filename: string): texture
+texture:destroy()
+texture:bind(): bool
+texture:get_width(): integer
+texture:get_height(): integer
+```
+
 ## window
 ```luau
 Window = require "Window"
