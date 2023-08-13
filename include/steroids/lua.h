@@ -37,6 +37,7 @@ static const char *st_lua_get_lstring_or_null(st_luastate_t *lua_state,
 static const char *st_lua_get_string(st_luastate_t *lua_state, int index);
 static const char *st_lua_get_string_or_null(st_luastate_t *lua_state,
  int index);
+static void *st_lua_get_userdata(st_luastate_t *lua_state, int index);
 static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
  const char *name);
 static void *st_lua_get_named_userdata_or_null(st_luastate_t *lua_state,

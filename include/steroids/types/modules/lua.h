@@ -43,6 +43,7 @@ typedef const char *(*st_lua_get_lstring_or_null_t)(st_luastate_t *lua_state,
 typedef const char *(*st_lua_get_string_t)(st_luastate_t *lua_state, int index);
 typedef const char *(*st_lua_get_string_or_null_t)(st_luastate_t *lua_state,
  int index);
+typedef void *(*st_lua_get_userdata_t)(st_luastate_t *lua_state, int index);
 typedef void *(*st_lua_get_named_userdata_t)(st_luastate_t *lua_state,
  int index, const char *name);
 typedef void *(*st_lua_get_named_userdata_or_null_t)(st_luastate_t *lua_state,
@@ -79,6 +80,7 @@ typedef struct {
     st_lua_get_lstring_or_null_t        lua_get_lstring_or_null;
     st_lua_get_string_t                 lua_get_string;
     st_lua_get_string_or_null_t         lua_get_string_or_null;
+    st_lua_get_userdata_t               lua_get_userdata;
     st_lua_get_named_userdata_t         lua_get_named_userdata;
     st_lua_get_named_userdata_or_null_t lua_get_named_userdata_or_null;
     st_lua_get_global_userdata_t        lua_get_global_userdata;

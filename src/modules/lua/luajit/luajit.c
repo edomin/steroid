@@ -346,6 +346,10 @@ static const char *st_lua_get_string_or_null(st_luastate_t *lua_state,
     return lua_tostring((lua_State *)lua_state, index);
 }
 
+static void *st_lua_get_userdata(st_luastate_t *lua_state, int index) {
+    return lua_touserdata((lua_State *)lua_state, index);
+}
+
 static void *st_lua_get_named_userdata(st_luastate_t *lua_state, int index,
  const char *name) {
     return luaL_checkudata((lua_State *)lua_state, index, name);
