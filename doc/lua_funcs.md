@@ -199,6 +199,7 @@ Window.new_ctx(events_ctx: events_ctx, logger_ctx: logger_ctx, monitor_ctx: moni
 window_ctx:destroy()
 window_ctx:create(monitor_ctx: monitor_ctx, x: integer, y: integer, width: integer, height: integer, fullscreen: bool, title: string): window
 window_ctx:process()
+window:destroy()
 window:xed(): bool
 
 window:destroy()
