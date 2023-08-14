@@ -56,6 +56,8 @@ typedef struct {
     st_window_xlib_t *module;
     Window            handle;
     st_monitor_t     *monitor;
+    Atom              wm_delete_msg;
+    bool              xed;
 } st_window_t;
 
 #define ST_WINDOW_T_DEFINED

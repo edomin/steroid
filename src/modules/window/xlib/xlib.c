@@ -183,6 +183,11 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     XChangeWindowAttributes(monitor->handle, window->handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
+    window->wm_delete_msg = XInternAtom(monitor->handle, "WM_DELETE_WINDOW",
+     False);
+    XSetWMProtocols(monitor->handle, window->handle, &window->wm_delete_msg, 1);
+    window->xed = false;
+
     XSetWMHints(monitor->handle, window->handle, &hints);
     XMapWindow(monitor->handle, window->handle);
     XStoreName(monitor->handle, window->handle, title);
@@ -246,6 +251,16 @@ static void st_window_process(st_modctx_t *window_ctx) {
 
             XNextEvent(window->monitor->handle, &xevent);
             switch (xevent.type) {
+                case ClientMessage: {
+                    st_window_t *event_window = get_window_by_xwindow(
+                     window_ctx, xevent.xclient.window);
+
+                    if (xevent.xclient.data.l[0] ==
+                     (long)event_window->wm_delete_msg)
+                        event_window->xed = true;
+
+                    break;
+                }
                 case ButtonPress:
                     /* TODO(edomin): Mouse button event structure required */
                     break;
@@ -352,6 +367,10 @@ static void st_window_process(st_modctx_t *window_ctx) {
             }
         }
     }
+}
+
+static bool st_window_xed(const st_window_t *window) {
+    return window->xed;
 }
 
 static st_monitor_t *st_window_get_monitor(st_window_t *window) {

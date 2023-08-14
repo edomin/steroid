@@ -11,6 +11,7 @@ st_window_funcs_t st_window_xlib_funcs = {
     .window_create      = st_window_create,
     .window_destroy     = st_window_destroy,
     .window_process     = st_window_process,
+    .window_xed         = st_window_xed,
     .window_get_monitor = st_window_get_monitor,
     .window_get_handle  = st_window_get_handle,
 };
@@ -21,6 +22,7 @@ st_modfuncentry_t st_module_window_xlib_funcs[] = {
     {"create"     , st_window_create},
     {"destroy"    , st_window_destroy},
     {"process"    , st_window_process},
+    {"xed"        , st_window_xed},
     {"get_monitor", st_window_get_monitor},
     {"get_handle" , st_window_get_handle},
     {NULL, NULL},

@@ -33,6 +33,7 @@ typedef st_window_t *(*st_window_create_t)(st_modctx_t *window_ctx,
  bool fullscreen, const char *title);
 typedef void (*st_window_destroy_t)(st_window_t *window);
 typedef void (*st_window_process_t)(st_modctx_t *window_ctx);
+typedef bool (*st_window_xed_t)(const st_window_t *window);
 typedef st_monitor_t *(*st_window_get_monitor_t)(st_window_t *window);
 typedef void *(*st_window_get_handle_t)(st_window_t *window);
 
@@ -42,6 +43,7 @@ typedef struct {
     st_window_create_t      window_create;
     st_window_destroy_t     window_destroy;
     st_window_process_t     window_process;
+    st_window_xed_t         window_xed;
     st_window_get_monitor_t window_get_monitor;
     st_window_get_handle_t  window_get_handle;
 } st_window_funcs_t;
