@@ -3,9 +3,10 @@
 
 #include <X11/Xlib.h>
 
-#include "steroids/types/list.h"
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
+
+#include "slist.h"
 
 typedef enum {
     EV_FOCUS_IN = 0,
@@ -43,7 +44,7 @@ typedef struct {
     st_window_xlib_events_t  events;
     st_window_xlib_logger_t  logger;
     st_window_xlib_monitor_t monitor;
-    st_slist_t               windows;
+    st_slist_t              *windows;
     st_evtypeid_t            evtypes[EV_MAX];
 } st_window_xlib_t;
 

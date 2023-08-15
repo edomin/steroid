@@ -1,7 +1,5 @@
 #include "xlib.h"
 
-#include <sys/queue.h>
-
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -71,10 +69,15 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
     module->logger.ctx = logger_ctx;
     module->monitor.ctx = monitor_ctx;
 
-    if (!st_window_import_functions(window_ctx, events_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, window_ctx);
+    if (!st_window_import_functions(window_ctx, events_ctx, logger_ctx))
+        goto fail;
 
-        return NULL;
+    module->windows = st_slist_create(sizeof(st_window_t));
+    if (!module->windows) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to create list for windows entries");
+
+        goto fail;
     }
 
     module->evtypes[EV_FOCUS_IN] = module->events.register_type(events_ctx,
@@ -98,25 +101,27 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
     module->evtypes[EV_HIDE] = module->events.register_type(events_ctx,
      "window_hide", sizeof(st_evwinnoargs_t));
 
-    SLIST_INIT(&module->windows); // NOLINT(altera-unroll-loops)
-
     module->logger.info(module->logger.ctx,
      "window_xlib: Monitors mgr initialized");
 
     return window_ctx;
+
+fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, window_ctx);
+
+    return NULL;
 }
 
 static void st_window_quit(st_modctx_t *window_ctx) {
     st_window_xlib_t *module = window_ctx->data;
 
-    while (!SLIST_EMPTY(&module->windows)) {
-        st_snode_t  *node = SLIST_FIRST(&module->windows);
-        st_window_t *window = node->data;
+    while (!st_slist_empty(module->windows)) {
+        st_slnode_t *node = st_slist_get_first(module->windows);
+        st_window_t *window = st_slist_get_data(node);
 
-        SLIST_REMOVE_HEAD(&module->windows, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        st_slist_remove_head(module->windows); // NOLINT(altera-unroll-loops)
         XDestroyWindow(window->monitor->handle, window->handle);
         free(window);
-        free(node);
     }
 
     module->logger.info(module->logger.ctx,
@@ -156,23 +161,12 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         .override_redirect = False,
     };
     XWMHints             hints = { .input = True, .flags = InputHint }; // NOLINT(hicpp-signed-bitwise)
-    st_snode_t          *node;
     st_window_t         *window = malloc(sizeof(st_window_t));
 
     if (!window) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to allocate memory for window structure: %s",
          strerror(errno));
-
-        return NULL;
-    }
-
-    node = malloc(sizeof(st_snode_t));
-    if (!node) {
-        module->logger.error(module->logger.ctx,
-         "Error occured while allocating memory for window entry: %s",
-         strerror(errno));
-        free(window);
 
         return NULL;
     }
@@ -201,8 +195,14 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     }
 
     window->monitor = monitor;
-    node->data = window;
-    SLIST_INSERT_HEAD(&module->windows, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+    if (!st_slist_insert_head(module->windows, window)) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to create list entry for window");
+        XDestroyWindow(window->monitor->handle, window->handle);
+        free(window);
+
+        return NULL;
+    }
 
     return window;
 }
@@ -210,14 +210,13 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
 static void st_window_destroy(st_window_t *window) {
     st_window_xlib_t *module = window->module;
 
-    while (!SLIST_EMPTY(&module->windows)) {
-        st_snode_t *node = SLIST_FIRST(&module->windows);
+    while (!st_slist_empty(module->windows)) {
+        st_slnode_t *node = st_slist_get_first(module->windows);
 
-        if (node->data == window) {
-            SLIST_REMOVE_HEAD(&module->windows, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        if (st_slist_get_data(node) == window) {
+            st_slist_remove_head(module->windows); // NOLINT(altera-unroll-loops)
             XDestroyWindow(window->monitor->handle, window->handle);
             free(window);
-            free(node);
 
             break;
         }
@@ -227,13 +226,15 @@ static void st_window_destroy(st_window_t *window) {
 static st_window_t *get_window_by_xwindow(st_modctx_t *window_ctx,
  Window xwindow) {
     st_window_xlib_t *module = window_ctx->data;
-    st_snode_t       *node;
+    st_slnode_t      *node = st_slist_get_first(module->windows);
 
-    SLIST_FOREACH(node, &module->windows, ST_SNODE_NEXT) {
-        st_window_t *window = node->data;
+    while (node) {
+        st_window_t *window = st_slist_get_data(node);
 
         if (window->handle == xwindow)
             return window;
+
+        node = st_slist_get_next(node);
     }
 
     return NULL;
@@ -241,10 +242,10 @@ static st_window_t *get_window_by_xwindow(st_modctx_t *window_ctx,
 
 static void st_window_process(st_modctx_t *window_ctx) {
     st_window_xlib_t *module = window_ctx->data;
-    st_snode_t       *node;
+    st_slnode_t      *node = st_slist_get_first(module->windows);
 
-    SLIST_FOREACH(node, &module->windows, ST_SNODE_NEXT) {
-        st_window_t *window = node->data;
+    while (node) {
+        st_window_t *window = st_slist_get_data(node);
 
         while (XPending(window->monitor->handle)) {
             XEvent xevent;
