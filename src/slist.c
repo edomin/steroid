@@ -34,7 +34,7 @@ bool st_slist_insert_head(st_slist_t *list, void *data) {
 }
 
 st_slnode_t *st_slist_get_first(const st_slist_t *list) {
-    return SLIST_FIRST(&list->head);
+    return list ? SLIST_FIRST(&list->head) : NULL;
 }
 
 st_slnode_t *st_slist_get_next(const st_slnode_t *node) {
@@ -67,5 +67,5 @@ void *st_slist_get_data(const st_slnode_t *node) {
 }
 
 bool st_slist_empty(const st_slist_t *list) {
-    return SLIST_EMPTY(&list->head);
+    return !list || SLIST_EMPTY(&list->head);
 }
