@@ -3,6 +3,7 @@
 
 #include <X11/Xlib.h>
 
+#include "steroids/types/list.h"
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
 

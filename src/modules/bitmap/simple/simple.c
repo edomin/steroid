@@ -87,7 +87,6 @@ static void st_bitmap_add_codec(st_modctx_t *bitmap_ctx,
  st_modctx_t *codec_ctx) {
     st_bitmap_simple_t       *module = bitmap_ctx->data;
     st_bitmap_simple_codec_t *codec = &module->codecs[module->codecs_count++];
-    st_snode_t               *node;
 
     codec->load = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, codec_ctx, "load");

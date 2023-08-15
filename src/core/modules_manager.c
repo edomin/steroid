@@ -269,7 +269,6 @@ st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
 
     modctx->alive = true;
     modctx->id = st_genid();
-    SLIST_INIT(&modctx->uses); // NOLINT(altera-unroll-loops)
 
     return modctx;
 
@@ -286,7 +285,6 @@ error_free_ctx_pool:
 void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
     if (modsmgr && modctx) {
         while (!SLIST_EMPTY(&modctx->uses)) {
-            st_snode_t *node = SLIST_FIRST(&modctx->uses);
             SLIST_REMOVE_HEAD(&modctx->uses, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
             free(node);
         }

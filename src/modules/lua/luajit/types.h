@@ -3,6 +3,7 @@
 
 #include <lua.h>
 
+#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/luabind.h"
 

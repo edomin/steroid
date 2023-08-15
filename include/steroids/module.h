@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "steroids/types/list.h"
-
 #define ST_MT_internal 0
 #define ST_MT_shared   1
 
@@ -69,19 +67,13 @@
     }
 
 typedef struct {
-    char      *subsystem;
-    char      *name;
-    void      *data;
-    void      *funcs;
-    bool       alive;
-    uint32_t   id;
-    st_slist_t uses;
+    char    *subsystem;
+    char    *name;
+    void    *data;
+    void    *funcs;
+    bool     alive;
+    uint32_t id;
 } st_modctx_t;
-
-typedef struct {
-    st_modctx_t *ctx;
-    uint32_t     id;
-} st_modctxuses_t;
 
 typedef struct {
     const char *subsystem;
