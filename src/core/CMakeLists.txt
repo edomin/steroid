@@ -20,7 +20,7 @@ target_sources(steroids PRIVATE
     main.c
     genid.c
     modules_manager.c
-    "${CMAKE_SOURCE_DIR}/src/list.c"
+    "${CMAKE_SOURCE_DIR}/src/slist.c"
     "${CMAKE_SOURCE_DIR}/src/utils.c"
 )
 
