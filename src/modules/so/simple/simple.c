@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/queue.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -67,33 +66,39 @@ static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
     so = so_ctx->data;
     so->logger.ctx = logger_ctx;
 
-    if (!st_so_import_functions(so_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, so_ctx);
+    if (!st_so_import_functions(so_ctx, logger_ctx))
+        goto fail;
 
-        return NULL;
+    so->opened_handles = st_slist_create(sizeof(st_so_t));
+    if (!so->opened_handles) {
+        so->logger.error(so->logger.ctx,
+         "so_simple: Unable to create list of so file entries");
+
+        goto fail;
     }
 
-    SLIST_INIT(&so->opened_handles); // NOLINT(altera-unroll-loops)
-
-    so->logger.info(so->logger.ctx, "%s", "so_simple: So initialized.");
+    so->logger.info(so->logger.ctx, "%s", "so_simple: So initialized");
 
     return so_ctx;
+
+fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, so_ctx);
+
+    return NULL;
 }
 
 static void st_so_quit(st_modctx_t *so_ctx) {
     st_so_simple_t *module = so_ctx->data;
 
-    while (!SLIST_EMPTY(&module->opened_handles)) {
-        st_snode_t *node = SLIST_FIRST(&module->opened_handles);
-        st_so_t    *so = node->data;
+    while (!st_slist_empty(module->opened_handles)) {
+        st_slnode_t *node = st_slist_get_first(module->opened_handles);
+        st_so_t     *so = st_slist_get_data(node);
 
-        SLIST_REMOVE_HEAD(&module->opened_handles, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-        if (dlclose(so->handle) != 0) {
+        st_slist_remove_head(module->opened_handles);
+        if (dlclose(so->handle) != 0)
             module->logger.warning(module->logger.ctx,
-             "so_simple: Unable to close so file. %s", dlerror());
-        }
+             "so_simple: Unable to close so: %s", dlerror());
         free(so);
-        free(node);
     }
 
     module->logger.info(module->logger.ctx, "so_simple: So mgr destroyed");
@@ -102,7 +107,6 @@ static void st_so_quit(st_modctx_t *so_ctx) {
 
 static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     st_so_simple_t *module = so_ctx->data;
-    st_snode_t     *node;
     void           *handle = dlopen(filename, RTLD_LAZY);
     st_so_t        *so;
 
@@ -128,19 +132,15 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     so->module = module;
     so->handle = handle;
 
-    node = malloc(sizeof(st_snode_t));
-    if (!node) {
+    if (!st_slist_insert_head(module->opened_handles, so)) {
         module->logger.error(module->logger.ctx,
-         "so_simple: Error occured while allocating memory for so handle "
-         "entry: \"%s\": %s", filename, strerror(errno));
+         "so_simple: Unable to create node for so file entry: \"%s\"",
+         filename);
         free(so);
         dlclose(handle);
 
         return NULL;
     }
-
-    node->data = so;
-    SLIST_INSERT_HEAD(&module->opened_handles, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
 
     return so;
 }
@@ -158,17 +158,15 @@ static st_so_t *st_so_memopen(st_modctx_t *so_ctx,
 static void st_so_close(st_so_t *so) {
     st_so_simple_t *module = so->module;
 
-    while (!SLIST_EMPTY(&module->opened_handles)) {
-        st_snode_t *node = SLIST_FIRST(&module->opened_handles);
+    while (!st_slist_empty(module->opened_handles)) {
+        st_slnode_t *node = st_slist_get_first(module->opened_handles);
 
-        if (node->data == so) {
-            SLIST_REMOVE_HEAD(&module->opened_handles, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-            if (dlclose(so->handle) != 0) {
+        if (st_slist_get_data(node) == so) {
+            st_slist_remove_head(module->opened_handles);
+            if (dlclose(so->handle) != 0)
                 module->logger.warning(module->logger.ctx,
                  "so_simple: Unable to close so file. %s", dlerror());
-            }
             free(so);
-            free(node);
 
             break;
         }
