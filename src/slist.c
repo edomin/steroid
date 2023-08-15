@@ -46,6 +46,10 @@ void st_slist_remove(st_slnode_t *node) {
     free(node);
 }
 
+void st_slist_remove_head(st_slist_t *list) {
+    SLIST_REMOVE_HEAD(&list->head, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+}
+
 void st_slist_clear(st_slist_t *list) {
     while (!SLIST_EMPTY(&list->head)) {
         st_slnode_t *node = SLIST_FIRST(&list->head);
@@ -57,4 +61,8 @@ void st_slist_clear(st_slist_t *list) {
 
 void *st_slist_get_data(const st_slnode_t *node) {
     return node->data;
+}
+
+bool st_slist_empty(const st_slist_t *list) {
+    return SLIST_EMPTY(&list->head);
 }
