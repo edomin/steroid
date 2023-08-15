@@ -370,6 +370,8 @@ static void st_window_process(st_modctx_t *window_ctx) {
                     break;
             }
         }
+
+        node = st_slist_get_next(node);
     }
 }
 
