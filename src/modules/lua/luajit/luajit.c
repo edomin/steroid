@@ -176,7 +176,7 @@ static void st_lua_quit(st_modctx_t *lua_ctx) {
 
     while (!st_slist_empty(module->bindings)) {
         st_slnode_t             *node = st_slist_get_first(module->bindings);
-        st_lua_luajit_binding_t *binding = node->data;
+        st_lua_luajit_binding_t *binding = st_slist_get_data(node);
 
         st_slist_remove_head(module->bindings);
         binding->quit(binding->ctx);
