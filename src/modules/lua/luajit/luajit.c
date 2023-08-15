@@ -126,7 +126,7 @@ static void st_lua_init_bindings(st_modctx_t *logger_ctx,
         if (!st_slist_insert_head(module->bindings, binding)) {
             module->logger.error(module->logger.ctx,
              "lua_luajit: Unable to create entry node for module "
-             "\"luabind_%s\": %s", binding_name, strerror(errno));
+             "\"luabind_%s\"", binding_name);
             free(binding);
             quit_func(ctx);
 
