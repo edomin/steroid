@@ -124,6 +124,9 @@ static void st_window_quit(st_modctx_t *window_ctx) {
         free(window);
     }
 
+    st_slist_destroy(module->windows);
+    module->windows = NULL;
+
     module->logger.info(module->logger.ctx,
      "monitor_xlib: Monitors mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, window_ctx);

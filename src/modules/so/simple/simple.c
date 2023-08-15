@@ -101,6 +101,8 @@ static void st_so_quit(st_modctx_t *so_ctx) {
         free(so);
     }
 
+    st_slist_destroy(module->opened_handles);
+
     module->logger.info(module->logger.ctx, "so_simple: So mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, so_ctx);
 }

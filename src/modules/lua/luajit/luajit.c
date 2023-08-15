@@ -183,6 +183,8 @@ static void st_lua_quit(st_modctx_t *lua_ctx) {
         free(binding);
     }
 
+    st_slist_destroy(module->bindings);
+
     module->logger.info(module->logger.ctx, "lua_luajit: Lua destroyed.");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, lua_ctx);
 }
