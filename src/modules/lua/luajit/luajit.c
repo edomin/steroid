@@ -181,7 +181,6 @@ static void st_lua_quit(st_modctx_t *lua_ctx) {
         st_slist_remove_head(module->bindings);
         binding->quit(binding->ctx);
         free(binding);
-        free(node);
     }
 
     module->logger.info(module->logger.ctx, "lua_luajit: Lua destroyed.");
