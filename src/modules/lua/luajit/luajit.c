@@ -61,20 +61,25 @@ static void st_lua_init_bindings(st_modctx_t *logger_ctx,
     for (size_t i = 0; i < BINDINGS_COUNT; i++)
         pbindingsnames[i] = bindings_names[i];
 
+    module->bindings = st_slist_create(sizeof(st_lua_luajit_binding_t));
+    if (!module->bindings) {
+        module->logger.info(module->logger.ctx,
+         "lua_luajit: Unable to create list of luabind modules");
+
+        return;
+    }
+
     module->logger.info(module->logger.ctx,
      "lua_luajit: Searching luabind modules");
 
     global_modsmgr_funcs.get_module_names(global_modsmgr, pbindingsnames,
      BINDINGS_COUNT, BINDING_NAME_SIZE, "luabind");
 
-    SLIST_INIT(&module->bindings);
-
     for (size_t i = 0; i < BINDINGS_COUNT; i++) {
         st_luabind_init_t        init_func;
         st_luabind_quit_t        quit_func;
         st_modctx_t             *ctx;
         st_lua_luajit_binding_t *binding;
-        st_snode_t              *node;
 
         binding_name = pbindingsnames[i];
 
@@ -118,19 +123,15 @@ static void st_lua_init_bindings(st_modctx_t *logger_ctx,
         binding->ctx = ctx;
         binding->quit = quit_func;
 
-        node = malloc(sizeof(st_snode_t));
-        if (!node) {
+        if (!st_slist_insert_head(module->bindings, binding)) {
             module->logger.error(module->logger.ctx,
-             "lua_luajit: Unable to allocate memory for binding entry node of "
-             "module \"luabind_%s\": %s", binding_name, strerror(errno));
+             "lua_luajit: Unable to create entry node for module "
+             "\"luabind_%s\": %s", binding_name, strerror(errno));
             free(binding);
             quit_func(ctx);
 
             continue;
         }
-
-        node->data = binding;
-        SLIST_INSERT_HEAD(&module->bindings, node, ST_SNODE_NEXT);
     }
 }
 
@@ -173,11 +174,11 @@ static void st_lua_quit(st_modctx_t *lua_ctx) {
 
     lua_close(module->state);
 
-    while (!SLIST_EMPTY(&module->bindings)) {
-        st_snode_t              *node = SLIST_FIRST(&module->bindings);
+    while (!st_slist_empty(module->bindings)) {
+        st_slnode_t             *node = st_slist_get_first(module->bindings);
         st_lua_luajit_binding_t *binding = node->data;
 
-        SLIST_REMOVE_HEAD(&module->bindings, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        st_slist_remove_head(module->bindings);
         binding->quit(binding->ctx);
         free(binding);
         free(node);

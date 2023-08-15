@@ -3,9 +3,10 @@
 
 #include <lua.h>
 
-#include "steroids/types/list.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/luabind.h"
+
+#include "slist.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -27,7 +28,7 @@ typedef struct {
     st_lua_luajit_logger_t logger;
     st_lua_luajit_opts_t   opts;
     lua_State             *state;
-    st_slist_t             bindings;
+    st_slist_t            *bindings;
 } st_lua_luajit_t;
 
 #endif /* ST_MODULES_LUA_LUAJIT_TYPES_H */

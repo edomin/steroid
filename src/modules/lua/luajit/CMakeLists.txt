@@ -46,13 +46,15 @@ pkg_check_modules(LUAJIT REQUIRED luajit)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "luajit.c"
+    luajit.c
+    "${CMAKE_SOURCE_DIR}/src/slist.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
 
 target_include_directories(${ST_MODULE_TARGET} PRIVATE
     "${CMAKE_FIND_ROOT_PATH}/include"
+    "${CMAKE_SOURCE_DIR}/src"
     "${CMAKE_SOURCE_DIR}/include"
     ${CMAKE_CURRENT_BINARY_DIR}
     ${LUAJIT_INCLUDE_DIRS}
