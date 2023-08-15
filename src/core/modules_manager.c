@@ -36,13 +36,14 @@ void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx);
 
 static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
-    st_snode_t *node;
+    st_node_t *node;
 
     if (!modsmgr || !subsystem)
         return NULL;
 
-    SLIST_FOREACH(node, &modsmgr->modules_data, ST_SNODE_NEXT) {
-        st_moddata_t *module_data = node->data;
+    node = st_list_get_first(modsmgr->modules_data);
+    while (node) {
+        st_moddata_t *module_data = st_list_get_data(node);
         bool          subsystem_equal = st_utl_strings_equal(
          module_data->subsystem, subsystem);
         bool          name_equal = st_utl_strings_equal(module_data->name,
@@ -51,6 +52,8 @@ static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
 
         if (subsystem_equal && (name_equal || name_is_null))
             return module_data;
+
+        node = st_list_get_next(node);
     }
 
     return NULL;
@@ -58,7 +61,7 @@ static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
 
 static inline bool st_modsmgr_have_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
-    return st_modsmgr_find_module(modsmgr, subsystem, module_name) != NULL;
+    return !!st_modsmgr_find_module(modsmgr, subsystem, module_name);
 }
 
 static bool st_modsmgr_module_have_deps(const st_modsmgr_t *modsmgr,
@@ -89,32 +92,37 @@ static bool st_modsmgr_module_have_deps(const st_modsmgr_t *modsmgr,
 }
 
 static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readability-function-cognitive-complexity)
-    st_snode_t *node;
+    st_node_t *node = st_list_get_first(modsmgr->modules_data);
 
-    SLIST_FOREACH(node, &modsmgr->modules_data, ST_SNODE_NEXT) {
-        st_moddata_t *module_data = node->data;
+    while (node) {
+        st_moddata_t *module_data = st_list_get_data(node);
 
         if (!st_modsmgr_module_have_deps(modsmgr, module_data)) {
-            SLIST_REMOVE(&modsmgr->modules_data, node, st_snode_t, // NOLINT(altera-unroll-loops)
-             ST_SNODE_NEXT);
+            st_list_remove(modsmgr->modules_data, node);
             st_modsmgr_process_deps(modsmgr);
 
             return;
         }
+
+        node = st_list_get_next(node);
     }
 }
 
 static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
  size_t mods_count, size_t modname_size, const char *subsystem) {
-    st_snode_t *node;
-    size_t      mod_index = 0;
+    st_node_t *node;
+    size_t     mod_index = 0;
 
     if (!modsmgr || !subsystem || !dst || !mods_count || !modname_size)
         return;
 
-    SLIST_FOREACH(node, &modsmgr->modules_data, ST_SNODE_NEXT) {
-        st_moddata_t *module_data = node->data;
+    node = st_list_get_first(modsmgr->modules_data);
+
+    while (node) {
+        st_moddata_t *module_data = st_list_get_data(node);
         char         *modname;
+
+        node = st_list_get_next(node);
 
         if (!st_utl_strings_equal(module_data->subsystem, subsystem))
             continue;
@@ -137,7 +145,6 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
  */
 bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
  st_modinitfunc_t modinit_func, bool force) {
-    st_snode_t   *node;
     st_moddata_t *module_data = modinit_func(modsmgr, ST_MODSMGR_FUNCS);
 
     printf("steroids: Trying to add module \"%s_%s\"\n", module_data->subsystem,
@@ -146,18 +153,7 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
     if (!force && !st_modsmgr_module_have_deps(modsmgr, module_data))
         return false;
 
-    node = malloc(sizeof(st_snode_t));
-    if (!node) {
-        fprintf(stderr, "steroids: Error occured while processing found module "
-         "\"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
-         module_data->name,
-         strerror(errno));
-        return false;
-    }
-    node->data = module_data;
-    SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-
-    return true;
+    return st_list_insert_head(modsmgr->modules_data, module_data);
 }
 
 st_modsmgr_t *st_modsmgr_init(void) {
@@ -166,14 +162,18 @@ st_modsmgr_t *st_modsmgr_init(void) {
     if (!modsmgr)
         return NULL;
 
-    SLIST_INIT(&modsmgr->modules_data); // NOLINT(altera-unroll-loops)
+    modsmgr->modules_data = st_list_create(sizeof(st_moddata_t));
+    if (!modsmgr->modules_data) {
+        free(modsmgr);
+
+        return NULL;
+    }
 
     printf("steroids: Searching internal modules...\n");
     for (size_t i = 0; i < ST_INTERNAL_MODULES_COUNT; i++) {
         st_moddata_t *module_data =
          st_internal_modules_entrypoints.modules_init_funcs[i](modsmgr,
           ST_MODSMGR_FUNCS);
-        st_snode_t *node;
 
         if (!module_data)
             continue;
@@ -181,15 +181,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
         printf("steroids: Found module \"%s_%s\"\n", module_data->subsystem,
          module_data->name);
 
-        node = malloc(sizeof(st_snode_t));
-        if (!node) {
-            fprintf(stderr, "steroids: Error occured while processing found "
-             "module: \"%s_%s\": %s. Module skipped.\n", module_data->subsystem,
-             module_data->name, strerror(errno));
-            continue;
-        }
-        node->data = module_data;
-        SLIST_INSERT_HEAD(&modsmgr->modules_data, node, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
+        st_list_insert_head(modsmgr->modules_data, module_data);
     }
 
     st_modsmgr_process_deps(modsmgr);
@@ -203,12 +195,7 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
     if (modsmgr == NULL)
         return;
 
-    while (!SLIST_EMPTY(&modsmgr->modules_data)) {
-        st_snode_t *node = SLIST_FIRST(&modsmgr->modules_data);
-
-        SLIST_REMOVE_HEAD(&modsmgr->modules_data, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-        free(node);
-    }
+    st_list_destroy(modsmgr->modules_data);
 
     xmem_destroy_pool(modsmgr->ctx_pool);
 }
@@ -218,7 +205,7 @@ void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
     st_moddata_t *module_data = st_modsmgr_find_module(modsmgr, subsystem,
      module_name);
 
-    if (module_data == NULL)
+    if (!module_data)
         return NULL;
 
     return module_data->get_function(func_name);
@@ -243,25 +230,25 @@ st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size) {
     st_modctx_t *modctx = (st_modctx_t *)xmem_alloc(modsmgr->ctx_pool);
 
-    if (modctx == NULL)
+    if (!modctx)
         return NULL;
 
     modctx->subsystem = strdup(module_data->subsystem);
-    if (modctx->subsystem == NULL) {
+    if (!modctx->subsystem) {
         perror("strdup");
 
         goto error_free_ctx_pool;
     }
 
     modctx->name = strdup(module_data->name);
-    if (modctx->name == NULL) {
+    if (!modctx->name) {
         perror("strdup");
 
         goto error_free_subsystem;
     }
 
     modctx->data = malloc(data_size);
-    if (modctx->data == NULL) {
+    if (!modctx->data) {
         perror("malloc");
 
         goto error_free_name;
@@ -284,10 +271,6 @@ error_free_ctx_pool:
 
 void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
     if (modsmgr && modctx) {
-        while (!SLIST_EMPTY(&modctx->uses)) {
-            SLIST_REMOVE_HEAD(&modctx->uses, ST_SNODE_NEXT); // NOLINT(altera-unroll-loops)
-            free(node);
-        }
         free(modctx->subsystem);
         free(modctx->name);
         free(modctx->data);

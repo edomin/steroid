@@ -6,10 +6,10 @@
 #include <xmempool.h>
 #pragma GCC diagnostic pop
 
-#include "steroids/types/list.h"
+#include "list.h"
 
 typedef struct {
-    st_slist_t       modules_data;
+    st_list_t *modules_data;
     xmem_pool_handle ctx_pool;
 } st_modsmgr_t;
 
