@@ -37,7 +37,7 @@ static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
     if (!modsmgr || !subsystem)
         return NULL;
 
-    node = st_slist_get_first(modsmgr->modules_data);
+    node = st_slist_get_first(modsmgr);
     while (node) {
         st_moddata_t *module_data = st_slist_get_data(node);
         bool          subsystem_equal = st_utl_strings_equal(
@@ -88,7 +88,7 @@ static bool st_modsmgr_module_have_deps(const st_modsmgr_t *modsmgr,
 }
 
 static void st_modsmgr_process_deps(st_modsmgr_t *modsmgr) { // NOLINT(readability-function-cognitive-complexity)
-    st_slnode_t *node = st_slist_get_first(modsmgr->modules_data);
+    st_slnode_t *node = st_slist_get_first(modsmgr);
 
     while (node) {
         st_moddata_t *module_data = st_slist_get_data(node);
@@ -112,7 +112,7 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
     if (!modsmgr || !subsystem || !dst || !mods_count || !modname_size)
         return;
 
-    node = st_slist_get_first(modsmgr->modules_data);
+    node = st_slist_get_first(modsmgr);
 
     while (node) {
         st_moddata_t *module_data = st_slist_get_data(node);
@@ -149,21 +149,14 @@ bool st_modsmgr_load_module(st_modsmgr_t *modsmgr,
     if (!force && !st_modsmgr_module_have_deps(modsmgr, module_data))
         return false;
 
-    return st_slist_insert_head(modsmgr->modules_data, module_data);
+    return st_slist_insert_head(modsmgr, module_data);
 }
 
 st_modsmgr_t *st_modsmgr_init(void) {
-    st_modsmgr_t *modsmgr = malloc(sizeof(st_modsmgr_t));
+    st_modsmgr_t *modsmgr = st_slist_create(sizeof(st_moddata_t));
 
     if (!modsmgr)
         return NULL;
-
-    modsmgr->modules_data = st_slist_create(sizeof(st_moddata_t));
-    if (!modsmgr->modules_data) {
-        free(modsmgr);
-
-        return NULL;
-    }
 
     printf("steroids: Searching internal modules...\n");
     for (size_t i = 0; i < ST_INTERNAL_MODULES_COUNT; i++) {
@@ -177,7 +170,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
         printf("steroids: Found module \"%s_%s\"\n", module_data->subsystem,
          module_data->name);
 
-        st_slist_insert_head(modsmgr->modules_data, module_data);
+        st_slist_insert_head(modsmgr, module_data);
     }
 
     st_modsmgr_process_deps(modsmgr);
@@ -186,10 +179,7 @@ st_modsmgr_t *st_modsmgr_init(void) {
 }
 
 void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
-    if (modsmgr == NULL)
-        return;
-
-    st_slist_destroy(modsmgr->modules_data);
+    st_slist_destroy(modsmgr);
 }
 
 void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
@@ -262,10 +252,24 @@ strdup_sybsystem_fail:
 }
 
 void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
-    if (modsmgr && modctx) {
-        free(modctx->subsystem);
-        free(modctx->name);
-        free(modctx->data);
-        free(modctx);
+    st_slnode_t *node;
+
+    if (!modsmgr || !modctx)
+        return;
+
+    node = st_slist_get_first(modsmgr);
+
+    while (node) {
+        if (st_slist_get_data(node) == modctx->data) {
+            free(modctx->subsystem);
+            free(modctx->name);
+            free(modctx->data);
+            free(modctx);
+            st_slist_remove(node);
+
+            break;
+        }
+
+        node = st_slist_get_next(node);
     }
 }

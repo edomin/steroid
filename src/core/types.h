@@ -3,9 +3,7 @@
 
 #include "slist.h"
 
-typedef struct {
-    st_slist_t *modules_data;
-} st_modsmgr_t;
+typedef st_slist_t st_modsmgr_t;
 
 #define ST_MODSMGR_T_DEFINED
 
