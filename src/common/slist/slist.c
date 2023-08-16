@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/queue.h>
 
+void st_slist_clear(st_slist_t *list);
+
 st_slist_t *st_slist_create(size_t data_size) {
     st_slist_t *list = malloc(sizeof(st_slist_t));
 

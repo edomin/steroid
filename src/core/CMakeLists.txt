@@ -20,7 +20,6 @@ target_sources(steroids PRIVATE
     main.c
     genid.c
     modules_manager.c
-    "${CMAKE_SOURCE_DIR}/src/slist.c"
     "${CMAKE_SOURCE_DIR}/src/utils.c"
 )
 
@@ -37,6 +36,7 @@ target_include_directories(steroids PRIVATE
 )
 
 target_link_libraries(steroids PRIVATE
+    slist
     ${ST_INTERNAL_MODULES_LIBS}
     ${XMEMPOOL_LIBRARY}
 )

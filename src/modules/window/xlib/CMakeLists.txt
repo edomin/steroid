@@ -50,7 +50,6 @@ pkg_check_modules(SAFEC REQUIRED libsafec)
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
     xlib.c
-    "${CMAKE_SOURCE_DIR}/src/slist.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
@@ -63,6 +62,7 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
+    slist
     ${SAFEC_LINK_LIBRARIES}
     ${X11_LIBRARIES}
 )
