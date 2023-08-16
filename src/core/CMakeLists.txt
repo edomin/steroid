@@ -13,12 +13,9 @@ bb_add_more_warnings(
 
 bb_add_executable(steroids)
 
-find_library(XMEMPOOL_LIBRARY NAMES xmempool)
-
 target_compile_options(steroids PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(steroids PRIVATE
     main.c
-    genid.c
     modules_manager.c
     "${CMAKE_SOURCE_DIR}/src/utils.c"
 )
@@ -38,7 +35,6 @@ target_include_directories(steroids PRIVATE
 target_link_libraries(steroids PRIVATE
     slist
     ${ST_INTERNAL_MODULES_LIBS}
-    ${XMEMPOOL_LIBRARY}
 )
 
 file(WRITE ${CMAKE_BINARY_DIR}/steroids.ini

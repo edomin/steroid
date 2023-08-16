@@ -12,9 +12,6 @@
 #include <safeclib/safe_str_lib.h>
 #pragma GCC diagnostic pop
 
-#include <xmempool.h>
-
-#include "genid.h"
 #include "internal_modules.h"
 #include "utils.h"
 
@@ -185,8 +182,6 @@ st_modsmgr_t *st_modsmgr_init(void) {
 
     st_modsmgr_process_deps(modsmgr);
 
-    modsmgr->ctx_pool = xmem_create_pool(sizeof(st_modctx_t));
-
     return modsmgr;
 }
 
@@ -195,8 +190,6 @@ void st_modsmgr_destroy(st_modsmgr_t *modsmgr) {
         return;
 
     st_slist_destroy(modsmgr->modules_data);
-
-    xmem_destroy_pool(modsmgr->ctx_pool);
 }
 
 void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
@@ -227,43 +220,43 @@ void *st_modsmgr_get_function_from_ctx(const st_modsmgr_t *modsmgr,
 
 st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
  const st_moddata_t *module_data, size_t data_size) {
-    st_modctx_t *modctx = (st_modctx_t *)xmem_alloc(modsmgr->ctx_pool);
+    st_modctx_t *modctx = malloc(sizeof(st_modctx_t));
 
-    if (!modctx)
+    if (!modctx) {
+        perror("malloc");
+
         return NULL;
+    }
 
     modctx->subsystem = strdup(module_data->subsystem);
     if (!modctx->subsystem) {
         perror("strdup");
 
-        goto error_free_ctx_pool;
+        goto strdup_sybsystem_fail;
     }
 
     modctx->name = strdup(module_data->name);
     if (!modctx->name) {
         perror("strdup");
 
-        goto error_free_subsystem;
+        goto strdup_name_fail;
     }
 
     modctx->data = malloc(data_size);
     if (!modctx->data) {
         perror("malloc");
 
-        goto error_free_name;
+        goto malloc_fail;
     }
-
-    modctx->alive = true;
-    modctx->id = st_genid();
 
     return modctx;
 
-error_free_name:
+malloc_fail:
     free(modctx->name);
-error_free_subsystem:
+strdup_name_fail:
     free(modctx->subsystem);
-error_free_ctx_pool:
-    xmem_free(modsmgr->ctx_pool, (char *)modctx);
+strdup_sybsystem_fail:
+    free(modctx);
 
     return NULL;
 }
@@ -273,7 +266,6 @@ void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
         free(modctx->subsystem);
         free(modctx->name);
         free(modctx->data);
-        modctx->alive = false;
-        xmem_free(modsmgr->ctx_pool, (char *)modctx);
+        free(modctx);
     }
 }

@@ -67,12 +67,10 @@
     }
 
 typedef struct {
-    char    *subsystem;
-    char    *name;
-    void    *data;
-    void    *funcs;
-    bool     alive;
-    uint32_t id;
+    char *subsystem;
+    char *name;
+    void *data;
+    void *funcs;
 } st_modctx_t;
 
 typedef struct {
