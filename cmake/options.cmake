@@ -1,5 +1,4 @@
 set(ST_MODULE_BITMAP_SIMPLE     "shared" CACHE STRING "")
-set(ST_MODULE_FNV1A_FNV_HASH    "internal" CACHE STRING "")
 set(ST_MODULE_FNV1A_SIMPLE      "internal" CACHE STRING "")
 set(ST_MODULE_EVENTS_SIMPLE     "shared" CACHE STRING "")
 set(ST_MODULE_FS_SIMPLE         "internal" CACHE STRING "")

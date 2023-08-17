@@ -31,8 +31,6 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bitmap/simple"
  "${CMAKE_BINARY_DIR}/src/modules/bitmap/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/events/simple"
  "${CMAKE_BINARY_DIR}/src/modules/events/simple")
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1a/fnv_hash"
- "${CMAKE_BINARY_DIR}/src/modules/fnv1a/fnv_hash")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fnv1a/simple"
  "${CMAKE_BINARY_DIR}/src/modules/fnv1a/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/fs/simple"
