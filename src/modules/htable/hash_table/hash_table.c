@@ -89,8 +89,8 @@ static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
  st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc) {
     st_htable_hash_table_t *module = htable_ctx->data;
-    struct hash_table          *handle = hash_table_create(hashfunc, keyeqfunc);
-    st_htable_t             *htable;
+    struct hash_table      *handle = hash_table_create(hashfunc, keyeqfunc);
+    st_htable_t            *htable;
 
     if (!handle) {
         module->logger.error(module->logger.ctx,
