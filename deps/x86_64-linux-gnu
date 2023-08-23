@@ -2,8 +2,6 @@ cfgpath
 clang-tidy
 cmake
 cmake_barebones
-fnv_hash
-freebsd-queue
 glu
 hash_table
 inih
@@ -19,5 +17,4 @@ safeclib
 x86_64-linux-gnu-gcc
 x86_64-linux-gnu-pkg-config
 xlib
-xmempool
 zip
