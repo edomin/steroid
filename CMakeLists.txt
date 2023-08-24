@@ -27,6 +27,8 @@ add_custom_target(copy_plugins
 )
 
 set(ST_INTERNAL_MODULES_COUNT 0)
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/atlas/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/atlas/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bitmap/simple"
  "${CMAKE_BINARY_DIR}/src/modules/bitmap/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/events/simple"
