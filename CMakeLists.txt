@@ -95,6 +95,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/so/simple"
  "${CMAKE_BINARY_DIR}/src/modules/so/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/spcpaths/cfgpath"
  "${CMAKE_BINARY_DIR}/src/modules/spcpaths/cfgpath")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/sprite/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/sprite/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/terminal/simple"
  "${CMAKE_BINARY_DIR}/src/modules/terminal/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/texture/opengl"
