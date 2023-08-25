@@ -14,11 +14,13 @@ static st_atlas_t *st_atlas_create(st_modctx_t *atlas_ctx,
 static void st_atlas_destroy(st_atlas_t *atlas);
 static bool st_atlas_set_clip(st_atlas_t *atlas, size_t clip_num, unsigned x,
  unsigned y, unsigned width, unsigned height);
-static st_texture_t *st_atlas_get_texture(st_atlas_t *atlas);
-static size_t st_atlas_get_clips_count(st_atlas_t *atlas);
-static unsigned st_atlas_get_clip_x(st_atlas_t *atlas, size_t clip_num);
-static unsigned st_atlas_get_clip_y(st_atlas_t *atlas, size_t clip_num);
-static unsigned st_atlas_get_clip_width(st_atlas_t *atlas, size_t clip_num);
-static unsigned st_atlas_get_clip_height(st_atlas_t *atlas, size_t clip_num);
+static const st_texture_t *st_atlas_get_texture(const st_atlas_t *atlas);
+static size_t st_atlas_get_clips_count(const st_atlas_t *atlas);
+static unsigned st_atlas_get_clip_x(const st_atlas_t *atlas, size_t clip_num);
+static unsigned st_atlas_get_clip_y(const st_atlas_t *atlas, size_t clip_num);
+static unsigned st_atlas_get_clip_width(const st_atlas_t *atlas,
+ size_t clip_num);
+static unsigned st_atlas_get_clip_height(const st_atlas_t *atlas,
+ size_t clip_num);
 
 #endif /* ST_STEROIDS_ATLAS_H */

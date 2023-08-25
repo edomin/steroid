@@ -119,26 +119,28 @@ static bool st_atlas_set_clip(st_atlas_t *atlas, size_t clip_num, unsigned x,
     return true;
 }
 
-static st_texture_t *st_atlas_get_texture(st_atlas_t *atlas) {
+static const st_texture_t *st_atlas_get_texture(const st_atlas_t *atlas) {
     return atlas->texture;
 }
 
-static size_t st_atlas_get_clips_count(st_atlas_t *atlas) {
+static size_t st_atlas_get_clips_count(const st_atlas_t *atlas) {
     return atlas->clips_count;
 }
 
-static unsigned st_atlas_get_clip_x(st_atlas_t *atlas, size_t clip_num) {
+static unsigned st_atlas_get_clip_x(const st_atlas_t *atlas, size_t clip_num) {
     return atlas->clips[clip_num].x;
 }
 
-static unsigned st_atlas_get_clip_y(st_atlas_t *atlas, size_t clip_num) {
+static unsigned st_atlas_get_clip_y(const st_atlas_t *atlas, size_t clip_num) {
     return atlas->clips[clip_num].y;
 }
 
-static unsigned st_atlas_get_clip_width(st_atlas_t *atlas, size_t clip_num) {
+static unsigned st_atlas_get_clip_width(const st_atlas_t *atlas,
+ size_t clip_num) {
     return atlas->clips[clip_num].width;
 }
 
-static unsigned st_atlas_get_clip_height(st_atlas_t *atlas, size_t clip_num) {
+static unsigned st_atlas_get_clip_height(const st_atlas_t *atlas,
+ size_t clip_num) {
     return atlas->clips[clip_num].height;
 }

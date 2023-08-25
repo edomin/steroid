@@ -17,13 +17,15 @@ typedef st_atlas_t *(*st_atlas_create_t)(st_modctx_t *atlas_ctx,
 typedef void (*st_atlas_destroy_t)(st_atlas_t *atlas);
 typedef bool (*st_atlas_set_clip_t)(st_atlas_t *atlas, size_t clip_num,
  unsigned x, unsigned y, unsigned width, unsigned height);
-typedef st_texture_t *(*st_atlas_get_texture_t)(st_atlas_t *atlas);
-typedef size_t (*st_atlas_get_clips_count_t)(st_atlas_t *atlas);
-typedef unsigned (*st_atlas_get_clip_x_t)(st_atlas_t *atlas, size_t clip_num);
-typedef unsigned (*st_atlas_get_clip_y_t)(st_atlas_t *atlas, size_t clip_num);
-typedef unsigned (*st_atlas_get_clip_width_t)(st_atlas_t *atlas,
+typedef const st_texture_t *(*st_atlas_get_texture_t)(const st_atlas_t *atlas);
+typedef size_t (*st_atlas_get_clips_count_t)(const st_atlas_t *atlas);
+typedef unsigned (*st_atlas_get_clip_x_t)(const st_atlas_t *atlas,
  size_t clip_num);
-typedef unsigned (*st_atlas_get_clip_height_t)(st_atlas_t *atlas,
+typedef unsigned (*st_atlas_get_clip_y_t)(const st_atlas_t *atlas,
+ size_t clip_num);
+typedef unsigned (*st_atlas_get_clip_width_t)(const st_atlas_t *atlas,
+ size_t clip_num);
+typedef unsigned (*st_atlas_get_clip_height_t)(const st_atlas_t *atlas,
  size_t clip_num);
 
 typedef struct {
