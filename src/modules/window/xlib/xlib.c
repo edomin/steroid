@@ -198,6 +198,8 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     }
 
     window->monitor = monitor;
+    window->width = width;
+    window->height = height;
     if (!st_slist_insert_head(module->windows, window)) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to create list entry for window");
@@ -385,4 +387,12 @@ static st_monitor_t *st_window_get_monitor(st_window_t *window) {
 
 static void *st_window_get_handle(st_window_t *window) {
     return (void *)(uintptr_t)window->handle;
+}
+
+static unsigned st_window_get_width(const st_window_t *window) {
+    return window->width;
+}
+
+static unsigned st_window_get_height(const st_window_t *window) {
+    return window->height;
 }

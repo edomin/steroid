@@ -201,6 +201,6 @@ window_ctx:create(monitor_ctx: monitor_ctx, x: integer, y: integer, width: integ
 window_ctx:process()
 window:destroy()
 window:xed(): bool
-
-window:destroy()
+window:get_width(): integer
+window:get_height(): integer
 ```

@@ -60,6 +60,8 @@ typedef struct {
     st_monitor_t     *monitor;
     Atom              wm_delete_msg;
     bool              xed;
+    unsigned          width;
+    unsigned          height;
 } st_window_t;
 
 #define ST_WINDOW_T_DEFINED

@@ -21,6 +21,8 @@ static st_window_create_t              st_window_create;
 static st_window_destroy_t             st_window_destroy;
 static st_window_xed_t                 st_window_xed;
 static st_window_process_t             st_window_process;
+static st_window_get_width_t           st_window_get_width;
+static st_window_get_height_t          st_window_get_height;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -34,6 +36,7 @@ static st_lua_get_bool_t               st_lua_get_bool;
 static st_lua_get_integer_t            st_lua_get_integer;
 static st_lua_get_string_t             st_lua_get_string;
 static st_lua_push_bool_t              st_lua_push_bool;
+static st_lua_push_integer_t           st_lua_push_integer;
 static st_lua_pop_t                    st_lua_pop;
 
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx);
@@ -71,6 +74,8 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, destroy);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, xed);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, process);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, get_width);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, get_height);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, create_userdata);
@@ -84,6 +89,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_string);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, push_bool);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, push_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, pop);
 
     return true;
@@ -203,6 +209,26 @@ static int st_window_xed_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
+static int st_window_get_width_bind(st_luastate_t *lua_state) {
+    st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
+     1, WINDOW_METATABLE_NAME);
+    unsigned width = st_window_get_width(window);
+
+    st_lua_push_integer(lua_state, (ptrdiff_t)width);
+
+    return 1;
+}
+
+static int st_window_get_height_bind(st_luastate_t *lua_state) {
+    st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
+     1, WINDOW_METATABLE_NAME);
+    unsigned height = st_window_get_height(window);
+
+    st_lua_push_integer(lua_state, (ptrdiff_t)height);
+
+    return 1;
+}
+
 static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_window_t *module = luabind_ctx->data;
     st_luastate_t       *lua_state = st_lua_get_state(module->lua.ctx);
@@ -226,6 +252,10 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_window_destroy_bind);
     st_lua_set_cfunction_to_field(lua_state, "destroy", st_window_destroy_bind);
     st_lua_set_cfunction_to_field(lua_state, "xed", st_window_xed_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_width",
+     st_window_get_width_bind);
+    st_lua_set_cfunction_to_field(lua_state, "get_height",
+     st_window_get_height_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
 
     st_lua_pop(lua_state, 1);

@@ -36,6 +36,8 @@ typedef void (*st_window_process_t)(st_modctx_t *window_ctx);
 typedef bool (*st_window_xed_t)(const st_window_t *window);
 typedef st_monitor_t *(*st_window_get_monitor_t)(st_window_t *window);
 typedef void *(*st_window_get_handle_t)(st_window_t *window);
+typedef unsigned (*st_window_get_width_t)(const st_window_t *window);
+typedef unsigned (*st_window_get_height_t)(const st_window_t *window);
 
 typedef struct {
     st_window_init_t        window_init;
@@ -46,6 +48,8 @@ typedef struct {
     st_window_xed_t         window_xed;
     st_window_get_monitor_t window_get_monitor;
     st_window_get_handle_t  window_get_handle;
+    st_window_get_width_t   window_get_width;
+    st_window_get_height_t  window_get_height;
 } st_window_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_WINDOW_H */
