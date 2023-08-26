@@ -98,8 +98,6 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     unsigned            texture_height;
     unsigned            clip_x;
     unsigned            clip_y;
-    unsigned            clip_width;
-    unsigned            clip_height;
     st_sprite_t        *sprite = malloc(sizeof(st_sprite_t));
 
     if (!sprite) {
@@ -117,20 +115,21 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     texture_height = module->texture.get_height(sprite->texture);
     clip_x = module->atlas.get_clip_x(atlas, clip_num);
     clip_y = module->atlas.get_clip_y(atlas, clip_num);
-    clip_width = module->atlas.get_clip_width(atlas, clip_num);
-    clip_height = module->atlas.get_clip_height(atlas, clip_num);
+
+    sprite->width = module->atlas.get_clip_width(atlas, clip_num);
+    sprite->height = module->atlas.get_clip_height(atlas, clip_num);
 
     sprite->uv.upper_left.u = (float)clip_x / (float)texture_width;
     sprite->uv.upper_left.v = (float)clip_y / (float)texture_height;
-    sprite->uv.upper_right.u = (float)(clip_x + clip_width) /
+    sprite->uv.upper_right.u = (float)(clip_x + sprite->width) /
      (float)texture_width;
     sprite->uv.upper_right.v = (float)clip_y / (float)texture_height;
     sprite->uv.lower_left.u = (float)clip_x / (float)texture_width;
-    sprite->uv.lower_left.v = (float)(clip_y + clip_height) /
+    sprite->uv.lower_left.v = (float)(clip_y + sprite->height) /
      (float)texture_height;
-    sprite->uv.lower_right.u = (float)(clip_x + clip_width) /
+    sprite->uv.lower_right.u = (float)(clip_x + sprite->width) /
      (float)texture_width;
-    sprite->uv.lower_right.v = (float)(clip_y + clip_height) /
+    sprite->uv.lower_right.v = (float)(clip_y + sprite->height) /
      (float)texture_height;
 
     return sprite;
@@ -142,6 +141,14 @@ static void st_sprite_destroy(st_sprite_t *sprite) {
 
 static const st_texture_t *st_sprite_get_texture(const st_sprite_t *sprite) {
     return sprite->texture;
+}
+
+static unsigned st_sprite_get_width(const st_sprite_t *sprite) {
+    return sprite->width;
+}
+
+static unsigned st_sprite_get_height(const st_sprite_t *sprite) {
+    return sprite->height;
 }
 
 static void st_sprite_export_uv(const st_sprite_t *sprite, st_uv_t *dstuv) {

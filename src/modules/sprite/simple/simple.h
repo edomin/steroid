@@ -11,6 +11,8 @@ st_sprite_funcs_t st_sprite_simple_funcs = {
     .sprite_create      = st_sprite_create,
     .sprite_destroy     = st_sprite_destroy,
     .sprite_get_texture = st_sprite_get_texture,
+    .sprite_get_width   = st_sprite_get_width,
+    .sprite_get_height  = st_sprite_get_height,
     .sprite_export_uv   = st_sprite_export_uv,
 };
 
@@ -20,6 +22,8 @@ st_modfuncentry_t st_module_sprite_simple_funcs[] = {
     {"create",      st_sprite_create},
     {"destroy",     st_sprite_destroy},
     {"get_texture", st_sprite_get_texture},
+    {"get_width",   st_sprite_get_width},
+    {"get_height",  st_sprite_get_height},
     {"export_uv",   st_sprite_export_uv},
     {NULL, NULL},
 };

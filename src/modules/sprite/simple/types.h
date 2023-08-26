@@ -46,6 +46,8 @@ typedef struct {
 typedef struct {
     st_sprite_simple_t *module;
     const st_texture_t *texture;
+    unsigned            width;
+    unsigned            height;
     st_uv_t             uv;
 } st_sprite_t;
 
