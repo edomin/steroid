@@ -5,7 +5,7 @@
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#include <ketopt.h>
+#include <klib/ketopt.h>
 #pragma GCC diagnostic pop
 
 #include "config.h" // IWYU pragma: keep
