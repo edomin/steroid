@@ -1,5 +1,6 @@
 set(ST_MODULE_ATLAS_SIMPLE      "shared" CACHE STRING "")
 set(ST_MODULE_BITMAP_SIMPLE     "shared" CACHE STRING "")
+set(ST_MODULE_DRAWQ_SIMPLE      "shared" CACHE STRING "")
 set(ST_MODULE_DYNARR_SCV        "shared" CACHE STRING "")
 set(ST_MODULE_FNV1A_SIMPLE      "internal" CACHE STRING "")
 set(ST_MODULE_EVENTS_SIMPLE     "shared" CACHE STRING "")
