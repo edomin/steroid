@@ -11,7 +11,7 @@ st_sprite_funcs_t st_sprite_simple_funcs = {
     .sprite_create      = st_sprite_create,
     .sprite_destroy     = st_sprite_destroy,
     .sprite_get_texture = st_sprite_get_texture,
-    .sprite_fill_uv     = st_sprite_fill_uv,
+    .sprite_export_uv   = st_sprite_export_uv,
 };
 
 st_modfuncentry_t st_module_sprite_simple_funcs[] = {
@@ -20,7 +20,7 @@ st_modfuncentry_t st_module_sprite_simple_funcs[] = {
     {"create",      st_sprite_create},
     {"destroy",     st_sprite_destroy},
     {"get_texture", st_sprite_get_texture},
-    {"fill_uv",     st_sprite_fill_uv},
+    {"export_uv",   st_sprite_export_uv},
     {NULL, NULL},
 };
 

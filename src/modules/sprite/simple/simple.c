@@ -144,7 +144,7 @@ static const st_texture_t *st_sprite_get_texture(const st_sprite_t *sprite) {
     return sprite->texture;
 }
 
-static void st_sprite_fill_uv(const st_sprite_t *sprite, st_uv_t *dstuv) {
+static void st_sprite_export_uv(const st_sprite_t *sprite, st_uv_t *dstuv) {
     errno_t err = memcpy_s(dstuv, sizeof(st_uv_t), &sprite->uv,
      sizeof(st_uv_t));
 

@@ -32,7 +32,7 @@ typedef st_sprite_t *(*st_sprite_create_t)(st_modctx_t *sprite_ctx,
 typedef void (*st_sprite_destroy_t)(st_sprite_t *sprite);
 typedef const st_texture_t *(*st_sprite_get_texture_t)(
  const st_sprite_t *sprite);
-typedef void (*st_sprite_fill_uv_t)(const st_sprite_t *sprite, st_uv_t *dstuv);
+typedef void (*st_sprite_export_uv_t)(const st_sprite_t *sprite, st_uv_t *dstuv);
 
 typedef struct {
     st_sprite_init_t        sprite_init;
@@ -40,7 +40,7 @@ typedef struct {
     st_sprite_create_t      sprite_create;
     st_sprite_destroy_t     sprite_destroy;
     st_sprite_get_texture_t sprite_get_texture;
-    st_sprite_fill_uv_t     sprite_fill_uv;
+    st_sprite_export_uv_t   sprite_export_uv;
 } st_sprite_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_SPRITE_H */
