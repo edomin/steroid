@@ -20,9 +20,11 @@ typedef void (*st_drawq_quit_t)(st_modctx_t *drawq_ctx);
 
 typedef st_drawq_t *(*st_drawq_create_t)(const st_modctx_t *drawq_ctx);
 typedef void (*st_drawq_destroy_t)(st_drawq_t *drawq);
+typedef size_t (*st_drawq_len_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_empty_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_export_entry_t)(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index);
+typedef const st_drawrec_t *(*st_drawq_get_all_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_add_t)(st_drawq_t *drawq, st_sprite_t *sprite, float x,
  float y, float z, float scale, float angle);
 typedef bool (*st_drawq_sort_t)(st_drawq_t *drawq);
@@ -33,8 +35,10 @@ typedef struct {
     st_drawq_quit_t         drawq_quit;
     st_drawq_create_t       drawq_create;
     st_drawq_destroy_t      drawq_destroy;
+    st_drawq_len_t          drawq_len;
     st_drawq_empty_t        drawq_empty;
     st_drawq_export_entry_t drawq_export_entry;
+    st_drawq_get_all_t      drawq_get_all;
     st_drawq_add_t          drawq_add;
     st_drawq_sort_t         drawq_sort;
     st_drawq_clear_t        drawq_clear;

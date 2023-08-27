@@ -48,7 +48,9 @@ static bool st_drawq_import_functions(st_modctx_t *drawq_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, clear);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, sort);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, export);
+    ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, get_all);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, is_empty);
+    ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, get_elements_count);
 
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", logger, info);
@@ -130,6 +132,10 @@ static void st_drawq_destroy(st_drawq_t *drawq) {
     free(drawq);
 }
 
+static size_t st_drawq_len(const st_drawq_t *drawq) {
+    return drawq->module->dynarr.get_elements_count(drawq->entries);
+}
+
 static bool st_drawq_empty(const st_drawq_t *drawq) {
     return drawq->module->dynarr.is_empty(drawq->entries);
 }
@@ -137,6 +143,10 @@ static bool st_drawq_empty(const st_drawq_t *drawq) {
 static bool st_drawq_export_entry(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index) {
     return drawq->module->dynarr.export(drawq->entries, drawrec, index);
+}
+
+static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq) {
+    return drawq->module->dynarr.get_all(drawq->entries);
 }
 
 static bool st_drawq_add(st_drawq_t *drawq, st_sprite_t *sprite, float x,
