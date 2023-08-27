@@ -138,7 +138,8 @@ static void st_render_quit(st_modctx_t *render_ctx) {
 }
 
 static void st_render_put_sprite(st_modctx_t *render_ctx,
- const st_sprite_t *sprite, float x, float y, float z, float angle) {
+ const st_sprite_t *sprite, float x, float y, float z, float scale,
+ float angle) {
 
 }
 
