@@ -67,6 +67,25 @@ typedef struct {
 } st_render_opengl_window_t;
 
 typedef struct {
+    struct st_render_opengl_s *module;
+    st_dynarr_t               *handle;
+} st_vertices_t;
+
+typedef struct {
+    const st_texture_t *texture;
+    size_t              first_vertex_index;
+    size_t              vertices_count;
+} st_batch_entry_t;
+
+typedef struct {
+    struct st_render_opengl_s *module;
+    st_dynarr_t               *entries;
+    const st_texture_t        *current_texture;
+    size_t                     current_first_vertex_index;
+    size_t                     current_vertex_index;
+} st_batcher_t;
+
+typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
     st_render_opengl_dynarr_t   dynarr;
     st_render_opengl_gfxctx_t   gfxctx;
@@ -75,6 +94,8 @@ typedef struct {
     st_render_opengl_sprite_t   sprite;
     st_render_opengl_texture_t  texture;
     st_render_opengl_window_t   window;
+    st_vertices_t               vertices;
+    st_batcher_t                batcher;
 } st_render_opengl_t;
 
 #endif /* ST_MODULES_RENDER_OPENGL_TYPES_H */

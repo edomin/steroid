@@ -10,6 +10,9 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
+#include "batcher.inc"
+#include "vertices.inc"
+
 #define ERR_MSG_BUF_SIZE 1024
 
 // void (*glGenerateMipmap)(GLenum target);
@@ -118,7 +121,18 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
      gfxctx_ctx, logger_ctx, sprite_ctx, texture_ctx, window))
         goto import_fail;
 
-        return NULL;
+    if (!vertices_init(render_ctx)) {
+        module->logger.error(module->logger.ctx,
+         "render_opengl: Unable to init vertices array");
+
+        goto vertices_fail;
+    }
+
+    if (!batcher_init(render_ctx)) {
+        module->logger.error(module->logger.ctx,
+         "render_opengl: Unable to init batcher");
+
+        goto batcher_fail;
     }
 
     // glGenerateMipmap = module->glloader.get_proc_address(NULL,
@@ -128,11 +142,21 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
      "render_opengl: Render subsystem initialized.");
 
     return render_ctx;
+
+batcher_fail:
+    vertices_free(&module->vertices);
+vertices_fail:
+import_fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
+
+    return NULL;
 }
 
 static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
+    batcher_free(&module->batcher);
+    vertices_free(&module->vertices);
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
