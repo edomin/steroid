@@ -59,8 +59,9 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     window_ctx = st_window_get_ctx(window);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, create);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, empty);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, export_entry);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, destroy);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, len);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, get_all);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, add);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, sort);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, clear);
@@ -69,7 +70,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, destroy);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, append);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, clear);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_all);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_elements_count);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, make_current);

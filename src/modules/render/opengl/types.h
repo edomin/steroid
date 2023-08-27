@@ -15,8 +15,9 @@
 typedef struct {
     st_modctx_t            *ctx;
     st_drawq_create_t       create;
-    st_drawq_empty_t        empty;
-    st_drawq_export_entry_t export_entry;
+    st_drawq_destroy_t      destroy;
+    st_drawq_len_t          len;
+    st_drawq_get_all_t      get_all;
     st_drawq_add_t          add;
     st_drawq_sort_t         sort;
     st_drawq_clear_t        clear;
@@ -28,7 +29,7 @@ typedef struct {
     st_dynarr_destroy_t            destroy;
     st_dynarr_append_t             append;
     st_dynarr_clear_t              clear;
-    st_dynarr_get_all_t            get_all;
+    st_dynarr_get_t                get;
     st_dynarr_get_elements_count_t get_elements_count;
 } st_render_opengl_dynarr_t;
 
