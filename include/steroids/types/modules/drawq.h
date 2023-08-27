@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include "steroids/module.h"
+#include "steroids/types/modules/sprite.h"
 
 #ifndef ST_DRAWQ_T_DEFINED
     typedef struct st_drawq_s st_drawq_t;

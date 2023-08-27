@@ -6,6 +6,7 @@
 
 #include "steroids/module.h"
 #include "steroids/types/modules/drawq.h"
+#include "steroids/types/modules/sprite.h"
 
 static st_modctx_t *st_drawq_init(st_modctx_t *dynarr_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx);
