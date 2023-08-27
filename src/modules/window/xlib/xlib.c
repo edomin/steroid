@@ -197,6 +197,7 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
          XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
     }
 
+    window->ctx = window_ctx;
     window->monitor = monitor;
     window->width = width;
     window->height = height;
@@ -213,7 +214,7 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
 }
 
 static void st_window_destroy(st_window_t *window) {
-    st_window_xlib_t *module = window->module;
+    st_window_xlib_t *module = window->ctx->data;
 
     while (!st_slist_empty(module->windows)) {
         st_slnode_t *node = st_slist_get_first(module->windows);
@@ -379,6 +380,10 @@ static void st_window_process(st_modctx_t *window_ctx) {
 
 static bool st_window_xed(const st_window_t *window) {
     return window->xed;
+}
+
+static st_modctx_t *st_window_get_ctx(st_window_t *window) {
+    return window->ctx;
 }
 
 static st_monitor_t *st_window_get_monitor(st_window_t *window) {
