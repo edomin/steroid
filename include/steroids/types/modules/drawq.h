@@ -10,9 +10,14 @@
     typedef struct st_drawq_s st_drawq_t;
 #endif
 
-#ifndef ST_DRAWREC_T_DEFINED
-    typedef struct st_drawrec_s st_drawrec_t;
-#endif
+typedef struct {
+    st_sprite_t *sprite;
+    float        x;
+    float        y;
+    float        z;
+    float        scale;
+    float        angle;
+} st_drawrec_t;
 
 typedef st_modctx_t *(*st_drawq_init_t)(st_modctx_t *dynarr_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx);

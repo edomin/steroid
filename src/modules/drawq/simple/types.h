@@ -39,20 +39,10 @@ typedef struct {
 } st_drawq_simple_t;
 
 typedef struct {
-    st_sprite_t *sprite;
-    float        x;
-    float        y;
-    float        z;
-    float        scale;
-    float        angle;
-} st_drawrec_t;
-
-typedef struct {
     st_drawq_simple_t *module;
     st_dynarr_t       *entries;
 } st_drawq_t;
 
-#define ST_DRAWREC_T_DEFINED
 #define ST_DRAWQ_T_DEFINED
 
 #endif /* ST_MODULES_DRAWQ_SIMPLE_TYPES_H */
