@@ -31,8 +31,10 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 static bool st_render_import_functions(st_modctx_t *render_ctx,
  st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *gfxctx_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx,
- st_modctx_t *window_ctx) {
+ st_window_t *window) {
     st_render_opengl_t *module = render_ctx->data;
+    st_window_get_ctx_t st_window_get_ctx;
+    st_modctx_t        *window_ctx;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, logger_ctx, "error");
@@ -43,6 +45,18 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
         return false;
     }
+
+    st_window_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
+     "window", NULL, "get_ctx");
+    if (!st_window_get_ctx) {
+        module->logger.error(module->logger.ctx,
+         "render_opengl: Unable to load function \"get_ctx\" from module "
+         "\"window\"\n");
+
+        return false;
+    }
+
+    window_ctx = st_window_get_ctx(window);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, create);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, empty);
@@ -82,7 +96,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
 static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
  st_modctx_t *dynarr_ctx, st_modctx_t *gfxctx_ctx, st_modctx_t *logger_ctx,
- st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_modctx_t *window_ctx) {
+ st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_window_t *window) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
 
@@ -99,9 +113,9 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     module->dynarr.ctx = dynarr_ctx;
     module->logger.ctx = logger_ctx;
 
-    if (!st_texture_import_functions(render_ctx, drawq_ctx, dynarr_ctx,
-     gfxctx_ctx, logger_ctx, sprite_ctx, texture_ctx, window_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
+    if (!st_render_import_functions(render_ctx, drawq_ctx, dynarr_ctx,
+     gfxctx_ctx, logger_ctx, sprite_ctx, texture_ctx, window))
+        goto import_fail;
 
         return NULL;
     }
