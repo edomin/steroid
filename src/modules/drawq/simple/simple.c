@@ -140,8 +140,8 @@ static bool st_drawq_export_entry(const st_drawq_t *drawq,
 }
 
 static bool st_drawq_add(st_drawq_t *drawq, st_sprite_t *sprite, float x,
- float y, float z, float angle) {
-    st_drawrec_t entry = { sprite, x, y, z, angle };
+ float y, float z, float scale, float angle) {
+    st_drawrec_t entry = { sprite, x, y, z, scale, angle };
 
     return drawq->module->dynarr.append(drawq->entries, &entry);
 }

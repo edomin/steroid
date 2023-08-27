@@ -41,6 +41,7 @@ typedef struct {
     float        x;
     float        y;
     float        z;
+    float        scale;
     float        angle;
 } st_drawrec_t;
 
