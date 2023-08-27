@@ -121,6 +121,14 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
      gfxctx_ctx, logger_ctx, sprite_ctx, texture_ctx, window))
         goto import_fail;
 
+    module->drawq.handle = module->drawq.create(module->drawq.ctx);
+    if (!module->drawq.handle) {
+        module->logger.error(module->logger.ctx,
+         "render_opengl: Unable to create draw queue");
+
+        goto drawq_fail;
+    }
+
     if (!vertices_init(render_ctx)) {
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable to init vertices array");
@@ -138,14 +146,18 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     // glGenerateMipmap = module->glloader.get_proc_address(NULL,
     //  "glGenerateMipmap");
 
+    module->window.handle = window;
+
     module->logger.info(module->logger.ctx,
-     "render_opengl: Render subsystem initialized.");
+     "render_opengl: Render subsystem initialized");
 
     return render_ctx;
 
 batcher_fail:
     vertices_free(&module->vertices);
 vertices_fail:
+    module->drawq.destroy(module->drawq.handle);
+drawq_fail:
 import_fail:
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
 
@@ -157,6 +169,8 @@ static void st_render_quit(st_modctx_t *render_ctx) {
 
     batcher_free(&module->batcher);
     vertices_free(&module->vertices);
+    module->drawq.destroy(module->drawq.handle);
+
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
@@ -165,9 +179,74 @@ static void st_render_quit(st_modctx_t *render_ctx) {
 static void st_render_put_sprite(st_modctx_t *render_ctx,
  const st_sprite_t *sprite, float x, float y, float z, float scale,
  float angle) {
+    st_render_opengl_t *module = render_ctx->data;
 
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, scale, angle);
+}
+
+static void st_render_process_queue(st_modctx_t *render_ctx) {
+    st_render_opengl_t *module = render_ctx->data;
+    unsigned            window_width = module->window.get_width(
+     module->window.handle);
+    unsigned            window_height = module->window.get_height(
+     module->window.handle);
+    const st_drawrec_t *draw_entries = module->drawq.get_all(
+     module->drawq.handle);
+    size_t              draw_entries_count = module->drawq.len(
+     module->drawq.handle);
+
+    vertices_clear(&module->vertices);
+    batcher_clear(&module->batcher);
+
+    if (draw_entries_count == 0)
+        return;
+
+    module->drawq.sort(module->drawq.handle);
+    for (size_t i = 0; i < draw_entries_count; i++) {
+        const st_sprite_t  *sprite = draw_entries[i].sprite;
+        const st_texture_t *texture = module->sprite.get_texture(sprite);
+        unsigned            sprite_width = module->sprite.get_width(sprite);
+        unsigned            sprite_height = module->sprite.get_height(sprite);
+        float               pos_upper_left_x = draw_entries[i].x /
+         (float)window_width - 1.0f;
+        float               pos_upper_left_y = 1.0f - draw_entries[i].y /
+         (float)window_height;
+        float               pos_upper_right_x = (draw_entries[i].x +
+         (float)sprite_width * draw_entries[i].scale) / (float)window_width -
+         1.0f;
+        float               pos_upper_right_y = pos_upper_left_y;
+        float               pos_lower_left_x = pos_upper_left_x;
+        float               pos_lower_left_y = 1.0f - (draw_entries[i].y +
+         (float)sprite_height * draw_entries[i].scale) / (float)window_height;
+        float               pos_lower_right_x = pos_upper_right_x;
+        float               pos_lower_right_y = pos_lower_left_y;
+        float               pos_z = draw_entries[i].z / (float)UINT16_MAX +
+         0.5f; // NOLINT(readability-magic-numbers)
+        st_uv_t             uv;
+
+        batcher_process_texture(&module->batcher, texture);
+
+        module->sprite.export_uv(sprite, &uv);
+
+        vertices_add(&module->vertices, pos_upper_left_x, pos_upper_left_y,
+         pos_z, uv.upper_left.u, uv.upper_left.v);
+        vertices_add(&module->vertices, pos_upper_right_x, pos_upper_right_y,
+         pos_z, uv.upper_right.u, uv.upper_right.v);
+        vertices_add(&module->vertices, pos_lower_left_x, pos_lower_left_y,
+         pos_z, uv.lower_left.u, uv.lower_left.v);
+        vertices_add(&module->vertices, pos_upper_right_x, pos_upper_right_y,
+         pos_z, uv.upper_right.u, uv.upper_right.v);
+        vertices_add(&module->vertices, pos_lower_left_x, pos_lower_left_y,
+         pos_z, uv.lower_left.u, uv.lower_left.v);
+        vertices_add(&module->vertices, pos_lower_right_x, pos_lower_right_y,
+         pos_z, uv.lower_right.u, uv.lower_right.v);
+    }
+
+    batcher_finalize(&module->batcher);
 }
 
 static void st_render_process(st_modctx_t *render_ctx) {
+    // st_render_opengl_t *module = render_ctx->data;
 
+    st_render_process_queue(render_ctx);
 }

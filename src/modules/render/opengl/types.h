@@ -21,6 +21,7 @@ typedef struct {
     st_drawq_add_t          add;
     st_drawq_sort_t         sort;
     st_drawq_clear_t        clear;
+    st_drawq_t             *handle;
 } st_render_opengl_drawq_t;
 
 typedef struct {
@@ -64,6 +65,7 @@ typedef struct {
 typedef struct {
     st_window_get_width_t  get_width;
     st_window_get_height_t get_height;
+    st_window_t           *handle;
 } st_render_opengl_window_t;
 
 typedef struct {
@@ -94,6 +96,8 @@ typedef struct st_render_opengl_s {
     st_render_opengl_sprite_t   sprite;
     st_render_opengl_texture_t  texture;
     st_render_opengl_window_t   window;
+
+    st_drawq_t                 *queue;
     st_vertices_t               vertices;
     st_batcher_t                batcher;
 } st_render_opengl_t;
