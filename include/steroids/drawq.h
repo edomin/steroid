@@ -12,6 +12,7 @@ static st_modctx_t *st_drawq_init(st_modctx_t *dynarr_ctx,
 static void st_drawq_quit(st_modctx_t *drawq_ctx);
 
 static st_drawq_t *st_drawq_create(const st_modctx_t *drawq_ctx);
+static void st_drawq_destroy(st_drawq_t *drawq);
 static bool st_drawq_empty(const st_drawq_t *drawq);
 static bool st_drawq_export_entry(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index);

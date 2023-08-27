@@ -125,6 +125,11 @@ static st_drawq_t *st_drawq_create(const st_modctx_t *drawq_ctx) {
     return drawq;
 }
 
+static void st_drawq_destroy(st_drawq_t *drawq) {
+    drawq->module->dynarr.destroy(drawq->entries);
+    free(drawq);
+}
+
 static bool st_drawq_empty(const st_drawq_t *drawq) {
     return drawq->module->dynarr.is_empty(drawq->entries);
 }

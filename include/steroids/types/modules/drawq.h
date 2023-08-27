@@ -19,6 +19,7 @@ typedef st_modctx_t *(*st_drawq_init_t)(st_modctx_t *dynarr_ctx,
 typedef void (*st_drawq_quit_t)(st_modctx_t *drawq_ctx);
 
 typedef st_drawq_t *(*st_drawq_create_t)(const st_modctx_t *drawq_ctx);
+typedef void (*st_drawq_destroy_t)(st_drawq_t *drawq);
 typedef bool (*st_drawq_empty_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_export_entry_t)(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index);
@@ -31,6 +32,7 @@ typedef struct {
     st_drawq_init_t         drawq_init;
     st_drawq_quit_t         drawq_quit;
     st_drawq_create_t       drawq_create;
+    st_drawq_destroy_t      drawq_destroy;
     st_drawq_empty_t        drawq_empty;
     st_drawq_export_entry_t drawq_export_entry;
     st_drawq_add_t          drawq_add;
