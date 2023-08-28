@@ -7,6 +7,15 @@ Bitmap.new_ctx(logger_ctx: logger_ctx): bitmap_ctx
 bitmap_ctx:destroy()
 ```
 
+## dynarr
+```luau
+Dynarr = require "Dynarr"
+
+Dynarr.new_ctx(logger_ctx: logger_ctx): dynarr_ctx
+
+dynarr_ctx:destroy()
+```
+
 ## events
 ```luau
 Events = require "Events"
