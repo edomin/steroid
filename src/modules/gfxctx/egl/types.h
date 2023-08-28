@@ -33,6 +33,7 @@ typedef struct {
 
 typedef struct {
     st_modctx_t *ctx;
+    st_window_t *window;
     EGLDisplay   display;
     EGLConfig    cfg;
     EGLSurface   surface;
