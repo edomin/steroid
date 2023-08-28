@@ -32,11 +32,13 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_render_import_functions(st_modctx_t *render_ctx,
- st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *gfxctx_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx,
- st_window_t *window) {
+ st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx,
+ st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_window_t *window,
+ st_gfxctx_t *gfxctx) {
     st_render_opengl_t *module = render_ctx->data;
+    st_gfxctx_get_ctx_t st_gfxctx_get_ctx;
     st_window_get_ctx_t st_window_get_ctx;
+    st_modctx_t        *gfxctx_ctx;
     st_modctx_t        *window_ctx;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -49,6 +51,17 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
         return false;
     }
 
+    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
+     "gfxctx", NULL, "get_ctx");
+    if (!st_gfxctx_get_ctx) {
+        module->logger.error(module->logger.ctx,
+         "render_opengl: Unable to load function \"get_ctx\" from module "
+         "\"gfxctx\"\n");
+
+        return false;
+    }
+    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
+
     st_window_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
      "window", NULL, "get_ctx");
     if (!st_window_get_ctx) {
@@ -58,7 +71,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
         return false;
     }
-
     window_ctx = st_window_get_ctx(window);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, create);
@@ -99,8 +111,8 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 }
 
 static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
- st_modctx_t *dynarr_ctx, st_modctx_t *gfxctx_ctx, st_modctx_t *logger_ctx,
- st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_window_t *window) {
+ st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx,
+ st_modctx_t *texture_ctx, st_window_t *window, st_gfxctx_t *gfxctx) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
 
@@ -118,7 +130,7 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     module->logger.ctx = logger_ctx;
 
     if (!st_render_import_functions(render_ctx, drawq_ctx, dynarr_ctx,
-     gfxctx_ctx, logger_ctx, sprite_ctx, texture_ctx, window))
+     logger_ctx, sprite_ctx, texture_ctx, window, gfxctx))
         goto import_fail;
 
     module->drawq.handle = module->drawq.create(module->drawq.ctx);
