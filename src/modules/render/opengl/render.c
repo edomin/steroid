@@ -33,13 +33,13 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 
 static bool st_render_import_functions(st_modctx_t *render_ctx,
  st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx,
- st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_window_t *window,
- st_gfxctx_t *gfxctx) {
+ st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx) {
     st_render_opengl_t *module = render_ctx->data;
     st_gfxctx_get_ctx_t st_gfxctx_get_ctx;
     st_window_get_ctx_t st_window_get_ctx;
     st_modctx_t        *gfxctx_ctx;
     st_modctx_t        *window_ctx;
+    st_window_t        *window;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, logger_ctx, "error");
@@ -61,6 +61,9 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
         return false;
     }
     gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
+
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, get_window);
+    window = module->gfxctx.get_window(gfxctx);
 
     st_window_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
      "window", NULL, "get_ctx");
@@ -112,7 +115,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
 static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
  st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx,
- st_modctx_t *texture_ctx, st_window_t *window, st_gfxctx_t *gfxctx) {
+ st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
 
@@ -130,7 +133,7 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     module->logger.ctx = logger_ctx;
 
     if (!st_render_import_functions(render_ctx, drawq_ctx, dynarr_ctx,
-     logger_ctx, sprite_ctx, texture_ctx, window, gfxctx))
+     logger_ctx, sprite_ctx, texture_ctx, gfxctx))
         goto import_fail;
 
     module->drawq.handle = module->drawq.create(module->drawq.ctx);
@@ -158,7 +161,7 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     // glGenerateMipmap = module->glloader.get_proc_address(NULL,
     //  "glGenerateMipmap");
 
-    module->window.handle = window;
+    module->window.handle = module->gfxctx.get_window(gfxctx);
 
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem initialized");
