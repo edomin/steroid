@@ -39,6 +39,7 @@ typedef struct {
     st_gfxctx_swap_buffers_t swap_buffers;
     st_gfxctx_get_window_t   get_window;
     st_gfxctx_get_api_t      get_api;
+    st_gfxctx_t             *handle;
 } st_render_opengl_gfxctx_t;
 
 typedef struct {

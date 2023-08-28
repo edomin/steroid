@@ -1,6 +1,6 @@
 #include "render.h"
 
-// #include <GL/gl.h>
+#include <GL/gl.h>
 // #include <GL/glu.h>
 
 #pragma GCC diagnostic push
@@ -10,6 +10,7 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
+#include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
 #include "vertices.inl"
 
@@ -161,7 +162,10 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     // glGenerateMipmap = module->glloader.get_proc_address(NULL,
     //  "glGenerateMipmap");
 
+    module->gfxctx.handle = gfxctx;
     module->window.handle = module->gfxctx.get_window(gfxctx);
+
+    glfuncs_load_all(render_ctx);
 
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem initialized");
