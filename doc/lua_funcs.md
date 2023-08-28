@@ -179,6 +179,19 @@ Png.new_ctx(logger_ctx: logger_ctx): png_ctx
 png_ctx:destroy()
 ```
 
+## sprite
+```luau
+Sprite = require "Sprite"
+
+Sprite.new_ctx(atlas_ctx: atlas_ctx, logger_ctx: logger_ctx, texture_ctx: texture_ctx): sprite_ctx
+
+sprite_ctx:destroy()
+sprite_ctx:from_texture(texture: texture): sprite
+sprite:destroy()
+sprite:get_width(): integer
+sprite:get_height(): integer
+```
+
 ## timer
 ```luau
 Timer = require "Timer"
