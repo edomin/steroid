@@ -12,6 +12,7 @@
 
 #include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
+#include "vao.inl"
 #include "vertices.inl"
 
 #define ERR_MSG_BUF_SIZE 1024
@@ -162,6 +163,9 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
 
     glfuncs_load_all(render_ctx);
 
+    if (glapi_least(ST_GAPI_GL3))
+        vao_init(render_ctx);
+
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem initialized");
 
@@ -181,6 +185,8 @@ import_fail:
 static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
+    if (glapi_least(ST_GAPI_GL3))
+        vao_free(&module->vao);
     batcher_free(&module->batcher);
     vertices_free(&module->vertices);
     module->drawq.destroy(module->drawq.handle);

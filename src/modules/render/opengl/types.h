@@ -1,7 +1,7 @@
 #ifndef ST_MODULES_RENDER_OPENGL_TYPES_H
 #define ST_MODULES_RENDER_OPENGL_TYPES_H
 
-// #include <GL/gl.h>
+#include <GL/gl.h>
 
 #include "steroids/types/modules/drawq.h"
 #include "steroids/types/modules/dynarr.h"
@@ -89,6 +89,8 @@ typedef struct {
     size_t                     current_vertex_index;
 } st_batcher_t;
 
+typedef GLuint st_vao_t;
+
 typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
     st_render_opengl_dynarr_t   dynarr;
@@ -102,6 +104,7 @@ typedef struct st_render_opengl_s {
     st_drawq_t                 *queue;
     st_vertices_t               vertices;
     st_batcher_t                batcher;
+    st_vao_t                    vao;
 } st_render_opengl_t;
 
 #endif /* ST_MODULES_RENDER_OPENGL_TYPES_H */
