@@ -12,6 +12,7 @@ st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_create_shared = st_gfxctx_create_shared,
     .gfxctx_make_current  = st_gfxctx_make_current,
     .gfxctx_swap_buffers  = st_gfxctx_swap_buffers,
+    .gfxctx_get_ctx       = st_gfxctx_get_ctx,
     .gfxctx_get_api       = st_gfxctx_get_api,
     .gfxctx_destroy       = st_gfxctx_destroy,
 };
@@ -23,6 +24,7 @@ st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {"create_shared", st_gfxctx_create_shared},
     {"make_current" , st_gfxctx_make_current},
     {"swap_buffers" , st_gfxctx_swap_buffers},
+    {"get_ctx"      , st_gfxctx_get_ctx},
     {"get_api"      , st_gfxctx_get_api},
     {"destroy"      , st_gfxctx_destroy},
     {NULL, NULL},

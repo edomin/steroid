@@ -582,6 +582,8 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto create_context_fail;
     }
 
+    gfxctx->ctx = gfxctx_ctx;
+
     eglMakeCurrent(gfxctx->display, gfxctx->surface, gfxctx->surface,
      gfxctx->handle);
     if (eglSwapInterval(gfxctx->display, 1) == EGL_FALSE)
@@ -637,6 +639,10 @@ static bool st_gfxctx_make_current(st_gfxctx_t *gfxctx) {
 
 static bool st_gfxctx_swap_buffers(st_gfxctx_t *gfxctx) {
     return eglSwapBuffers(gfxctx->display, gfxctx->surface);
+}
+
+static st_modctx_t *st_gfxctx_get_ctx(st_gfxctx_t *gfxctx) {
+    return gfxctx->ctx;
 }
 
 static st_gapi_t st_gfxctx_get_api(st_gfxctx_t *gfxctx) {

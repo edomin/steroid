@@ -32,12 +32,12 @@ typedef struct {
 } st_gfxctx_egl_t;
 
 typedef struct {
-    st_gfxctx_egl_t *module;
-    EGLDisplay       display;
-    EGLConfig        cfg;
-    EGLSurface       surface;
-    EGLContext       handle;
-    int              gapi;
+    st_modctx_t *ctx;
+    EGLDisplay   display;
+    EGLConfig    cfg;
+    EGLSurface   surface;
+    EGLContext   handle;
+    int          gapi;
 } st_gfxctx_t;
 
 #define ST_GFXCTX_T_DEFINED
