@@ -57,6 +57,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/lua/luajit"
  "${CMAKE_BINARY_DIR}/src/modules/lua/luajit")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/bitmap"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/bitmap")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/drawq"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/drawq")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/dynarr"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/dynarr")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/events"
