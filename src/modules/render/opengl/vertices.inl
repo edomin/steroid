@@ -1,5 +1,5 @@
-#ifndef ST_MODULES_RENDER_OPENGL_VERTICES_INC
-#define ST_MODULES_RENDER_OPENGL_VERTICES_INC
+#ifndef ST_MODULES_RENDER_OPENGL_VERTICES_INL
+#define ST_MODULES_RENDER_OPENGL_VERTICES_INL
 
 #define INITIAL_VERTICES_CAPACITY 1048576
 
@@ -41,4 +41,4 @@ static bool vertices_clear(st_vertices_t *vertices) {
     return vertices->module->dynarr.clear(vertices->handle);
 }
 
-#endif /* ST_MODULES_RENDER_OPENGL_VERTICES_INC */
+#endif /* ST_MODULES_RENDER_OPENGL_VERTICES_INL */

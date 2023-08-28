@@ -1,5 +1,5 @@
-#ifndef ST_MODULES_RENDER_OPENGL_BATCHER_INC
-#define ST_MODULES_RENDER_OPENGL_BATCHER_INC
+#ifndef ST_MODULES_RENDER_OPENGL_BATCHER_INL
+#define ST_MODULES_RENDER_OPENGL_BATCHER_INL
 
 #define INITIAL_ENTRIES_CAPACITY 8192
 #define VERTICES_PER_TEXTURE     6
@@ -80,4 +80,4 @@ static void batcher_process_texture(st_batcher_t *batcher,
 //     return entry->vertices_count;
 // }
 
-#endif /* ST_MODULES_RENDER_OPENGL_BATCHER_INC */
+#endif /* ST_MODULES_RENDER_OPENGL_BATCHER_INL */

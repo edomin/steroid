@@ -10,8 +10,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#include "batcher.inc"
-#include "vertices.inc"
+#include "batcher.inl"
+#include "vertices.inl"
 
 #define ERR_MSG_BUF_SIZE 1024
 
