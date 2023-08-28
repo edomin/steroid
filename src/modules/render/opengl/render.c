@@ -16,8 +16,6 @@
 
 #define ERR_MSG_BUF_SIZE 1024
 
-// void (*glGenerateMipmap)(GLenum target);
-
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 static char               err_msg_buf[ERR_MSG_BUF_SIZE];
@@ -158,9 +156,6 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
 
         goto batcher_fail;
     }
-
-    // glGenerateMipmap = module->glloader.get_proc_address(NULL,
-    //  "glGenerateMipmap");
 
     module->gfxctx.handle = gfxctx;
     module->window.handle = module->gfxctx.get_window(gfxctx);
