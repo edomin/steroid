@@ -1,3 +1,12 @@
+## atlas
+```luau
+Atlas = require "Atlas"
+
+Atlas.new_ctx(logger_ctx: logger_ctx, texture_ctx: texture_ctx): atlas_ctx
+
+atlas_ctx:destroy()
+```
+
 ## bitmap
 ```luau
 Bitmap = require "Bitmap"
