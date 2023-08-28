@@ -12,6 +12,8 @@ static void st_sprite_quit(st_modctx_t *sprite_ctx);
 
 static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
  const st_atlas_t *atlas, size_t clip_num);
+static st_sprite_t *st_sprite_from_texture(st_modctx_t *sprite_ctx,
+ const st_texture_t *texture);
 static void st_sprite_destroy(st_sprite_t *sprite);
 static const st_texture_t *st_sprite_get_texture(const st_sprite_t *sprite);
 static unsigned st_sprite_get_width(const st_sprite_t *sprite);

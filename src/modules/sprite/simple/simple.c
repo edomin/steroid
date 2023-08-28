@@ -135,6 +135,37 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     return sprite;
 }
 
+static st_sprite_t *st_sprite_from_texture(st_modctx_t *sprite_ctx,
+ const st_texture_t *texture) {
+    st_sprite_simple_t *module = sprite_ctx->data;
+    st_sprite_t        *sprite = malloc(sizeof(st_sprite_t));
+
+    if (!sprite) {
+        module->logger.error(module->logger.ctx,
+         "sprite_simple: Unable to allocate memory for new sprite: %s",
+         strerror(errno));
+
+        return NULL;
+    }
+
+    sprite->module = module;
+    sprite->texture = texture;
+
+    sprite->width = module->texture.get_width(texture);
+    sprite->height = module->texture.get_height(texture);
+
+    sprite->uv.upper_left.u  = 0.0f;
+    sprite->uv.upper_left.v  = 0.0f;
+    sprite->uv.upper_right.u = 1.0f;
+    sprite->uv.upper_right.v = 0.0f;
+    sprite->uv.lower_left.u  = 0.0f;
+    sprite->uv.lower_left.v  = 1.0f;
+    sprite->uv.lower_right.u = 1.0f;
+    sprite->uv.lower_right.v = 1.0f;
+
+    return sprite;
+}
+
 static void st_sprite_destroy(st_sprite_t *sprite) {
     free(sprite);
 }
