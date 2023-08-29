@@ -318,4 +318,6 @@ static void st_render_process(st_modctx_t *render_ctx) {
     shdprog_use(&module->shdprog);
 
     shdprog_unuse(&module->shdprog);
+
+    module->drawq.clear(module->drawq.handle);
 }
