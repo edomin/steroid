@@ -315,6 +315,8 @@ static void st_render_process(st_modctx_t *render_ctx) {
 
     st_render_process_queue(render_ctx);
 
+    glClear((unsigned)GL_COLOR_BUFFER_BIT | (unsigned)GL_DEPTH_BUFFER_BIT);
+
     shdprog_use(&module->shdprog);
 
     shdprog_unuse(&module->shdprog);
