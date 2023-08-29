@@ -19,7 +19,9 @@
 #include "vao.inl"
 #include "vertices.inl"
 
-#define ERR_MSG_BUF_SIZE 1024
+#define ERR_MSG_BUF_SIZE     1024
+#define DEPTH_RANGE_NEAR_VAL 0.0
+#define DEPTH_RANGE_FAR_VAL  1.0
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -198,6 +200,15 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
         shader_free(&shd_frag);
         shader_free(&shd_vert);
     }
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glDepthRange(DEPTH_RANGE_NEAR_VAL, DEPTH_RANGE_FAR_VAL);
+    glClearDepth(DEPTH_RANGE_FAR_VAL);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem initialized");
