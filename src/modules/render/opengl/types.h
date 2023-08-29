@@ -91,6 +91,7 @@ typedef struct {
 
 typedef GLuint st_vao_t;
 typedef GLuint st_shader_t;
+typedef GLuint st_shdprog_t;
 
 typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
@@ -106,6 +107,7 @@ typedef struct st_render_opengl_s {
     st_vertices_t               vertices;
     st_batcher_t                batcher;
     st_vao_t                    vao;
+    st_shdprog_t                shdprog;
 } st_render_opengl_t;
 
 #endif /* ST_MODULES_RENDER_OPENGL_TYPES_H */

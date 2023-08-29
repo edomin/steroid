@@ -14,6 +14,16 @@ static void (*glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
 static void (*glGetShaderInfoLog)(GLuint shader, GLsizei maxLength,
  GLsizei *length, GLchar *infoLog);
 
+/* Shader program */
+static GLuint (*glCreateProgram)(void);
+static void (*glDeleteProgram)(GLuint program);
+static void (*glAttachShader)(GLuint program, GLuint shader);
+static void (*glLinkProgram)(GLuint program);
+static void (*glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
+static void (*glGetProgramInfoLog)(GLuint program, GLsizei maxLength,
+ GLsizei *length, GLchar *infoLog);
+static void (*glUseProgram)(GLuint program);
+
 /* GL 3.0 */
 /* VAO */
 static void (*glGenVertexArrays)(GLsizei n, GLuint *arrays);
@@ -46,6 +56,22 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
          "glGetShaderiv");
         glGetShaderInfoLog = module->glloader.get_proc_address(NULL,
          "glGetShaderInfoLog");
+
+        /* Shader program */
+        glCreateProgram = module->glloader.get_proc_address(NULL,
+         "glCreateProgram");
+        glDeleteProgram = module->glloader.get_proc_address(NULL,
+         "glDeleteProgram");
+        glAttachShader = module->glloader.get_proc_address(NULL,
+         "glAttachShader");
+        glLinkProgram = module->glloader.get_proc_address(NULL,
+         "glLinkProgram");
+        glGetProgramiv = module->glloader.get_proc_address(NULL,
+         "glGetProgramiv");
+        glGetProgramInfoLog = module->glloader.get_proc_address(NULL,
+         "glGetProgramInfoLog");
+        glUseProgram = module->glloader.get_proc_address(NULL,
+         "glUseProgram");
     }
 
     if (glapi_least(ST_GAPI_GL3)) {

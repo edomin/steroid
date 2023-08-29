@@ -15,6 +15,7 @@
 #include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
 #include "shader.inl"
+#include "shdprog.inl"
 #include "vao.inl"
 #include "vertices.inl"
 
@@ -181,13 +182,18 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
                 goto vert_fail;
         }
 
-        if (shd_vert && !shader_init(render_ctx, &shd_frag, SHD_FRAGMENT,
+        if (shd_vert &&
+         !shader_init(render_ctx, &shd_frag, SHD_FRAGMENT,
           FRAGMENT_SHADER_SOURCE_GL33)) {
             if (glapi_least(ST_GAPI_GL3))
                 goto frag_fail;
         }
 
-        /* link shader program here */
+        if (shd_vert && shd_frag &&
+         !shdprog_init(render_ctx, &shd_vert, &shd_frag)) {
+            if (glapi_least(ST_GAPI_GL3))
+                goto prog_fail;
+        }
 
         shader_free(&shd_frag);
         shader_free(&shd_vert);
@@ -198,6 +204,9 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
 
     return render_ctx;
 
+prog_fail:
+    if (glapi_least(ST_GAPI_GL2))
+        shader_free(&shd_frag);
 frag_fail:
     if (glapi_least(ST_GAPI_GL2))
         shader_free(&shd_vert);
@@ -219,6 +228,8 @@ import_fail:
 static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
+    if (glapi_least(ST_GAPI_GL2))
+        shdprog_free(&module->shdprog);
     if (glapi_least(ST_GAPI_GL3))
         vao_free(&module->vao);
     batcher_free(&module->batcher);
@@ -300,7 +311,11 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
 }
 
 static void st_render_process(st_modctx_t *render_ctx) {
-    // st_render_opengl_t *module = render_ctx->data;
+    st_render_opengl_t *module = render_ctx->data;
 
     st_render_process_queue(render_ctx);
+
+    shdprog_use(&module->shdprog);
+
+    shdprog_unuse(&module->shdprog);
 }
