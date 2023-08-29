@@ -33,6 +33,7 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
     current_gapi = module->gfxctx.get_api(module->gfxctx.handle);
 
     if (glapi_least(ST_GAPI_GL2)) {
+        /* Shader */
         glCreateShader = module->glloader.get_proc_address(NULL,
          "glCreateShader");
         glShaderSource = module->glloader.get_proc_address(NULL,
@@ -48,6 +49,7 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
     }
 
     if (glapi_least(ST_GAPI_GL3)) {
+        /* VAO */
         glGenVertexArrays = module->glloader.get_proc_address(NULL,
          "glGenVertexArrays");
         glDeleteVertexArrays = module->glloader.get_proc_address(NULL,

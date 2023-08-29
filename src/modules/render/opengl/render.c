@@ -1,7 +1,9 @@
 #include "render.h"
 
+#include <assert.h>
+
 #include <GL/gl.h>
-// #include <GL/glu.h>
+#include <GL/glu.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -12,6 +14,7 @@
 
 #include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
+#include "shader.inl"
 #include "vao.inl"
 #include "vertices.inl"
 
@@ -118,6 +121,8 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
  st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
+    st_shader_t         shd_vert = 0;
+    st_shader_t         shd_frag = 0;
 
     render_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_render_opengl_data, sizeof(st_render_opengl_t));
@@ -166,11 +171,40 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     if (glapi_least(ST_GAPI_GL3))
         vao_init(render_ctx);
 
+    if (glapi_least(ST_GAPI_GL2)) {
+        /* We have shader sources for only OpenGL 3.3 */
+        assert(current_gapi == ST_GAPI_GL33);
+
+        if (!shader_init(render_ctx, &shd_vert, SHD_VERTEX,
+         VERTEX_SHADER_SOURCE_GL33)) {
+            if (glapi_least(ST_GAPI_GL3))
+                goto vert_fail;
+        }
+
+        if (shd_vert && !shader_init(render_ctx, &shd_frag, SHD_FRAGMENT,
+          FRAGMENT_SHADER_SOURCE_GL33)) {
+            if (glapi_least(ST_GAPI_GL3))
+                goto frag_fail;
+        }
+
+        /* link shader program here */
+
+        shader_free(&shd_frag);
+        shader_free(&shd_vert);
+    }
+
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem initialized");
 
     return render_ctx;
 
+frag_fail:
+    if (glapi_least(ST_GAPI_GL2))
+        shader_free(&shd_vert);
+vert_fail:
+    if (glapi_least(ST_GAPI_GL3))
+        vao_free(&module->vao);
+    batcher_free(&module->batcher);
 batcher_fail:
     vertices_free(&module->vertices);
 vertices_fail:

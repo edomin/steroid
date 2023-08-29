@@ -90,6 +90,7 @@ typedef struct {
 } st_batcher_t;
 
 typedef GLuint st_vao_t;
+typedef GLuint st_shader_t;
 
 typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
