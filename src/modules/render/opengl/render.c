@@ -334,6 +334,7 @@ static void st_render_process(st_modctx_t *render_ctx) {
 
     st_render_process_queue(render_ctx);
 
+    module->gfxctx.make_current(module->gfxctx.handle);
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
@@ -342,6 +343,6 @@ static void st_render_process(st_modctx_t *render_ctx) {
 
     vbo_unbind(&module->vbo);
     shdprog_unuse(&module->shdprog);
-
+    module->gfxctx.swap_buffers(module->gfxctx.handle);
     module->drawq.clear(module->drawq.handle);
 }
