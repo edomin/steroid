@@ -31,6 +31,7 @@ typedef struct {
     st_dynarr_append_t             append;
     st_dynarr_clear_t              clear;
     st_dynarr_get_t                get;
+    st_dynarr_get_all_t            get_all;
     st_dynarr_get_elements_count_t get_elements_count;
 } st_render_opengl_dynarr_t;
 
@@ -93,6 +94,12 @@ typedef GLuint st_vao_t;
 typedef GLuint st_shader_t;
 typedef GLuint st_shdprog_t;
 
+typedef struct {
+    GLuint handle;
+    size_t components_per_vertex;
+    size_t vertices_size;
+} st_vbo_t;
+
 typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
     st_render_opengl_dynarr_t   dynarr;
@@ -107,6 +114,7 @@ typedef struct st_render_opengl_s {
     st_vertices_t               vertices;
     st_batcher_t                batcher;
     st_vao_t                    vao;
+    st_vbo_t                    vbo;
     st_shdprog_t                shdprog;
 } st_render_opengl_t;
 

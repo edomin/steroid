@@ -41,4 +41,16 @@ static bool vertices_clear(st_vertices_t *vertices) {
     return vertices->module->dynarr.clear(vertices->handle);
 }
 
+static const void *vertices_get_all(const st_vertices_t *vertices) {
+    st_render_opengl_t *module = vertices->module;
+
+    return module->dynarr.get_all(vertices->handle);
+}
+
+static size_t vertices_size(const st_vertices_t *vertices) {
+    st_render_opengl_t *module = vertices->module;
+
+    return module->dynarr.get_elements_count(vertices->handle) * sizeof(float);
+}
+
 #endif /* ST_MODULES_RENDER_OPENGL_VERTICES_INL */

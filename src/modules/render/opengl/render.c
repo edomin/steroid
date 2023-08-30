@@ -17,11 +17,13 @@
 #include "shader.inl"
 #include "shdprog.inl"
 #include "vao.inl"
-#include "vertices.inl"
+#include "vertices.inl" // NOLINT(llvm-include-order)
+#include "vbo.inl"
 
-#define ERR_MSG_BUF_SIZE     1024
-#define DEPTH_RANGE_NEAR_VAL 0.0
-#define DEPTH_RANGE_FAR_VAL  1.0
+#define ERR_MSG_BUF_SIZE          1024
+#define DEPTH_RANGE_NEAR_VAL      0.0
+#define DEPTH_RANGE_FAR_VAL       1.0
+#define VBO_COMPONENTS_PER_VERTEX 5
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -95,6 +97,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, append);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, clear);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_all);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_elements_count);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, make_current);
@@ -175,6 +178,7 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
         vao_init(render_ctx);
 
     if (glapi_least(ST_GAPI_GL2)) {
+        vbo_init(render_ctx, VBO_COMPONENTS_PER_VERTEX);
         /* We have shader sources for only OpenGL 3.3 */
         assert(current_gapi == ST_GAPI_GL33);
 
@@ -222,6 +226,8 @@ frag_fail:
     if (glapi_least(ST_GAPI_GL2))
         shader_free(&shd_vert);
 vert_fail:
+    if (glapi_least(ST_GAPI_GL2))
+        vbo_free(&module->vbo);
     if (glapi_least(ST_GAPI_GL3))
         vao_free(&module->vao);
     batcher_free(&module->batcher);
@@ -239,8 +245,10 @@ import_fail:
 static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(ST_GAPI_GL2)) {
         shdprog_free(&module->shdprog);
+        vbo_free(&module->vbo);
+    }
     if (glapi_least(ST_GAPI_GL3))
         vao_free(&module->vao);
     batcher_free(&module->batcher);
@@ -329,7 +337,10 @@ static void st_render_process(st_modctx_t *render_ctx) {
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
+    vbo_bind(&module->vbo);
+    vbo_set_vertices(&module->vbo, &module->vertices);
 
+    vbo_unbind(&module->vbo);
     shdprog_unuse(&module->shdprog);
 
     module->drawq.clear(module->drawq.handle);

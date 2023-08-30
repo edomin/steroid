@@ -24,6 +24,15 @@ static void (*glGetProgramInfoLog)(GLuint program, GLsizei maxLength,
  GLsizei *length, GLchar *infoLog);
 static void (*glUseProgram)(GLuint program);
 
+/* VBO */
+static void (*glGenBuffers)(GLsizei n, GLuint * buffers);
+static void (*glDeleteBuffers)(GLsizei n, const GLuint * buffers);
+static void (*glBindBuffer)(GLenum target, GLuint buffer);
+static void (*glBufferData)(GLenum target, GLsizeiptr size, const void *data,
+ GLenum usage);
+static void (*glBufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size,
+ const void *data);
+
 /* GL 3.0 */
 /* VAO */
 static void (*glGenVertexArrays)(GLsizei n, GLuint *arrays);
@@ -70,8 +79,16 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
          "glGetProgramiv");
         glGetProgramInfoLog = module->glloader.get_proc_address(NULL,
          "glGetProgramInfoLog");
-        glUseProgram = module->glloader.get_proc_address(NULL,
-         "glUseProgram");
+        glUseProgram = module->glloader.get_proc_address(NULL, "glUseProgram");
+
+        /* VBO */
+        glGenBuffers = module->glloader.get_proc_address(NULL, "glGenBuffers");
+        glDeleteBuffers = module->glloader.get_proc_address(NULL,
+         "glDeleteBuffers");
+        glBindBuffer = module->glloader.get_proc_address(NULL, "glBindBuffer");
+        glBufferData = module->glloader.get_proc_address(NULL, "glBufferData");
+        glBufferSubData = module->glloader.get_proc_address(NULL,
+         "glBufferSubData");
     }
 
     if (glapi_least(ST_GAPI_GL3)) {
