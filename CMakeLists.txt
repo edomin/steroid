@@ -79,6 +79,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/pathtools"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/pathtools")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/png"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/png")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/render"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/render")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/sprite"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/sprite")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/terminal"

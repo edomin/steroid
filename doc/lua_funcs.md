@@ -179,6 +179,17 @@ Png.new_ctx(logger_ctx: logger_ctx): png_ctx
 png_ctx:destroy()
 ```
 
+## render
+```luau
+Render = require "Render"
+
+Render.new_ctx(drawq_ctx: drawq_ctx, dynarr_ctx: dynarr_ctx, logger_ctx: logger_ctx, sprite_ctx: sprite_ctx, texture_ctx: texture_ctx, gfxctx: gfxctx): render_ctx
+
+render_ctx:destroy()
+render_ctx:put_sprite(render_ctx: render_ctx, sprite: sprite, x: double, y: double, z: double, scale: double, angle: double)
+render_ctx:process(render_ctx: render_ctx)
+```
+
 ## sprite
 ```luau
 Sprite = require "Sprite"
