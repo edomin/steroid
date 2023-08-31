@@ -9,7 +9,6 @@
 
 #define ERR_MSG_BUF_SIZE     1024
 #define CTX_METATABLE_NAME   "atlas_ctx"
-// #define ATLAS_METATABLE_NAME "atlas_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
@@ -140,7 +139,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_atlas_t *module = luabind_ctx->data;
     st_luastate_t      *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_create_module(lua_state, "Drawq");
+    st_lua_create_module(lua_state, "Atlas");
     st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_atlas_init_bind);
 
     st_lua_pop(lua_state, 3);
