@@ -36,10 +36,10 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
     vbo_unbind(&module->vbo);
     glDisableVertexAttribArray((GLuint)vertattr->handle);
 
-    if (error != GL_NO_ERROR)
+    if (error == GL_NO_ERROR)
         vertattr->handle = -1;
 
-    return error != GL_NO_ERROR;
+    return error == GL_NO_ERROR;
 }
 
 static void vertattr_free(st_vertattr_t *vertattr) {
