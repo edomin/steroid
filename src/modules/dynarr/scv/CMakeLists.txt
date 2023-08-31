@@ -38,7 +38,7 @@ st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAFEC REQUIRED libsafec)
-find_library(SCV NAMES scv)
+find_library(SCV_LIBRARY NAMES scv)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
