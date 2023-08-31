@@ -25,13 +25,20 @@ static void (*glGetProgramInfoLog)(GLuint program, GLsizei maxLength,
 static void (*glUseProgram)(GLuint program);
 
 /* VBO */
-static void (*glGenBuffers)(GLsizei n, GLuint * buffers);
-static void (*glDeleteBuffers)(GLsizei n, const GLuint * buffers);
+static void (*glGenBuffers)(GLsizei n, GLuint *buffers);
+static void (*glDeleteBuffers)(GLsizei n, const GLuint *buffers);
 static void (*glBindBuffer)(GLenum target, GLuint buffer);
 static void (*glBufferData)(GLenum target, GLsizeiptr size, const void *data,
  GLenum usage);
 static void (*glBufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size,
  const void *data);
+
+/* Vertex attribute */
+static GLint (*glGetAttribLocation)(GLuint program, const GLchar *name);
+static void (*glVertexAttribPointer)(GLuint index, GLint size, GLenum type,
+ GLboolean normalized, GLsizei stride, const void *pointer);
+static void (*glEnableVertexAttribArray)(GLuint index);
+static void (*glDisableVertexAttribArray)(GLuint index);
 
 /* GL 3.0 */
 /* VAO */
@@ -89,6 +96,16 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
         glBufferData = module->glloader.get_proc_address(NULL, "glBufferData");
         glBufferSubData = module->glloader.get_proc_address(NULL,
          "glBufferSubData");
+
+        /* Vertex attribute */
+        glGetAttribLocation = module->glloader.get_proc_address(NULL,
+         "glGetAttribLocation");
+        glVertexAttribPointer = module->glloader.get_proc_address(NULL,
+         "glVertexAttribPointer");
+        glEnableVertexAttribArray = module->glloader.get_proc_address(NULL,
+         "glEnableVertexAttribArray");
+        glDisableVertexAttribArray = module->glloader.get_proc_address(NULL,
+         "glDisableVertexAttribArray");
     }
 
     if (glapi_least(ST_GAPI_GL3)) {

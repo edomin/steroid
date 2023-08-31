@@ -9,7 +9,7 @@
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f,        \
 }
 
-static void vbo_init(st_modctx_t *render_ctx, size_t components_per_vertex) {
+static void vbo_init(st_modctx_t *render_ctx, unsigned components_per_vertex) {
     st_render_opengl_t *module = render_ctx->data;
     st_vbo_t           *vbo = &module->vbo;
 
@@ -48,8 +48,8 @@ static void vbo_set_vertices(st_vbo_t *vbo, const st_vertices_t *vertices) {
     }
 }
 
-// static size_t vbo_get_components_per_vertex(const st_vbo_t *vbo) {
-//     return vbo->components_per_vertex;
-// }
+static unsigned vbo_get_components_per_vertex(const st_vbo_t *vbo) {
+    return vbo->components_per_vertex;
+}
 
 #endif /* ST_MODULES_RENDER_OPENGL_VBO_INL */

@@ -19,11 +19,20 @@
 #include "vao.inl"
 #include "vertices.inl" // NOLINT(llvm-include-order)
 #include "vbo.inl"
+#include "vertattr.inl"
 
-#define ERR_MSG_BUF_SIZE          1024
-#define DEPTH_RANGE_NEAR_VAL      0.0
-#define DEPTH_RANGE_FAR_VAL       1.0
-#define VBO_COMPONENTS_PER_VERTEX 5
+#define ERR_MSG_BUF_SIZE               1024
+#define DEPTH_RANGE_NEAR_VAL           0.0
+#define DEPTH_RANGE_FAR_VAL            1.0
+#define VBO_COMPONENTS_PER_VERTEX      5
+
+#define ATTR_POS_NAME                  "pos"
+#define ATTR_POS_COMPONENTS_COUNT      3
+#define ATTR_POS_OFFSET                0
+#define ATTR_TEXCOORD_NAME             "vert_tex_coord"
+#define ATTR_TEXCOORD_COMPONENTS_COUNT 2
+#define ATTR_TEXCOORD_OFFSET           \
+ (sizeof(float) * ATTR_POS_COMPONENTS_COUNT)
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -201,6 +210,21 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
                 goto prog_fail;
         }
 
+        if (module->shdprog && !vertattr_init(render_ctx, &module->posattr,
+         &module->vbo, &module->shdprog, ATTR_POS_NAME,
+         ATTR_POS_COMPONENTS_COUNT, ATTR_POS_OFFSET)) {
+            if (glapi_least(ST_GAPI_GL3))
+                goto posattr_fail;
+        }
+
+        if (module->shdprog && (module->posattr.handle != -1) &&
+         !vertattr_init(render_ctx, &module->texcrdattr, &module->vbo,
+         &module->shdprog, ATTR_TEXCOORD_NAME, ATTR_TEXCOORD_COMPONENTS_COUNT,
+         ATTR_TEXCOORD_OFFSET)) {
+            if (glapi_least(ST_GAPI_GL3))
+                goto texcrdattr_fail;
+        }
+
         shader_free(&shd_frag);
         shader_free(&shd_vert);
     }
@@ -219,6 +243,12 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
 
     return render_ctx;
 
+texcrdattr_fail:
+    if (glapi_least(ST_GAPI_GL2))
+        vertattr_free(&module->texcrdattr);
+posattr_fail:
+    if (glapi_least(ST_GAPI_GL2))
+        shdprog_free(&module->shdprog);
 prog_fail:
     if (glapi_least(ST_GAPI_GL2))
         shader_free(&shd_frag);
@@ -246,6 +276,8 @@ static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
     if (glapi_least(ST_GAPI_GL2)) {
+        vertattr_free(&module->texcrdattr);
+        vertattr_free(&module->posattr);
         shdprog_free(&module->shdprog);
         vbo_free(&module->vbo);
     }
@@ -340,6 +372,30 @@ static void st_render_process(st_modctx_t *render_ctx) {
     shdprog_use(&module->shdprog);
     vbo_bind(&module->vbo);
     vbo_set_vertices(&module->vbo, &module->vertices);
+
+    for (size_t i = 0; i < batcher_get_entries_count(&module->batcher); i++) {
+        GLenum error;
+
+        vertattr_enable(&module->posattr);
+        vertattr_enable(&module->texcrdattr);
+
+        batcher_bind_texture(&module->batcher, i);
+
+        glDrawArrays(GL_TRIANGLES,
+         batcher_get_first_vertex_index(&module->batcher, i),
+         batcher_get_vertices_count(&module->batcher, i));
+
+        error = glGetError();
+        if (error != GL_NO_ERROR) {
+            module->logger.error(module->logger.ctx,
+             "render_opengl: Unable to draw array: %s", gluErrorString(error));
+
+            break;
+        }
+
+        vertattr_disable(&module->texcrdattr);
+        vertattr_disable(&module->posattr);
+    }
 
     vbo_unbind(&module->vbo);
     shdprog_unuse(&module->shdprog);

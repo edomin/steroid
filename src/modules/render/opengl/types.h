@@ -95,10 +95,15 @@ typedef GLuint st_shader_t;
 typedef GLuint st_shdprog_t;
 
 typedef struct {
-    GLuint handle;
-    size_t components_per_vertex;
-    size_t vertices_size;
+    GLuint   handle;
+    unsigned components_per_vertex;
+    size_t   vertices_size;
 } st_vbo_t;
+
+typedef struct {
+    GLint               handle;
+    const st_shdprog_t *shdprog;
+} st_vertattr_t;
 
 typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t    drawq;
@@ -116,6 +121,8 @@ typedef struct st_render_opengl_s {
     st_vao_t                    vao;
     st_vbo_t                    vbo;
     st_shdprog_t                shdprog;
+    st_vertattr_t               posattr;
+    st_vertattr_t               texcrdattr;
 } st_render_opengl_t;
 
 #endif /* ST_MODULES_RENDER_OPENGL_TYPES_H */
