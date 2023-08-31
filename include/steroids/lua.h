@@ -32,6 +32,7 @@ static void st_lua_set_copy_to_field(st_luastate_t *lua_state, const char *name,
 static bool st_lua_get_bool(st_luastate_t *lua_state, int index);
 static char st_lua_get_char(st_luastate_t *lua_state, int index);
 static ptrdiff_t st_lua_get_integer(st_luastate_t *lua_state, int index);
+static double st_lua_get_double(st_luastate_t *lua_state, int index);
 static const char *st_lua_get_lstring_or_null(st_luastate_t *lua_state,
  int index, size_t *len);
 static const char *st_lua_get_string(st_luastate_t *lua_state, int index);

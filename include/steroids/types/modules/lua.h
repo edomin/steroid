@@ -38,6 +38,7 @@ typedef void (*st_lua_set_copy_to_field_t)(st_luastate_t *lua_state,
 typedef bool (*st_lua_get_bool_t)(st_luastate_t *lua_state, int index);
 typedef char (*st_lua_get_char_t)(st_luastate_t *lua_state, int index);
 typedef ptrdiff_t (*st_lua_get_integer_t)(st_luastate_t *lua_state, int index);
+typedef double (*st_lua_get_double_t)(st_luastate_t *lua_state, int index);
 typedef const char *(*st_lua_get_lstring_or_null_t)(st_luastate_t *lua_state,
  int index, size_t *len);
 typedef const char *(*st_lua_get_string_t)(st_luastate_t *lua_state, int index);
@@ -77,6 +78,7 @@ typedef struct {
     st_lua_get_bool_t                   lua_get_bool;
     st_lua_get_char_t                   lua_get_char;
     st_lua_get_integer_t                lua_get_integer;
+    st_lua_get_double_t                 lua_get_double;
     st_lua_get_lstring_or_null_t        lua_get_lstring_or_null;
     st_lua_get_string_t                 lua_get_string;
     st_lua_get_string_or_null_t         lua_get_string_or_null;

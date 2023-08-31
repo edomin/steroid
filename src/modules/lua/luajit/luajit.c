@@ -334,6 +334,10 @@ static ptrdiff_t st_lua_get_integer(st_luastate_t *lua_state, int index) {
     return luaL_checkinteger((lua_State *)lua_state, index);
 }
 
+static double st_lua_get_double(st_luastate_t *lua_state, int index) {
+    return luaL_checknumber((lua_State *)lua_state, index);
+}
+
 static const char *st_lua_get_lstring_or_null(st_luastate_t *lua_state,
  int index, size_t *len) {
     return lua_tolstring((lua_State *)lua_state, index, len);
