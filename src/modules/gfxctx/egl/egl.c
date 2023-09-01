@@ -476,13 +476,13 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         .context_major_version = major,
         .context_minor_version = minor,
     };
-    EGLint           egl_cfg_attrs[CFG_ATTRS_LEN];
-    EGLint           egl_ctx_attrs[CTX_ATTRS_LEN];
-    EGLint           configs_count;
+    EGLint           egl_cfg_attrs[CFG_ATTRS_LEN] = {0};
+    EGLint           egl_ctx_attrs[CTX_ATTRS_LEN] = {0};
+    EGLint           configs_count = 0;
     st_gfxctx_t     *gfxctx;
-    bool             egl_khr_create_context_supported;
-    EGLint           egl_version_major;
-    EGLint           egl_version_minor;
+    bool             egl_khr_create_context_supported = false;
+    EGLint           egl_version_major = 0;
+    EGLint           egl_version_minor = 0;
     bool             attrs_changed = false;
 
     gfxctx = malloc(sizeof(st_gfxctx_t));

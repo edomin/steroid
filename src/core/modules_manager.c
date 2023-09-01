@@ -232,7 +232,7 @@ st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
         goto strdup_name_fail;
     }
 
-    modctx->data = malloc(data_size);
+    modctx->data = calloc(1, data_size);
     if (!modctx->data) {
         perror("malloc");
 
