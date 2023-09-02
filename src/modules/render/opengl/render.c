@@ -324,16 +324,16 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
         unsigned            sprite_width = module->sprite.get_width(sprite);
         unsigned            sprite_height = module->sprite.get_height(sprite);
         float               pos_upper_left_x = draw_entries[i].x /
-         (float)window_width - 1.0f;
+         (float)window_width * 2 - 1.0f;
         float               pos_upper_left_y = 1.0f - draw_entries[i].y /
-         (float)window_height;
-        float               pos_upper_right_x = (draw_entries[i].x +
-         (float)sprite_width * draw_entries[i].scale) / (float)window_width -
-         1.0f;
+         (float)window_height * 2;
+        float               pos_upper_right_x = pos_upper_left_x +
+         (float)sprite_width / (float)window_width * 2 * draw_entries[i].scale;
         float               pos_upper_right_y = pos_upper_left_y;
         float               pos_lower_left_x = pos_upper_left_x;
-        float               pos_lower_left_y = 1.0f - (draw_entries[i].y +
-         (float)sprite_height * draw_entries[i].scale) / (float)window_height;
+        float               pos_lower_left_y = pos_upper_left_y -
+         (float)sprite_height / (float)window_height * 2 *
+         draw_entries[i].scale;
         float               pos_lower_right_x = pos_upper_right_x;
         float               pos_lower_right_y = pos_lower_left_y;
         float               pos_z = draw_entries[i].z / (float)UINT16_MAX +
