@@ -60,3 +60,8 @@ build-image: dockerfiles/deps-$(TRIPLET).dockerfile
      -f dockerfiles/deps-$(TRIPLET).dockerfile \
      -t steroids-deps-$(TRIPLET) --build-arg USER_ID=$(SUDO_UID) \
      --build-arg GROUP_ID=$(SUDO_GID) .
+
+build-image-with-cache: dockerfiles/deps-$(TRIPLET).dockerfile
+	docker build --network=host -f dockerfiles/deps-$(TRIPLET).dockerfile \
+     -t steroids-deps-$(TRIPLET) --build-arg USER_ID=$(SUDO_UID) \
+     --build-arg GROUP_ID=$(SUDO_GID) .
