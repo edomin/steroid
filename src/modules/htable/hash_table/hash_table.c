@@ -119,6 +119,7 @@ static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
 static void st_htable_destroy(st_htable_t *htable) {
     st_htable_clear(htable);
     hash_table_destroy(htable->handle, NULL);
+    free(htable);
 }
 
 static bool st_htable_insert(st_htable_t *htable, st_htiter_t *iter,

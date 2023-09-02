@@ -181,6 +181,8 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
             goto fail;
         }
 
+        module->zip.close(zip);
+
         return global_modsmgr_funcs.load_module(global_modsmgr, modinit_func,
          force);
     }

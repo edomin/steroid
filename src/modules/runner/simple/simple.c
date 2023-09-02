@@ -241,6 +241,8 @@ static bool load_plugins(st_runner_simple_t *module,
 
     global_modsmgr_funcs.process_deps(global_modsmgr);
 
+    closedir(dir);
+
     return true;
 }
 

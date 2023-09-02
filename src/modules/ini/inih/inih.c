@@ -31,7 +31,7 @@ static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
     st_ini_inih_t   *module = section->module;
 
-    module->htable.clear(section->data);
+    module->htable.destroy(section->data);
     free(section);
 }
 
@@ -286,7 +286,8 @@ ini_destroy:
 
 static void st_ini_destroy(st_ini_t *ini) {
     st_ini_inih_t *module = ini->module;
-    module->htable.clear(ini->sections);
+
+    module->htable.destroy(ini->sections);
     free(ini);
 }
 

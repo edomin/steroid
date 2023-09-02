@@ -252,24 +252,11 @@ strdup_sybsystem_fail:
 }
 
 void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
-    st_slnode_t *node;
-
     if (!modsmgr || !modctx)
         return;
 
-    node = st_slist_get_first(modsmgr);
-
-    while (node) {
-        if (st_slist_get_data(node) == modctx->data) {
-            free(modctx->subsystem);
-            free(modctx->name);
-            free(modctx->data);
-            free(modctx);
-            st_slist_remove(node);
-
-            break;
-        }
-
-        node = st_slist_get_next(node);
-    }
+    free(modctx->subsystem);
+    free(modctx->name);
+    free(modctx->data);
+    free(modctx);
 }
