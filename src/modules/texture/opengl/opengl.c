@@ -136,7 +136,7 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
      GL_NEAREST_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)texture->width,
-     (GLsizei)texture->height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8,
+     (GLsizei)texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
      module->bitmap.get_data(bitmap));
 
     error = glGetError();
