@@ -37,9 +37,10 @@ typedef struct {
 } st_texture_opengl_t;
 
 typedef struct {
-    GLuint   id;
-    unsigned width;
-    unsigned height;
+    st_texture_opengl_t *module;
+    GLuint               id;
+    unsigned             width;
+    unsigned             height;
 } st_texture_t;
 
 #define ST_TEXTURE_T_DEFINED

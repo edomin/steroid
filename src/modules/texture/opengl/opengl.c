@@ -184,6 +184,7 @@ static st_texture_t *st_texture_memload(st_modctx_t *texture_ctx,
     if (!bitmap)
         goto bitmap_load_fail;
 
+    texture->module = module;
     texture->width = module->bitmap.get_width(bitmap);
     texture->height = module->bitmap.get_height(bitmap);
 
@@ -228,9 +229,18 @@ static void st_texture_destroy(st_texture_t *texture) {
 }
 
 static bool st_texture_bind(const st_texture_t *texture) {
+    GLenum error;
     glBindTexture(GL_TEXTURE_2D, texture->id);
 
-    return glGetError() == GL_NO_ERROR;
+    error = glGetError();
+    if (error != GL_NO_ERROR) {
+        texture->module->logger.error(texture->module->logger.ctx,
+         "texture_opengl: Unable to bind texture: %s", gluErrorString(error));
+
+        return false;
+    }
+
+    return true;
 }
 
 static unsigned st_texture_get_width(const st_texture_t *texture) {
