@@ -74,12 +74,12 @@ static GLsizei batcher_get_first_vertex_index(const st_batcher_t *batcher,
     return (GLsizei)entry->first_vertex_index;
 }
 
-static GLsizei batcher_get_vertices_count(const st_batcher_t *batcher,
+static GLint batcher_get_vertices_count(const st_batcher_t *batcher,
  size_t entry_index) {
     const st_batch_entry_t *entry = batcher->module->dynarr.get(
      batcher->entries, entry_index);
 
-    return (GLsizei)entry->vertices_count;
+    return (GLint)entry->vertices_count;
 }
 
 static size_t batcher_get_entries_count(const st_batcher_t *batcher) {
