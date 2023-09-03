@@ -31,6 +31,9 @@ static void batcher_free(st_batcher_t *batcher) {
 }
 
 bool batcher_clear(st_batcher_t *batcher) {
+    batcher->current_texture = NULL;
+    batcher->current_first_vertex_index = 0;
+    batcher->current_vertex_index = 0;
     return batcher->module->dynarr.clear(batcher->entries);
 }
 
