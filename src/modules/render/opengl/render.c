@@ -378,7 +378,8 @@ static void st_render_process(st_modctx_t *render_ctx) {
     for (size_t i = 0; i < batcher_get_entries_count(&module->batcher); i++) {
         GLenum error;
 
-        batcher_bind_texture(&module->batcher, i);
+        if (!batcher_bind_texture(&module->batcher, i))
+            break;
 
         glDrawArrays(GL_TRIANGLES,
          batcher_get_first_vertex_index(&module->batcher, i),
