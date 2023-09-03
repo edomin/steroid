@@ -1,5 +1,7 @@
 #include "simple.h"
 
+#include <float.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -165,14 +167,14 @@ static int st_drawrec_cmp(const void *leftptr, const void *rightptr,
     const st_texture_t *left_tex = module->sprite.get_texture(left->sprite);
     const st_texture_t *right_tex = module->sprite.get_texture(right->sprite);
 
-    if (left->z == right->z) {
+    if (fabsf(left->z - right->z) <= FLT_EPSILON) {
         if (left_tex == right_tex)
             return 0;
 
-        return (left_tex <= right_tex) ? -1 : 1;
+        return (left_tex < right_tex) ? -1 : 1;
     }
 
-    return (left->z <= right->z) ? -1 : 1;
+    return (left->z > right->z) ? -1 : 1;
 }
 
 static bool st_drawq_sort(st_drawq_t *drawq) {
