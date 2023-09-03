@@ -8,21 +8,31 @@
     typedef struct st_window_s st_window_t;
 #endif
 
+typedef enum {
+    WMB_LEFT = 0,
+    WMB_MIDDLE,
+    WMB_RIGHT,
+} st_winmb_t;
+
 typedef struct {
     st_window_t *window;
 } st_evwinnoargs_t;
 
 typedef struct {
     st_window_t *window;
-    unsigned     width;
-    unsigned     height;
-} st_evwinresize_t;
+    unsigned hvalue;
+    unsigned vvalue;
+} st_evwinuvec2_t;
 
-// typedef struct {
-//     st_window_t *window;
-//     int          x;
-//     int          y;
-// } st_evwinmove_t;
+typedef struct {
+    st_window_t *window;
+    unsigned     value;
+} st_evwinunsigned_t;
+
+typedef struct {
+    st_window_t *window;
+    int          value;
+} st_evwininteger_t;
 
 typedef st_modctx_t *(*st_window_init_t)(st_modctx_t *events_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *monitor_ctx);

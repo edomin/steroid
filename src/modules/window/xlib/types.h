@@ -9,7 +9,14 @@
 #include "slist.h"
 
 typedef enum {
-    EV_FOCUS_IN = 0,
+    EV_MOUSE_PRESS = 0,
+    EV_MOUSE_RELEASE,
+    EV_MOUSE_WHEEL,
+    EV_MOUSE_MOVE,
+    EV_MOUSE_ENTER,
+    EV_MOUSE_LEAVE,
+
+    EV_FOCUS_IN,
     EV_FOCUS_OUT,
     EV_RESIZE,
     EV_PLACE_ON_TOP,

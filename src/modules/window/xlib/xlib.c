@@ -80,12 +80,25 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
         goto fail;
     }
 
+    module->evtypes[EV_MOUSE_PRESS] = module->events.register_type(events_ctx,
+     "window_mouse_press", sizeof(st_evwinunsigned_t));
+    module->evtypes[EV_MOUSE_RELEASE] = module->events.register_type(events_ctx,
+     "window_mouse_release", sizeof(st_evwinunsigned_t));
+    module->evtypes[EV_MOUSE_WHEEL] = module->events.register_type(events_ctx,
+     "window_mouse_wheel", sizeof(st_evwininteger_t));
+    module->evtypes[EV_MOUSE_MOVE] = module->events.register_type(events_ctx,
+     "window_mouse_move", sizeof(st_evwinuvec2_t));
+    module->evtypes[EV_MOUSE_ENTER] = module->events.register_type(events_ctx,
+     "window_mouse_enter", sizeof(st_evwinnoargs_t));
+    module->evtypes[EV_MOUSE_LEAVE] = module->events.register_type(events_ctx,
+     "window_mouse_leave", sizeof(st_evwinnoargs_t));
+
     module->evtypes[EV_FOCUS_IN] = module->events.register_type(events_ctx,
      "window_focus_in", sizeof(st_evwinnoargs_t));
     module->evtypes[EV_FOCUS_OUT] = module->events.register_type(events_ctx,
      "window_focus_in", sizeof(st_evwinnoargs_t));
     module->evtypes[EV_RESIZE] = module->events.register_type(events_ctx,
-     "window_resize", sizeof(st_evwinresize_t));
+     "window_resize", sizeof(st_evwinuvec2_t));
     module->evtypes[EV_PLACE_ON_TOP] = module->events.register_type(events_ctx,
      "window_place_on_top", sizeof(st_evwinnoargs_t));
     module->evtypes[EV_PLACE_ON_BOTTOM] = module->events.register_type(
@@ -268,21 +281,70 @@ static void st_window_process(st_modctx_t *window_ctx) {
 
                     break;
                 }
-                case ButtonPress:
-                    /* TODO(edomin): Mouse button event structure required */
+                case ButtonPress: {
+                    if (xevent.xbutton.button == Button4 &&
+                     xevent.xbutton.button == Button5) {
+                        st_evwininteger_t event = {
+                            .window = get_window_by_xwindow(window_ctx,
+                             xevent.xbutton.window),
+                            .value = (xevent.xbutton.button == Button4)
+                                ? 1
+                                : -1,
+                        };
+                        module->events.push(module->events.ctx,
+                         module->evtypes[EV_MOUSE_WHEEL], &event);
+                    } else {
+                        st_evwinunsigned_t event = {
+                            .window = get_window_by_xwindow(window_ctx,
+                             xevent.xbutton.window),
+                            .value = xevent.xbutton.button - 1,
+                        };
+                        module->events.push(module->events.ctx,
+                         module->evtypes[EV_MOUSE_PRESS], &event);
+                    }
+
                     break;
-                case ButtonRelease:
-                    /* TODO(edomin): Mouse button event structure required */
+                }
+                case ButtonRelease: {
+                    st_evwinunsigned_t event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xbutton.window),
+                        .value = xevent.xbutton.button - 1,
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_MOUSE_RELEASE], &event);
+
                     break;
-                case MotionNotify:
-                    /* TODO(edomin): Mouse motion event structure required */
+                }
+                case MotionNotify: {
+                    st_evwinuvec2_t event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xmotion.window),
+                        .hvalue = (unsigned)xevent.xmotion.x,
+                        .vvalue = (unsigned)xevent.xmotion.y,
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_MOUSE_MOVE], &event);
                     break;
-                case EnterNotify:
-                    /* TODO(edomin): Mouse enter event structure required */
+                }
+                case EnterNotify: {
+                    st_evwinnoargs_t event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xcrossing.window),
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_MOUSE_ENTER], &event);
                     break;
-                case LeaveNotify:
-                    /* TODO(edomin): Mouse leave event structure required */
+                }
+                case LeaveNotify: {
+                    st_evwinnoargs_t event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xcrossing.window),
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_MOUSE_LEAVE], &event);
                     break;
+                }
                 case KeyPress:
                     /* TODO(edomin): Keyboard event structure required */
                     break;
@@ -308,11 +370,11 @@ static void st_window_process(st_modctx_t *window_ctx) {
                     break;
                 }
                 case ResizeRequest: {
-                    st_evwinresize_t event = {
+                    st_evwinuvec2_t event = {
                         .window = get_window_by_xwindow(window_ctx,
                          xevent.xresizerequest.window),
-                        .width = (unsigned)xevent.xresizerequest.width,
-                        .height = (unsigned)xevent.xresizerequest.height,
+                        .hvalue = (unsigned)xevent.xresizerequest.width,
+                        .vvalue = (unsigned)xevent.xresizerequest.height,
                     };
                     module->events.push(module->events.ctx,
                      module->evtypes[EV_RESIZE], &event);
