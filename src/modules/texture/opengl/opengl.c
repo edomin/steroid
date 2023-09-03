@@ -1,5 +1,7 @@
 #include "opengl.h"
 
+#include <math.h>
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -130,14 +132,33 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
 
     glGenTextures(1, &texture->id);
     glBindTexture(GL_TEXTURE_2D, texture->id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-     GL_NEAREST_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)texture->width,
+    if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap) {
+        float mip_max = log2f(
+         ((float)texture->width > (float)texture->height)
+          ? (float)texture->width
+          : (float)texture->height
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, (GLint)mip_max);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)texture->width,
      (GLsizei)texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
      module->bitmap.get_data(bitmap));
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+         GL_NEAREST_MIPMAP_NEAREST);
+    else
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+         GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -147,9 +168,6 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
 
         goto teximage2d_fail;
     }
-
-    if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap)
-        glGenerateMipmap(GL_TEXTURE_2D);
 
     module->bitmap.destroy(bitmap);
 
