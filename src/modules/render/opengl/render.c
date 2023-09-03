@@ -372,12 +372,11 @@ static void st_render_process(st_modctx_t *render_ctx) {
     shdprog_use(&module->shdprog);
     vbo_bind(&module->vbo);
     vbo_set_vertices(&module->vbo, &module->vertices);
+    vertattr_enable(&module->posattr);
+    vertattr_enable(&module->texcrdattr);
 
     for (size_t i = 0; i < batcher_get_entries_count(&module->batcher); i++) {
         GLenum error;
-
-        vertattr_enable(&module->posattr);
-        vertattr_enable(&module->texcrdattr);
 
         batcher_bind_texture(&module->batcher, i);
 
@@ -392,11 +391,10 @@ static void st_render_process(st_modctx_t *render_ctx) {
 
             break;
         }
-
-        vertattr_disable(&module->texcrdattr);
-        vertattr_disable(&module->posattr);
     }
 
+    vertattr_disable(&module->texcrdattr);
+    vertattr_disable(&module->posattr);
     vbo_unbind(&module->vbo);
     shdprog_unuse(&module->shdprog);
     module->gfxctx.swap_buffers(module->gfxctx.handle);
