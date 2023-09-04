@@ -1,0 +1,48 @@
+#ifndef ST_STEROIDS_TYPES_MODULES_MOUSE_H
+#define ST_STEROIDS_TYPES_MODULES_MOUSE_H
+
+#include "steroids/module.h"
+#include "steroids/types/modules/window.h"
+
+typedef enum {
+    MB_LEFT = 0,
+    MB_MIDDLE,
+    MB_RIGHT,
+
+    MB_MAX,
+} st_mbutton_t;
+
+typedef st_modctx_t *(*st_mouse_init_t)(st_modctx_t *events_ctx,
+ st_modctx_t *logger_ctx);
+typedef void (*st_mouse_quit_t)(st_modctx_t *mouse_ctx);
+
+typedef void (*st_mouse_process_t)(st_modctx_t *mouse_ctx);
+typedef bool (*st_mouse_press_t)(const st_modctx_t *mouse_ctx,
+ st_mbutton_t button);
+typedef bool (*st_mouse_release_t)(const st_modctx_t *mouse_ctx,
+ st_mbutton_t button);
+typedef bool (*st_mouse_pressed_t)(const st_modctx_t *mouse_ctx,
+ st_mbutton_t button);
+typedef int (*st_mouse_get_wheel_relative_t)(const st_modctx_t *mouse_ctx);
+typedef const st_window_t *(*st_mouse_moved_t)(const st_modctx_t *mouse_ctx);
+typedef const st_window_t *(*st_mouse_entered_t)(const st_modctx_t *mouse_ctx);
+typedef const st_window_t *(*st_mouse_leaved_t)(const st_modctx_t *mouse_ctx);
+typedef unsigned (*st_mouse_get_x_t)(const st_modctx_t *mouse_ctx);
+typedef unsigned (*st_mouse_get_y_t)(const st_modctx_t *mouse_ctx);
+
+typedef struct {
+    st_mouse_init_t               mouse_init;
+    st_mouse_quit_t               mouse_quit;
+    st_mouse_process_t            mouse_process;
+    st_mouse_press_t              mouse_press;
+    st_mouse_release_t            mouse_release;
+    st_mouse_pressed_t            mouse_pressed;
+    st_mouse_get_wheel_relative_t mouse_get_wheel_relative;
+    st_mouse_moved_t              mouse_moved;
+    st_mouse_entered_t            mouse_entered;
+    st_mouse_leaved_t             mouse_leaved;
+    st_mouse_get_x_t              mouse_get_x;
+    st_mouse_get_y_t              mouse_get_y;
+} st_mouse_funcs_t;
+
+#endif /* ST_STEROIDS_TYPES_MODULES_MOUSE_H */
