@@ -42,8 +42,8 @@ typedef struct {
     st_evq_t                *evq;
     unsigned                 x;
     unsigned                 y;
-    bool                     prev_mbstate[MB_MAX];
-    bool                     curr_mbstate[MB_MAX];
+    bool                     prev_mbstate[ST_MB_MAX];
+    bool                     curr_mbstate[ST_MB_MAX];
     int                      wheel;
     const st_window_t       *move;
     const st_window_t       *enter;

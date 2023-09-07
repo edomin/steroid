@@ -5,11 +5,11 @@
 #include "steroids/types/modules/window.h"
 
 typedef enum {
-    MB_LEFT = 0,
-    MB_MIDDLE,
-    MB_RIGHT,
+    ST_MB_LEFT = 0,
+    ST_MB_MIDDLE,
+    ST_MB_RIGHT,
 
-    MB_MAX,
+    ST_MB_MAX,
 } st_mbutton_t;
 
 typedef st_modctx_t *(*st_mouse_init_t)(st_modctx_t *events_ctx,

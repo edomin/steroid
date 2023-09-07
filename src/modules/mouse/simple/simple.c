@@ -95,10 +95,10 @@ static st_modctx_t *st_mouse_init(st_modctx_t *events_ctx,
 
     module->x = 0;
     module->y = 0;
-    memset_s(module->prev_mbstate, sizeof(int) * MB_MAX, 0,
-     sizeof(int) * MB_MAX);
-    memset_s(module->curr_mbstate, sizeof(int) * MB_MAX, 0,
-     sizeof(int) * MB_MAX);
+    memset_s(module->prev_mbstate, sizeof(int) * ST_MB_MAX, 0,
+     sizeof(int) * ST_MB_MAX);
+    memset_s(module->curr_mbstate, sizeof(int) * ST_MB_MAX, 0,
+     sizeof(int) * ST_MB_MAX);
     module->wheel = 0;
     module->move = NULL;
     module->enter = NULL;
@@ -192,7 +192,7 @@ static void (*procfuncs[])(st_modctx_t *mouse_ctx) = {
 static void st_mouse_process(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
-    for (unsigned i = 0; i < MB_MAX; i++)
+    for (unsigned i = 0; i < ST_MB_MAX; i++)
         module->prev_mbstate[i] = module->curr_mbstate[i];
 
     module->wheel = 0;
