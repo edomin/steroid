@@ -29,6 +29,8 @@ typedef bool (*st_mouse_entered_t)(const st_modctx_t *mouse_ctx);
 typedef bool (*st_mouse_leaved_t)(const st_modctx_t *mouse_ctx);
 typedef unsigned (*st_mouse_get_x_t)(const st_modctx_t *mouse_ctx);
 typedef unsigned (*st_mouse_get_y_t)(const st_modctx_t *mouse_ctx);
+typedef const st_window_t *(*st_mouse_get_window_t)(
+ const st_modctx_t *mouse_ctx);
 
 typedef struct {
     st_mouse_init_t               mouse_init;
@@ -43,6 +45,7 @@ typedef struct {
     st_mouse_leaved_t             mouse_leaved;
     st_mouse_get_x_t              mouse_get_x;
     st_mouse_get_y_t              mouse_get_y;
+    st_mouse_get_window_t         mouse_get_window;
 } st_mouse_funcs_t;
 
 #endif /* ST_STEROIDS_TYPES_MODULES_MOUSE_H */

@@ -103,6 +103,7 @@ static st_modctx_t *st_mouse_init(st_modctx_t *events_ctx,
     module->move = NULL;
     module->enter = NULL;
     module->leave = NULL;
+    module->current_window = NULL;
 
     module->logger.info(module->logger.ctx,
      "mouse_simple: Mouse initialized");
@@ -160,6 +161,7 @@ static void st_mouse_process_move(st_modctx_t *mouse_ctx) {
     module->x = event.hvalue;
     module->y = event.vvalue;
     module->move = true;
+    module->current_window = event.window;
 }
 
 static void st_mouse_process_enter(st_modctx_t *mouse_ctx) {
@@ -169,6 +171,7 @@ static void st_mouse_process_enter(st_modctx_t *mouse_ctx) {
     module->events.pop(module->evq, &event);
 
     module->enter = true;
+    module->current_window = event.window;
 }
 
 static void st_mouse_process_leave(st_modctx_t *mouse_ctx) {
@@ -178,6 +181,7 @@ static void st_mouse_process_leave(st_modctx_t *mouse_ctx) {
     module->events.pop(module->evq, &event);
 
     module->leave = true;
+    module->current_window = NULL;
 }
 
 static void (*procfuncs[])(st_modctx_t *mouse_ctx) = {
@@ -267,4 +271,10 @@ static unsigned st_mouse_get_y(const st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
     return module->y;
+}
+
+static const st_window_t *st_mouse_get_window(const st_modctx_t *mouse_ctx) {
+    st_mouse_simple_t *module = mouse_ctx->data;
+
+    return module->current_window;
 }

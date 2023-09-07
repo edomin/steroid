@@ -19,5 +19,6 @@ static bool st_mouse_entered(const st_modctx_t *mouse_ctx);
 static bool st_mouse_leaved(const st_modctx_t *mouse_ctx);
 static unsigned st_mouse_get_x(const st_modctx_t *mouse_ctx);
 static unsigned st_mouse_get_y(const st_modctx_t *mouse_ctx);
+static const st_window_t *st_mouse_get_window(const st_modctx_t *mouse_ctx);
 
 #endif /* ST_STEROIDS_MOUSE_H */

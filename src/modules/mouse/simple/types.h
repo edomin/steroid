@@ -48,6 +48,7 @@ typedef struct {
     bool                     move;
     bool                     enter;
     bool                     leave;
+    const st_window_t       *current_window;
 } st_mouse_simple_t;
 
 #endif /* ST_MODULES_MOUSE_SIMPLE_TYPES_H */

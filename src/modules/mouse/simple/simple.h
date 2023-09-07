@@ -18,6 +18,7 @@ st_mouse_funcs_t st_mouse_simple_funcs = {
     .mouse_leaved             = st_mouse_leaved,
     .mouse_get_x              = st_mouse_get_x,
     .mouse_get_y              = st_mouse_get_y,
+    .mouse_get_window         = st_mouse_get_window,
 };
 
 st_modfuncentry_t st_module_mouse_simple_funcs[] = {
@@ -33,6 +34,7 @@ st_modfuncentry_t st_module_mouse_simple_funcs[] = {
     {"leaved",             st_mouse_leaved},
     {"get_x",              st_mouse_get_x},
     {"get_y",              st_mouse_get_y},
+    {"get_window",         st_mouse_get_window},
     {NULL, NULL},
 };
 
