@@ -24,9 +24,9 @@ typedef bool (*st_mouse_release_t)(const st_modctx_t *mouse_ctx,
 typedef bool (*st_mouse_pressed_t)(const st_modctx_t *mouse_ctx,
  st_mbutton_t button);
 typedef int (*st_mouse_get_wheel_relative_t)(const st_modctx_t *mouse_ctx);
-typedef const st_window_t *(*st_mouse_moved_t)(const st_modctx_t *mouse_ctx);
-typedef const st_window_t *(*st_mouse_entered_t)(const st_modctx_t *mouse_ctx);
-typedef const st_window_t *(*st_mouse_leaved_t)(const st_modctx_t *mouse_ctx);
+typedef bool (*st_mouse_moved_t)(const st_modctx_t *mouse_ctx);
+typedef bool (*st_mouse_entered_t)(const st_modctx_t *mouse_ctx);
+typedef bool (*st_mouse_leaved_t)(const st_modctx_t *mouse_ctx);
 typedef unsigned (*st_mouse_get_x_t)(const st_modctx_t *mouse_ctx);
 typedef unsigned (*st_mouse_get_y_t)(const st_modctx_t *mouse_ctx);
 

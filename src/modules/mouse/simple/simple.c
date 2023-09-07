@@ -159,7 +159,7 @@ static void st_mouse_process_move(st_modctx_t *mouse_ctx) {
 
     module->x = event.hvalue;
     module->y = event.vvalue;
-    module->move = event.window;
+    module->move = true;
 }
 
 static void st_mouse_process_enter(st_modctx_t *mouse_ctx) {
@@ -168,7 +168,7 @@ static void st_mouse_process_enter(st_modctx_t *mouse_ctx) {
 
     module->events.pop(module->evq, &event);
 
-    module->enter = event.window;
+    module->enter = true;
 }
 
 static void st_mouse_process_leave(st_modctx_t *mouse_ctx) {
@@ -177,7 +177,7 @@ static void st_mouse_process_leave(st_modctx_t *mouse_ctx) {
 
     module->events.pop(module->evq, &event);
 
-    module->leave = event.window;
+    module->leave = true;
 }
 
 static void (*procfuncs[])(st_modctx_t *mouse_ctx) = {
@@ -196,9 +196,9 @@ static void st_mouse_process(st_modctx_t *mouse_ctx) {
         module->prev_mbstate[i] = module->curr_mbstate[i];
 
     module->wheel = 0;
-    module->move = NULL;
-    module->enter = NULL;
-    module->leave = NULL;
+    module->move = false;
+    module->enter = false;
+    module->leave = false;
 
     while (!module->events.is_empty(module->evq)) {
         st_evtypeid_t evtype = module->events.peek_type(module->evq);
@@ -239,19 +239,19 @@ static int st_mouse_get_wheel_relative(const st_modctx_t *mouse_ctx) {
     return module->wheel;
 }
 
-static const st_window_t *st_mouse_moved(const st_modctx_t *mouse_ctx) {
+static bool st_mouse_moved(const st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
     return module->move;
 }
 
-static const st_window_t *st_mouse_entered(const st_modctx_t *mouse_ctx) {
+static bool st_mouse_entered(const st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
     return module->enter;
 }
 
-static const st_window_t *st_mouse_leaved(const st_modctx_t *mouse_ctx) {
+static bool st_mouse_leaved(const st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
     return module->leave;

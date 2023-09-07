@@ -45,9 +45,9 @@ typedef struct {
     bool                     prev_mbstate[ST_MB_MAX];
     bool                     curr_mbstate[ST_MB_MAX];
     int                      wheel;
-    const st_window_t       *move;
-    const st_window_t       *enter;
-    const st_window_t       *leave;
+    bool                     move;
+    bool                     enter;
+    bool                     leave;
 } st_mouse_simple_t;
 
 #endif /* ST_MODULES_MOUSE_SIMPLE_TYPES_H */
