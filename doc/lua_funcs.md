@@ -143,6 +143,29 @@ monitor:get_width(): integer
 monitor:get_height(): integer
 ```
 
+## mouse
+```luau
+Mouse = require "Mouse"
+
+Mouse.new_ctx(events_ctx: events_ctx, logger_ctx: logger_ctx): mouse_ctx
+Mouse.bm_left: integer
+Mouse.mb_middle: integer
+Mouse.mb_right: integer
+
+mouse_ctx:destroy()
+mouse_ctx:process()
+mouse_ctx:press(button: integer): bool
+mouse_ctx:release(button: integer): bool
+mouse_ctx:pressed(button: integer): bool
+mouse_ctx:get_wheel_relative(): integer
+mouse_ctx:moved(): ?window
+mouse_ctx:entered(): ?window
+mouse_ctx:leaved(): ?window
+mouse_ctx:get_x(): integer
+mouse_ctx:get_y(): integer
+mouse_ctx:get_window(): ?window
+```
+
 ## opts
 ```luau
 Opts = require "Opts"
