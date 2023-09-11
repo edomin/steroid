@@ -16,6 +16,10 @@ typedef enum {
     EV_MOUSE_ENTER,
     EV_MOUSE_LEAVE,
 
+    EV_KEY_PRESS,
+    EV_KEY_RELEASE,
+    EV_KEY_INPUT,
+
     EV_FOCUS_IN,
     EV_FOCUS_OUT,
     EV_RESIZE,
@@ -37,10 +41,11 @@ typedef struct {
 } st_window_xlib_events_t;
 
 typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
+    st_modctx_t        *ctx;
+    st_logger_debug_t   debug;
+    st_logger_info_t    info;
+    st_logger_warning_t warning;
+    st_logger_error_t   error;
 } st_window_xlib_logger_t;
 
 typedef struct {
@@ -66,6 +71,8 @@ typedef struct {
     Window        handle;
     st_monitor_t *monitor;
     Atom          wm_delete_msg;
+    XIM           input_method;
+    XIC           input_context;
     bool          xed;
     unsigned      width;
     unsigned      height;

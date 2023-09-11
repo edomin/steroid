@@ -1,6 +1,7 @@
 #include "xlib.h"
 
-#include <X11/Xatom.h>
+#include <X11/Xatom.h> // NOLINT(llvm-include-order)
+#include <X11/XKBlib.h> // NOLINT(llvm-include-order)
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -47,6 +48,7 @@ static bool st_window_import_functions(st_modctx_t *window_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("window_xlib", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("window_xlib", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("window_xlib", logger, warning);
 
     return true;
 }
@@ -92,6 +94,13 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
      "window_mouse_enter", sizeof(st_evwinnoargs_t));
     module->evtypes[EV_MOUSE_LEAVE] = module->events.register_type(events_ctx,
      "window_mouse_leave", sizeof(st_evwinnoargs_t));
+
+    module->evtypes[EV_KEY_PRESS] = module->events.register_type(events_ctx,
+     "window_key_press", sizeof(st_evwinu64_t));
+    module->evtypes[EV_KEY_RELEASE] = module->events.register_type(events_ctx,
+     "window_key_release", sizeof(st_evwinu64_t));
+    module->evtypes[EV_KEY_INPUT] = module->events.register_type(events_ctx,
+     "window_key_input", sizeof(st_evwinsymbol_t));
 
     module->evtypes[EV_FOCUS_IN] = module->events.register_type(events_ctx,
      "window_focus_in", sizeof(st_evwinnoargs_t));
@@ -177,6 +186,8 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         .override_redirect = False,
     };
     XWMHints             hints = { .input = True, .flags = InputHint }; // NOLINT(hicpp-signed-bitwise)
+    XIMStyles           *im_styles = NULL;
+    XIMStyle             im_best_match_style = 0;
     st_window_t         *window = malloc(sizeof(st_window_t));
 
     if (!window) {
@@ -190,6 +201,13 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     window->handle = XCreateWindow(monitor->handle, monitor->root_window,
      x, y, width, height, 0, CopyFromParent, InputOutput, CopyFromParent,
      CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
+    if (!window->handle) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to create window");
+
+        goto create_window_fail;
+    }
+
     XChangeWindowAttributes(monitor->handle, window->handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
@@ -210,6 +228,52 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
          XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
     }
 
+    window->input_method = XOpenIM(monitor->handle, NULL, NULL, NULL);
+    if (!window->input_method) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to open X input method");
+
+        goto open_im_fail;
+    }
+
+    if (XGetIMValues(window->input_method, XNQueryInputStyle, &im_styles, NULL)
+     != NULL || !im_styles) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to open X input method");
+
+        goto get_im_values_fail;
+    }
+
+    for (int i = 0; i < im_styles->count_styles; i++) {
+        XIMStyle style = im_styles->supported_styles[i];
+
+        if (style == ((unsigned long)XIMPreeditNothing | (unsigned long)XIMStatusNothing)) {
+            im_best_match_style = style;
+            break;
+        }
+    }
+
+    XFree(im_styles);
+
+    if (!im_best_match_style) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to get best input method style");
+
+        goto best_match_fail;
+    }
+
+    window->input_context = XCreateIC(window->input_method, XNInputStyle,
+     im_best_match_style, XNClientWindow, window->handle, XNFocusWindow,
+     window->handle, NULL);
+    if (!window->input_context) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to create input context");
+
+        goto create_ic_fail;;
+    }
+
+    XkbSetDetectableAutoRepeat(monitor->handle, true, NULL);
+
     window->ctx = window_ctx;
     window->monitor = monitor;
     window->width = width;
@@ -224,6 +288,17 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     }
 
     return window;
+
+create_ic_fail:
+best_match_fail:
+get_im_values_fail:
+    XCloseIM(window->input_method);
+open_im_fail:
+    XDestroyWindow(window->monitor->handle, window->handle);
+create_window_fail:
+    free(window);
+
+    return NULL;
 }
 
 static void st_window_destroy(st_window_t *window) {
@@ -234,6 +309,7 @@ static void st_window_destroy(st_window_t *window) {
 
         if (st_slist_get_data(node) == window) {
             st_slist_remove_head(module->windows); // NOLINT(altera-unroll-loops)
+            XCloseIM(window->input_method);
             XDestroyWindow(window->monitor->handle, window->handle);
             free(window);
 
@@ -345,12 +421,46 @@ static void st_window_process(st_modctx_t *window_ctx) {
                      module->evtypes[EV_MOUSE_LEAVE], &event);
                     break;
                 }
-                case KeyPress:
-                    /* TODO(edomin): Keyboard event structure required */
+                case KeyPress: {
+                    st_evwinsymbol_t input_event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xkey.window),
+                        .value = "\0\0\0\0",
+                    };
+                    Status           status = 0;
+                    st_evwinu64_t    press_event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xkey.window),
+                        .value = XkbKeycodeToKeysym(window->monitor->handle,
+                         (unsigned char)xevent.xkey.keycode, 0, 0),
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_KEY_PRESS], &press_event);
+
+                    Xutf8LookupString(window->input_context, &xevent.xkey,
+                     input_event.value, 4, 0, &status);
+                    if (status == XBufferOverflow)
+                        module->logger.warning(module->logger.ctx,
+                         "window_xlib: Buffer owerflow on lookup inputted "
+                         "UTF-8 character");
+                    else if(status == XLookupChars)
+                        module->events.push(module->events.ctx,
+                         module->evtypes[EV_KEY_INPUT], &input_event);
+
                     break;
-                case KeyRelease:
-                    /* TODO(edomin): Keyboard event structure required */
+                }
+                case KeyRelease: {
+                    st_evwinu64_t event = {
+                        .window = get_window_by_xwindow(window_ctx,
+                         xevent.xkey.window),
+                        .value = XkbKeycodeToKeysym(window->monitor->handle,
+                         (unsigned char)xevent.xkey.keycode, 0, 0),
+                    };
+                    module->events.push(module->events.ctx,
+                     module->evtypes[EV_KEY_RELEASE], &event);
+
                     break;
+                }
                 case FocusIn: {
                     st_evwinnoargs_t event = {
                         .window = get_window_by_xwindow(window_ctx,

@@ -31,8 +31,18 @@ typedef struct {
 
 typedef struct {
     st_window_t *window;
+    uint64_t     value;
+} st_evwinu64_t;
+
+typedef struct {
+    st_window_t *window;
     int          value;
 } st_evwininteger_t;
+
+typedef struct {
+    st_window_t *window;
+    char         value[4];
+} st_evwinsymbol_t;
 
 typedef st_modctx_t *(*st_window_init_t)(st_modctx_t *events_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *monitor_ctx);
