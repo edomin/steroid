@@ -49,6 +49,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/htable/hash_table"
  "${CMAKE_BINARY_DIR}/src/modules/htable/hash_table")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/ini/inih"
  "${CMAKE_BINARY_DIR}/src/modules/ini/inih")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/keyboard/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/keyboard/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/simple"
  "${CMAKE_BINARY_DIR}/src/modules/logger/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
