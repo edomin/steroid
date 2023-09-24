@@ -127,11 +127,12 @@ static bool st_htable_insert(st_htable_t *htable, st_htiter_t *iter,
     struct hash_entry *entry = hash_table_search(htable->handle, key);
 
     if (entry) {
-        if (key != entry->key && htable->keydelfunc)
+        if (key != entry->key && htable->keydelfunc) { /* keydelfunc calls without braces */
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wcast-qual"
             htable->keydelfunc((void *)entry->key);
             #pragma GCC diagnostic pop
+        }
         if (value != entry->data && htable->valdelfunc)
             htable->valdelfunc(entry->data);
     }
@@ -161,11 +162,12 @@ static bool st_htable_remove(st_htable_t *htable, const void *key) {
     struct hash_entry *entry = hash_table_search(htable->handle, key);
 
     if (entry) {
-        if (htable->keydelfunc)
+        if (htable->keydelfunc) { /* keydelfunc calls without braces */
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wcast-qual"
             htable->keydelfunc((void *)entry->key);
             #pragma GCC diagnostic pop
+        }
         if (htable->valdelfunc)
             htable->valdelfunc(entry->data);
 
@@ -179,11 +181,12 @@ static void st_htable_clear(st_htable_t *htable) {
     struct hash_entry *entry = hash_table_next_entry(htable->handle, NULL);
 
     while (entry) {
-        if (htable->keydelfunc)
+        if (htable->keydelfunc) { /* keydelfunc calls without braces */
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wcast-qual"
             htable->keydelfunc((void *)entry->key);
             #pragma GCC diagnostic pop
+        }
         if (htable->valdelfunc)
             htable->valdelfunc(entry->data);
         hash_table_remove_entry(htable->handle, entry);
