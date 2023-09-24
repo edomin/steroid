@@ -71,6 +71,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/fs"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/fs")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/gfxctx"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/gfxctx")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/keyboard"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/keyboard")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/logger"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/logger")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/monitor"

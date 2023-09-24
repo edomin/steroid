@@ -102,6 +102,246 @@ gfxctx:get_api(): integer
 gfxctx:destroy()
 ```
 
+## keyboard
+```luau
+Keyboard = require "Keyboard"
+
+Keyboard.new_ctx(events_ctx: events_ctx, logger_ctx: logger_ctx): keyboard_ctx
+
+Keyboard.key_space: integer
+Keyboard.key_exclam: integer
+Keyboard.key_quotedbl: integer
+Keyboard.key_numbersign: integer
+Keyboard.key_dollar: integer
+Keyboard.key_percent: integer
+Keyboard.key_ampersand: integer
+Keyboard.key_apostrophe: integer
+Keyboard.key_quoteright: integer
+Keyboard.key_parenleft: integer
+Keyboard.key_parenright: integer
+Keyboard.key_asterisk: integer
+Keyboard.key_plus: integer
+Keyboard.key_comma: integer
+Keyboard.key_minus: integer
+Keyboard.key_period: integer
+Keyboard.key_slash: integer
+Keyboard.key_0: integer
+Keyboard.key_1: integer
+Keyboard.key_2: integer
+Keyboard.key_3: integer
+Keyboard.key_4: integer
+Keyboard.key_5: integer
+Keyboard.key_6: integer
+Keyboard.key_7: integer
+Keyboard.key_8: integer
+Keyboard.key_9: integer
+Keyboard.key_colon: integer
+Keyboard.key_semicolon: integer
+Keyboard.key_less: integer
+Keyboard.key_equal: integer
+Keyboard.key_greater: integer
+Keyboard.key_question: integer
+Keyboard.key_at: integer
+Keyboard.key_a: integer
+Keyboard.key_b: integer
+Keyboard.key_c: integer
+Keyboard.key_d: integer
+Keyboard.key_e: integer
+Keyboard.key_f: integer
+Keyboard.key_g: integer
+Keyboard.key_h: integer
+Keyboard.key_i: integer
+Keyboard.key_j: integer
+Keyboard.key_k: integer
+Keyboard.key_l: integer
+Keyboard.key_m: integer
+Keyboard.key_n: integer
+Keyboard.key_o: integer
+Keyboard.key_p: integer
+Keyboard.key_q: integer
+Keyboard.key_r: integer
+Keyboard.key_s: integer
+Keyboard.key_t: integer
+Keyboard.key_u: integer
+Keyboard.key_v: integer
+Keyboard.key_w: integer
+Keyboard.key_x: integer
+Keyboard.key_y: integer
+Keyboard.key_z: integer
+Keyboard.key_bracketleft: integer
+Keyboard.key_backslash: integer
+Keyboard.key_bracketright: integer
+Keyboard.key_asciicircum: integer
+Keyboard.key_underscore: integer
+Keyboard.key_grave: integer
+Keyboard.key_quoteleft: integer
+Keyboard.key_braceleft: integer
+Keyboard.key_bar: integer
+Keyboard.key_braceright: integer
+Keyboard.key_asciitilde: integer
+
+Keyboard.key_backspace: integer
+Keyboard.key_tab: integer
+Keyboard.key_linefeed: integer
+Keyboard.key_clear: integer
+Keyboard.key_return: integer
+Keyboard.key_pause: integer
+Keyboard.key_scroll_lock: integer
+Keyboard.key_sys_req: integer
+Keyboard.key_escape: integer
+Keyboard.key_delete: integer
+
+Keyboard.key_home: integer
+Keyboard.key_left: integer
+Keyboard.key_up: integer
+Keyboard.key_right: integer
+Keyboard.key_down: integer
+Keyboard.key_prior: integer
+Keyboard.key_page_up: integer
+Keyboard.key_next: integer
+Keyboard.key_page_down: integer
+Keyboard.key_end: integer
+Keyboard.key_begin: integer
+
+Keyboard.key_select: integer
+Keyboard.key_print: integer
+Keyboard.key_execute: integer
+Keyboard.key_insert: integer
+Keyboard.key_undo: integer
+Keyboard.key_redo: integer
+Keyboard.key_menu: integer
+Keyboard.key_find: integer
+Keyboard.key_cancel: integer
+Keyboard.key_help: integer
+Keyboard.key_break: integer
+Keyboard.key_mode_switch: integer
+Keyboard.key_script_switch: integer
+Keyboard.key_num_lock: integer
+
+Keyboard.key_kp_space: integer
+Keyboard.key_kp_tab: integer
+Keyboard.key_kp_enter: integer
+Keyboard.key_kp_f1: integer
+Keyboard.key_kp_f2: integer
+Keyboard.key_kp_f3: integer
+Keyboard.key_kp_f4: integer
+Keyboard.key_kp_home: integer
+Keyboard.key_kp_left: integer
+Keyboard.key_kp_up: integer
+Keyboard.key_kp_right: integer
+Keyboard.key_kp_down: integer
+Keyboard.key_kp_prior: integer
+Keyboard.key_kp_page_up: integer
+Keyboard.key_kp_next: integer
+Keyboard.key_kp_page_down: integer
+Keyboard.key_kp_end: integer
+Keyboard.key_kp_begin: integer
+Keyboard.key_kp_insert: integer
+Keyboard.key_kp_delete: integer
+Keyboard.key_kp_equal: integer
+Keyboard.key_kp_multiply: integer
+Keyboard.key_kp_add: integer
+Keyboard.key_kp_separator: integer
+Keyboard.key_kp_subtract: integer
+Keyboard.key_kp_decimal: integer
+Keyboard.key_kp_divide: integer
+
+Keyboard.key_kp_0: integer
+Keyboard.key_kp_1: integer
+Keyboard.key_kp_2: integer
+Keyboard.key_kp_3: integer
+Keyboard.key_kp_4: integer
+Keyboard.key_kp_5: integer
+Keyboard.key_kp_6: integer
+Keyboard.key_kp_7: integer
+Keyboard.key_kp_8: integer
+Keyboard.key_kp_9: integer
+
+Keyboard.key_f1: integer
+Keyboard.key_f2: integer
+Keyboard.key_f3: integer
+Keyboard.key_f4: integer
+Keyboard.key_f5: integer
+Keyboard.key_f6: integer
+Keyboard.key_f7: integer
+Keyboard.key_f8: integer
+Keyboard.key_f9: integer
+Keyboard.key_f10: integer
+Keyboard.key_f11: integer
+Keyboard.key_l1: integer
+Keyboard.key_f12: integer
+Keyboard.key_l2: integer
+Keyboard.key_f13: integer
+Keyboard.key_l3: integer
+Keyboard.key_f14: integer
+Keyboard.key_l4: integer
+Keyboard.key_f15: integer
+Keyboard.key_l5: integer
+Keyboard.key_f16: integer
+Keyboard.key_l6: integer
+Keyboard.key_f17: integer
+Keyboard.key_l7: integer
+Keyboard.key_f18: integer
+Keyboard.key_l8: integer
+Keyboard.key_f19: integer
+Keyboard.key_l9: integer
+Keyboard.key_f20: integer
+Keyboard.key_l10: integer
+Keyboard.key_f21: integer
+Keyboard.key_r1: integer
+Keyboard.key_f22: integer
+Keyboard.key_r2: integer
+Keyboard.key_f23: integer
+Keyboard.key_r3: integer
+Keyboard.key_f24: integer
+Keyboard.key_r4: integer
+Keyboard.key_f25: integer
+Keyboard.key_r5: integer
+Keyboard.key_f26: integer
+Keyboard.key_r6: integer
+Keyboard.key_f27: integer
+Keyboard.key_r7: integer
+Keyboard.key_f28: integer
+Keyboard.key_r8: integer
+Keyboard.key_f29: integer
+Keyboard.key_r9: integer
+Keyboard.key_f30: integer
+Keyboard.key_r10: integer
+Keyboard.key_f31: integer
+Keyboard.key_r11: integer
+Keyboard.key_f32: integer
+Keyboard.key_r12: integer
+Keyboard.key_f33: integer
+Keyboard.key_r13: integer
+Keyboard.key_f34: integer
+Keyboard.key_r14: integer
+Keyboard.key_f35: integer
+Keyboard.key_r15: integer
+
+Keyboard.key_shift_l: integer
+Keyboard.key_shift_r: integer
+Keyboard.key_control_l: integer
+Keyboard.key_control_r: integer
+Keyboard.key_caps_lock: integer
+Keyboard.key_shift_lock: integer
+
+Keyboard.key_meta_l: integer
+Keyboard.key_meta_r: integer
+Keyboard.key_alt_l: integer
+Keyboard.key_alt_r: integer
+Keyboard.key_super_l: integer
+Keyboard.key_super_r: integer
+Keyboard.key_hyper_l: integer
+Keyboard.key_hyper_r: integer
+
+keyboard_ctx:destroy()
+keyboard_ctx:process()
+keyboard_ctx:press(key: integer): bool
+keyboard_ctx:release(key: integer): bool
+keyboard_ctx:pressed(key: integer): bool
+keyboard_ctx:get_input(): ?string
+```
+
 ## logger
 ```luau
 Logger = require "Logger"
