@@ -69,7 +69,11 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
 }
 
 static bool st_keyeqfunc(const void *left, const void *right) {
-    return strcmp(left, right) == 0;
+    return (uint32_t)(uintptr_t)left == (uint32_t)(uintptr_t)right;
+}
+
+static uint32_t st_keyboard_hash_key(const void *key) {
+    return (uint32_t)(uintptr_t)key;
 }
 
 static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
@@ -105,14 +109,12 @@ static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
      "window_key_input");
 
     module->prev_state = module->htable.create(module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
-     st_keyeqfunc, free, NULL);
+     st_keyboard_hash_key, st_keyeqfunc, NULL, NULL);
     if (!module->prev_state)
         goto prev_state_fail;
 
     module->cur_state = module->htable.create(module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
-     st_keyeqfunc, free, NULL);
+     st_keyboard_hash_key, st_keyeqfunc, NULL, NULL);
     if (!module->cur_state)
         goto cur_state_fail;
 
