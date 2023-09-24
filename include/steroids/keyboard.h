@@ -3,7 +3,6 @@
 
 #include "steroids/module.h"
 #include "steroids/types/modules/keyboard.h"
-#include "steroids/types/modules/window.h"
 
 static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
  st_modctx_t *logger_ctx);

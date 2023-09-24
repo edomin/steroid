@@ -7,6 +7,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
+#include "steroids/types/modules/window.h"
+
 #define ERR_MSG_BUF_SIZE 1024
 #define EVQ_POOL_SIZE    1024
 

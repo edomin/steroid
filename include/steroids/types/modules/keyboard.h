@@ -2,7 +2,6 @@
 #define ST_STEROIDS_TYPES_MODULES_KEYBOARD_H
 
 #include "steroids/module.h"
-#include "steroids/types/modules/window.h"
 
 typedef enum {
     ST_KEY_SPACE         = 0x0020,  /* U+0020 SPACE */
