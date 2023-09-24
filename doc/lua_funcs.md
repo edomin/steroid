@@ -388,7 +388,7 @@ monitor:get_height(): integer
 Mouse = require "Mouse"
 
 Mouse.new_ctx(events_ctx: events_ctx, logger_ctx: logger_ctx): mouse_ctx
-Mouse.bm_left: integer
+Mouse.mb_left: integer
 Mouse.mb_middle: integer
 Mouse.mb_right: integer
 
