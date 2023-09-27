@@ -16,7 +16,8 @@ typedef struct {
     float              x;
     float              y;
     float              z;
-    float              scale;
+    float              hscale;
+    float              vscale;
     float              angle;
 } st_drawrec_t;
 
@@ -32,7 +33,7 @@ typedef bool (*st_drawq_export_entry_t)(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index);
 typedef const st_drawrec_t *(*st_drawq_get_all_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_add_t)(st_drawq_t *drawq, const st_sprite_t *sprite,
- float x, float y, float z, float scale, float angle);
+ float x, float y, float z, float hscale, float vscale, float angle);
 typedef bool (*st_drawq_sort_t)(st_drawq_t *drawq);
 typedef bool (*st_drawq_clear_t)(st_drawq_t *drawq);
 

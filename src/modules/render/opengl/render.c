@@ -293,11 +293,12 @@ static void st_render_quit(st_modctx_t *render_ctx) {
 }
 
 static void st_render_put_sprite(st_modctx_t *render_ctx,
- const st_sprite_t *sprite, float x, float y, float z, float scale,
- float angle) {
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float angle) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, scale, angle);
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     angle);
 }
 
 static void st_render_process_queue(st_modctx_t *render_ctx) {
@@ -328,12 +329,12 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
         float               pos_upper_left_y = 1.0f - draw_entries[i].y /
          (float)window_height * 2;
         float               pos_upper_right_x = pos_upper_left_x +
-         (float)sprite_width / (float)window_width * 2 * draw_entries[i].scale;
+         (float)sprite_width / (float)window_width * 2 * draw_entries[i].hscale;
         float               pos_upper_right_y = pos_upper_left_y;
         float               pos_lower_left_x = pos_upper_left_x;
         float               pos_lower_left_y = pos_upper_left_y -
          (float)sprite_height / (float)window_height * 2 *
-         draw_entries[i].scale;
+         draw_entries[i].vscale;
         float               pos_lower_right_x = pos_upper_right_x;
         float               pos_lower_right_y = pos_lower_left_y;
         float               pos_z = draw_entries[i].z / (float)UINT16_MAX +

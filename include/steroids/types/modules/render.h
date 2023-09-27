@@ -11,8 +11,8 @@ typedef st_modctx_t *(*st_render_init_t)(st_modctx_t *drawq_ctx,
 typedef void (*st_render_quit_t)(st_modctx_t *render_ctx);
 
 typedef void (*st_render_put_sprite_t)(st_modctx_t *render_ctx,
- const st_sprite_t *sprite, float x, float y, float z, float scale,
- float angle);
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float angle);
 typedef void (*st_render_process_t)(st_modctx_t *render_ctx);
 
 typedef struct {

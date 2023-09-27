@@ -152,8 +152,8 @@ static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq) {
 }
 
 static bool st_drawq_add(st_drawq_t *drawq, const st_sprite_t *sprite, float x,
- float y, float z, float scale, float angle) {
-    st_drawrec_t entry = { sprite, x, y, z, scale, angle };
+ float y, float z, float hscale, float vscale, float angle) {
+    st_drawrec_t entry = { sprite, x, y, z, hscale, vscale, angle };
 
     return drawq->module->dynarr.append(drawq->entries, &entry);
 }

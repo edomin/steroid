@@ -158,11 +158,12 @@ static int st_render_put_sprite_bind(st_luastate_t *lua_state) {
     double             x = st_lua_get_double(lua_state, 3);
     double             y = st_lua_get_double(lua_state, 4);
     double             z = st_lua_get_double(lua_state, 5); // NOLINT(readability-magic-numbers)
-    double             scale = st_lua_get_double(lua_state, 6); // NOLINT(readability-magic-numbers)
-    double             angle = st_lua_get_double(lua_state, 7); // NOLINT(readability-magic-numbers)
+    double             hscale = st_lua_get_double(lua_state, 6); // NOLINT(readability-magic-numbers)
+    double             vscale = st_lua_get_double(lua_state, 7); // NOLINT(readability-magic-numbers)
+    double             angle = st_lua_get_double(lua_state, 8); // NOLINT(readability-magic-numbers)
 
     st_render_put_sprite(render_ctx, sprite, (float)x, (float)y, (float)z,
-     (float)scale, (float)angle);
+     (float)hscale, (float)vscale, (float)angle);
 
     return 0;
 }

@@ -12,8 +12,8 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
 static void st_render_quit(st_modctx_t *render_ctx);
 
 static void st_render_put_sprite(st_modctx_t *render_ctx,
- const st_sprite_t *sprite, float x, float y, float z, float scale,
- float angle);
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float angle);
 static void st_render_process(st_modctx_t *render_ctx);
 
 #endif /* ST_STEROIDS_RENDER_H */
