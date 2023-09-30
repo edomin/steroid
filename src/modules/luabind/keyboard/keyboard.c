@@ -467,7 +467,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_keyboard_release_bind);
     st_lua_set_cfunction_to_field(lua_state, "pressed",
      st_keyboard_pressed_bind);
-    st_lua_set_cfunction_to_field(lua_state, "get_wheel_relative",
+    st_lua_set_cfunction_to_field(lua_state, "get_input",
      st_keyboard_get_input_bind);
 
     st_lua_pop(lua_state, 1);
