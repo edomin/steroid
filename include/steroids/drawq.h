@@ -20,7 +20,8 @@ static bool st_drawq_export_entry(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index);
 static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq);
 static bool st_drawq_add(st_drawq_t *drawq, const st_sprite_t *sprite, float x,
- float y, float z, float hscale, float vscale, float angle);
+ float y, float z, float hscale, float vscale, float angle, float pivot_x,
+ float pivot_y);
 static bool st_drawq_sort(st_drawq_t *drawq);
 static bool st_drawq_clear(st_drawq_t *drawq);
 

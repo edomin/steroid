@@ -152,10 +152,19 @@ static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq) {
 }
 
 static bool st_drawq_add(st_drawq_t *drawq, const st_sprite_t *sprite, float x,
- float y, float z, float hscale, float vscale, float angle) {
-    st_drawrec_t entry = { sprite, x, y, z, hscale, vscale, angle };
-
-    return drawq->module->dynarr.append(drawq->entries, &entry);
+ float y, float z, float hscale, float vscale, float angle, float pivot_x,
+ float pivot_y) {
+    return drawq->module->dynarr.append(drawq->entries, &(st_drawrec_t){
+        .sprite = sprite,
+        .x = x,
+        .y = y,
+        .z = z,
+        .hscale = hscale,
+        .vscale = vscale,
+        .angle = angle,
+        .pivot_x =pivot_x,
+        .pivot_y = pivot_y,
+    });
 }
 
 static int st_drawrec_cmp(const void *leftptr, const void *rightptr,
