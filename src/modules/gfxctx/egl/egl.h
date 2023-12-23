@@ -1,5 +1,5 @@
-#ifndef ST_MODULES_GFXCTX_EGL_SIMPLE_H
-#define ST_MODULES_GFXCTX_EGL_SIMPLE_H
+#ifndef ST_MODULES_GFXCTX_EGL_EGL_H
+#define ST_MODULES_GFXCTX_EGL_EGL_H
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -32,4 +32,4 @@ st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {NULL, NULL},
 };
 
-#endif /* ST_MODULES_GFXCTX_EGL_SIMPLE_H */
+#endif /* ST_MODULES_GFXCTX_EGL_EGL_H */
