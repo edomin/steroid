@@ -358,7 +358,7 @@ static void st_window_process(st_modctx_t *window_ctx) {
                     break;
                 }
                 case ButtonPress: {
-                    if (xevent.xbutton.button == Button4 &&
+                    if (xevent.xbutton.button == Button4 ||
                      xevent.xbutton.button == Button5) {
                         st_evwininteger_t event = {
                             .window = get_window_by_xwindow(window_ctx,
