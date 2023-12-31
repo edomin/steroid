@@ -24,12 +24,9 @@ static st_lua_create_userdata_t        st_lua_create_userdata;
 static st_lua_create_metatable_t       st_lua_create_metatable;
 static st_lua_create_module_t          st_lua_create_module;
 static st_lua_set_metatable_t          st_lua_set_metatable;
-static st_lua_push_bool_t              st_lua_push_bool;
 static st_lua_push_integer_t           st_lua_push_integer;
-static st_lua_set_integer_to_field_t   st_lua_set_integer_to_field;
 static st_lua_set_cfunction_to_field_t st_lua_set_cfunction_to_field;
 static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
-static st_lua_get_string_t             st_lua_get_string;
 static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
 static st_lua_pop_t                    st_lua_pop;
 
@@ -72,12 +69,9 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, create_metatable);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, create_module);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, set_metatable);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, push_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, push_integer);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, set_integer_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, set_cfunction_to_field);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, set_copy_to_field);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, get_string);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, get_named_userdata);
     ST_LOAD_GLOBAL_FUNCTION("luabind_terminal", lua, pop);
 
@@ -88,7 +82,6 @@ static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
  st_modctx_t *lua_ctx) {
     st_modctx_t           *luabind_ctx;
     st_luabind_terminal_t *luabind;
-    errno_t                err;
 
     luabind_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_luabind_terminal_data, sizeof(st_luabind_terminal_t));
