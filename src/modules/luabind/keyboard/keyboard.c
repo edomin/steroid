@@ -7,8 +7,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE      1024
-#define CTX_METATABLE_NAME    "keyboard_ctx"
+#define ERR_MSG_BUF_SIZE   1024
+#define CTX_METATABLE_NAME "keyboard_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
