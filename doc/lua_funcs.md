@@ -504,6 +504,17 @@ texture:get_width(): integer
 texture:get_height(): integer
 ```
 
+## vector
+```luau
+Vector = require "Vector"
+
+Vector.new_ctx(logger_ctx: logger_ctx): vector_ctx
+
+vector_ctx:destroy()
+vector_ctx:rrotate(x: double, y: double, radians: double, pivot_x: double, pivot_y: double): double, double
+vector_ctx:drotate(x: double, y: double, degrees: double, pivot_x: double, pivot_y: double): double, double
+```
+
 ## window
 ```luau
 Window = require "Window"

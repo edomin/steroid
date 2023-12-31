@@ -95,6 +95,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/texture"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/texture")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/timer"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/timer")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/vector"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/vector")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/window"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/window")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/monitor/xlib"
@@ -127,6 +129,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/texture/opengl"
  "${CMAKE_BINARY_DIR}/src/modules/texture/opengl")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/timer/simple"
  "${CMAKE_BINARY_DIR}/src/modules/timer/simple")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/vector/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/vector/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/window/xlib"
  "${CMAKE_BINARY_DIR}/src/modules/window/xlib")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/zip/zip"
