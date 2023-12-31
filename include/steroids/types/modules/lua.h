@@ -25,6 +25,7 @@ typedef void (*st_lua_set_metatable_t)(st_luastate_t *lua_state,
  const char *name);
 typedef void (*st_lua_push_bool_t)(st_luastate_t *lua_state, bool val);
 typedef void (*st_lua_push_integer_t)(st_luastate_t *lua_state, ptrdiff_t val);
+typedef void (*st_lua_push_double_t)(st_luastate_t *lua_state, double val);
 typedef void (*st_lua_push_nil_t)(st_luastate_t *lua_state);
 typedef void (*st_lua_push_string_t)(st_luastate_t *lua_state, const char *str);
 typedef void (*st_lua_set_nil_to_field_t)(st_luastate_t *lua_state,
@@ -69,6 +70,7 @@ typedef struct {
     st_lua_set_metatable_t              lua_set_metatable;
     st_lua_push_bool_t                  lua_push_bool;
     st_lua_push_integer_t               lua_push_integer;
+    st_lua_push_double_t                lua_push_double;
     st_lua_push_nil_t                   lua_push_nil;
     st_lua_push_string_t                lua_push_string;
     st_lua_set_nil_to_field_t           lua_set_nil_to_field;

@@ -20,6 +20,7 @@ static void st_lua_create_module(st_luastate_t *lua_state, const char *name);
 static void st_lua_set_metatable(st_luastate_t *lua_state, const char *name);
 static void st_lua_push_bool(st_luastate_t *lua_state, bool val);
 static void st_lua_push_integer(st_luastate_t *lua_state, ptrdiff_t val);
+static void st_lua_push_double(st_luastate_t *lua_state, double val);
 static void st_lua_push_nil(st_luastate_t *lua_state);
 static void st_lua_push_string(st_luastate_t *lua_state, const char *str);
 static void st_lua_set_nil_to_field(st_luastate_t *lua_state, const char *name);

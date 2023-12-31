@@ -284,6 +284,10 @@ static void st_lua_push_integer(st_luastate_t *lua_state, ptrdiff_t val) {
     lua_pushinteger((lua_State *)lua_state, val);
 }
 
+static void st_lua_push_double(st_luastate_t *lua_state, double val) {
+    lua_pushnumber((lua_State *)lua_state, val);
+}
+
 static void st_lua_push_nil(st_luastate_t *lua_state) {
     lua_pushnil((lua_State *)lua_state);
 }
