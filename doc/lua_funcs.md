@@ -449,7 +449,8 @@ Render = require "Render"
 Render.new_ctx(drawq_ctx: drawq_ctx, dynarr_ctx: dynarr_ctx, logger_ctx: logger_ctx, sprite_ctx: sprite_ctx, texture_ctx: texture_ctx, gfxctx: gfxctx): render_ctx
 
 render_ctx:destroy()
-render_ctx:put_sprite(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, angle: double)
+render_ctx:put_sprite(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_angled(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, angle: double, pivot_x: double, pivot_y: double)
 render_ctx:process()
 ```
 
