@@ -17,6 +17,7 @@ static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 static st_render_init_t                st_render_init;
 static st_render_quit_t                st_render_quit;
 static st_render_put_sprite_t          st_render_put_sprite;
+static st_render_put_sprite_angled_t   st_render_put_sprite_angled;
 static st_render_process_t             st_render_process;
 
 static st_lua_get_state_t              st_lua_get_state;
@@ -62,6 +63,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_render", render, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_render", render, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_render", render, put_sprite);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_render", render, put_sprite_angled);
     ST_LOAD_GLOBAL_FUNCTION("luabind_render", render, process);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_render", lua, get_state);
@@ -160,10 +162,32 @@ static int st_render_put_sprite_bind(st_luastate_t *lua_state) {
     double             z = st_lua_get_double(lua_state, 5); // NOLINT(readability-magic-numbers)
     double             hscale = st_lua_get_double(lua_state, 6); // NOLINT(readability-magic-numbers)
     double             vscale = st_lua_get_double(lua_state, 7); // NOLINT(readability-magic-numbers)
-    double             angle = st_lua_get_double(lua_state, 8); // NOLINT(readability-magic-numbers)
+    double             pivot_x = st_lua_get_double(lua_state, 8); // NOLINT(readability-magic-numbers)
+    double             pivot_y = st_lua_get_double(lua_state, 9); // NOLINT(readability-magic-numbers)
 
     st_render_put_sprite(render_ctx, sprite, (float)x, (float)y, (float)z,
-     (float)hscale, (float)vscale, (float)angle);
+     (float)hscale, (float)vscale, (float)pivot_x, (float)pivot_y);
+
+    return 0;
+}
+
+static int st_render_put_sprite_angled_bind(st_luastate_t *lua_state) {
+    st_modctx_t       *render_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, METATABLE_NAME);
+    const st_sprite_t *sprite = *(st_sprite_t **)st_lua_get_named_userdata(
+     lua_state, 2, "sprite");
+    double             x = st_lua_get_double(lua_state, 3);
+    double             y = st_lua_get_double(lua_state, 4);
+    double             z = st_lua_get_double(lua_state, 5); // NOLINT(readability-magic-numbers)
+    double             hscale = st_lua_get_double(lua_state, 6); // NOLINT(readability-magic-numbers)
+    double             vscale = st_lua_get_double(lua_state, 7); // NOLINT(readability-magic-numbers)
+    double             angle = st_lua_get_double(lua_state, 8); // NOLINT(readability-magic-numbers)
+    double             pivot_x = st_lua_get_double(lua_state, 9); // NOLINT(readability-magic-numbers)
+    double             pivot_y = st_lua_get_double(lua_state, 10); // NOLINT(readability-magic-numbers)
+
+    st_render_put_sprite_angled(render_ctx, sprite, (float)x, (float)y,
+     (float)z, (float)hscale, (float)vscale, (float)angle, (float)pivot_x,
+     (float)pivot_y);
 
     return 0;
 }
@@ -192,6 +216,8 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "destroy", st_render_quit_bind);
     st_lua_set_cfunction_to_field(lua_state, "put_sprite",
      st_render_put_sprite_bind);
+    st_lua_set_cfunction_to_field(lua_state, "put_sprite_angled",
+     st_render_put_sprite_angled_bind);
     st_lua_set_cfunction_to_field(lua_state, "process", st_render_process_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
 

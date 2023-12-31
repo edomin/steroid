@@ -294,11 +294,20 @@ static void st_render_quit(st_modctx_t *render_ctx) {
 
 static void st_render_put_sprite(st_modctx_t *render_ctx,
  const st_sprite_t *sprite, float x, float y, float z, float hscale,
- float vscale, float angle) {
+ float vscale, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
     module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
-     angle, 0.0f, 0.0f);
+     0.0f, pivot_x, pivot_y);
+}
+
+static void st_render_put_sprite_angled(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float angle, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     angle, pivot_x, pivot_y);
 }
 
 static void st_render_process_queue(st_modctx_t *render_ctx) {
