@@ -138,20 +138,20 @@ static int st_terminal_quit_bind(st_luastate_t *lua_state) {
     return 0;
 }
 
-static int terminal_get_rows_count_bind(st_luastate_t *lua_state) {
-    st_modctx_t *fs_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+static int st_terminal_get_rows_count_bind(st_luastate_t *lua_state) {
+    st_modctx_t *terminal_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_terminal_get_rows_count(fs_ctx));
+    st_lua_push_integer(lua_state, st_terminal_get_rows_count(terminal_ctx));
 
     return 1;
 }
 
-static int terminal_get_cols_count_bind(st_luastate_t *lua_state) {
-    st_modctx_t *fs_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+static int st_terminal_get_cols_count_bind(st_luastate_t *lua_state) {
+    st_modctx_t *terminal_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_terminal_get_cols_count(fs_ctx));
+    st_lua_push_integer(lua_state, st_terminal_get_cols_count(terminal_ctx));
 
     return 1;
 }
@@ -171,9 +171,9 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "destroy", st_terminal_quit_bind);
     st_lua_set_copy_to_field(lua_state, "__index", -1);
     st_lua_set_cfunction_to_field(lua_state, "get_rows_count",
-     terminal_get_rows_count_bind);
+     st_terminal_get_rows_count_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_cols_count",
-     terminal_get_cols_count_bind);
+     st_terminal_get_cols_count_bind);
 
     st_lua_pop(lua_state, 1);
 }
