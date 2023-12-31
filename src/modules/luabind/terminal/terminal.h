@@ -1,5 +1,5 @@
-#ifndef ST_MODULES_LUABIND_TERMINAL_OPTS_H
-#define ST_MODULES_LUABIND_TERMINAL_OPTS_H
+#ifndef ST_MODULES_LUABIND_TERMINAL_TERMINAL_H
+#define ST_MODULES_LUABIND_TERMINAL_TERMINAL_H
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/luabind.h"
@@ -34,4 +34,4 @@ st_modfuncentry_t st_module_luabind_terminal_funcs[] = {
     {NULL, NULL},
 };
 
-#endif /* ST_MODULES_LUABIND_TERMINAL_OPTS_H */
+#endif /* ST_MODULES_LUABIND_TERMINAL_TERMINAL_H */
