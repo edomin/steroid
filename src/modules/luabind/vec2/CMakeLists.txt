@@ -1,10 +1,10 @@
-if (${ST_MODULE_VECTOR_SIMPLE} STREQUAL "no")
+if (${ST_MODULE_LUABIND_VEC2} STREQUAL "no")
     return()
 endif()
 
-set(ST_MODULE_NAME "simple")
-set(ST_MODULE_TYPE ${ST_MODULE_VECTOR_SIMPLE})
-set(ST_MODULE_SUBSYSTEM "vector")
+set(ST_MODULE_NAME "vec2")
+set(ST_MODULE_TYPE ${ST_MODULE_LUABIND_VEC2})
+set(ST_MODULE_SUBSYSTEM "luabind")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
@@ -12,8 +12,16 @@ set(ST_MODULE_PREREQS [=[
         .subsystem = "logger",
         .name = NULL,
     },
+    {
+        .subsystem = "lua",
+        .name = NULL,
+    },
+    {
+        .subsystem = "vec2",
+        .name = NULL,
+    },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 1)
+set(ST_MODULE_PREREQS_COUNT 3)
 
 configure_file(
     "config.h.in"
@@ -28,12 +36,12 @@ bb_add_more_warnings(
         alloc
         array
         asciiz
-        format
+        enum
         preprocessor
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_VECTOR_SIMPLE})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_LUABIND_VEC2})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
@@ -41,7 +49,7 @@ pkg_check_modules(SAFEC REQUIRED libsafec)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "simple.c"
+    "vec2.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)

@@ -524,15 +524,29 @@ texture:get_width(): integer
 texture:get_height(): integer
 ```
 
-## vector
+## vec2
 ```luau
-Vector = require "Vector"
+Vec2 = require "Vec2"
 
-Vector.new_ctx(logger_ctx: logger_ctx): vector_ctx
+Vec2.new_ctx(logger_ctx: logger_ctx, angle_ctx: angle_ctx): vec2_ctx
 
-vector_ctx:destroy()
-vector_ctx:rrotate(x: double, y: double, radians: double, pivot_x: double, pivot_y: double): double, double
-vector_ctx:drotate(x: double, y: double, degrees: double, pivot_x: double, pivot_y: double): double, double
+vec2_ctx:destroy()
+vec2_ctx:sum(first_x: double, first_y: double, second_x: double, second_y: double): double, double
+vec2_ctx:diff(first_x: double, first_y: double, second_x: double, second_y: double): double, double
+vec2_ctx:product(first_x: double, first_y: double, second_x: double, second_y: double): double, double
+vec2_ctx:len(x: double, y: double): double
+vec2_ctx:distance(first_x: double, first_y: double, second_x: double, second_y: double): double
+vec2_ctx:unit(x: double, y: double): double, double
+vec2_ctx:dot_product(first_x: double, first_y: double, second_x: double, second_y: double): double
+vec2_ctx:rangle(first_x: double, first_y: double, second_x: double, second_y: double): double
+vec2_ctx:dangle(first_x: double, first_y: double, second_x: double, second_y: double): double
+vec2_ctx:rrotation(x: double, y: double, radians: double): double, double
+vec2_ctx:drotation(x: double, y: double, degrees: double): double, double
+vec2_ctx:rotation90(x: double, y: double): double, double
+vec2_ctx:rotation180(x: double, y: double): double, double
+vec2_ctx:rotation270(x: double, y: double): double, double
+vec2_ctx:default_basis_xvec(): double, double
+vec2_ctx:default_basis_yvec(): double, double
 ```
 
 ## window
