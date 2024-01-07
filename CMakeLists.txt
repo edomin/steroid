@@ -27,6 +27,8 @@ add_custom_target(copy_plugins
 )
 
 set(ST_INTERNAL_MODULES_COUNT 0)
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/angle/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/angle/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/atlas/simple"
  "${CMAKE_BINARY_DIR}/src/modules/atlas/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bitmap/simple"
@@ -57,6 +59,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
  "${CMAKE_BINARY_DIR}/src/modules/logger/libsir")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/lua/luajit"
  "${CMAKE_BINARY_DIR}/src/modules/lua/luajit")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/angle"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/angle")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/atlas"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/atlas")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/bitmap"

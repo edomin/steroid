@@ -1,3 +1,22 @@
+## angle
+```luau
+Angle = require "Angle"
+
+Angle.new_ctx(logger_ctx: logger_ctx): angle_ctx
+
+angle_ctx:destroy()
+angle_ctx:rtod(radians: double): double
+angle_ctx:dtor(degrees: double): double
+angle_ctx:rnormalized360(radians: double): double
+angle_ctx:dnormalized360(degrees: double): double
+angle_ctx:rdsin(radians: double): double
+angle_ctx:dgsin(degrees: double): double
+angle_ctx:rdcos(radians: double): double
+angle_ctx:dgcos(degrees: double): double
+angle_ctx:rdacos(cos: double): double
+angle_ctx:dgacos(cos : double): double
+```
+
 ## atlas
 ```luau
 Atlas = require "Atlas"
