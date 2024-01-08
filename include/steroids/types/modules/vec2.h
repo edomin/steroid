@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_VEC2_H
-#define ST_STEROIDS_TYPES_MODULES_VEC2_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -86,5 +85,3 @@ typedef struct {
     st_vec2_default_basis_xvec_t vec2_default_basis_xvec;
     st_vec2_default_basis_yvec_t vec2_default_basis_yvec;
 } st_vec2_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_VEC2_H */

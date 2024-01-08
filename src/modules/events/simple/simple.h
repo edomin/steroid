@@ -1,5 +1,4 @@
-#ifndef ST_SRC_MODULES_EVENTS_SIMPLE_SIMPLE_H
-#define ST_SRC_MODULES_EVENTS_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -45,5 +44,3 @@ st_modfuncentry_t st_module_events_simple_funcs[] = {
     {"clear",           st_events_clear},
     {NULL, NULL},
 };
-
-#endif /* ST_SRC_MODULES_EVENTS_SIMPLE_SIMPLE_H */

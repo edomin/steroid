@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_ATLAS_SIMPLE_TYPES_H
-#define ST_MODULES_ATLAS_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/texture.h"
@@ -35,5 +34,3 @@ typedef struct {
 } st_atlas_t;
 
 #define ST_ATLAS_T_DEFINED
-
-#endif /* ST_MODULES_ATLAS_SIMPLE_TYPES_H */

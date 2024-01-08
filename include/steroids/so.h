@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_SO_H
-#define ST_STEROIDS_SO_H
+#pragma once
 
 #include <stddef.h>
 
@@ -14,5 +13,3 @@ static st_so_t *st_so_memopen(st_modctx_t *so_ctx, const void *data,
  size_t size);
 static void st_so_close(st_so_t *so);
 static void *st_so_load_symbol(st_so_t *so, const char *name);
-
-#endif /* ST_STEROIDS_SO_H */

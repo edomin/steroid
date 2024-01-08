@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_PLUGIN_H
-#define ST_STEROIDS_PLUGIN_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,5 +15,3 @@ static bool st_plugin_load(st_modctx_t *plugin_ctx, const char *filename,
  bool force);
 static bool st_plugin_memload(st_modctx_t *plugin_ctx, const void *data,
  size_t size, bool force);
-
-#endif /* ST_STEROIDS_INI_H */

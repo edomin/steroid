@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_RENDER_H
-#define ST_STEROIDS_RENDER_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/gfxctx.h"
@@ -18,5 +17,3 @@ static void st_render_put_sprite_angled(st_modctx_t *render_ctx,
  const st_sprite_t *sprite, float x, float y, float z, float hscale,
  float vscale, float angle, float pivot_x, float pivot_y);
 static void st_render_process(st_modctx_t *render_ctx);
-
-#endif /* ST_STEROIDS_RENDER_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_PNG_H
-#define ST_STEROIDS_TYPES_MODULES_PNG_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/bitmap.h"
@@ -25,5 +24,3 @@ typedef struct {
     st_png_save_t    png_save;
     st_png_memsave_t png_memsave;
 } st_png_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_PNG_H */

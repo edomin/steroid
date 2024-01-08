@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_GLLOADER_EGL_EGL_H
-#define ST_MODULES_GLLOADER_EGL_EGL_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/glloader.h"
@@ -28,5 +27,3 @@ st_modfuncentry_t st_module_glloader_egl_funcs[] = {
     {"get_proc_address", st_glloader_get_proc_address},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_GLLOADER_EGL_EGL_H */

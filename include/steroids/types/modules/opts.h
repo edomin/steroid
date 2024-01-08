@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_OPTS_H
-#define ST_STEROIDS_TYPES_MODULES_OPTS_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -33,5 +32,3 @@ typedef struct {
     st_opts_get_str_t    opts_get_str;
     st_opts_get_help_t   opts_get_help;
 } st_opts_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_OPTS_H */

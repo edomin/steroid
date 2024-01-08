@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_DRAWQ_H
-#define ST_STEROIDS_TYPES_MODULES_DRAWQ_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -53,5 +52,3 @@ typedef struct {
     st_drawq_sort_t         drawq_sort;
     st_drawq_clear_t        drawq_clear;
 } st_drawq_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_DRAWQ_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_LOGGER_LUAJIT_H
-#define ST_MODULES_LOGGER_LUAJIT_H
+#pragma once
 
 #include "config.h"
 #include "types.h"
@@ -76,5 +75,3 @@ st_modfuncentry_t st_module_lua_luajit_funcs[] = {
     {"raise_error",                st_lua_raise_error},
     {NULL, NULL},
 };
-
-#endif

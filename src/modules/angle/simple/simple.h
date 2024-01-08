@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_ANGLE_SIMPLE_SIMPLE_H
-#define ST_MODULES_ANGLE_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/angle.h"
@@ -50,5 +49,3 @@ st_modfuncentry_t st_module_angle_simple_funcs[] = {
     {"dgacos",         st_angle_dgacos},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_ANGLE_SIMPLE_SIMPLE_H */

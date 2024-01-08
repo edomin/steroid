@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_EVENTS_SIMPLE_TYPES_H
-#define ST_MODULES_EVENTS_SIMPLE_TYPES_H
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -54,5 +53,3 @@ typedef struct {
 } st_events_simple_t;
 
 #define ST_EVQ_T_DEFINED
-
-#endif /* ST_MODULES_EVENTS_SIMPLE_TYPES_H */

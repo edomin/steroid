@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RUNNER_SIMPLE_TYPES_H
-#define ST_MODULES_RUNNER_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
@@ -45,5 +44,3 @@ typedef struct {
     st_runner_simple_pathtools_t pathtools;
     st_runner_simple_plugin_t    plugin;
 } st_runner_simple_t;
-
-#endif /* ST_MODULES_RUNNER_SIMPLE_TYPES_H */

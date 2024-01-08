@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_VBO_INL
-#define ST_MODULES_RENDER_OPENGL_VBO_INL
+#pragma once
 
 #define DEFAULT_VBOS_COUNT    1
 #define INITIAL_VERTICES_SIZE sizeof(float) * 15
@@ -51,5 +50,3 @@ static void vbo_set_vertices(st_vbo_t *vbo, const st_vertices_t *vertices) {
 static unsigned vbo_get_components_per_vertex(const st_vbo_t *vbo) {
     return vbo->components_per_vertex;
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_VBO_INL */

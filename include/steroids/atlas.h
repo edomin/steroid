@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_ATLAS_H
-#define ST_STEROIDS_ATLAS_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/atlas.h"
@@ -22,5 +21,3 @@ static unsigned st_atlas_get_clip_width(const st_atlas_t *atlas,
  size_t clip_num);
 static unsigned st_atlas_get_clip_height(const st_atlas_t *atlas,
  size_t clip_num);
-
-#endif /* ST_STEROIDS_ATLAS_H */

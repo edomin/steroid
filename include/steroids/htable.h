@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_HTABLE_H
-#define ST_STEROIDS_HTABLE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/htable.h"
@@ -23,5 +22,3 @@ static bool st_htable_next(st_htable_t *htable, st_htiter_t *dst,
  st_htiter_t *current);
 static const void *st_htable_get_iter_key(const st_htiter_t *iter);
 static void *st_htable_get_iter_value(const st_htiter_t *iter);
-
-#endif /* ST_STEROIDS_HTABLE_H */

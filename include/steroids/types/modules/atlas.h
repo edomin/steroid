@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_ATLAS_H
-#define ST_STEROIDS_TYPES_MODULES_ATLAS_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/texture.h"
@@ -41,5 +40,3 @@ typedef struct {
     st_atlas_get_clip_width_t  atlas_get_clip_width;
     st_atlas_get_clip_height_t atlas_get_clip_height;
 } st_atlas_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_ATLAS_H */

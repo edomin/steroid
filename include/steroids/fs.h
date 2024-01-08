@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_FS_H
-#define ST_STEROIDS_FS_H
+#pragma once
 
 #include <stddef.h>
 
@@ -13,5 +12,3 @@ static void st_fs_quit(st_modctx_t *fs_ctx);
 static st_filetype_t st_fs_get_file_type(st_modctx_t *fs_ctx,
  const char *filename);
 static bool st_fs_mkdir(st_modctx_t *fs_ctx, const char *dirname);
-
-#endif /* ST_STEROIDS_FS_H */

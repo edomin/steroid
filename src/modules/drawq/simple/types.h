@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_DRAWQ_SIMPLE_TYPES_H
-#define ST_MODULES_DRAWQ_SIMPLE_TYPES_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -44,5 +43,3 @@ typedef struct {
 } st_drawq_t;
 
 #define ST_DRAWQ_T_DEFINED
-
-#endif /* ST_MODULES_DRAWQ_SIMPLE_TYPES_H */

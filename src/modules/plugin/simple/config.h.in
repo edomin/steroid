@@ -1,5 +1,4 @@
-#ifndef ST_SRC_MODULES_PLUGIN_SIMPLE_CONFIG_H
-#define ST_SRC_MODULES_PLUGIN_SIMPLE_CONFIG_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -19,5 +18,3 @@ st_moddata_t st_module_plugin_simple_data = {
     .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
     .get_function = st_module_plugin_simple_get_func,
 };
-
-#endif /* ST_SRC_MODULES_PLUGIN_SIMPLE_CONFIG_H */

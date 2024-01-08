@@ -1,5 +1,4 @@
-#ifndef ST_SRC_COMMON_SLIST_SLIST_H
-#define ST_SRC_COMMON_SLIST_SLIST_H
+#pragma once
 
 #include <stddef.h>
 #include <sys/queue.h>
@@ -18,5 +17,3 @@ typedef struct st_slist_s {
     size_t      data_size;
     st_slhead_t head;
 } st_slist_t;
-
-#endif /* ST_SRC_SLIST_SLIST_H */

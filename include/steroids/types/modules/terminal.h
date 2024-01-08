@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_TERMINAL_H
-#define ST_STEROIDS_TYPES_MODULES_TERMINAL_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -15,5 +14,3 @@ typedef struct {
     st_terminal_get_rows_count_t terminal_get_rows_count;
     st_terminal_get_cols_count_t terminal_get_cols_count;
 } st_terminal_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_TERMINAL_H */

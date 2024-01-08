@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_SO_SIMPLE_TYPES_H
-#define ST_MODULES_SO_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/logger.h"
 
@@ -24,5 +23,3 @@ typedef struct {
 } st_so_t;
 
 #define ST_SO_T_DEFINED
-
-#endif /* ST_MODULES_SO_SIMPLE_TYPES_H */

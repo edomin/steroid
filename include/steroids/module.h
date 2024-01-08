@@ -1,5 +1,4 @@
-#ifndef ST_INCLUDE_STEROIDS_MODULE_H
-#define ST_INCLUDE_STEROIDS_MODULE_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -126,5 +125,3 @@ typedef struct {
     const char *func_name;
     void       *func_pointer;
 } st_modfuncentry_t;
-
-#endif

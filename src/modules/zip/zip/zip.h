@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_ZIP_ZIP_ZIP_H
-#define ST_MODULES_ZIP_ZIP_ZIP_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -30,5 +29,3 @@ st_modfuncentry_t st_module_zip_zip_funcs[] = {
     {"extract_entry"    , st_zip_extract_entry},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_ZIP_ZIP_ZIP_H */

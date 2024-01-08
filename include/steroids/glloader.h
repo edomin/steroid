@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_GLLOADER_H
-#define ST_STEROIDS_GLLOADER_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/glloader.h"
@@ -9,5 +8,3 @@ static void st_glloader_quit(st_modctx_t *glloader_ctx);
 
 static void *st_glloader_get_proc_address(st_modctx_t *glloader_ctx,
  const char *funcname);
-
-#endif /* ST_STEROIDS_GLLOADER_H */

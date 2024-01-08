@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_SPRITE_SIMPLE_TYPES_H
-#define ST_MODULES_SPRITE_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/atlas.h"
 #include "steroids/types/modules/logger.h"
@@ -53,5 +52,3 @@ typedef struct {
 
 #define ST_UV_T_DEFINED
 #define ST_SPRITE_T_DEFINED
-
-#endif /* ST_MODULES_SPRITE_SIMPLE_TYPES_H */

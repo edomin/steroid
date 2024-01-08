@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_SPRITE_H
-#define ST_STEROIDS_TYPES_MODULES_SPRITE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/atlas.h"
@@ -49,5 +48,3 @@ typedef struct {
     st_sprite_get_height_t   sprite_get_height;
     st_sprite_export_uv_t    sprite_export_uv;
 } st_sprite_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_SPRITE_H */

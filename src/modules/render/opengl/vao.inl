@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_VAO_INL
-#define ST_MODULES_RENDER_OPENGL_VAO_INL
+#pragma once
 
 #define DEFAULT_VAO_NAMES_NUMBER 1
 
@@ -14,5 +13,3 @@ static void vao_init(st_modctx_t *render_ctx) {
 static void vao_free(st_vao_t *vao) {
     glDeleteVertexArrays(DEFAULT_VAO_NAMES_NUMBER, vao);
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_VAO_INL */

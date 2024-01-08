@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_SPCPATHS_H
-#define ST_STEROIDS_TYPES_MODULES_SPCPATHS_H
+#pragma once
 
 #include <stddef.h>
 
@@ -21,5 +20,3 @@ typedef struct {
     st_spcpaths_get_data_path_t   spcpaths_get_data_path;
     st_spcpaths_get_cache_path_t  spcpaths_get_cache_path;
 } st_spcpaths_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_SPCPATHS_H */

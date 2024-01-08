@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_GLFUNCS_INL
-#define ST_MODULES_RENDER_OPENGL_GLFUNCS_INL
+#pragma once
 
 static st_gapi_t current_gapi;
 
@@ -118,5 +117,3 @@ static void glfuncs_load_all(st_modctx_t *render_ctx) {
          "glBindVertexArray");
     }
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_GLFUNCS_INL */

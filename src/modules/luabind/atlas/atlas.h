@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_LUABIND_ATLAS_ATLAS_H
-#define ST_MODULES_LUABIND_ATLAS_ATLAS_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/luabind.h"
@@ -33,5 +32,3 @@ st_modfuncentry_t st_module_luabind_atlas_funcs[] = {
     {"quit", st_luabind_quit},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_LUABIND_ATLAS_ATLAS_H */

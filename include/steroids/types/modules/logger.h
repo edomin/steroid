@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_LOGGER_H
-#define ST_STEROIDS_TYPES_MODULES_LOGGER_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -59,5 +58,3 @@ typedef struct {
     st_logger_error_t              logger_error;
     st_logger_set_postmortem_msg_t logger_set_postmortem_msg;
 } st_logger_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_LOGGER_H */

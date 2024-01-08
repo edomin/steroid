@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_PLUGIN_SIMPLE_SIMPLE_H
-#define ST_MODULES_PLUGIN_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"
@@ -19,5 +18,3 @@ st_modfuncentry_t st_module_plugin_simple_funcs[] = {
     {"memload", st_plugin_memload},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_PLUGIN_SIMPLE_SIMPLE_H */

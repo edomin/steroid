@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_VERTATTR_INL
-#define ST_MODULES_RENDER_OPENGL_VERTATTR_INL
+#pragma once
 
 static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
  const st_vbo_t *vbo, const st_shdprog_t *shdprog, const char *name,
@@ -55,5 +54,3 @@ static void vertattr_disable(const st_vertattr_t *vertattr) {
     if (vertattr->handle != -1)
         glDisableVertexAttribArray((GLuint)vertattr->handle);
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_VERTATTR_INL */

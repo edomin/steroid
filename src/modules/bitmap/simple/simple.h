@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_BITMAP_SIMPLE_SIMPLE_H
-#define ST_MODULES_BITMAP_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -37,5 +36,3 @@ st_modfuncentry_t st_module_bitmap_simple_funcs[] = {
     {"get_pixel_format", st_bitmap_get_pixel_format},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_BITMAP_SIMPLE_SIMPLE_H */

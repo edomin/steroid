@@ -1,5 +1,4 @@
-#ifndef ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
-#define ST_SRC_MODULES_LOGGER_SIMPLE_SIMPLE_H
+#pragma once
 
 #include <limits.h>
 #include <stdio.h>
@@ -82,5 +81,3 @@ st_modfuncentry_t st_module_logger_simple_funcs[] = {
     {"set_postmortem_msg", st_logger_set_postmortem_msg},
     {NULL, NULL},
 };
-
-#endif

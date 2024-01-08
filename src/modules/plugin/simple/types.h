@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_PLUGIN_SIMPLE_TYPES_H
-#define ST_MODULES_PLUGIN_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/fs.h"
 #include "steroids/types/modules/logger.h"
@@ -59,5 +58,3 @@ typedef struct {
 } st_plugin_simple_t;
 
 #define ST_INI_T_DEFINED
-
-#endif /* ST_MODULES_PLUGIN_SIMPLE_TYPES_H */

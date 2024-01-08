@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_LUABIND_H
-#define ST_STEROIDS_LUABIND_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -9,5 +8,3 @@
 static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
  st_modctx_t *lua_ctx);
 static void st_luabind_quit(st_modctx_t *luabind_ctx);
-
-#endif /* ST_STEROIDS_LUABIND_H */

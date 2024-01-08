@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_FS_SIMPLE_SIMPLE_H
-#define ST_MODULES_FS_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/fs.h"
@@ -37,5 +36,3 @@ st_modfuncentry_t st_module_fs_simple_funcs[] = {
     {"mkdir"        , st_fs_mkdir},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_FS_SIMPLE_SIMPLE_H */

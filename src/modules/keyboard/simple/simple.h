@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_KEYBOARD_SIMPLE_SIMPLE_H
-#define ST_MODULES_KEYBOARD_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -25,5 +24,3 @@ st_modfuncentry_t st_module_keyboard_simple_funcs[] = {
     {"get_input", st_keyboard_get_input},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_KEYBOARD_SIMPLE_SIMPLE_H */

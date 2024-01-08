@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_TIMER_SIMPLE_SIMPLE_H
-#define ST_MODULES_TIMER_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/timer.h"
@@ -34,5 +33,3 @@ st_modfuncentry_t st_module_timer_simple_funcs[] = {
     {"sleep_for_fps", st_timer_sleep_for_fps},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_TIMER_SIMPLE_SIMPLE_H */

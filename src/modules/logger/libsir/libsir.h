@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_LOGGER_LIBSIR_LIBSIR_H
-#define ST_MODULES_LOGGER_LIBSIR_LIBSIR_H
+#pragma once
 
 #include <stdbool.h>
 #include <threads.h>
@@ -82,5 +81,3 @@ st_modfuncentry_t st_module_logger_libsir_funcs[] = {
     {"set_postmortem_msg", st_logger_set_postmortem_msg},
     {NULL, NULL},
 };
-
-#endif

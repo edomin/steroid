@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_FNV1A_H
-#define ST_STEROIDS_FNV1A_H
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -17,5 +16,3 @@ static uint32_t st_fnv1a_u32hash_bytes(st_modctx_t *fnv1a_ctx, const void *ptr,
 static st_u32hashstrfunc_t st_fnv1a_get_u32hashstr_func(st_modctx_t *fnv1a_ctx);
 static st_u32hashbytesfunc_t st_fnv1a_get_u32hashbytes_func(
  st_modctx_t *fnv1a_ctx);
-
-#endif /* ST_STEROIDS_FNV1A_H */

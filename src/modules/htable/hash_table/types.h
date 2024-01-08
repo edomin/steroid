@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_HTABLE_HASH_TABLE_TYPES_H
-#define ST_MODULES_HTABLE_HASH_TABLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/logger.h"
 
@@ -31,5 +30,3 @@ typedef struct {
 #define ST_FREEFUNC_T_DEFINED
 #define ST_HTABLE_T_DEFINED
 #define ST_HTITER_T_DEFINED
-
-#endif /* ST_MODULES_HTABLE_HASH_TABLE_TYPES_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_KEYBOARD_H
-#define ST_STEROIDS_KEYBOARD_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/keyboard.h"
@@ -13,5 +12,3 @@ static bool st_keyboard_press(const st_modctx_t *keyboard_ctx, st_key_t key);
 static bool st_keyboard_release(const st_modctx_t *keyboard_ctx, st_key_t key);
 static bool st_keyboard_pressed(const st_modctx_t *keyboard_ctx, st_key_t key);
 static const char *st_keyboard_get_input(const st_modctx_t *keyboard_ctx);
-
-#endif /* ST_STEROIDS_KEYBOARD_H */

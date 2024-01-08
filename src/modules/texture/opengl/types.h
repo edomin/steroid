@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_TEXTURE_OPENGL_TYPES_H
-#define ST_MODULES_TEXTURE_OPENGL_TYPES_H
+#pragma once
 
 #include <GL/gl.h>
 
@@ -44,5 +43,3 @@ typedef struct {
 } st_texture_t;
 
 #define ST_TEXTURE_T_DEFINED
-
-#endif /* ST_MODULES_TEXTURE_OPENGL_TYPES_H */

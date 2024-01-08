@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_RUNNER_H
-#define ST_STEROIDS_TYPES_MODULES_RUNNER_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -15,5 +14,3 @@ typedef struct {
     st_runner_quit_t runner_quit;
     st_runner_run_t  runner_run;
 } st_runner_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_RUNNER_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_DYNARR_H
-#define ST_STEROIDS_TYPES_MODULES_DYNARR_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -44,5 +43,3 @@ typedef struct {
     st_dynarr_get_elements_count_t dynarr_get_elements_count;
     st_dynarr_is_empty_t           dynarr_is_empty;
 } st_dynarr_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_DYNARR_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_MONITOR_XLIB_TYPES_H
-#define ST_MODULES_MONITOR_XLIB_TYPES_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -24,5 +23,3 @@ typedef struct {
 } st_monitor_t;
 
 #define ST_MONITOR_T_DEFINED
-
-#endif /* ST_MODULES_MONITOR_XLIB_TYPES_H */

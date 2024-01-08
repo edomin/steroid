@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_FNV1A_H
-#define ST_STEROIDS_TYPES_MODULES_FNV1A_H
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -28,5 +27,3 @@ typedef struct {
     st_fnv1a_get_u32hashstr_func_t   fnv1a_get_u32hashstr_func;
     st_fnv1a_get_u32hashbytes_func_t fnv1a_get_u32hashbytes_func;
 } st_fnv1a_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_FNV1A_H */

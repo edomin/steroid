@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RBUF_LWRB_TYPES_H
-#define ST_MODULES_RBUF_LWRB_TYPES_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,5 +26,3 @@ typedef struct {
 } st_rbuf_t;
 
 #define ST_RBUF_T_DEFINED
-
-#endif /* ST_MODULES_RBUF_LWRB_TYPES_H */

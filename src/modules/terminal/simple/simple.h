@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_TERMINAL_SIMPLE_SIMPLE_H
-#define ST_MODULES_TERMINAL_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/terminal.h"
@@ -30,5 +29,3 @@ st_modfuncentry_t st_module_terminal_simple_funcs[] = {
     {"get_cols_count", st_terminal_get_cols_count},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_TERMINAL_SIMPLE_SIMPLE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_LUA_H
-#define ST_STEROIDS_LUA_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -50,5 +49,3 @@ static void st_lua_register_cfunction(st_luastate_t *lua_state,
  const char *name, void *cfunction);
 static void st_lua_pop(st_luastate_t *lua_state, size_t elements_count);
 static void st_lua_raise_error(st_luastate_t *lua_state, const char *msg);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_RBUF_H
-#define ST_STEROIDS_TYPES_MODULES_RBUF_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -36,5 +35,3 @@ typedef struct {
     st_rbuf_get_free_space_t rbuf_get_free_space;
     st_rbuf_is_empty_t       rbuf_is_empty;
 } st_rbuf_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_RBUF_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_PNG_LIBPNG_LIBPNG_H
-#define ST_MODULES_PNG_LIBPNG_LIBPNG_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -23,5 +22,3 @@ st_modfuncentry_t st_module_png_libpng_funcs[] = {
     {"memsave", st_png_memsave},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_PNG_LIBPNG_LIBPNG_H */

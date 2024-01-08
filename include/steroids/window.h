@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_WINDOW_H
-#define ST_STEROIDS_WINDOW_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/monitor.h"
@@ -20,5 +19,3 @@ static st_monitor_t *st_window_get_monitor(st_window_t *window);
 static void *st_window_get_handle(st_window_t *window);
 static unsigned st_window_get_width(const st_window_t *window);
 static unsigned st_window_get_height(const st_window_t *window);
-
-#endif /* ST_STEROIDS_WINDOW_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_FS_H
-#define ST_STEROIDS_TYPES_MODULES_FS_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -27,5 +26,3 @@ typedef struct {
     st_fs_get_file_type_t fs_get_file_type;
     st_fs_mkdir_t         fs_mkdir;
 } st_fs_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_FS_H */

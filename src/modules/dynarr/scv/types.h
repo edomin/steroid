@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_DYNARR_SCV_TYPES_H
-#define ST_MODULES_DYNARR_SCV_TYPES_H
+#pragma once
 
 #include <scv.h>
 
@@ -19,5 +18,3 @@ typedef struct {
 typedef struct scv_vector st_dynarr_t;
 
 #define ST_DYNARR_T_DEFINED
-
-#endif /* ST_MODULES_DYNARR_SCV_TYPES_H */

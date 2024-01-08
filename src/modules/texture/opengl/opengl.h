@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_TEXTURE_OPENGL_OPENGL_H
-#define ST_MODULES_TEXTURE_OPENGL_OPENGL_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -27,5 +26,3 @@ st_modfuncentry_t st_module_texture_opengl_funcs[] = {
     {"get_height", st_texture_get_height},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_TEXTURE_OPENGL_OPENGL_H */

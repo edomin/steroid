@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_EVENTS_H
-#define ST_STEROIDS_TYPES_MODULES_EVENTS_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -56,5 +55,3 @@ typedef struct {
     st_events_drop_t            events_drop;
     st_events_clear_t           events_clear;
 } st_events_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_EVENTS_H */

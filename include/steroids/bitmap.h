@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_BITMAP_H
-#define ST_STEROIDS_BITMAP_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/bitmap.h"
@@ -23,5 +22,3 @@ static const void *st_bitmap_get_data(const st_bitmap_t *bitmap);
 static unsigned st_bitmap_get_width(const st_bitmap_t *bitmap);
 static unsigned st_bitmap_get_height(const st_bitmap_t *bitmap);
 static st_pxfmt_t st_bitmap_get_pixel_format(const st_bitmap_t *bitmap);
-
-#endif /* ST_STEROIDS_BITMAP_H */

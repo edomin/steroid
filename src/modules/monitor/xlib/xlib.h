@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_MONITOR_XLIB_XLIB_H
-#define ST_MODULES_MONITOR_XLIB_XLIB_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -27,5 +26,3 @@ st_modfuncentry_t st_module_monitor_xlib_funcs[] = {
     {"get_handle"        , st_monitor_get_handle},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_MONITOR_XLIB_XLIB_H */

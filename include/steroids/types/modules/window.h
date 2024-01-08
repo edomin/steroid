@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_WINDOW_H
-#define ST_STEROIDS_TYPES_MODULES_WINDOW_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/monitor.h"
@@ -73,5 +72,3 @@ typedef struct {
     st_window_get_width_t   window_get_width;
     st_window_get_height_t  window_get_height;
 } st_window_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_WINDOW_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_DYNARR_SCV_SCV_H
-#define ST_MODULES_DYNARR_SCV_SCV_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -37,5 +36,3 @@ st_modfuncentry_t st_module_dynarr_scv_funcs[] = {
     {"is_empty",           st_dynarr_is_empty},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_DYNARR_SCV_SCV_H */

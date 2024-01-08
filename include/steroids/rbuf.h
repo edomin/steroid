@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_RBUF_H
-#define ST_STEROIDS_RBUF_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -19,5 +18,3 @@ static bool st_rbuf_drop(st_rbuf_t *rbuf, size_t size);
 static bool st_rbuf_clear(st_rbuf_t *rbuf);
 static size_t st_rbuf_get_free_space(const st_rbuf_t *rbuf);
 static bool st_rbuf_is_empty(const st_rbuf_t *rbuf);
-
-#endif /* ST_STEROIDS_RBUF_H */

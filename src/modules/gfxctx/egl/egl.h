@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_GFXCTX_EGL_EGL_H
-#define ST_MODULES_GFXCTX_EGL_EGL_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -31,5 +30,3 @@ st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {"destroy",       st_gfxctx_destroy},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_GFXCTX_EGL_EGL_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_VERTICES_INL
-#define ST_MODULES_RENDER_OPENGL_VERTICES_INL
+#pragma once
 
 #define INITIAL_VERTICES_CAPACITY 1048576
 
@@ -52,5 +51,3 @@ static size_t vertices_size(const st_vertices_t *vertices) {
 
     return module->dynarr.get_elements_count(vertices->handle) * sizeof(float);
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_VERTICES_INL */

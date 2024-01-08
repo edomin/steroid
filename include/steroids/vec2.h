@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_VEC2_H
-#define ST_STEROIDS_VEC2_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/vec2.h"
@@ -53,5 +52,3 @@ static void st_vec2_default_basis_xvec(st_modctx_t *vec2_ctx, float *dst_x,
  float *dst_y);
 static void st_vec2_default_basis_yvec(st_modctx_t *vec2_ctx, float *dst_x,
  float *dst_y);
-
-#endif /* ST_STEROIDS_VEC2_H */

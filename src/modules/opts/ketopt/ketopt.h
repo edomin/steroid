@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_OPTS_KETOPT_KETOPT_H
-#define ST_MODULES_OPTS_KETOPT_KETOPT_H
+#pragma once
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -55,5 +54,3 @@ st_modfuncentry_t st_module_opts_ketopt_funcs[] = {
     {"get_help"  , st_opts_get_help},
     {NULL, NULL},
 };
-
-#endif

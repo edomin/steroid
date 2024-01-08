@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_PNG_H
-#define ST_STEROIDS_PNG_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/bitmap.h"
@@ -16,5 +15,3 @@ static bool st_png_save(st_modctx_t *png_ctx, const st_bitmap_t *bitmap,
  const char *filename);
 static const char *st_png_memsave(st_modctx_t *png_ctx, void *dst, size_t *size,
  const st_bitmap_t *bitmap);
-
-#endif /* ST_STEROIDS_PNG_H */

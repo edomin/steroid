@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_SPCPATHS_CFGPATH_CFGPATH_H
-#define ST_MODULES_SPCPATHS_CFGPATH_CFGPATH_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/spcpaths.h"
@@ -32,5 +31,3 @@ st_modfuncentry_t st_module_spcpaths_cfgpath_funcs[] = {
     {"get_cache_path" , st_spcpaths_get_cache_path},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_SPCPATHS_CFGPATH_CFGPATH_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_MOUSE_H
-#define ST_STEROIDS_TYPES_MODULES_MOUSE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/window.h"
@@ -47,5 +46,3 @@ typedef struct {
     st_mouse_get_y_t              mouse_get_y;
     st_mouse_get_window_t         mouse_get_window;
 } st_mouse_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_MOUSE_H */

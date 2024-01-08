@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_BITMAP_H
-#define ST_STEROIDS_TYPES_MODULES_BITMAP_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -61,5 +60,3 @@ typedef struct {
     st_bitmap_get_height_t       bitmap_get_height;
     st_bitmap_get_pixel_format_t bitmap_get_pixel_format;
 } st_bitmap_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_BITMAP_H */

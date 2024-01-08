@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_FNV1A_SIMPLE_SIMPLE_H
-#define ST_MODULES_FNV1A_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/fnv1a.h"
@@ -34,5 +33,3 @@ st_modfuncentry_t st_module_fnv1a_simple_funcs[] = {
     {"get_u32hashbytes_func", st_fnv1a_get_u32hashbytes_func},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_FNV1A_SIMPLE_SIMPLE_H */

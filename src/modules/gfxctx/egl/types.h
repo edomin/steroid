@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_GFXCTX_EGL_TYPES_H
-#define ST_MODULES_GFXCTX_EGL_TYPES_H
+#pragma once
 
 #include <EGL/egl.h>
 
@@ -42,5 +41,3 @@ typedef struct {
 } st_gfxctx_t;
 
 #define ST_GFXCTX_T_DEFINED
-
-#endif /* ST_MODULES_GFXCTX_EGL_TYPES_H */

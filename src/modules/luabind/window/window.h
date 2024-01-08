@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_LUABIND_WINDOW_WINDOW_H
-#define ST_MODULES_LUABIND_WINDOW_WINDOW_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/luabind.h"
@@ -33,5 +32,3 @@ st_modfuncentry_t st_module_luabind_window_funcs[] = {
     {"quit", st_luabind_quit},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_LUABIND_WINDOW_WINDOW_H */

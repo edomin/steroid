@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_ZIP_ZIP_TYPES_H
-#define ST_MODULES_ZIP_ZIP_TYPES_H
+#pragma once
 
 #include <zip/zip.h>
 
@@ -42,5 +41,3 @@ typedef struct {
 } st_zip_t;
 
 #define ST_ZIP_T_DEFINED
-
-#endif /* ST_MODULES_ZIP_ZIP_TYPES_H */

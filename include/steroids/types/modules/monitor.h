@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_MONITOR_H
-#define ST_STEROIDS_TYPES_MODULES_MONITOR_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -28,5 +27,3 @@ typedef struct {
     st_monitor_get_height_t         monitor_get_height;
     st_monitor_get_handle_t         monitor_get_handle;
 } st_monitor_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_MONITOR_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_INI_H
-#define ST_STEROIDS_INI_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -31,5 +30,3 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section, const char *key,
  const char *value);
 static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize);
 static bool st_ini_save(const st_ini_t *ini, const char *filename);
-
-#endif /* ST_STEROIDS_INI_H */

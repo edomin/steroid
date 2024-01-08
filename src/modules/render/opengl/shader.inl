@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_SHADER_INL
-#define ST_MODULES_RENDER_OPENGL_SHADER_INL
+#pragma once
 
 #define VERTEX_SHADER_SOURCE_GL33                         \
     "#version 330 core\n"                                 \
@@ -65,5 +64,3 @@ static void shader_free(st_shader_t *shader) {
         *shader = 0;
     }
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_SHADER_INL */

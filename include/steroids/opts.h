@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_OPTS_H
-#define ST_STEROIDS_OPTS_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/opts.h"
@@ -15,5 +14,3 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
  size_t dstsize);
 static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
  size_t columns);
-
-#endif

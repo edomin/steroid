@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_BATCHER_INL
-#define ST_MODULES_RENDER_OPENGL_BATCHER_INL
+#pragma once
 
 #define INITIAL_ENTRIES_CAPACITY 8192
 #define VERTICES_PER_TEXTURE     6
@@ -85,5 +84,3 @@ static GLint batcher_get_vertices_count(const st_batcher_t *batcher,
 static size_t batcher_get_entries_count(const st_batcher_t *batcher) {
     return batcher->module->dynarr.get_elements_count(batcher->entries);
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_BATCHER_INL */

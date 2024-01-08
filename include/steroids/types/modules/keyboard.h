@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_KEYBOARD_H
-#define ST_STEROIDS_TYPES_MODULES_KEYBOARD_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -253,5 +252,3 @@ typedef struct {
     st_keyboard_pressed_t   keyboard_pressed;
     st_keyboard_get_input_t keyboard_get_input;
 } st_keyboard_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_KEYBOARD_H */

@@ -1,5 +1,4 @@
-#ifndef ST_SRC_MODULES_KEYBOARD_SIMPLE_CONFIG_H_IN
-#define ST_SRC_MODULES_KEYBOARD_SIMPLE_CONFIG_H_IN
+#pragma once
 
 #include "steroids/module.h"
 
@@ -17,5 +16,3 @@ st_moddata_t st_module_keyboard_simple_data = {
     .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
     .get_function = st_module_keyboard_simple_get_func,
 };
-
-#endif /* ST_SRC_MODULES_KEYBOARD_SIMPLE_CONFIG_H_IN */

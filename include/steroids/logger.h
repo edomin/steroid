@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_LOGGER_H
-#define ST_STEROIDS_LOGGER_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -31,5 +30,3 @@ static void st_logger_error(const st_modctx_t *logger_ctx, const char* format,
  ...);
 static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
  const char *msg);
-
-#endif

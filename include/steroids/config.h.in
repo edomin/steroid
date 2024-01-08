@@ -1,6 +1,3 @@
-#ifndef ST_CONFIG_H
-#define ST_CONFIG_H
+#pragma once
 
 #cmakedefine ST_HAVE_QUEUE_H
-
-#endif

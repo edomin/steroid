@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_SO_H
-#define ST_STEROIDS_TYPES_MODULES_SO_H
+#pragma once
 
 #include <stddef.h>
 
@@ -26,5 +25,3 @@ typedef struct {
     st_so_close_t       so_close;
     st_so_load_symbol_t so_load_symbol;
 } st_so_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_SO_H */

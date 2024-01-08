@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_INI_H
-#define ST_STEROIDS_TYPES_MODULES_INI_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -57,5 +56,3 @@ typedef struct {
     st_ini_export_t         ini_export;
     st_ini_save_t           ini_save;
 } st_ini_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_INI_H */

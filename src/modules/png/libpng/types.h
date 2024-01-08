@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_PNG_LIBPNG_TYPES_H
-#define ST_MODULES_PNG_LIBPNG_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/bitmap.h"
 #include "steroids/types/modules/logger.h"
@@ -25,5 +24,3 @@ typedef struct {
     st_png_libpng_bitmap_t bitmap;
     st_png_libpng_logger_t logger;
 } st_png_libpng_t;
-
-#endif /* ST_MODULES_PNG_LIBPNG_TYPES_H */

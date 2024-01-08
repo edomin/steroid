@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RUNNER_SIMPLE_SIMPLE_H
-#define ST_MODULES_RUNNER_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"
@@ -17,5 +16,3 @@ st_modfuncentry_t st_module_runner_simple_funcs[] = {
     {"run" , st_runner_run},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_RUNNER_SIMPLE_SIMPLE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_SO_SIMPLE_SIMPLE_H
-#define ST_MODULES_SO_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -24,5 +23,3 @@ st_modfuncentry_t st_module_so_simple_funcs[] = {
     {"load_symbol", st_so_load_symbol},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_SO_SIMPLE_SIMPLE_H */

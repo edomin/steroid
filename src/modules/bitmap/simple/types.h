@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_BITMAP_SIMPLE_TYPES_H
-#define ST_MODULES_BITMAP_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/logger.h"
 
@@ -47,5 +46,3 @@ typedef struct st_bitmap_s {
 
 #define ST_BITMAP_CODEC_FUNCS_DEFINED
 #define ST_BITMAP_T_DEFINED
-
-#endif /* ST_MODULES_BITMAP_SIMPLE_TYPES_H */

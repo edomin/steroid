@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_TYPES_H
-#define ST_MODULES_RENDER_OPENGL_TYPES_H
+#pragma once
 
 #include <GL/gl.h>
 
@@ -124,5 +123,3 @@ typedef struct st_render_opengl_s {
     st_vertattr_t               posattr;
     st_vertattr_t               texcrdattr;
 } st_render_opengl_t;
-
-#endif /* ST_MODULES_RENDER_OPENGL_TYPES_H */

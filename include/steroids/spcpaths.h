@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_SPCPATHS_H
-#define ST_STEROIDS_SPCPATHS_H
+#pragma once
 
 #include <stddef.h>
 
@@ -14,5 +13,3 @@ static void st_spcpaths_get_data_path(st_modctx_t *spcpaths_ctx, char *dst,
  size_t dstlen, const char *appname);
 static void st_spcpaths_get_cache_path(st_modctx_t *spcpaths_ctx, char *dst,
  size_t dstlen, const char *appname);
-
-#endif /* ST_STEROIDS_SPCPATHS_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_LUA_LUAJIT_TYPES_H
-#define ST_MODULES_LUA_LUAJIT_TYPES_H
+#pragma once
 
 #include <lua.h>
 
@@ -30,5 +29,3 @@ typedef struct {
     lua_State             *state;
     st_slist_t            *bindings;
 } st_lua_luajit_t;
-
-#endif /* ST_MODULES_LUA_LUAJIT_TYPES_H */

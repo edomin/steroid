@@ -1,6 +1,4 @@
-#ifndef ST_STEROIDS_DYNARR_H
-#define ST_STEROIDS_DYNARR_H
-
+#pragma once
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -24,5 +22,3 @@ static const void *st_dynarr_get(st_dynarr_t *dynarr, size_t index);
 static const void *st_dynarr_get_all(st_dynarr_t *dynarr);
 static size_t st_dynarr_get_elements_count(const st_dynarr_t *dynarr);
 static bool st_dynarr_is_empty(const st_dynarr_t *dynarr);
-
-#endif /* ST_STEROIDS_DYNARR_H */

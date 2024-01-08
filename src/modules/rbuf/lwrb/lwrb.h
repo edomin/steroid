@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RBUF_LWRB_LWRB_H
-#define ST_MODULES_RBUF_LWRB_LWRB_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -33,5 +32,3 @@ st_modfuncentry_t st_module_rbuf_lwrb_funcs[] = {
     {"is_empty"      , st_rbuf_is_empty},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_RBUF_LWRB_LWRB_H */

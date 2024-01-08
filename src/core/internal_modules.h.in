@@ -1,5 +1,4 @@
-#ifndef ST_SRC_CORE_INTERNAL_MODULES_H_IN
-#define ST_SRC_CORE_INTERNAL_MODULES_H_IN
+#pragma once
 
 #include <stddef.h>
 
@@ -19,5 +18,3 @@ st_modsentrpts_t st_internal_modules_entrypoints = {
         @ST_INTERNAL_MODULES_INIT_FUNCS@
     },
 };
-
-#endif /* INTERNAL */

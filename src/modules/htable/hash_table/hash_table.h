@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_HTABLE_HASH_TABLE_HASH_TABLE_H
-#define ST_MODULES_HTABLE_HASH_TABLE_HASH_TABLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h" // IWYU pragma: keep
@@ -37,5 +36,3 @@ st_modfuncentry_t st_module_htable_hash_table_funcs[] = {
     {"get_iter_value", st_htable_get_iter_value},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_HTABLE_HASH_TABLE_HASH_TABLE_H */

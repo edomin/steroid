@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_RENDER_H
-#define ST_STEROIDS_TYPES_MODULES_RENDER_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/gfxctx.h"
@@ -25,5 +24,3 @@ typedef struct {
     st_render_put_sprite_angled_t render_put_sprite_angled;
     st_render_process_t           render_process;
 } st_render_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_RENDER_H */

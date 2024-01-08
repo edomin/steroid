@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_INI_INIH_TYPES_H
-#define ST_MODULES_INI_INIH_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/fnv1a.h"
 #include "steroids/types/modules/htable.h"
@@ -50,5 +49,3 @@ typedef struct {
 } st_ini_t;
 
 #define ST_INI_T_DEFINED
-
-#endif /* ST_MODULES_INI_INIH_TYPES_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_ANGLE_H
-#define ST_STEROIDS_ANGLE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/angle.h"
@@ -19,5 +18,3 @@ static float st_angle_rdcos(st_modctx_t *angle_ctx, float radians);
 static float st_angle_dgcos(st_modctx_t *angle_ctx, float degrees);
 static float st_angle_rdacos(st_modctx_t *angle_ctx, float angle_cos);
 static float st_angle_dgacos(st_modctx_t *angle_ctx, float angle_cos);
-
-#endif /* ST_STEROIDS_ANGLE_H */

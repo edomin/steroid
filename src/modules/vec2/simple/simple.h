@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_VEC2_SIMPLE_SIMPLE_H
-#define ST_MODULES_VEC2_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/vec2.h"
@@ -65,5 +64,3 @@ st_modfuncentry_t st_module_vec2_simple_funcs[] = {
     {"default_basis_yvec", st_vec2_default_basis_yvec},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_VEC2_SIMPLE_SIMPLE_H */

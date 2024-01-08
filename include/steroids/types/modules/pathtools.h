@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_PATHTOOLS_H
-#define ST_STEROIDS_TYPES_MODULES_PATHTOOLS_H
+#pragma once
 
 #include <stddef.h>
 
@@ -22,5 +21,3 @@ typedef struct {
     st_pathtools_get_parent_dir_t pathtools_get_parent_dir;
     st_pathtools_concat_t         pathtools_concat;
 } st_pathtools_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_PATHTOOLS_H */

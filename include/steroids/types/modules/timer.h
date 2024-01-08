@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_TIMER_H
-#define ST_STEROIDS_TYPES_MODULES_TIMER_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -20,5 +19,3 @@ typedef struct {
     st_timer_sleep_t         timer_sleep;
     st_timer_sleep_for_fps_t timer_sleep_for_fps;
 } st_timer_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_TIMER_H */

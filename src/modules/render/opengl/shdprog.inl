@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_SHDPROG_INL
-#define ST_MODULES_RENDER_OPENGL_SHDPROG_INL
+#pragma once
 
 #define SHDPROG_LOG_SIZE 1024
 
@@ -47,9 +46,6 @@ static void shdprog_use(const st_shdprog_t *shdprog) {
     glUseProgram(*shdprog);
 }
 
-static void shdprog_unuse(
- __attribute__((unused)) const st_shdprog_t *shdprog) {
+static void shdprog_unuse(__attribute__((unused)) const st_shdprog_t *shdprog) {
     glUseProgram(0);
 }
-
-#endif /* ST_MODULES_RENDER_OPENGL_SHDPROG_INL */

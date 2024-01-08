@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_RENDER_OPENGL_RENDER_H
-#define ST_MODULES_RENDER_OPENGL_RENDER_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -21,5 +20,3 @@ st_modfuncentry_t st_module_render_opengl_funcs[] = {
     {"process",           st_render_process},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_RENDER_OPENGL_RENDER_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_LUA_H
-#define ST_STEROIDS_TYPES_MODULES_LUA_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -92,5 +91,3 @@ typedef struct {
     st_lua_pop_t                        lua_pop;
     st_lua_raise_error_t                lua_raise_error;
 } st_lua_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_LUA_H */

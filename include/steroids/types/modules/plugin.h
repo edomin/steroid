@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_PLUGIN_H
-#define ST_STEROIDS_TYPES_MODULES_PLUGIN_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -22,5 +21,3 @@ typedef struct {
     st_plugin_load_t    plugin_load;
     st_plugin_memload_t plugin_memload;
 } st_plugin_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_PLUGIN_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_INI_INIH_INIH_H
-#define ST_MODULES_INI_INIH_INIH_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"
@@ -45,5 +44,3 @@ st_modfuncentry_t st_module_ini_inih_funcs[] = {
     {"save"          , st_ini_save},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_INI_INIH_INIH_H */

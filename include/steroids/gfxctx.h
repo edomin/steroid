@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_GFXCTX_H
-#define ST_STEROIDS_GFXCTX_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/gfxctx.h"
@@ -18,5 +17,3 @@ static st_modctx_t *st_gfxctx_get_ctx(st_gfxctx_t *gfxctx);
 static st_window_t *st_gfxctx_get_window(st_gfxctx_t *gfxctx);
 static st_gapi_t st_gfxctx_get_api(st_gfxctx_t *gfxctx);
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx);
-
-#endif /* ST_STEROIDS_GFXCTX_H */

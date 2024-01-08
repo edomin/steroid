@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_GFXCTX_H
-#define ST_STEROIDS_TYPES_MODULES_GFXCTX_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/monitor.h"
@@ -66,5 +65,3 @@ typedef struct {
     st_gfxctx_get_api_t       gfxctx_get_api;
     st_gfxctx_destroy_t       gfxctx_destroy;
 } st_gfxctx_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_GFXCTX_H */

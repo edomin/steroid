@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_PATHTOOLS_SIMPLE_SIMPLE_H
-#define ST_MODULES_PATHTOOLS_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "steroids/pathtools.h"
@@ -32,5 +31,3 @@ st_modfuncentry_t st_module_pathtools_simple_funcs[] = {
     {"concat"        , st_pathtools_concat},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_PATHTOOLS_SIMPLE_SIMPLE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_HTABLE_H
-#define ST_STEROIDS_TYPES_MODULES_HTABLE_H
+#pragma once
 
 #include <stdint.h>
 
@@ -55,5 +54,3 @@ typedef struct {
     st_htable_get_iter_key_t   htable_get_iter_key;
     st_htable_get_iter_value_t htable_get_iter_value;
 } st_htable_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_HTABLE_H */

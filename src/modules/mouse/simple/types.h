@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_MOUSE_SIMPLE_TYPES_H
-#define ST_MODULES_MOUSE_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
@@ -50,5 +49,3 @@ typedef struct {
     bool                     leave;
     const st_window_t       *current_window;
 } st_mouse_simple_t;
-
-#endif /* ST_MODULES_MOUSE_SIMPLE_TYPES_H */

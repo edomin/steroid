@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TEXTURE_H
-#define ST_STEROIDS_TEXTURE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/bitmap.h"
@@ -18,5 +17,3 @@ static void st_texture_destroy(st_texture_t *texture);
 static bool st_texture_bind(const st_texture_t *texture);
 static unsigned st_texture_get_width(const st_texture_t *texture);
 static unsigned st_texture_get_height(const st_texture_t *texture);
-
-#endif /* ST_STEROIDS_TEXTURE_H */

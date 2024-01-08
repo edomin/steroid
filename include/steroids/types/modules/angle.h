@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_ANGLE_H
-#define ST_STEROIDS_TYPES_MODULES_ANGLE_H
+#pragma once
 
 #include "steroids/module.h"
 
@@ -39,5 +38,3 @@ typedef struct {
     st_angle_rdacos_t         angle_rdacos;
     st_angle_dgacos_t         angle_dgacos;
 } st_angle_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_ANGLE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_SPRITE_H
-#define ST_STEROIDS_SPRITE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/atlas.h"
@@ -19,5 +18,3 @@ static const st_texture_t *st_sprite_get_texture(const st_sprite_t *sprite);
 static unsigned st_sprite_get_width(const st_sprite_t *sprite);
 static unsigned st_sprite_get_height(const st_sprite_t *sprite);
 static void st_sprite_export_uv(const st_sprite_t *sprite, st_uv_t *dstuv);
-
-#endif /* ST_STEROIDS_SPRITE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_KEYBOARD_SIMPLE_TYPES_H
-#define ST_MODULES_KEYBOARD_SIMPLE_TYPES_H
+#pragma once
 
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/fnv1a.h"
@@ -64,5 +63,3 @@ typedef struct {
     st_htable_t                *cur_state;
     char                        input[INPUT_SIZE];
 } st_keyboard_simple_t;
-
-#endif /* ST_MODULES_KEYBOARD_SIMPLE_TYPES_H */

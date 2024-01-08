@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_ZIP_H
-#define ST_STEROIDS_TYPES_MODULES_ZIP_H
+#pragma once
 
 #include <stddef.h>
 
@@ -41,5 +40,3 @@ typedef struct {
     st_zip_get_entry_type_t    zip_get_entry_type;
     st_zip_extract_entry_t     zip_extract_entry;
 } st_zip_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_ZIP_H */

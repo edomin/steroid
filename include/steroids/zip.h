@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_ZIP_H
-#define ST_STEROIDS_ZIP_H
+#pragma once
 
 #include <stddef.h>
 
@@ -20,5 +19,3 @@ static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
 static st_zipentrytype_t st_zip_get_entry_type(st_zip_t *zip, size_t entrynum);
 static bool st_zip_extract_entry(st_zip_t *zip, size_t entrynum,
  const char *path);
-
-#endif /* ST_STEROIDS_ZIP_H */

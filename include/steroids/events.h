@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_EVENTS_H
-#define ST_STEROIDS_EVENTS_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -29,5 +28,3 @@ static st_evtypeid_t st_events_peek_type(const st_evq_t *queue);
 static bool st_events_pop(st_evq_t *queue, void *data);
 static bool st_events_drop(st_evq_t *queue);
 static bool st_events_clear(st_evq_t *queue);
-
-#endif /* ST_STEROIDS_EVENTS_H */

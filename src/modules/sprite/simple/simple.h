@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_SPRITE_SIMPLE_SIMPLE_H
-#define ST_MODULES_SPRITE_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -29,5 +28,3 @@ st_modfuncentry_t st_module_sprite_simple_funcs[] = {
     {"export_uv",    st_sprite_export_uv},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_SPRITE_SIMPLE_SIMPLE_H */

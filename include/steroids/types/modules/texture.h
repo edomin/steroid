@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_TYPES_MODULES_TEXTURE_H
-#define ST_STEROIDS_TYPES_MODULES_TEXTURE_H
+#pragma once
 
 #include "steroids/module.h"
 #include "steroids/types/modules/bitmap.h"
@@ -32,5 +31,3 @@ typedef struct {
     st_texture_get_width_t  texture_get_width;
     st_texture_get_height_t texture_get_height;
 } st_texture_funcs_t;
-
-#endif /* ST_STEROIDS_TYPES_MODULES_TEXTURE_H */

@@ -1,5 +1,4 @@
-#ifndef ST_MODULES_MOUSE_SIMPLE_SIMPLE_H
-#define ST_MODULES_MOUSE_SIMPLE_SIMPLE_H
+#pragma once
 
 #include "config.h" // IWYU pragma: keep
 #include "types.h"  // IWYU pragma: keep
@@ -37,5 +36,3 @@ st_modfuncentry_t st_module_mouse_simple_funcs[] = {
     {"get_window",         st_mouse_get_window},
     {NULL, NULL},
 };
-
-#endif /* ST_MODULES_MOUSE_SIMPLE_SIMPLE_H */

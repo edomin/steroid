@@ -1,5 +1,4 @@
-#ifndef ST_STEROIDS_DRAWQ_H
-#define ST_STEROIDS_DRAWQ_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -24,5 +23,3 @@ static bool st_drawq_add(st_drawq_t *drawq, const st_sprite_t *sprite, float x,
  float pivot_y);
 static bool st_drawq_sort(st_drawq_t *drawq);
 static bool st_drawq_clear(st_drawq_t *drawq);
-
-#endif /* ST_STEROIDS_DRAWQ_H */
