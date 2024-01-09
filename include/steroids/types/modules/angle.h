@@ -19,6 +19,8 @@ typedef float (*st_angle_rdsin_t)(st_modctx_t *angle_ctx, float radians);
 typedef float (*st_angle_dgsin_t)(st_modctx_t *angle_ctx, float degrees);
 typedef float (*st_angle_rdcos_t)(st_modctx_t *angle_ctx, float radians);
 typedef float (*st_angle_dgcos_t)(st_modctx_t *angle_ctx, float degrees);
+typedef float (*st_angle_rdtan_t)(st_modctx_t *angle_ctx, float radians);
+typedef float (*st_angle_dgtan_t)(st_modctx_t *angle_ctx, float degrees);
 typedef float (*st_angle_rdacos_t)(st_modctx_t *angle_ctx, float angle_cos);
 typedef float (*st_angle_dgacos_t)(st_modctx_t *angle_ctx, float angle_cos);
 
@@ -35,6 +37,8 @@ typedef struct {
     st_angle_dgsin_t          angle_dgsin;
     st_angle_rdcos_t          angle_rdcos;
     st_angle_dgcos_t          angle_dgcos;
+    st_angle_rdtan_t          angle_rdtan;
+    st_angle_dgtan_t          angle_dgtan;
     st_angle_rdacos_t         angle_rdacos;
     st_angle_dgacos_t         angle_dgacos;
 } st_angle_funcs_t;

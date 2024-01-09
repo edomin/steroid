@@ -24,6 +24,8 @@ static st_angle_rdsin_t                st_angle_rdsin;
 static st_angle_dgsin_t                st_angle_dgsin;
 static st_angle_rdcos_t                st_angle_rdcos;
 static st_angle_dgcos_t                st_angle_dgcos;
+static st_angle_rdtan_t                st_angle_rdtan;
+static st_angle_dgtan_t                st_angle_dgtan;
 static st_angle_rdacos_t               st_angle_rdacos;
 static st_angle_dgacos_t               st_angle_dgacos;
 
@@ -78,6 +80,8 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, dgsin);
     ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, rdcos);
     ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, dgcos);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, rdtan);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, dgtan);
     ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, rdacos);
     ST_LOAD_GLOBAL_FUNCTION("luabind_angle", angle, dgacos);
 
@@ -238,6 +242,26 @@ static int st_angle_dgcos_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
+static int st_angle_rdtan_bind(st_luastate_t *lua_state) {
+    st_modctx_t *angle_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, METATABLE_NAME);
+    double       radians = st_lua_get_double(lua_state, 2);
+
+    st_lua_push_double(lua_state, st_angle_rdtan(angle_ctx, (float)radians));
+
+    return 1;
+}
+
+static int st_angle_dgtan_bind(st_luastate_t *lua_state) {
+    st_modctx_t *angle_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, METATABLE_NAME);
+    double       degrees = st_lua_get_double(lua_state, 2);
+
+    st_lua_push_double(lua_state, st_angle_dgtan(angle_ctx, (float)degrees));
+
+    return 1;
+}
+
 static int st_angle_rdacos_bind(st_luastate_t *lua_state) {
     st_modctx_t *angle_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
@@ -282,6 +306,8 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "dgsin", st_angle_dgsin_bind);
     st_lua_set_cfunction_to_field(lua_state, "rdcos", st_angle_rdcos_bind);
     st_lua_set_cfunction_to_field(lua_state, "dgcos", st_angle_dgcos_bind);
+    st_lua_set_cfunction_to_field(lua_state, "rdtan", st_angle_rdtan_bind);
+    st_lua_set_cfunction_to_field(lua_state, "dgtan", st_angle_dgtan_bind);
     st_lua_set_cfunction_to_field(lua_state, "rdacos", st_angle_rdacos_bind);
     st_lua_set_cfunction_to_field(lua_state, "dgacos", st_angle_dgacos_bind);
 

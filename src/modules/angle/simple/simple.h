@@ -28,6 +28,8 @@ st_angle_funcs_t st_angle_simple_funcs = {
     .angle_dgsin          = st_angle_dgsin,
     .angle_rdcos          = st_angle_rdcos,
     .angle_dgcos          = st_angle_dgcos,
+    .angle_rdtan          = st_angle_rdtan,
+    .angle_dgtan          = st_angle_dgtan,
     .angle_rdacos         = st_angle_rdacos,
     .angle_dgacos         = st_angle_dgacos,
 };
@@ -45,6 +47,8 @@ st_modfuncentry_t st_module_angle_simple_funcs[] = {
     {"dgsin",          st_angle_dgsin},
     {"rdcos",          st_angle_rdcos},
     {"dgcos",          st_angle_dgcos},
+    {"rdtan",          st_angle_rdtan},
+    {"dgtan",          st_angle_dgtan},
     {"rdacos",         st_angle_rdacos},
     {"dgacos",         st_angle_dgacos},
     {NULL, NULL},

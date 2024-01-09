@@ -137,6 +137,15 @@ static float st_angle_dgcos(st_modctx_t *angle_ctx, float degrees) {
     return cosf(st_angle_dtor(angle_ctx, degrees));
 }
 
+static float st_angle_rdtan(__attribute__((unused)) st_modctx_t *angle_ctx,
+ float radians) {
+    return tanf(radians);
+}
+
+static float st_angle_dgtan(st_modctx_t *angle_ctx, float degrees) {
+    return tanf(st_angle_dtor(angle_ctx, degrees));
+}
+
 static float st_angle_rdacos(__attribute__((unused)) st_modctx_t *angle_ctx,
  float angle_cos) {
     return acosf(angle_cos);

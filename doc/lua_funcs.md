@@ -13,6 +13,8 @@ angle_ctx:rdsin(radians: double): double
 angle_ctx:dgsin(degrees: double): double
 angle_ctx:rdcos(radians: double): double
 angle_ctx:dgcos(degrees: double): double
+angle_ctx:rdtan(radians: double): double
+angle_ctx:dgtan(degrees: double): double
 angle_ctx:rdacos(cos: double): double
 angle_ctx:dgacos(cos : double): double
 ```
