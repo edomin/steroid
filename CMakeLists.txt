@@ -103,6 +103,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/vec2"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/vec2")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/window"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/window")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/matrix3x3/simple"
+ "${CMAKE_BINARY_DIR}/src/modules/matrix3x3/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/monitor/xlib"
  "${CMAKE_BINARY_DIR}/src/modules/monitor/xlib")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/mouse/simple"
