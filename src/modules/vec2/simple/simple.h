@@ -28,10 +28,33 @@ typedef struct {
 } st_vec2_simple_t;
 
 st_vec2_funcs_t st_vec2_simple_funcs = {
-    .vec2_init      = st_vec2_init,
-    .vec2_quit      = st_vec2_quit,
-    .vec2_rrotation = st_vec2_rrotation,
-    .vec2_drotation = st_vec2_drotation,
+    .vec2_init               = st_vec2_init,
+    .vec2_quit               = st_vec2_quit,
+    .vec2_add                = st_vec2_add,
+    .vec2_sum                = st_vec2_sum,
+    .vec2_sub                = st_vec2_sub,
+    .vec2_diff               = st_vec2_diff,
+    .vec2_mul                = st_vec2_mul,
+    .vec2_product            = st_vec2_product,
+    .vec2_len                = st_vec2_len,
+    .vec2_distance           = st_vec2_distance,
+    .vec2_normalize          = st_vec2_normalize,
+    .vec2_unit               = st_vec2_unit,
+    .vec2_dot_product        = st_vec2_dot_product,
+    .vec2_rangle             = st_vec2_rangle,
+    .vec2_dangle             = st_vec2_dangle,
+    .vec2_rrotate            = st_vec2_rrotate,
+    .vec2_rrotation          = st_vec2_rrotation,
+    .vec2_drotate            = st_vec2_drotate,
+    .vec2_drotation          = st_vec2_drotation,
+    .vec2_rotate90           = st_vec2_rotate90,
+    .vec2_rotation90         = st_vec2_rotation90,
+    .vec2_rotate180          = st_vec2_rotate180,
+    .vec2_rotation180        = st_vec2_rotation180,
+    .vec2_rotate270          = st_vec2_rotate270,
+    .vec2_rotation270        = st_vec2_rotation270,
+    .vec2_default_basis_xvec = st_vec2_default_basis_xvec,
+    .vec2_default_basis_yvec = st_vec2_default_basis_yvec,
 };
 
 st_modfuncentry_t st_module_vec2_simple_funcs[] = {
