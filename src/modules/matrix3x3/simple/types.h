@@ -28,6 +28,7 @@ typedef struct {
     float r1c1, r1c2, r1c3;
     float r2c1, r2c2, r2c3;
     //       0,    0,    1
+    const st_modctx_t *ctx;
 } st_matrix3x3_t;
 
 #define ST_MATRIX3X3_T_DEFINED
