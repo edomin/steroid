@@ -419,9 +419,9 @@ mouse_ctx:press(button: integer): bool
 mouse_ctx:release(button: integer): bool
 mouse_ctx:pressed(button: integer): bool
 mouse_ctx:get_wheel_relative(): integer
-mouse_ctx:moved(): ?window
-mouse_ctx:entered(): ?window
-mouse_ctx:leaved(): ?window
+mouse_ctx:moved(): bool
+mouse_ctx:entered(): bool
+mouse_ctx:leaved(): bool
 mouse_ctx:get_x(): integer
 mouse_ctx:get_y(): integer
 mouse_ctx:get_window(): ?window
