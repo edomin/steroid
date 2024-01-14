@@ -127,14 +127,14 @@ static int st_render_init_bind(st_luastate_t *lua_state) {
      lua_state, 1, "drawq_ctx");
     st_modctx_t *dynarr_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 2, "dynarr_ctx");
-    st_gfxctx_t *gfxctx = *(st_gfxctx_t **)st_lua_get_named_userdata(
-     lua_state, 3, "gfxctx");
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 4, "logger_ctx");
+     lua_state, 3, "logger_ctx");
     st_modctx_t *sprite_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 5, "sprite_ctx"); // NOLINT(readability-magic-numbers)
+     lua_state, 4, "sprite_ctx");
     st_modctx_t *texture_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 6, "texture_ctx"); // NOLINT(readability-magic-numbers)
+     lua_state, 5, "texture_ctx"); // NOLINT(readability-magic-numbers)
+    st_gfxctx_t *gfxctx = *(st_gfxctx_t **)st_lua_get_named_userdata(
+     lua_state, 6, "gfxctx"); // NOLINT(readability-magic-numbers)
 
     *(st_modctx_t **)userdata = st_render_init(drawq_ctx, dynarr_ctx,
      logger_ctx, sprite_ctx, texture_ctx, gfxctx);

@@ -5,8 +5,8 @@
 #include "steroids/types/modules/sprite.h"
 
 typedef st_modctx_t *(*st_render_init_t)(st_modctx_t *drawq_ctx,
- st_modctx_t *dynarr_ctx, st_gfxctx_t *gfxctx, st_modctx_t *logger_ctx,
- st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx);
+ st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx,
+ st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx);
 typedef void (*st_render_quit_t)(st_modctx_t *render_ctx);
 
 typedef void (*st_render_put_sprite_t)(st_modctx_t *render_ctx,
