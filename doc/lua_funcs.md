@@ -389,6 +389,37 @@ logger_ctx:error(msg: string)
 logger_ctx:set_postmortem_msg(msg: string)
 ```
 
+## matrix3x3
+```luau
+Matrix3x3 = require "Matrix3x3"
+
+Matrix3x3.new_ctx(logger_ctx: logger_ctx, angle_ctx: angle_ctx): matrix3x3_ctx
+
+matrix3x3_ctx:destroy()
+matrix3x3_ctx:custom(r1c1: double, r1c2: double, r1c3: double, r2c1: double, r2c2: double, r2c3: double): matrix3x3
+matrix3x3_ctx:identity(): matrix3x3
+matrix3x3_ctx:translation(x: double, y: double): matrix3x3
+matrix3x3_ctx:scaling(hscale: double, vscale: double): matrix3x3
+matrix3x3_ctx:rrotation(radians: double): matrix3x3
+matrix3x3_ctx:drotation(degrees: double): matrix3x3
+matrix3x3_ctx:rhshearing(radians: double): matrix3x3
+matrix3x3_ctx:dhshearing(degrees: double): matrix3x3
+matrix3x3_ctx:rvshearing(radians: double): matrix3x3
+matrix3x3_ctx:dvshearing(degrees: double): matrix3x3
+
+matrix3x3:clone(): matrix3x3
+matrix3x3:apply(other: matrix): matrix3x3
+matrix3x3:translate(x: double, y: double): matrix3x3
+matrix3x3:scale(hscale: double, vscale: double): matrix3x3
+matrix3x3:rrotate(radians: double): matrix3x3
+matrix3x3:drotate(degrees: double): matrix3x3
+matrix3x3:rhshear(radians: double): matrix3x3
+matrix3x3:dhshear(degrees: double): matrix3x3
+matrix3x3:rvshear(radians: double): matrix3x3
+matrix3x3:dvshear(degrees: double): matrix3x3
+matrix3x3:get_data(): double, double, double, double, double, double
+```
+
 ## monitor
 ```luau
 Monitor = require "Monitor"

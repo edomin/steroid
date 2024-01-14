@@ -4,9 +4,9 @@
 
 #define ST_MODULE_TYPE_@ST_MODULE_TYPE@
 
-void *st_module_luabind_vec2_get_func(const char *func_name);
+void *st_module_luabind_matrix3x3_get_func(const char *func_name);
 
-st_moddata_t st_module_luabind_vec2_data = {
+st_moddata_t st_module_luabind_matrix3x3_data = {
     .name = "@ST_MODULE_NAME@",
     .type = "@ST_MODULE_TYPE@",
     .subsystem = "@ST_MODULE_SUBSYSTEM@",
@@ -14,5 +14,5 @@ st_moddata_t st_module_luabind_vec2_data = {
         @ST_MODULE_PREREQS@
     },
     .prereqs_count = @ST_MODULE_PREREQS_COUNT@,
-    .get_function = st_module_luabind_vec2_get_func,
+    .get_function = st_module_luabind_matrix3x3_get_func,
 };

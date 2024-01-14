@@ -79,6 +79,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/keyboard"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/keyboard")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/logger"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/logger")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/matrix3x3"
+ "${CMAKE_BINARY_DIR}/src/modules/luabind/matrix3x3")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/monitor"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/monitor")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/mouse"

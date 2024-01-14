@@ -1,9 +1,9 @@
-if (${ST_MODULE_LUABIND_VEC2} STREQUAL "no")
+if (${ST_MODULE_LUABIND_MATRIX3X3} STREQUAL "no")
     return()
 endif()
 
-set(ST_MODULE_NAME "vec2")
-set(ST_MODULE_TYPE ${ST_MODULE_LUABIND_VEC2})
+set(ST_MODULE_NAME "matrix3x3")
+set(ST_MODULE_TYPE ${ST_MODULE_LUABIND_MATRIX3X3})
 set(ST_MODULE_SUBSYSTEM "luabind")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
@@ -17,7 +17,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
     {
-        .subsystem = "vec2",
+        .subsystem = "matrix3x3",
         .name = NULL,
     },
 ]=])
@@ -41,7 +41,7 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_LUABIND_VEC2})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_LUABIND_MATRIX3X3})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
@@ -49,7 +49,7 @@ pkg_check_modules(SAFEC REQUIRED libsafec)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "vec2.c"
+    "matrix3x3.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
