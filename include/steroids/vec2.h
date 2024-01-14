@@ -1,6 +1,7 @@
 #pragma once
 
 #include "steroids/module.h"
+#include "steroids/types/modules/matrix3x3.h"
 #include "steroids/types/modules/vec2.h"
 
 static st_modctx_t *st_vec2_init(st_modctx_t *logger_ctx,
@@ -48,6 +49,10 @@ static void st_vec2_rotation180(st_modctx_t *vec2_ctx, float *dst_x,
 static void st_vec2_rotate270(st_modctx_t *vec2_ctx, float *x, float *y);
 static void st_vec2_rotation270(st_modctx_t *vec2_ctx, float *dst_x,
  float *dst_y, float src_x, float src_y);
+static void st_vec2_apply_matrix3x3(st_modctx_t *vec2_ctx, float *x, float *y,
+ const st_matrix3x3_t *matrix);
+static void st_vec2_applying_matrix3x3(st_modctx_t *vec2_ctx, float *dst_x,
+ float *dst_y, float src_x, float src_y, const st_matrix3x3_t *matrix);
 static void st_vec2_default_basis_xvec(st_modctx_t *vec2_ctx, float *dst_x,
  float *dst_y);
 static void st_vec2_default_basis_yvec(st_modctx_t *vec2_ctx, float *dst_x,

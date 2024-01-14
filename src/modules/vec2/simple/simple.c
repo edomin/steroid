@@ -267,6 +267,23 @@ static void st_vec2_rotate270(st_modctx_t *vec2_ctx, float *x, float *y) {
     *y = new_y;
 }
 
+static void st_vec2_applying_matrix3x3(
+ __attribute__((unused)) st_modctx_t *vec2_ctx, float *dst_x, float *dst_y,
+ float src_x, float src_y, const st_matrix3x3_t *matrix) {
+    *dst_x = matrix->r1c1 * src_x + matrix->r1c2 * src_y + matrix->r1c3;
+    *dst_y = matrix->r2c1 * src_x + matrix->r2c2 * src_y + matrix->r2c3;
+}
+
+static void st_vec2_apply_matrix3x3(st_modctx_t *vec2_ctx, float *x, float *y,
+ const st_matrix3x3_t *matrix) {
+    float new_x;
+    float new_y;
+
+    st_vec2_applying_matrix3x3(vec2_ctx, &new_x, &new_y, *x, *y, matrix);
+    *x = new_x;
+    *y = new_y;
+}
+
 static void st_vec2_default_basis_xvec(
  __attribute__((unused)) st_modctx_t *vec2_ctx, float *dst_x, float *dst_y) {
     *dst_x = 1.0f;

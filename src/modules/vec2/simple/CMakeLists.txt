@@ -13,11 +13,15 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
     {
+        .subsystem = "matrix3x3",
+        .name = NULL,
+    },
+    {
         .subsystem = "logger",
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 2)
+set(ST_MODULE_PREREQS_COUNT 3)
 
 configure_file(
     "config.h.in"

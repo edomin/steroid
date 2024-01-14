@@ -578,6 +578,7 @@ vec2_ctx:drotation(x: double, y: double, degrees: double): double, double
 vec2_ctx:rotation90(x: double, y: double): double, double
 vec2_ctx:rotation180(x: double, y: double): double, double
 vec2_ctx:rotation270(x: double, y: double): double, double
+vec2_ctx:applying_matrix3x3(x: double, y: double, matrix: matrix3x3): double, double
 vec2_ctx:default_basis_xvec(): double, double
 vec2_ctx:default_basis_yvec(): double, double
 ```

@@ -1,31 +1,8 @@
 #pragma once
 
 #include "config.h" // IWYU pragma: keep
+#include "types.h" // IWYU pragma: keep
 #include "steroids/vec2.h"
-#include "steroids/types/modules/angle.h"
-#include "steroids/types/modules/logger.h"
-
-typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
-} st_vec2_simple_logger_t;
-
-typedef struct {
-    st_modctx_t             *ctx;
-    st_angle_rtod_t          rtod;
-    st_angle_dtor_t          dtor;
-    st_angle_rnormalize360_t rnormalize360;
-    st_angle_rdsin_t         rdsin;
-    st_angle_rdcos_t         rdcos;
-    st_angle_rdacos_t        rdacos;
-} st_vec2_simple_angle_t;
-
-typedef struct {
-    st_vec2_simple_logger_t logger;
-    st_vec2_simple_angle_t  angle;
-} st_vec2_simple_t;
 
 st_vec2_funcs_t st_vec2_simple_funcs = {
     .vec2_init               = st_vec2_init,
@@ -53,6 +30,8 @@ st_vec2_funcs_t st_vec2_simple_funcs = {
     .vec2_rotation180        = st_vec2_rotation180,
     .vec2_rotate270          = st_vec2_rotate270,
     .vec2_rotation270        = st_vec2_rotation270,
+    .vec2_apply_matrix3x3    = st_vec2_apply_matrix3x3,
+    .vec2_applying_matrix3x3 = st_vec2_applying_matrix3x3,
     .vec2_default_basis_xvec = st_vec2_default_basis_xvec,
     .vec2_default_basis_yvec = st_vec2_default_basis_yvec,
 };
@@ -83,6 +62,8 @@ st_modfuncentry_t st_module_vec2_simple_funcs[] = {
     {"rotation180",        st_vec2_rotation180},
     {"rotate270",          st_vec2_rotate270},
     {"rotation270",        st_vec2_rotation270},
+    {"apply_matrix3x3",    st_vec2_apply_matrix3x3},
+    {"applying_matrix3x3", st_vec2_applying_matrix3x3},
     {"default_basis_xvec", st_vec2_default_basis_xvec},
     {"default_basis_yvec", st_vec2_default_basis_yvec},
     {NULL, NULL},

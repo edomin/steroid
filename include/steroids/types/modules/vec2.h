@@ -1,6 +1,7 @@
 #pragma once
 
 #include "steroids/module.h"
+#include "steroids/types/modules/matrix3x3.h"
 
 typedef st_modctx_t *(*st_vec2_init_t)(st_modctx_t *logger_ctx,
  st_modctx_t *angle_ctx);
@@ -51,6 +52,11 @@ typedef void (*st_vec2_rotate270_t)(st_modctx_t *vec2_ctx, float *x,
  float *y);
 typedef void (*st_vec2_rotation270_t)(st_modctx_t *vec2_ctx, float *dst_x,
  float *dst_y, float src_x, float src_y);
+typedef void (*st_vec2_apply_matrix3x3_t)(st_modctx_t *vec2_ctx, float *x,
+ float *y, const st_matrix3x3_t *matrix);
+typedef void (*st_vec2_applying_matrix3x3_t)(st_modctx_t *vec2_ctx,
+ float *dst_x, float *dst_y, float src_x, float src_y,
+ const st_matrix3x3_t *matrix);
 typedef void (*st_vec2_default_basis_xvec_t)(st_modctx_t *vec2_ctx,
  float *dst_x, float *dst_y);
 typedef void (*st_vec2_default_basis_yvec_t)(st_modctx_t *vec2_ctx,
@@ -82,6 +88,8 @@ typedef struct {
     st_vec2_rotation180_t        vec2_rotation180;
     st_vec2_rotate270_t          vec2_rotate270;
     st_vec2_rotation270_t        vec2_rotation270;
+    st_vec2_apply_matrix3x3_t    vec2_apply_matrix3x3;
+    st_vec2_applying_matrix3x3_t vec2_applying_matrix3x3;
     st_vec2_default_basis_xvec_t vec2_default_basis_xvec;
     st_vec2_default_basis_yvec_t vec2_default_basis_yvec;
 } st_vec2_funcs_t;

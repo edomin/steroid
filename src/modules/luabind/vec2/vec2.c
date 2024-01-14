@@ -30,6 +30,7 @@ static st_vec2_drotation_t             st_vec2_drotation;
 static st_vec2_rotation90_t            st_vec2_rotation90;
 static st_vec2_rotation180_t           st_vec2_rotation180;
 static st_vec2_rotation270_t           st_vec2_rotation270;
+static st_vec2_applying_matrix3x3_t    st_vec2_applying_matrix3x3;
 static st_vec2_default_basis_xvec_t    st_vec2_default_basis_xvec;
 static st_vec2_default_basis_yvec_t    st_vec2_default_basis_yvec;
 
@@ -90,6 +91,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, rotation90);
     ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, rotation180);
     ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, rotation270);
+    ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, applying_matrix3x3);
     ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, default_basis_xvec);
     ST_LOAD_GLOBAL_FUNCTION("luabind_vec2", vec2, default_basis_yvec);
 
@@ -398,6 +400,25 @@ static int st_vec2_rotation270_bind(st_luastate_t *lua_state) {
     return 2;
 }
 
+static int st_vec2_applying_matrix3x3_bind(st_luastate_t *lua_state) {
+    st_modctx_t    *vec2_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
+     lua_state, 1, METATABLE_NAME);
+    double          src_x = st_lua_get_double(lua_state, 2);
+    double          src_y = st_lua_get_double(lua_state, 3);
+    st_matrix3x3_t *matrix = (st_matrix3x3_t *)st_lua_get_named_userdata(
+     lua_state, 4, "matrix3x3");
+    float           dst_x;
+    float           dst_y;
+
+    st_vec2_applying_matrix3x3(vec2_ctx, &dst_x, &dst_y, (float)src_x,
+     (float)src_y, matrix);
+
+    st_lua_push_double(lua_state, dst_x);
+    st_lua_push_double(lua_state, dst_y);
+
+    return 2;
+}
+
 static int st_vec2_default_basis_xvec_bind(st_luastate_t *lua_state) {
     st_modctx_t *vec2_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
@@ -461,6 +482,8 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_vec2_rotation180_bind);
     st_lua_set_cfunction_to_field(lua_state, "rotation270",
      st_vec2_rotation270_bind);
+    st_lua_set_cfunction_to_field(lua_state, "applying_matrix3x3",
+     st_vec2_applying_matrix3x3_bind);
     st_lua_set_cfunction_to_field(lua_state, "default_basis_xvec",
      st_vec2_default_basis_xvec_bind);
     st_lua_set_cfunction_to_field(lua_state, "default_basis_yvec",
