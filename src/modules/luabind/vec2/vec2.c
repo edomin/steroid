@@ -451,7 +451,7 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_luabind_vec2_t *module = luabind_ctx->data;
     st_luastate_t     *lua_state = st_lua_get_state(module->lua.ctx);
 
-    st_lua_create_module(lua_state, "Vector");
+    st_lua_create_module(lua_state, "Vec2");
     st_lua_set_cfunction_to_field(lua_state, "new_ctx", st_vec2_init_bind);
 
     st_lua_pop(lua_state, 3);
