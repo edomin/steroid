@@ -124,7 +124,7 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
      "window_hide", sizeof(st_evwinnoargs_t));
 
     module->logger.info(module->logger.ctx,
-     "window_xlib: Monitors mgr initialized");
+     "window_xlib: Windows mgr initialized");
 
     return window_ctx;
 
