@@ -49,8 +49,9 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_render_import_functions(st_modctx_t *render_ctx,
- st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx,
- st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx) {
+ st_modctx_t *angle_ctx, st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx,
+ st_modctx_t *logger_ctx, st_modctx_t *matrix3x3_ctx, st_modctx_t *sprite_ctx,
+ st_modctx_t *texture_ctx, st_modctx_t *vec2_ctx, st_gfxctx_t *gfxctx) {
     st_render_opengl_t *module = render_ctx->data;
     st_gfxctx_get_ctx_t st_gfxctx_get_ctx;
     st_window_get_ctx_t st_window_get_ctx;
@@ -93,6 +94,8 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     }
     window_ctx = st_window_get_ctx(window);
 
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", angle, dtor);
+
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, create);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, destroy);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, len);
@@ -118,6 +121,13 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, info);
 
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, identity);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, translate);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, scale);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rrotate);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rhshear);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rvshear);
+
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", sprite, get_texture);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", sprite, get_width);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", sprite, get_height);
@@ -125,15 +135,18 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", texture, bind);
 
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", vec2, apply_matrix3x3);
+
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", window, get_width);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", window, get_height);
 
     return true;
 }
 
-static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
- st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx,
- st_modctx_t *texture_ctx, st_gfxctx_t *gfxctx) {
+static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
+ st_modctx_t *drawq_ctx, st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx,
+ st_modctx_t *matrix3x3_ctx, st_modctx_t *sprite_ctx, st_modctx_t *texture_ctx,
+ st_modctx_t *vec2_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
     st_shader_t         shd_vert = 0;
@@ -148,12 +161,16 @@ static st_modctx_t *st_render_init(st_modctx_t *drawq_ctx,
     render_ctx->funcs = &st_render_opengl_funcs;
 
     module = render_ctx->data;
+    module->angle.ctx = angle_ctx;
     module->drawq.ctx = drawq_ctx;
     module->dynarr.ctx = dynarr_ctx;
     module->logger.ctx = logger_ctx;
+    module->matrix3x3.ctx = matrix3x3_ctx;
+    module->vec2.ctx = vec2_ctx;
 
-    if (!st_render_import_functions(render_ctx, drawq_ctx, dynarr_ctx,
-     logger_ctx, sprite_ctx, texture_ctx, gfxctx))
+    if (!st_render_import_functions(render_ctx, angle_ctx, drawq_ctx,
+     dynarr_ctx, logger_ctx, matrix3x3_ctx, sprite_ctx, texture_ctx, vec2_ctx,
+     gfxctx))
         goto import_fail;
 
     module->drawq.handle = module->drawq.create(module->drawq.ctx);
@@ -301,13 +318,79 @@ static void st_render_put_sprite(st_modctx_t *render_ctx,
      0.0f, 0.0f, 0.0f, pivot_x, pivot_y);
 }
 
-static void st_render_put_sprite_angled(st_modctx_t *render_ctx,
+static void st_render_put_sprite_rdangled(st_modctx_t *render_ctx,
  const st_sprite_t *sprite, float x, float y, float z, float hscale,
- float vscale, float angle, float pivot_x, float pivot_y) {
+ float vscale, float radians, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
     module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
-     angle, pivot_x, pivot_y);
+     radians, 0.0f, 0.0f, pivot_x, pivot_y);
+}
+
+static void st_render_put_sprite_dgangled(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float degrees, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     module->angle.dtor(module->angle.ctx, degrees), 0.0f, 0.0f, pivot_x,
+     pivot_y);
+}
+
+static void st_render_put_sprite_rhsheared(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float radians, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     0.0f, radians, 0.0f, pivot_x, pivot_y);
+}
+
+static void st_render_put_sprite_dhsheared(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float degrees, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     0.0f, module->angle.dtor(module->angle.ctx, degrees), 0.0f, pivot_x,
+     pivot_y);
+}
+
+static void st_render_put_sprite_rvsheared(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float radians, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     0.0f, 0.0f, radians, pivot_x, pivot_y);
+}
+
+static void st_render_put_sprite_dvsheared(st_modctx_t *render_ctx,
+ const st_sprite_t *sprite, float x, float y, float z, float hscale,
+ float vscale, float degrees, float pivot_x, float pivot_y) {
+    st_render_opengl_t *module = render_ctx->data;
+
+    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+     0.0f, 0.0f, module->angle.dtor(module->angle.ctx, degrees), pivot_x,
+     pivot_y);
+}
+
+typedef struct {
+    float x;
+    float y;
+} pos_t;
+
+typedef struct {
+    pos_t upper_left;
+    pos_t upper_right;
+    pos_t lower_left;
+    pos_t lower_right;
+} tetragon_t;
+
+static void screen_to_clip(float *x, float *y, unsigned window_width,
+ unsigned window_height) {
+    *x = *x / (float)window_width * 2 - 1.0f;
+    *y = 1.0f - *y / (float)window_height * 2;
 }
 
 static void st_render_process_queue(st_modctx_t *render_ctx) {
@@ -333,39 +416,85 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
         const st_texture_t *texture = module->sprite.get_texture(sprite);
         unsigned            sprite_width = module->sprite.get_width(sprite);
         unsigned            sprite_height = module->sprite.get_height(sprite);
-        float               pos_upper_left_x = draw_entries[i].x /
-         (float)window_width * 2 - 1.0f;
-        float               pos_upper_left_y = 1.0f - draw_entries[i].y /
-         (float)window_height * 2;
-        float               pos_upper_right_x = pos_upper_left_x +
-         (float)sprite_width / (float)window_width * 2 * draw_entries[i].hscale;
-        float               pos_upper_right_y = pos_upper_left_y;
-        float               pos_lower_left_x = pos_upper_left_x;
-        float               pos_lower_left_y = pos_upper_left_y -
-         (float)sprite_height / (float)window_height * 2 *
-         draw_entries[i].vscale;
-        float               pos_lower_right_x = pos_upper_right_x;
-        float               pos_lower_right_y = pos_lower_left_y;
         float               pos_z = draw_entries[i].z / (float)UINT16_MAX +
          0.5f; // NOLINT(readability-magic-numbers)
         st_uv_t             uv;
+
+        tetragon_t tetragon = {
+            .upper_left  = {
+                .x = -draw_entries[i].pivot_x,
+                .y = -draw_entries[i].pivot_y,
+            },
+            .upper_right = {
+                .x = (float)sprite_width - draw_entries[i].pivot_x,
+                .y = -draw_entries[i].pivot_y,
+            },
+            .lower_left  = {
+                .x = -draw_entries[i].pivot_x,
+                .y = (float)sprite_height - draw_entries[i].pivot_y,
+            },
+            .lower_right = {
+                .x = (float)sprite_width - draw_entries[i].pivot_x,
+                .y = (float)sprite_height - draw_entries[i].pivot_y,
+            },
+        };
+
+        st_matrix3x3_t matrix;
+        bool           do_scaling = draw_entries[i].hscale != 1.0f
+         || draw_entries[i].vscale != 1.0f;
+        bool           do_hshearing = draw_entries[i].hshear != 0;
+        bool           do_vshearing = draw_entries[i].vshear != 0;
+        bool           do_rotation = draw_entries[i].angle != 0;
+
+        module->matrix3x3.identity(module->matrix3x3.ctx, &matrix);
+
+        module->matrix3x3.translate(&matrix, draw_entries[i].x,
+         draw_entries[i].y);
+
+        if (do_scaling)
+            module->matrix3x3.scale(&matrix, draw_entries[i].hscale,
+             draw_entries[i].vscale);
+        if (do_hshearing)
+            module->matrix3x3.rhshear(&matrix, draw_entries[i].hshear);
+        if (do_vshearing)
+            module->matrix3x3.rvshear(&matrix, draw_entries[i].vshear);
+        if (do_rotation)
+            module->matrix3x3.rrotate(&matrix, draw_entries[i].angle);
+
+        module->vec2.apply_matrix3x3(module->vec2.ctx, &tetragon.upper_left.x,
+         &tetragon.upper_left.y, &matrix);
+        module->vec2.apply_matrix3x3(module->vec2.ctx, &tetragon.upper_right.x,
+         &tetragon.upper_right.y, &matrix);
+        module->vec2.apply_matrix3x3(module->vec2.ctx, &tetragon.lower_left.x,
+         &tetragon.lower_left.y, &matrix);
+        module->vec2.apply_matrix3x3(module->vec2.ctx, &tetragon.lower_right.x,
+         &tetragon.lower_right.y, &matrix);
+
+        screen_to_clip(&tetragon.upper_left.x, &tetragon.upper_left.y,
+         window_width, window_height);
+        screen_to_clip(&tetragon.upper_right.x, &tetragon.upper_right.y,
+         window_width, window_height);
+        screen_to_clip(&tetragon.lower_left.x, &tetragon.lower_left.y,
+         window_width, window_height);
+        screen_to_clip(&tetragon.lower_right.x, &tetragon.lower_right.y,
+         window_width, window_height);
 
         batcher_process_texture(&module->batcher, texture);
 
         module->sprite.export_uv(sprite, &uv);
 
-        vertices_add(&module->vertices, pos_upper_left_x, pos_upper_left_y,
-         pos_z, uv.upper_left.u, uv.upper_left.v);
-        vertices_add(&module->vertices, pos_upper_right_x, pos_upper_right_y,
-         pos_z, uv.upper_right.u, uv.upper_right.v);
-        vertices_add(&module->vertices, pos_lower_left_x, pos_lower_left_y,
-         pos_z, uv.lower_left.u, uv.lower_left.v);
-        vertices_add(&module->vertices, pos_upper_right_x, pos_upper_right_y,
-         pos_z, uv.upper_right.u, uv.upper_right.v);
-        vertices_add(&module->vertices, pos_lower_left_x, pos_lower_left_y,
-         pos_z, uv.lower_left.u, uv.lower_left.v);
-        vertices_add(&module->vertices, pos_lower_right_x, pos_lower_right_y,
-         pos_z, uv.lower_right.u, uv.lower_right.v);
+        vertices_add(&module->vertices, tetragon.upper_left.x,
+         tetragon.upper_left.y, pos_z, uv.upper_left.u, uv.upper_left.v);
+        vertices_add(&module->vertices, tetragon.upper_right.x,
+         tetragon.upper_right.y, pos_z, uv.upper_right.u, uv.upper_right.v);
+        vertices_add(&module->vertices, tetragon.lower_left.x,
+         tetragon.lower_left.y, pos_z, uv.lower_left.u, uv.lower_left.v);
+        vertices_add(&module->vertices, tetragon.upper_right.x,
+         tetragon.upper_right.y, pos_z, uv.upper_right.u, uv.upper_right.v);
+        vertices_add(&module->vertices, tetragon.lower_left.x,
+         tetragon.lower_left.y, pos_z, uv.lower_left.u, uv.lower_left.v);
+        vertices_add(&module->vertices, tetragon.lower_right.x,
+         tetragon.lower_right.y, pos_z, uv.lower_right.u, uv.lower_right.v);
     }
 
     batcher_finalize(&module->batcher);

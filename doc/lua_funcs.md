@@ -498,11 +498,16 @@ png_ctx:destroy()
 ```luau
 Render = require "Render"
 
-Render.new_ctx(drawq_ctx: drawq_ctx, dynarr_ctx: dynarr_ctx, logger_ctx: logger_ctx, sprite_ctx: sprite_ctx, texture_ctx: texture_ctx, gfxctx: gfxctx): render_ctx
+Render.new_ctx(angle_ctx: angle_ctx, drawq_ctx: drawq_ctx, dynarr_ctx: dynarr_ctx, logger_ctx: logger_ctx, matrix3x3_ctx: matrix3x3_ctx, sprite_ctx: sprite_ctx, texture_ctx: texture_ctx, vec2_ctx: vec2_ctx, gfxctx: gfxctx): render_ctx
 
 render_ctx:destroy()
 render_ctx:put_sprite(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, pivot_x: double, pivot_y: double)
-render_ctx:put_sprite_angled(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, angle: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_rdangled(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, radians: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_dgangled(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, degrees: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_rhsheared(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, radians: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_dhsheared(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, degrees: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_rvsheared(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, radians: double, pivot_x: double, pivot_y: double)
+render_ctx:put_sprite_dvsheared(sprite: sprite, x: double, y: double, z: double, hscale: double, vscale: double, degrees: double, pivot_x: double, pivot_y: double)
 render_ctx:process()
 ```
 
