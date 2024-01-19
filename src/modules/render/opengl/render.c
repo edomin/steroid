@@ -298,7 +298,7 @@ static void st_render_put_sprite(st_modctx_t *render_ctx,
     st_render_opengl_t *module = render_ctx->data;
 
     module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
-     0.0f, pivot_x, pivot_y);
+     0.0f, 0.0f, 0.0f, pivot_x, pivot_y);
 }
 
 static void st_render_put_sprite_angled(st_modctx_t *render_ctx,
