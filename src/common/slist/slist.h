@@ -14,6 +14,7 @@ typedef struct st_slnode_s {
 typedef SLIST_HEAD(st_slhead_s, st_slnode_s) st_slhead_t;
 
 typedef struct st_slist_s {
-    size_t      data_size;
-    st_slhead_t head;
+    size_t       data_size;
+    st_slhead_t  head;
+    st_slnode_t *tail;
 } st_slist_t;
