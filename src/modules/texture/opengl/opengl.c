@@ -127,6 +127,7 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
     if (!bitmap)
         goto bitmap_load_fail;
 
+    texture->module = module;
     texture->width = module->bitmap.get_width(bitmap);
     texture->height = module->bitmap.get_height(bitmap);
 
@@ -246,8 +247,9 @@ static void st_texture_destroy(st_texture_t *texture) {
     free(texture);
 }
 
-static bool st_texture_bind(const st_texture_t *texture) {
+static bool st_texture_bind(const st_texture_t *texture, unsigned unit) {
     GLenum error;
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, texture->id);
 
     error = glGetError();

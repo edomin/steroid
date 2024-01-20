@@ -17,7 +17,7 @@ typedef st_texture_t *(*st_texture_load_t)(st_modctx_t *texture_ctx,
 typedef st_texture_t *(*st_texture_memload_t)(st_modctx_t *texture_ctx,
  const void *data, size_t size);
 typedef void (*st_texture_destroy_t)(st_texture_t *texture);
-typedef bool (*st_texture_bind_t)(const st_texture_t *texture);
+typedef bool (*st_texture_bind_t)(const st_texture_t *texture, unsigned unit);
 typedef unsigned (*st_texture_get_width_t)(const st_texture_t *texture);
 typedef unsigned (*st_texture_get_height_t)(const st_texture_t *texture);
 

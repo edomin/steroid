@@ -62,7 +62,7 @@ static bool batcher_bind_texture(st_batcher_t *batcher, size_t entry_index) {
     const st_batch_entry_t *entry = batcher->module->dynarr.get(
      batcher->entries, entry_index);
 
-    return batcher->module->texture.bind(entry->texture);
+    return batcher->module->texture.bind(entry->texture, 0);
 }
 
 static GLsizei batcher_get_first_vertex_index(const st_batcher_t *batcher,
