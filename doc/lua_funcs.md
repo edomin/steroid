@@ -557,7 +557,6 @@ Texture.new_ctx(bitmap_ctx: bitmap_ctx, logger_ctx: logger_ctx, api: int): textu
 texture_ctx:destroy()
 texture_ctx:load(filename: string): texture
 texture:destroy()
-texture:bind(): bool
 texture:get_width(): integer
 texture:get_height(): integer
 ```

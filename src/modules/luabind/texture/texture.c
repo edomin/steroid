@@ -19,7 +19,6 @@ static st_texture_init_t               st_texture_init;
 static st_texture_quit_t               st_texture_quit;
 static st_texture_load_t               st_texture_load;
 static st_texture_destroy_t            st_texture_destroy;
-static st_texture_bind_t               st_texture_bind;
 static st_texture_get_width_t          st_texture_get_width;
 static st_texture_get_height_t         st_texture_get_height;
 
@@ -33,7 +32,6 @@ static st_lua_set_copy_to_field_t      st_lua_set_copy_to_field;
 static st_lua_get_integer_t            st_lua_get_integer;
 static st_lua_get_string_t             st_lua_get_string;
 static st_lua_get_named_userdata_t     st_lua_get_named_userdata;
-static st_lua_push_bool_t              st_lua_push_bool;
 static st_lua_push_integer_t           st_lua_push_integer;
 static st_lua_pop_t                    st_lua_pop;
 
@@ -70,7 +68,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, load);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, destroy);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, bind);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, get_width);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, get_height);
 
@@ -84,7 +81,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, get_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, get_string);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, get_named_userdata);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, push_bool);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, push_integer);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, pop);
 
@@ -178,15 +174,6 @@ static int st_texture_destroy_bind(st_luastate_t *lua_state) {
     return 0;
 }
 
-static int st_texture_bind_bind(st_luastate_t *lua_state) {
-    st_texture_t *texture = *(st_texture_t **)st_lua_get_named_userdata(
-     lua_state, 1, TEX_METATABLE_NAME);
-
-    st_lua_push_bool(lua_state, st_texture_bind(texture));
-
-    return 1;
-}
-
 static int st_texture_get_width_bind(st_luastate_t *lua_state) {
     st_texture_t *texture = *(st_texture_t **)st_lua_get_named_userdata(
      lua_state, 1, TEX_METATABLE_NAME);
@@ -228,7 +215,6 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
     st_lua_set_cfunction_to_field(lua_state, "__gc", st_texture_destroy_bind);
     st_lua_set_cfunction_to_field(lua_state, "destroy",
      st_texture_destroy_bind);
-    st_lua_set_cfunction_to_field(lua_state, "bind", st_texture_bind_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_width",
      st_texture_get_width_bind);
     st_lua_set_cfunction_to_field(lua_state, "get_height",
