@@ -630,7 +630,7 @@ static st_gfxctx_t *st_gfxctx_create_shared(st_modctx_t *gfxctx_ctx,
     return st_gfxctx_create_impl(gfxctx_ctx, monitor, window,
      get_renderable_type_by_gapi((st_gapi_t)other->gapi),
      get_major_version_by_gapi((st_gapi_t)other->gapi),
-     get_minor_version_by_gapi((st_gapi_t)other->gapi), other->handle);
+     get_minor_version_by_gapi((st_gapi_t)other->gapi), other);
 }
 
 static bool st_gfxctx_make_current(st_gfxctx_t *gfxctx) {
