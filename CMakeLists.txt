@@ -17,6 +17,8 @@ set(CMAKE_MODULE_PATH
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/common/slist"
  "${CMAKE_BINARY_DIR}/src/common/slist")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/common/dlist"
+ "${CMAKE_BINARY_DIR}/src/common/dlist")
 
 add_custom_target(copy_plugins
     ALL
