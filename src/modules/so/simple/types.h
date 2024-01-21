@@ -2,7 +2,7 @@
 
 #include "steroids/types/modules/logger.h"
 
-#include "slist.h"
+#include "dlist.h"
 
 typedef struct {
     st_modctx_t        *ctx;
@@ -14,7 +14,7 @@ typedef struct {
 
 typedef struct {
     st_so_simple_logger_t logger;
-    st_slist_t           *opened_handles;
+    st_dlist_t           *opened_handles;
 } st_so_simple_t;
 
 typedef struct {

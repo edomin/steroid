@@ -59,7 +59,7 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    slist
+    dlist
     ${CMAKE_DL_LIBS}
     ${SAFEC_LINK_LIBRARIES}
 )

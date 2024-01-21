@@ -51,6 +51,14 @@ static bool st_so_import_functions(st_modctx_t *so_ctx,
     return true;
 }
 
+static void st_so_free(void *so) {
+    st_so_simple_t *module = ((st_so_t *)so)->module;
+
+    if (dlclose(((st_so_t *)so)->handle) != 0)
+        module->logger.warning(module->logger.ctx,
+         "so_simple: Unable to close so file. %s", dlerror());
+}
+
 static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
     st_modctx_t    *so_ctx;
     st_so_simple_t *so;
@@ -69,7 +77,7 @@ static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
     if (!st_so_import_functions(so_ctx, logger_ctx))
         goto fail;
 
-    so->opened_handles = st_slist_create(sizeof(st_so_t));
+    so->opened_handles = st_dlist_create(sizeof(st_so_t), st_so_free);
     if (!so->opened_handles) {
         so->logger.error(so->logger.ctx,
          "so_simple: Unable to create list of so file entries");
@@ -90,18 +98,7 @@ fail:
 static void st_so_quit(st_modctx_t *so_ctx) {
     st_so_simple_t *module = so_ctx->data;
 
-    while (!st_slist_empty(module->opened_handles)) {
-        st_slnode_t *node = st_slist_get_first(module->opened_handles);
-        st_so_t     *so = st_slist_get_data(node);
-
-        st_slist_remove_head(module->opened_handles);
-        if (dlclose(so->handle) != 0)
-            module->logger.warning(module->logger.ctx,
-             "so_simple: Unable to close so: %s", dlerror());
-        free(so);
-    }
-
-    st_slist_destroy(module->opened_handles);
+    st_dlist_destroy(module->opened_handles);
 
     module->logger.info(module->logger.ctx, "so_simple: So mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, so_ctx);
@@ -110,7 +107,7 @@ static void st_so_quit(st_modctx_t *so_ctx) {
 static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     st_so_simple_t *module = so_ctx->data;
     void           *handle = dlopen(filename, RTLD_LAZY);
-    st_so_t        *so;
+    st_dlnode_t    *node;
 
     if (handle) {
         module->logger.info(module->logger.ctx,
@@ -122,29 +119,20 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
         return NULL;
     }
 
-    so = malloc(sizeof(st_so_t));
-    if (!so) {
-        module->logger.error(module->logger.ctx,
-         "so_simple: Unable to allocate memory for so entry while opening "
-         "file \"%s\": %s", filename, strerror(errno));
-        dlclose(handle);
-
-        return NULL;
-    }
-    so->module = module;
-    so->handle = handle;
-
-    if (!st_slist_insert_head(module->opened_handles, so)) {
+    node = st_dlist_push_back(module->opened_handles, &(st_so_t){
+        .module = module,
+        .handle = handle,
+    });
+    if (!node) {
         module->logger.error(module->logger.ctx,
          "so_simple: Unable to create node for so file entry: \"%s\"",
          filename);
-        free(so);
         dlclose(handle);
 
         return NULL;
     }
 
-    return so;
+    return st_dlist_get_data(node);
 }
 
 static st_so_t *st_so_memopen(st_modctx_t *so_ctx,
@@ -159,19 +147,16 @@ static st_so_t *st_so_memopen(st_modctx_t *so_ctx,
 
 static void st_so_close(st_so_t *so) {
     st_so_simple_t *module = so->module;
+    st_dlnode_t    *node = st_dlist_get_head(module->opened_handles);
 
-    while (!st_slist_empty(module->opened_handles)) {
-        st_slnode_t *node = st_slist_get_first(module->opened_handles);
-
-        if (st_slist_get_data(node) == so) {
-            st_slist_remove_head(module->opened_handles);
-            if (dlclose(so->handle) != 0)
-                module->logger.warning(module->logger.ctx,
-                 "so_simple: Unable to close so file. %s", dlerror());
-            free(so);
+    while (node) {
+        if (st_dlist_get_data(node) == so) {
+            st_dlist_remove(node);
 
             break;
         }
+
+        node = st_dlist_get_next(node);
     }
 
     module->logger.info(module->logger.ctx, "%s", "so_simple: So file closed");
