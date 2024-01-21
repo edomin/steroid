@@ -23,19 +23,19 @@ st_dlist_t *st_dlist_create(size_t data_size, void (*elem_free_func)(void *)) {
     return list;
 }
 
-st_dlnode_t *st_dlist_get_head(st_dlist_t *list) {
+st_dlnode_t *st_dlist_get_head(const st_dlist_t *list) {
     return list ? list->head : NULL;
 }
 
-st_dlnode_t *st_dlist_get_tail(st_dlist_t *list) {
+st_dlnode_t *st_dlist_get_tail(const st_dlist_t *list) {
     return list ? list->tail : NULL;
 }
 
-st_dlnode_t *st_dlist_get_prev(st_dlnode_t *node) {
+st_dlnode_t *st_dlist_get_prev(const st_dlnode_t *node) {
     return node ? node->prev : NULL;
 }
 
-st_dlnode_t *st_dlist_get_next(st_dlnode_t *node) {
+st_dlnode_t *st_dlist_get_next(const st_dlnode_t *node) {
     return node ? node->next : NULL;
 }
 
