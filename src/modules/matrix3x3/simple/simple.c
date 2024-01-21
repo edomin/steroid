@@ -165,12 +165,12 @@ static void st_matrix3x3_rrotation(const st_modctx_t *matrix3x3_ctx,
 
     matrix->ctx = matrix3x3_ctx;
 
-    matrix->r1c1 = module->angle.rdcos(module->angle.ctx, radians);
-    matrix->r1c2 = -module->angle.rdsin(module->angle.ctx, radians);
+    matrix->r1c1 = module->angle.rdcos(module->angle.ctx, -radians);
+    matrix->r1c2 = -module->angle.rdsin(module->angle.ctx, -radians);
     matrix->r1c3 = 0;
 
-    matrix->r2c1 = module->angle.rdsin(module->angle.ctx, radians);
-    matrix->r2c2 = module->angle.rdcos(module->angle.ctx, radians);
+    matrix->r2c1 = module->angle.rdsin(module->angle.ctx, -radians);
+    matrix->r2c2 = module->angle.rdcos(module->angle.ctx, -radians);
     matrix->r2c3 = 0;
 }
 
