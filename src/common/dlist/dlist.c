@@ -58,6 +58,8 @@ static st_dlnode_t *st_dlist_create_node(st_dlist_t *list, const void *data) {
         return NULL;
 
     node->list = list;
+    node->prev = NULL;
+    node->next = NULL;
     memcpy(node->data, data, list->data_size);
 
     return node;
