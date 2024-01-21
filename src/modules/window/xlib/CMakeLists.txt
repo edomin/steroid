@@ -62,7 +62,7 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    slist
+    dlist
     ${SAFEC_LINK_LIBRARIES}
     ${X11_LIBRARIES}
 )

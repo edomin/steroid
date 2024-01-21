@@ -53,6 +53,12 @@ static bool st_window_import_functions(st_modctx_t *window_ctx,
     return true;
 }
 
+static void st_window_free(void *window) {
+    XCloseIM(((st_window_t *)window)->input_method);
+    XDestroyWindow(((st_window_t *)window)->monitor->handle,
+     ((st_window_t *)window)->handle);
+}
+
 static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *monitor_ctx) {
     st_modctx_t      *window_ctx;
@@ -74,7 +80,7 @@ static st_modctx_t *st_window_init(st_modctx_t *events_ctx,
     if (!st_window_import_functions(window_ctx, events_ctx, logger_ctx))
         goto fail;
 
-    module->windows = st_slist_create(sizeof(st_window_t));
+    module->windows = st_dlist_create(sizeof(st_window_t), st_window_free);
     if (!module->windows) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to create list for windows entries");
@@ -137,16 +143,7 @@ fail:
 static void st_window_quit(st_modctx_t *window_ctx) {
     st_window_xlib_t *module = window_ctx->data;
 
-    while (!st_slist_empty(module->windows)) {
-        st_slnode_t *node = st_slist_get_first(module->windows);
-        st_window_t *window = st_slist_get_data(node);
-
-        st_slist_remove_head(module->windows); // NOLINT(altera-unroll-loops)
-        XDestroyWindow(window->monitor->handle, window->handle);
-        free(window);
-    }
-
-    st_slist_destroy(module->windows);
+    st_dlist_destroy(module->windows);
     module->windows = NULL;
 
     module->logger.info(module->logger.ctx,
@@ -188,55 +185,48 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     XWMHints             hints = { .input = True, .flags = InputHint }; // NOLINT(hicpp-signed-bitwise)
     XIMStyles           *im_styles = NULL;
     XIMStyle             im_best_match_style = 0;
-    st_window_t         *window = malloc(sizeof(st_window_t));
+    st_window_t          window;
+    st_dlnode_t         *node;
 
-    if (!window) {
+    window.handle = XCreateWindow(monitor->handle, monitor->root_window,
+     x, y, width, height, 0, CopyFromParent, InputOutput, CopyFromParent,
+     CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
+    if (!window.handle) {
         module->logger.error(module->logger.ctx,
-         "window_xlib: Unable to allocate memory for window structure: %s",
-         strerror(errno));
+         "window_xlib: Unable to create window");
 
         return NULL;
     }
 
-    window->handle = XCreateWindow(monitor->handle, monitor->root_window,
-     x, y, width, height, 0, CopyFromParent, InputOutput, CopyFromParent,
-     CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
-    if (!window->handle) {
-        module->logger.error(module->logger.ctx,
-         "window_xlib: Unable to create window");
-
-        goto create_window_fail;
-    }
-
-    XChangeWindowAttributes(monitor->handle, window->handle,
+    XChangeWindowAttributes(monitor->handle, window.handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
-    window->wm_delete_msg = XInternAtom(monitor->handle, "WM_DELETE_WINDOW",
+    window.wm_delete_msg = XInternAtom(monitor->handle, "WM_DELETE_WINDOW",
      False);
-    XSetWMProtocols(monitor->handle, window->handle, &window->wm_delete_msg, 1);
-    window->xed = false;
+    XSetWMProtocols(monitor->handle, window.handle, &window.wm_delete_msg, 1);
+    window.xed = false;
 
-    XSetWMHints(monitor->handle, window->handle, &hints);
-    XMapWindow(monitor->handle, window->handle);
-    XStoreName(monitor->handle, window->handle, title);
+    XSetWMHints(monitor->handle, window.handle, &hints);
+    XMapWindow(monitor->handle, window.handle);
+    XStoreName(monitor->handle, window.handle, title);
 
     if (fullscreen) {
-        fullscreen_window(monitor->handle, window->handle);
+        fullscreen_window(monitor->handle, window.handle);
     } else {
-        XChangeProperty(monitor->handle, window->handle,
+        XChangeProperty(monitor->handle, window.handle,
          XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
          XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
     }
 
-    window->input_method = XOpenIM(monitor->handle, NULL, NULL, NULL);
-    if (!window->input_method) {
+    window.input_method = XOpenIM(monitor->handle, NULL, NULL, NULL);
+    if (!window.input_method) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to open X input method");
 
         goto open_im_fail;
     }
 
-    if (XGetIMValues(window->input_method, XNQueryInputStyle, &im_styles, NULL)
+    if (XGetIMValues(window.input_method, XNQueryInputStyle, &im_styles, NULL)
      != NULL || !im_styles) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to open X input method");
@@ -262,10 +252,10 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         goto best_match_fail;
     }
 
-    window->input_context = XCreateIC(window->input_method, XNInputStyle,
-     im_best_match_style, XNClientWindow, window->handle, XNFocusWindow,
-     window->handle, NULL);
-    if (!window->input_context) {
+    window.input_context = XCreateIC(window.input_method, XNInputStyle,
+     im_best_match_style, XNClientWindow, window.handle, XNFocusWindow,
+     window.handle, NULL);
+    if (!window.input_context) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to create input context");
 
@@ -274,62 +264,58 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
 
     XkbSetDetectableAutoRepeat(monitor->handle, true, NULL);
 
-    window->ctx = window_ctx;
-    window->monitor = monitor;
-    window->width = width;
-    window->height = height;
-    if (!st_slist_insert_head(module->windows, window)) {
+    window.ctx = window_ctx;
+    window.monitor = monitor;
+    window.width = width;
+    window.height = height;
+    node = st_dlist_push_back(module->windows, &window);
+    if (!node) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to create list entry for window");
-        XDestroyWindow(window->monitor->handle, window->handle);
-        free(window);
 
-        return NULL;
+        goto dlist_push_back_fail;
     }
 
-    return window;
+    return st_dlist_get_data(node);
 
+dlist_push_back_fail:
 create_ic_fail:
 best_match_fail:
 get_im_values_fail:
-    XCloseIM(window->input_method);
+    XCloseIM(window.input_method);
 open_im_fail:
-    XDestroyWindow(window->monitor->handle, window->handle);
-create_window_fail:
-    free(window);
+    XDestroyWindow(window.monitor->handle, window.handle);
 
     return NULL;
 }
 
 static void st_window_destroy(st_window_t *window) {
     st_window_xlib_t *module = window->ctx->data;
+    st_dlnode_t      *node = st_dlist_get_head(module->windows);
 
-    while (!st_slist_empty(module->windows)) {
-        st_slnode_t *node = st_slist_get_first(module->windows);
-
-        if (st_slist_get_data(node) == window) {
-            st_slist_remove_head(module->windows); // NOLINT(altera-unroll-loops)
-            XCloseIM(window->input_method);
-            XDestroyWindow(window->monitor->handle, window->handle);
-            free(window);
+    while (node) {
+        if (st_dlist_get_data(node) == window) {
+            st_dlist_remove(node);
 
             break;
         }
+
+        node = st_dlist_get_next(node);
     }
 }
 
 static st_window_t *get_window_by_xwindow(st_modctx_t *window_ctx,
  Window xwindow) {
     st_window_xlib_t *module = window_ctx->data;
-    st_slnode_t      *node = st_slist_get_first(module->windows);
+    st_dlnode_t      *node = st_dlist_get_head(module->windows);
 
     while (node) {
-        st_window_t *window = st_slist_get_data(node);
+        st_window_t *window = st_dlist_get_data(node);
 
         if (window->handle == xwindow)
             return window;
 
-        node = st_slist_get_next(node);
+        node = st_dlist_get_next(node);
     }
 
     return NULL;
@@ -337,10 +323,10 @@ static st_window_t *get_window_by_xwindow(st_modctx_t *window_ctx,
 
 static void st_window_process(st_modctx_t *window_ctx) {
     st_window_xlib_t *module = window_ctx->data;
-    st_slnode_t      *node = st_slist_get_first(module->windows);
+    st_dlnode_t      *node = st_dlist_get_head(module->windows);
 
     while (node) {
-        st_window_t *window = st_slist_get_data(node);
+        st_window_t *window = st_dlist_get_data(node);
 
         while (XPending(window->monitor->handle)) {
             XEvent xevent;
@@ -546,7 +532,7 @@ static void st_window_process(st_modctx_t *window_ctx) {
             }
         }
 
-        node = st_slist_get_next(node);
+        node = st_dlist_get_next(node);
     }
 }
 

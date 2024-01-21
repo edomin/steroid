@@ -5,7 +5,7 @@
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
 
-#include "slist.h"
+#include "dlist.h"
 
 typedef enum {
     EV_MOUSE_PRESS = 0,
@@ -55,7 +55,7 @@ typedef struct {
     st_window_xlib_events_t  events;
     st_window_xlib_logger_t  logger;
     st_window_xlib_monitor_t monitor;
-    st_slist_t              *windows;
+    st_dlist_t              *windows;
     st_evtypeid_t            evtypes[EV_MAX];
 } st_window_xlib_t;
 
