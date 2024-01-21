@@ -73,11 +73,6 @@ st_slnode_t *st_slist_get_next(const st_slnode_t *node) {
     return SLIST_NEXT(node, ST_SNODE_NEXT);
 }
 
-void st_slist_remove(st_slnode_t *node) {
-    SLIST_REMOVE(&node->list->head, node, st_slnode_s, ST_SNODE_NEXT);
-    free(node);
-}
-
 void st_slist_remove_head(st_slist_t *list) {
     st_slnode_t *node = SLIST_FIRST(&list->head);
 
