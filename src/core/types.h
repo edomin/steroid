@@ -1,7 +1,7 @@
 #pragma once
 
-#include "slist.h"
+#include "dlist.h"
 
-typedef st_slist_t st_modsmgr_t;
+typedef st_dlist_t st_modsmgr_t;
 
 #define ST_MODSMGR_T_DEFINED

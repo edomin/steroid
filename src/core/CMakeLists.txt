@@ -33,7 +33,7 @@ target_include_directories(steroids PRIVATE
 )
 
 target_link_libraries(steroids PRIVATE
-    slist
+    dlist
     ${ST_INTERNAL_MODULES_LIBS}
 )
 
