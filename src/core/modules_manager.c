@@ -15,6 +15,7 @@
 #include "internal_modules.h"
 #include "utils.h"
 
+#define FOUND_MODULES_MAX 8
 #define ST_MODSMGR_FUNCS                                           \
     &(st_modsmgr_funcs_t){                                         \
         .get_module_names      = st_modsmgr_get_module_names,      \
@@ -33,6 +34,8 @@ void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx);
 static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
  const char *subsystem, const char *module_name) {
     st_dlnode_t  *node;
+    st_moddata_t *found_modules[FOUND_MODULES_MAX];
+    size_t        found_count = 0;
 
     if (!modsmgr || !subsystem)
         return NULL;
@@ -47,12 +50,17 @@ static st_moddata_t *st_modsmgr_find_module(const st_modsmgr_t *modsmgr,
         bool          name_is_null = module_name == NULL;
 
         if (subsystem_equal && (name_equal || name_is_null))
-            return module_data;
+            found_modules[found_count++] = module_data;
 
         node = st_dlist_get_next(node);
     }
 
-    return NULL;
+    for (size_t i = 0; i < found_count; i++) {
+        if (!st_utl_strings_equal(found_modules[i]->name, "simple"))
+            return found_modules[i];
+    }
+
+    return found_count > 0 ? found_modules[0] : NULL;
 }
 
 static inline bool st_modsmgr_have_module(const st_modsmgr_t *modsmgr,
