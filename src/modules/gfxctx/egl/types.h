@@ -6,6 +6,8 @@
 #include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
 
+#include "dlist.h"
+
 typedef struct {
     st_modctx_t        *ctx;
     st_logger_debug_t   debug;
@@ -31,6 +33,11 @@ typedef struct {
 } st_gfxctx_egl_t;
 
 typedef struct {
+    struct st_gfxctx_s *ctx;
+    unsigned            index;
+} st_gfxctx_shared_data_t;
+
+typedef struct st_gfxctx_s {
     st_modctx_t *ctx;
     st_window_t *window;
     EGLDisplay   display;
@@ -38,6 +45,7 @@ typedef struct {
     EGLSurface   surface;
     EGLContext   handle;
     int          gapi;
+    st_dlist_t  *shared_data;
 } st_gfxctx_t;
 
 #define ST_GFXCTX_T_DEFINED

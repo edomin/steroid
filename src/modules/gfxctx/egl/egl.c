@@ -461,6 +461,23 @@ static int gapi_from_attrs(cfg_attrs_t *cfg_arrts,
     }
 }
 
+static unsigned st_shared_data_get_free_index(const st_dlist_t *shared_data) {
+    unsigned     free_index = 0;
+    st_dlnode_t *node = st_dlist_get_head(shared_data);
+
+    while (node) {
+        st_gfxctx_shared_data_t *data = st_dlist_get_data(node);
+        if (data->index == free_index) {
+            free_index++;
+            node = st_dlist_get_head(shared_data);
+
+            continue;
+        }
+
+        node = st_dlist_get_next(node);
+    }
+}
+
 static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, EGLint renderable_type,
  EGLint major, EGLint minor, st_gfxctx_t *shared) {
@@ -584,9 +601,30 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
 
     gfxctx->ctx = gfxctx_ctx;
     gfxctx->window = window;
+    if (!shared) {
+        gfxctx->shared_data = st_dlist_create(sizeof(st_gfxctx_shared_data_t),
+         NULL);
+        if (gfxctx->shared_data) {
+            st_dlist_push_back(gfxctx->shared_data, &(st_gfxctx_shared_data_t){
+                .ctx   = gfxctx,
+                .index = 0,
+            });
+        } else {
+            module->logger.warning(module->logger.ctx,
+             "gfxctx_egl: Unable to create structure for shared contexts data. "
+             "This context will not able to be shared");
+        }
+    } else {
+        gfxctx->shared_data = shared->shared_data;
+        st_dlist_push_back(gfxctx->shared_data, &(st_gfxctx_shared_data_t){
+            .ctx   = gfxctx,
+            .index = st_shared_data_get_free_index(gfxctx->shared_data),
+        });
+    }
 
-    eglMakeCurrent(gfxctx->display, gfxctx->surface, gfxctx->surface,
-     gfxctx->handle);
+    if (!shared)
+        eglMakeCurrent(gfxctx->display, gfxctx->surface, gfxctx->surface,
+         gfxctx->handle);
     if (eglSwapInterval(gfxctx->display, 1) == EGL_FALSE)
         module->logger.warning(module->logger.ctx,
          "gfxctx_egl: Unable to set swap interval: %s",
@@ -624,7 +662,7 @@ static st_gfxctx_t *st_gfxctx_create(st_modctx_t *gfxctx_ctx,
 
 static st_gfxctx_t *st_gfxctx_create_shared(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, st_gfxctx_t *other) {
-    if (!monitor || !window || !other)
+    if (!monitor || !window || !other || !other->shared_data)
         return NULL;
 
     return st_gfxctx_create_impl(gfxctx_ctx, monitor, window,
@@ -652,6 +690,22 @@ static st_window_t *st_gfxctx_get_window(st_gfxctx_t *gfxctx) {
 
 static st_gapi_t st_gfxctx_get_api(st_gfxctx_t *gfxctx) {
     return (st_gapi_t)gfxctx->gapi;
+}
+
+static unsigned st_gfxctx_get_shared_index(const st_gfxctx_t *gfxctx) {
+    st_dlnode_t *node = st_dlist_get_head(gfxctx->shared_data);
+
+    while (node) {
+        st_gfxctx_shared_data_t *data = st_dlist_get_data(node);
+
+        if (data->ctx == gfxctx)
+            return data->index;
+
+        node = st_dlist_get_next(node);
+    }
+
+    assert(false && "missing shared data for gfxctx");
+    return 0;
 }
 
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {

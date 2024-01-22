@@ -16,4 +16,5 @@ static bool st_gfxctx_swap_buffers(st_gfxctx_t *gfxctx);
 static st_modctx_t *st_gfxctx_get_ctx(st_gfxctx_t *gfxctx);
 static st_window_t *st_gfxctx_get_window(st_gfxctx_t *gfxctx);
 static st_gapi_t st_gfxctx_get_api(st_gfxctx_t *gfxctx);
+static unsigned st_gfxctx_get_shared_index(const st_gfxctx_t *gfxctx);
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx);
