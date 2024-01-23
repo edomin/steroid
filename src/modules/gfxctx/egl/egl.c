@@ -1,5 +1,7 @@
 #include "egl.h"
 
+#include <assert.h>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
