@@ -478,6 +478,8 @@ static unsigned st_shared_data_get_free_index(const st_dlist_t *shared_data) {
 
         node = st_dlist_get_next(node);
     }
+
+    return free_index;
 }
 
 static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
