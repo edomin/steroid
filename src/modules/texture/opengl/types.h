@@ -29,10 +29,16 @@ typedef struct {
 } st_texture_opengl_logger_t;
 
 typedef struct {
+    st_gfxctx_t             *handle;
+    st_gapi_t                api;
+    st_gfxctx_make_current_t make_current;
+} st_texture_opengl_gfxctx_t;
+
+typedef struct {
     st_texture_opengl_bitmap_t   bitmap;
     st_texture_opengl_glloader_t glloader;
     st_texture_opengl_logger_t   logger;
-    st_gapi_t                    api;
+    st_texture_opengl_gfxctx_t   gfxctx;
 } st_texture_opengl_t;
 
 typedef struct {

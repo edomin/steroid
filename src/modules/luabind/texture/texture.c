@@ -134,10 +134,11 @@ static int st_texture_init_bind(st_luastate_t *lua_state) {
      lua_state, 1, "bitmap_ctx");
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 2, "logger_ctx");
-    ptrdiff_t    api = st_lua_get_integer(lua_state, 3);
+    st_gfxctx_t *gfxctx = *(st_gfxctx_t **)st_lua_get_named_userdata(
+     lua_state, 3, "gfxctx");
 
     *(st_modctx_t **)userdata = st_texture_init(bitmap_ctx, logger_ctx,
-     (st_gapi_t)api);
+     gfxctx);
     st_lua_set_metatable(lua_state, CTX_METATABLE_NAME);
 
     return 1;

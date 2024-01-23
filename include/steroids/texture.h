@@ -6,7 +6,7 @@
 #include "steroids/types/modules/texture.h"
 
 static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
- st_modctx_t *logger_ctx, st_gapi_t api);
+ st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx);
 static void st_texture_quit(st_modctx_t *texture_ctx);
 
 static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,

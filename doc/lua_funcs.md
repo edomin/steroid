@@ -552,7 +552,7 @@ terminal_ctx:get_cols_count(): integer
 ```luau
 Texture = require "Texture"
 
-Texture.new_ctx(bitmap_ctx: bitmap_ctx, logger_ctx: logger_ctx, api: int): texture_ctx
+Texture.new_ctx(bitmap_ctx: bitmap_ctx, logger_ctx: logger_ctx, gfxctx: gfxctx): texture_ctx
 
 texture_ctx:destroy()
 texture_ctx:load(filename: string): texture

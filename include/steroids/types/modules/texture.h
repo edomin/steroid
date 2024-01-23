@@ -9,7 +9,7 @@
 #endif
 
 typedef st_modctx_t *(*st_texture_init_t)(st_modctx_t *bitmap_ctx,
- st_modctx_t *logger_ctx, st_gapi_t api);
+ st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx);
 typedef void (*st_texture_quit_t)(st_modctx_t *texture_ctx);
 
 typedef st_texture_t *(*st_texture_load_t)(st_modctx_t *texture_ctx,
