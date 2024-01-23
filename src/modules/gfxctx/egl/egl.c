@@ -719,5 +719,24 @@ static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
     eglDestroyContext(gfxctx->display, gfxctx->handle);
     eglDestroySurface(gfxctx->display, gfxctx->surface);
     eglTerminate(gfxctx->display);
+
+    if (st_dlist_get_elems_count(gfxctx->shared_data) == 1) {
+        st_dlist_destroy(gfxctx->shared_data);
+    } else {
+        st_dlnode_t *node = st_dlist_get_head(gfxctx->shared_data);
+
+        while (node) {
+            st_gfxctx_shared_data_t *data = st_dlist_get_data(node);
+
+            if (data->ctx == gfxctx) {
+                st_dlist_remove(node);
+
+                break;
+            }
+
+            node = st_dlist_get_next(node);
+        }
+    }
+
     free(gfxctx);
 }
