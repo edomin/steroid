@@ -196,6 +196,7 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
     }
 
     module->gfxctx.handle = gfxctx;
+    module->gfxctx.make_current(module->gfxctx.handle);
     module->window.handle = module->gfxctx.get_window(gfxctx);
 
     glfuncs_load_all(render_ctx);
