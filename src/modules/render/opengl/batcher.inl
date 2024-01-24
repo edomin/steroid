@@ -58,11 +58,12 @@ static void batcher_process_texture(st_batcher_t *batcher,
     batcher->current_vertex_index += VERTICES_PER_TEXTURE;
 }
 
-static bool batcher_bind_texture(st_batcher_t *batcher, size_t entry_index) {
+static bool batcher_bind_texture(st_batcher_t *batcher, size_t entry_index,
+ unsigned gfxctx_shared_index) {
     const st_batch_entry_t *entry = batcher->module->dynarr.get(
      batcher->entries, entry_index);
 
-    return batcher->module->texture.bind(entry->texture, 0);
+    return batcher->module->texture.bind(entry->texture, gfxctx_shared_index);
 }
 
 static GLsizei batcher_get_first_vertex_index(const st_batcher_t *batcher,
