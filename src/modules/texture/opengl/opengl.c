@@ -141,24 +141,19 @@ static bool glapi_least(st_modctx_t *texture_ctx, st_gapi_t api) {
     return module->gfxctx.api >= api;
 }
 
-static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
- const char *filename) {
+static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
+ const st_bitmap_t *bitmap, const char *name) {
     st_texture_opengl_t *module = texture_ctx->data;
-    st_bitmap_t         *bitmap;
     GLenum               error;
     st_texture_t        *texture = malloc(sizeof(st_texture_t));
 
     if (!texture) {
         module->logger.error(module->logger.ctx,
          "texture_opengl: Unable to allocate memory for texture struct \"%s\": "
-         "%s", filename, strerror(errno));
+         "%s", name ? name : "(unnamed)", strerror(errno));
 
         return NULL;
     }
-
-    bitmap = module->bitmap.load(module->bitmap.ctx, filename);
-    if (!bitmap)
-        goto bitmap_load_fail;
 
     texture->module = module;
     texture->width = module->bitmap.get_width(bitmap);
@@ -188,8 +183,8 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
         error = glGetError();
         if (error != GL_NO_ERROR) {
             module->logger.warning(module->logger.ctx,
-             "texture_opengl: Unable to generate mipmap for texture \"%s\"",
-             filename, gluErrorString(error));
+             "texture_opengl: Unable to generate mipmap for texture \"%s\": %s",
+             name ? name : "(unnamed)", gluErrorString(error));
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
         }
@@ -204,73 +199,40 @@ static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
          GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
+ const char *filename) {
+    st_texture_opengl_t *module = texture_ctx->data;
+    st_texture_t        *texture;
+    st_bitmap_t         *bitmap = module->bitmap.load(module->bitmap.ctx,
+     filename);
+
+    if (!bitmap)
+        return NULL;
+
+    texture = st_texture_load_impl(texture_ctx, bitmap, filename);
 
     module->bitmap.destroy(bitmap);
 
     return texture;
-
-bitmap_load_fail:
-    free(texture);
-
-    return NULL;
 }
 
 static st_texture_t *st_texture_memload(st_modctx_t *texture_ctx,
  const void *data, size_t size) {
     st_texture_opengl_t *module = texture_ctx->data;
-    st_bitmap_t         *bitmap;
-    GLenum               error;
-    st_texture_t        *texture = malloc(sizeof(st_texture_t));
+    st_texture_t        *texture;
+    st_bitmap_t         *bitmap = module->bitmap.memload(module->bitmap.ctx,
+     data, size);
 
-    if (!texture) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to allocate memory for texture struct: %s",
-         strerror(errno));
-
-        return NULL;
-    }
-
-    bitmap = module->bitmap.memload(module->bitmap.ctx, data, size);
     if (!bitmap)
-        goto bitmap_load_fail;
+        return NULL;
 
-    texture->module = module;
-    texture->width = module->bitmap.get_width(bitmap);
-    texture->height = module->bitmap.get_height(bitmap);
-
-    glGenTextures(1, &texture->id);
-    glBindTexture(GL_TEXTURE_2D, texture->id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-     GL_NEAREST_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)texture->width,
-     (GLsizei)texture->height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
-
-    error = glGetError();
-    if (error != GL_NO_ERROR) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to load texture: %s", gluErrorString(error));
-
-        goto teximage2d_fail;
-    }
-
-    if (glapi_least(texture_ctx, ST_GAPI_GL3))
-        glGenerateMipmap(GL_TEXTURE_2D);
+    texture = st_texture_load_impl(texture_ctx, bitmap, NULL);
 
     module->bitmap.destroy(bitmap);
 
     return texture;
-
-teximage2d_fail:
-    glDeleteTextures(1, &texture->id);
-    module->bitmap.destroy(bitmap);
-
-bitmap_load_fail:
-    free(texture);
-
-    return NULL;
 }
 
 static void st_texture_destroy(st_texture_t *texture) {
