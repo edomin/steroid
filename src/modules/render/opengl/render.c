@@ -511,12 +511,10 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
 
 static void st_render_process(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
-    unsigned            texture_unit;
 
     st_render_process_queue(render_ctx);
 
     module->gfxctx.make_current(module->gfxctx.handle);
-    texture_unit = 0;
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
@@ -533,7 +531,7 @@ static void st_render_process(st_modctx_t *render_ctx) {
     for (size_t i = 0; i < batcher_get_entries_count(&module->batcher); i++) {
         GLenum error;
 
-        if (!batcher_bind_texture(&module->batcher, i, texture_unit))
+        if (!batcher_bind_texture(&module->batcher, i, 0))
             break;
 
         glDrawArrays(GL_TRIANGLES,
