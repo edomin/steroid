@@ -13,3 +13,11 @@ static void vao_init(st_modctx_t *render_ctx) {
 static void vao_free(st_vao_t *vao) {
     glDeleteVertexArrays(DEFAULT_VAO_NAMES_NUMBER, vao);
 }
+
+static void vao_bind(st_vao_t *vao) {
+    glBindVertexArray(*vao);
+}
+
+static void vao_unbind(__attribute__((unused)) st_vao_t *vao) {
+    glBindVertexArray(0);
+}

@@ -245,6 +245,14 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
 
         shader_free(&shd_frag);
         shader_free(&shd_vert);
+
+        if (glapi_least(ST_GAPI_GL3)) {
+            vao_bind(&module->vao);
+            vbo_bind(&module->vbo);
+            vertattr_enable(&module->posattr);
+            vertattr_enable(&module->texcrdattr);
+            vao_unbind(&module->vao);
+        }
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -512,10 +520,15 @@ static void st_render_process(st_modctx_t *render_ctx) {
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
-    vbo_bind(&module->vbo);
+    if (glapi_least(ST_GAPI_GL3)) {
+        vao_bind(&module->vao);
+    } else {
+        vbo_bind(&module->vbo);
+        vertattr_enable(&module->posattr);
+        vertattr_enable(&module->texcrdattr);
+    }
+
     vbo_set_vertices(&module->vbo, &module->vertices);
-    vertattr_enable(&module->posattr);
-    vertattr_enable(&module->texcrdattr);
 
     for (size_t i = 0; i < batcher_get_entries_count(&module->batcher); i++) {
         GLenum error;
@@ -536,9 +549,13 @@ static void st_render_process(st_modctx_t *render_ctx) {
         }
     }
 
-    vertattr_disable(&module->texcrdattr);
-    vertattr_disable(&module->posattr);
-    vbo_unbind(&module->vbo);
+    if (glapi_least(ST_GAPI_GL3)) {
+        vao_unbind(&module->vao);
+    } else {
+        vertattr_disable(&module->texcrdattr);
+        vertattr_disable(&module->posattr);
+        vbo_unbind(&module->vbo);
+    }
     shdprog_unuse(&module->shdprog);
     module->gfxctx.swap_buffers(module->gfxctx.handle);
     module->drawq.clear(module->drawq.handle);
