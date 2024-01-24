@@ -200,6 +200,8 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
          GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    return texture;
 }
 
 static st_texture_t *st_texture_load(st_modctx_t *texture_ctx,
