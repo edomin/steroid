@@ -48,6 +48,7 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, warning);
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", bitmap, load);
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", bitmap, memload);
