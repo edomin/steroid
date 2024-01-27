@@ -654,8 +654,9 @@ static st_gfxctx_t *st_gfxctx_create(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, st_gapi_t api) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
 
-    if (api < ST_GAPI_GL11 || api >= ST_GAPI_MAX) {
-        module->logger.error(module->logger.ctx, "gfxctx_egl: Unknown gfx API");
+    if (api < ST_GAPI_GL11 || api > ST_GAPI_ES32) {
+        module->logger.error(module->logger.ctx,
+         "gfxctx_egl: Unsupported gfx API");
 
         return NULL;
     }
