@@ -16,6 +16,8 @@ typedef enum {
 } st_loglvl_t;
 
 typedef void (*st_logcbk_t)(const char *msg, void *userdata);
+typedef void (*st_logger_generic_msg_t)(const st_modctx_t *logger_ctx,
+ const char* format, ...);
 
 typedef st_modctx_t *(*st_logger_init_t)(st_modctx_t *events_ctx);
 typedef void (*st_logger_quit_t)(st_modctx_t *logger_ctx);
@@ -32,14 +34,10 @@ typedef bool (*st_logger_set_log_file_t)(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels);
 typedef bool (*st_logger_set_callback_t)(st_modctx_t *logger_ctx,
  st_logcbk_t callback, void *userdata, st_loglvl_t levels);
-typedef void (*st_logger_debug_t)(const st_modctx_t *logger_ctx,
- const char* format, ...);
-typedef void (*st_logger_info_t)(const st_modctx_t *logger_ctx,
- const char* format, ...);
-typedef void (*st_logger_warning_t)(const st_modctx_t *logger_ctx,
- const char* format, ...);
-typedef void (*st_logger_error_t)(const st_modctx_t *logger_ctx,
- const char* format, ...);
+typedef st_logger_generic_msg_t st_logger_debug_t;
+typedef st_logger_generic_msg_t st_logger_info_t;
+typedef st_logger_generic_msg_t st_logger_warning_t;
+typedef st_logger_generic_msg_t st_logger_error_t;
 typedef void (*st_logger_set_postmortem_msg_t)(st_modctx_t *logger_ctx,
  const char *msg);
 
