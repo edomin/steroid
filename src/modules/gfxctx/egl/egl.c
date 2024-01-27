@@ -92,6 +92,7 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     module->logger.ctx = logger_ctx;
     module->monitor.ctx = monitor_ctx;
     module->window.ctx = window_ctx;
+    module->debug_enabled = false;
 
     if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, monitor_ctx,
      window_ctx)) {
@@ -493,6 +494,72 @@ static unsigned st_shared_data_get_free_index(const st_dlist_t *shared_data) {
     return free_index;
 }
 
+static st_logger_generic_msg_t msgtype_to_logger_func(st_gfxctx_egl_t *module,
+ EGLint message_type) {
+    switch (message_type) {
+        case EGL_DEBUG_MSG_CRITICAL_KHR:
+        case EGL_DEBUG_MSG_ERROR_KHR:
+            return module->logger.error;
+        case EGL_DEBUG_MSG_WARN_KHR:
+            return module->logger.warning;
+        case EGL_DEBUG_MSG_INFO_KHR:
+        default:
+            return module->logger.info;
+    };
+
+    return module->logger.info;
+}
+
+static void st_debug_callback(__attribute__((unused)) EGLenum error,
+ const char *command, EGLint message_type, void *thread_label,
+ __attribute__((unused)) void *object_label, const char* message) {
+    st_gfxctx_egl_t *module = thread_label;
+
+    msgtype_to_logger_func(module, message_type)(module->logger.ctx,
+     "gfxctx_egl: \"%s\": %s", command, message);
+}
+
+void st_try_to_enable_debug(st_gfxctx_t *gfxctx) {
+    st_modctx_t     *ctx = gfxctx->ctx;
+    st_gfxctx_egl_t *module = ctx->data;
+    EGLint           ret;
+
+    if (module->debug_enabled)
+        return;
+
+    if (!extension_supported(gfxctx->display, "EGL_KHR_debug"))
+        return;
+
+    module->egl_debug_message_control_khr = (void *)eglGetProcAddress(
+     "eglDebugMessageControlKHR");
+    if (!module->egl_debug_message_control_khr)
+        return;
+    
+    module->egl_label_object_khr = (void *)eglGetProcAddress(
+     "eglLabelObjectKHR");
+    if (!module->egl_label_object_khr)
+        return;
+
+    ret = module->egl_debug_message_control_khr(st_debug_callback,
+     (EGLAttrib[]){
+        EGL_DEBUG_MSG_INFO_KHR,     EGL_TRUE,
+        EGL_DEBUG_MSG_WARN_KHR,     EGL_TRUE,
+        EGL_DEBUG_MSG_ERROR_KHR,    EGL_TRUE,
+        EGL_DEBUG_MSG_CRITICAL_KHR, EGL_TRUE,
+        EGL_NONE
+    });
+
+    if (ret != EGL_SUCCESS)
+        return;
+
+    ret = module->egl_label_object_khr(NULL, EGL_OBJECT_THREAD_KHR, NULL,
+     module);
+
+    module->logger.info(module->logger.ctx, "gfxctx_egl: EGL debug enabled");
+
+    module->debug_enabled = true;
+}
+
 static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, EGLint renderable_type,
  EGLint major, EGLint minor, st_gfxctx_t *shared) {
@@ -528,6 +595,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         return NULL;
     }
 
+    gfxctx->ctx = gfxctx_ctx;
     gfxctx->display = eglGetDisplay(
      (EGLNativeDisplayType)module->monitor.get_handle(monitor));
 
@@ -538,17 +606,26 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto get_display_fail;
     }
 
-    egl_khr_create_context_supported = extension_supported(gfxctx->display,
-     "EGL_KHR_create_context");
+
 
     if (eglInitialize(gfxctx->display, &egl_version_major, &egl_version_minor)
      == EGL_FALSE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to initialize EGL: %s",
-         get_egl_error_str(eglGetError()));
+        if (!module->debug_enabled)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to initialize EGL: %s",
+             get_egl_error_str(eglGetError()));
 
         goto egl_init_fail;
     }
+
+    st_try_to_enable_debug(gfxctx);
+
+    if (module->debug_enabled)
+        module->egl_label_object_khr(gfxctx->display, EGL_OBJECT_DISPLAY_KHR,
+         gfxctx->display, monitor);
+
+    egl_khr_create_context_supported = extension_supported(gfxctx->display,
+     "EGL_KHR_create_context");
 
     process_attrs(&cfg_attrs, &ctx_attrs, &version_changed, &debug_changed,
      egl_version_minor, egl_khr_create_context_supported);
@@ -592,17 +669,20 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
 
     if (eglChooseConfig(gfxctx->display, egl_cfg_attrs, &gfxctx->cfg, 1,
      &configs_count) == EGL_FALSE || configs_count != 1) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to get matching frame buffer configuration: %s",
-         get_egl_error_str(eglGetError()));
+        if (!module->debug_enabled)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to get matching frame buffer configuration: "
+             "%s",
+             get_egl_error_str(eglGetError()));
 
         goto choose_config_fail;
     }
 
     if (eglBindAPI(getegl_api_by_gapi((st_gapi_t)gfxctx->gapi)) == EGL_FALSE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to bind EGL API: %s",
-         get_egl_error_str(eglGetError()));
+        if (!module->debug_enabled)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to bind EGL API: %s",
+             get_egl_error_str(eglGetError()));
 
         goto bind_api_fail;
     }
@@ -611,24 +691,33 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
      gfxctx->cfg,
      (EGLNativeWindowType)*(void *[]){module->window.get_handle(window)}, NULL);
     if (gfxctx->surface == EGL_NO_SURFACE) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to create EGL window surface: %s",
-         get_egl_error_str(eglGetError()));
+        if (!module->debug_enabled)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to create EGL window surface: %s",
+             get_egl_error_str(eglGetError()));
 
         goto create_surface_fail;
     }
 
+    if (module->debug_enabled)
+        module->egl_label_object_khr(gfxctx->display, EGL_OBJECT_DISPLAY_KHR,
+         gfxctx->surface, window);
+
     gfxctx->handle = eglCreateContext(gfxctx->display, gfxctx->cfg,
      shared ? shared->handle : EGL_NO_CONTEXT, egl_ctx_attrs);
     if (gfxctx->handle == EGL_NO_CONTEXT) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to create EGL render context: %s",
-         get_egl_error_str(eglGetError()));
+        if (!module->debug_enabled)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to create EGL render context: %s",
+             get_egl_error_str(eglGetError()));
 
         goto create_context_fail;
     }
 
-    gfxctx->ctx = gfxctx_ctx;
+    if (module->debug_enabled)
+        module->egl_label_object_khr(gfxctx->display, EGL_OBJECT_CONTEXT_KHR,
+         gfxctx->handle, gfxctx);
+
     gfxctx->window = window;
     if (!shared) {
         gfxctx->shared_data = st_dlist_create(sizeof(st_gfxctx_shared_data_t),
@@ -654,10 +743,12 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
     if (!shared)
         eglMakeCurrent(gfxctx->display, gfxctx->surface, gfxctx->surface,
          gfxctx->handle);
-    if (eglSwapInterval(gfxctx->display, 1) == EGL_FALSE)
-        module->logger.warning(module->logger.ctx,
-         "gfxctx_egl: Unable to set swap interval: %s",
-         get_egl_error_str(eglGetError()));
+    if (eglSwapInterval(gfxctx->display, 1) == EGL_FALSE) {
+        if (!module->debug_enabled)
+            module->logger.warning(module->logger.ctx,
+             "gfxctx_egl: Unable to set swap interval: %s",
+             get_egl_error_str(eglGetError()));
+    }
 
     return gfxctx;
 
