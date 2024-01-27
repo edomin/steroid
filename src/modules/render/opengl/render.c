@@ -12,11 +12,6 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-
-static char err_msg_buf[ERR_MSG_BUF_SIZE];
-
-#include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
 #include "shader.inl"
 #include "shdprog.inl"
@@ -36,7 +31,9 @@ static char err_msg_buf[ERR_MSG_BUF_SIZE];
 #define ATTR_TEXCOORD_COMPONENTS_COUNT 2
 #define ATTR_TEXCOORD_OFFSET           \
  (sizeof(float) * ATTR_POS_COMPONENTS_COUNT)
+#define ERR_MSG_BUF_SIZE               1024
 
+static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -203,7 +200,8 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
     module->gfxctx.make_current(module->gfxctx.handle);
     module->window.handle = module->gfxctx.get_window(gfxctx);
 
-    if (!glfuncs_load_all(render_ctx))
+    if (!glfuncs_load_all(&module->gl, &module->glsupported, &module->logger,
+     module->glloader.get_proc_address, module->gapi))
         goto glload_fail;
 
     if (glapi_least(module->gapi, ST_GAPI_GL3))
