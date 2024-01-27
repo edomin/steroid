@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include <GL/gl.h>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #include <safeclib/safe_mem_lib.h>
