@@ -54,6 +54,7 @@ typedef st_window_t *(*st_gfxctx_get_window_t)(st_gfxctx_t *gfxctx);
 typedef st_gapi_t (*st_gfxctx_get_api_t)(st_gfxctx_t *gfxctx);
 typedef unsigned (*st_gfxctx_get_shared_index_t)(const st_gfxctx_t *gfxctx);
 typedef void (*st_gfxctx_destroy_t)(st_gfxctx_t *gfxctx);
+typedef bool (*st_gfxctx_debug_enabled_t)(const st_gfxctx_t *gfxctx);
 
 typedef struct {
     st_gfxctx_init_t             gfxctx_init;
@@ -67,4 +68,5 @@ typedef struct {
     st_gfxctx_get_api_t          gfxctx_get_api;
     st_gfxctx_get_shared_index_t gfxctx_get_shared_index;
     st_gfxctx_destroy_t          gfxctx_destroy;
+    st_gfxctx_debug_enabled_t    gfxctx_debug_enabled;
 } st_gfxctx_funcs_t;

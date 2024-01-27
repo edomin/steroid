@@ -766,3 +766,7 @@ static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
 
     free(gfxctx);
 }
+
+static bool st_gfxctx_debug_enabled(const st_gfxctx_t *gfxctx) {
+    return gfxctx->debug;
+}
