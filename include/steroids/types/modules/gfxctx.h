@@ -9,6 +9,7 @@
 #endif
 
 typedef enum {
+    ST_GAPI_GL1,
     ST_GAPI_GL11,
     ST_GAPI_GL12,
     ST_GAPI_GL13,

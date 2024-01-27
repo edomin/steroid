@@ -165,6 +165,7 @@ static EGLint get_major_version_by_gapi(st_gapi_t api) {
 
 static EGLint get_minor_version_by_gapi(st_gapi_t api) {
     switch (api) {
+        case ST_GAPI_GL1:
         case ST_GAPI_GL2:
         case ST_GAPI_GL3:
         case ST_GAPI_GL4:
