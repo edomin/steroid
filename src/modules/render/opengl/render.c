@@ -12,6 +12,10 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
+#define ERR_MSG_BUF_SIZE 1024
+
+static char err_msg_buf[ERR_MSG_BUF_SIZE];
+
 #include "glfuncs.inl" // NOLINT(llvm-include-order)
 #include "batcher.inl"
 #include "shader.inl"
@@ -21,7 +25,6 @@
 #include "vbo.inl"
 #include "vertattr.inl"
 
-#define ERR_MSG_BUF_SIZE               1024
 #define DEPTH_RANGE_NEAR_VAL           0.0
 #define DEPTH_RANGE_FAR_VAL            1.0
 #define VBO_COMPONENTS_PER_VERTEX      5
@@ -36,7 +39,6 @@
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(render_opengl)
 ST_MODULE_DEF_INIT_FUNC(render_opengl)
@@ -120,6 +122,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, info);
+    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, warning);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, identity);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, translate);
@@ -149,8 +152,8 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
  st_modctx_t *vec2_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t        *render_ctx;
     st_render_opengl_t *module;
-    st_shader_t         shd_vert = 0;
-    st_shader_t         shd_frag = 0;
+    st_shader_t         shd_vert = {0};
+    st_shader_t         shd_frag = {0};
 
     render_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_render_opengl_data, sizeof(st_render_opengl_t));
@@ -195,58 +198,60 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
         goto batcher_fail;
     }
 
+    module->gapi = module->gfxctx.get_api(gfxctx);
     module->gfxctx.handle = gfxctx;
     module->gfxctx.make_current(module->gfxctx.handle);
     module->window.handle = module->gfxctx.get_window(gfxctx);
 
-    glfuncs_load_all(render_ctx);
+    if (!glfuncs_load_all(render_ctx))
+        goto glload_fail;
 
-    if (glapi_least(ST_GAPI_GL3))
-        vao_init(render_ctx);
+    if (glapi_least(module->gapi, ST_GAPI_GL3))
+        vao_init(render_ctx, &module->vao);
 
-    if (glapi_least(ST_GAPI_GL2)) {
+    if (glapi_least(module->gapi, ST_GAPI_GL2)) {
         vbo_init(render_ctx, VBO_COMPONENTS_PER_VERTEX);
         /* We have shader sources for only OpenGL 3.3 */
-        assert(current_gapi == ST_GAPI_GL33);
+        assert(module->gapi == ST_GAPI_GL33);
 
         if (!shader_init(render_ctx, &shd_vert, SHD_VERTEX,
          VERTEX_SHADER_SOURCE_GL33)) {
-            if (glapi_least(ST_GAPI_GL3))
+            if (glapi_least(module->gapi, ST_GAPI_GL3))
                 goto vert_fail;
         }
 
-        if (shd_vert &&
+        if (shd_vert.handle &&
          !shader_init(render_ctx, &shd_frag, SHD_FRAGMENT,
           FRAGMENT_SHADER_SOURCE_GL33)) {
-            if (glapi_least(ST_GAPI_GL3))
+            if (glapi_least(module->gapi, ST_GAPI_GL3))
                 goto frag_fail;
         }
 
-        if (shd_vert && shd_frag &&
+        if (shd_vert.handle && shd_frag.handle &&
          !shdprog_init(render_ctx, &shd_vert, &shd_frag)) {
-            if (glapi_least(ST_GAPI_GL3))
+            if (glapi_least(module->gapi, ST_GAPI_GL3))
                 goto prog_fail;
         }
 
-        if (module->shdprog && !vertattr_init(render_ctx, &module->posattr,
+        if (module->shdprog.handle && !vertattr_init(render_ctx, &module->posattr,
          &module->vbo, &module->shdprog, ATTR_POS_NAME,
          ATTR_POS_COMPONENTS_COUNT, ATTR_POS_OFFSET)) {
-            if (glapi_least(ST_GAPI_GL3))
+            if (glapi_least(module->gapi, ST_GAPI_GL3))
                 goto posattr_fail;
         }
 
-        if (module->shdprog && (module->posattr.handle != -1) &&
+        if (module->shdprog.handle && (module->posattr.handle != -1) &&
          !vertattr_init(render_ctx, &module->texcrdattr, &module->vbo,
          &module->shdprog, ATTR_TEXCOORD_NAME, ATTR_TEXCOORD_COMPONENTS_COUNT,
          ATTR_TEXCOORD_OFFSET)) {
-            if (glapi_least(ST_GAPI_GL3))
+            if (glapi_least(module->gapi, ST_GAPI_GL3))
                 goto texcrdattr_fail;
         }
 
         shader_free(&shd_frag);
         shader_free(&shd_vert);
 
-        if (glapi_least(ST_GAPI_GL3)) {
+        if (glapi_least(module->gapi, ST_GAPI_GL3)) {
             vao_bind(&module->vao);
             vbo_bind(&module->vbo);
             vertattr_enable(&module->posattr);
@@ -270,22 +275,23 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
     return render_ctx;
 
 texcrdattr_fail:
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(module->gapi, ST_GAPI_GL2))
         vertattr_free(&module->texcrdattr);
 posattr_fail:
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(module->gapi, ST_GAPI_GL2))
         shdprog_free(&module->shdprog);
 prog_fail:
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(module->gapi, ST_GAPI_GL2))
         shader_free(&shd_frag);
 frag_fail:
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(module->gapi, ST_GAPI_GL2))
         shader_free(&shd_vert);
 vert_fail:
-    if (glapi_least(ST_GAPI_GL2))
+    if (glapi_least(module->gapi, ST_GAPI_GL2))
         vbo_free(&module->vbo);
-    if (glapi_least(ST_GAPI_GL3))
+    if (glapi_least(module->gapi, ST_GAPI_GL3))
         vao_free(&module->vao);
+glload_fail:
     batcher_free(&module->batcher);
 batcher_fail:
     vertices_free(&module->vertices);
@@ -301,13 +307,13 @@ import_fail:
 static void st_render_quit(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
 
-    if (glapi_least(ST_GAPI_GL2)) {
+    if (glapi_least(module->gapi, ST_GAPI_GL2)) {
         vertattr_free(&module->texcrdattr);
         vertattr_free(&module->posattr);
         shdprog_free(&module->shdprog);
         vbo_free(&module->vbo);
     }
-    if (glapi_least(ST_GAPI_GL3))
+    if (glapi_least(module->gapi, ST_GAPI_GL3))
         vao_free(&module->vao);
     batcher_free(&module->batcher);
     vertices_free(&module->vertices);
@@ -518,7 +524,7 @@ static void st_render_process(st_modctx_t *render_ctx) {
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
-    if (glapi_least(ST_GAPI_GL3)) {
+    if (glapi_least(module->gapi, ST_GAPI_GL3)) {
         vao_bind(&module->vao);
     } else {
         vbo_bind(&module->vbo);
@@ -547,7 +553,7 @@ static void st_render_process(st_modctx_t *render_ctx) {
         }
     }
 
-    if (glapi_least(ST_GAPI_GL3)) {
+    if (glapi_least(module->gapi, ST_GAPI_GL3)) {
         vao_unbind(&module->vao);
     } else {
         vertattr_disable(&module->texcrdattr);

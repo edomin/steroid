@@ -5,9 +5,10 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
  unsigned components_count, unsigned offset) {
     st_render_opengl_t *module = render_ctx->data;
     GLenum              error;
+    st_glfuncs_t       *gl = &module->gl;
 
-    vertattr->shdprog = shdprog;
-    vertattr->handle = glGetAttribLocation(*shdprog, name);
+    vertattr->module = module;
+    vertattr->handle = gl->get_attrib_location(shdprog->handle, name);
 
     if (vertattr->handle == -1) {
         module->logger.error(module->logger.ctx,
@@ -18,9 +19,9 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
         return false;
     }
 
-    glEnableVertexAttribArray((GLuint)vertattr->handle);
+    gl->enable_vertex_attrib_array((GLuint)vertattr->handle);
     vbo_bind(&module->vbo);
-    glVertexAttribPointer((GLuint)vertattr->handle, (GLint)components_count,
+    gl->vertex_attrib_pointer((GLuint)vertattr->handle, (GLint)components_count,
      GL_FLOAT, GL_FALSE,
      (GLsizei)(sizeof(float) * vbo_get_components_per_vertex(&module->vbo)),
      (void *)(uintptr_t)offset);
@@ -33,7 +34,7 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
     }
 
     vbo_unbind(&module->vbo);
-    glDisableVertexAttribArray((GLuint)vertattr->handle);
+    gl->disable_vertex_attrib_array((GLuint)vertattr->handle);
 
     if (error != GL_NO_ERROR)
         vertattr->handle = -1;
@@ -46,11 +47,15 @@ static void vertattr_free(st_vertattr_t *vertattr) {
 }
 
 static void vertattr_enable(const st_vertattr_t *vertattr) {
+    st_glfuncs_t *gl = &vertattr->module->gl;
+
     if (vertattr->handle != -1)
-        glEnableVertexAttribArray((GLuint)vertattr->handle);
+        gl->enable_vertex_attrib_array((GLuint)vertattr->handle);
 }
 
 static void vertattr_disable(const st_vertattr_t *vertattr) {
+    st_glfuncs_t *gl = &vertattr->module->gl;
+
     if (vertattr->handle != -1)
-        glDisableVertexAttribArray((GLuint)vertattr->handle);
+        gl->disable_vertex_attrib_array((GLuint)vertattr->handle);
 }

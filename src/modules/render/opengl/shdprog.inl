@@ -5,12 +5,14 @@
 static bool shdprog_init(st_modctx_t *render_ctx, st_shader_t *vert,
  st_shader_t *frag) {
     st_render_opengl_t *module = render_ctx->data;
+    st_glfuncs_t       *gl = &module->gl;
     st_shdprog_t       *shdprog = &module->shdprog;
     GLint               linked;
     GLchar              log[SHDPROG_LOG_SIZE];
 
-    *shdprog = glCreateProgram();
-    if (!*shdprog) {
+    shdprog->module = module;
+    shdprog->handle = gl->create_program();
+    if (!shdprog->handle) {
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable create shader program: %s",
          gluErrorString(glGetError()));
@@ -18,16 +20,16 @@ static bool shdprog_init(st_modctx_t *render_ctx, st_shader_t *vert,
         return false;
     }
 
-    glAttachShader(*shdprog, *vert);
-    glAttachShader(*shdprog, *frag);
-    glLinkProgram(*shdprog);
+    gl->attach_shader(shdprog->handle, vert->handle);
+    gl->attach_shader(shdprog->handle, frag->handle);
+    gl->link_program(shdprog->handle);
 
-    glGetProgramiv(*shdprog, GL_LINK_STATUS, &linked);
+    gl->get_program_iv(shdprog->handle, GL_LINK_STATUS, &linked);
     if(!linked) {
-        glGetProgramInfoLog(*shdprog, SHDPROG_LOG_SIZE, NULL, log);
+        gl->get_program_info_log(shdprog->handle, SHDPROG_LOG_SIZE, NULL, log);
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable to link shader program: %s", log);
-        *shdprog = 0;
+        shdprog->handle = 0;
 
         return false;
     }
@@ -36,16 +38,22 @@ static bool shdprog_init(st_modctx_t *render_ctx, st_shader_t *vert,
 }
 
 static void shdprog_free(st_shdprog_t *shdprog) {
-    if (shdprog && *shdprog) {
-        glDeleteProgram(*shdprog);
-        *shdprog = 0;
+    st_glfuncs_t *gl = &shdprog->module->gl;
+
+    if (shdprog && shdprog->handle) {
+        gl->delete_program(shdprog->handle);
+        shdprog->handle = 0;
     }
 }
 
 static void shdprog_use(const st_shdprog_t *shdprog) {
-    glUseProgram(*shdprog);
+    st_glfuncs_t *gl = &shdprog->module->gl;
+
+    gl->use_program(shdprog->handle);
 }
 
-static void shdprog_unuse(__attribute__((unused)) const st_shdprog_t *shdprog) {
-    glUseProgram(0);
+static void shdprog_unuse(const st_shdprog_t *shdprog) {
+    st_glfuncs_t *gl = &shdprog->module->gl;
+
+    gl->use_program(0);
 }
