@@ -18,21 +18,8 @@
 #define GREEN_BITS                        8
 #define BLUE_BITS                         8
 #define ALPHA_BITS                        8
-
-#define RED_SIZE_INDEX                    0
-#define GREEN_SIZE_INDEX                  2
-#define BLUE_SIZE_INDEX                   4
-#define ALPHA_SIZE_INDEX                  6
-#define CONFIG_CAVEAT_INDEX               8
-#define RENDERABLE_TYPE_INDEX            10
-#define CFG_ATTR_END_INDEX               12
 #define CFG_ATTRS_LEN                    13
-
-#define CONTEXT_MAJOR_VERSION_INDEX       0
-#define CONTEXT_MINOR_VERSION_INDEX       2
-#define CONTEXT_OPENGL_PROFILE_MASK_INDEX 4
-#define CTX_ATTR_END_INDEX                6
-#define CTX_ATTRS_LEN                     7
+#define CTX_ATTRS_LEN                     9
 
 typedef struct {
     EGLint red_size;
@@ -45,6 +32,7 @@ typedef struct {
 typedef struct {
     EGLint context_major_version;
     EGLint context_minor_version;
+    EGLint context_opengl_debug;
 } ctx_attrs_t;
 
 static st_modsmgr_t      *global_modsmgr;
@@ -265,9 +253,10 @@ static bool extension_supported(EGLDisplay display, const char *ext) {
     return extensions && strstr(extensions, ext);
 }
 
-static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
- EGLint egl_version_minor, bool have_ctx_extension) {
-    bool attrs_changed = false;
+static void process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
+ bool *version_changed, bool *debug_changed, EGLint egl_version_minor,
+ bool have_ctx_extension) {
+    *version_changed = false;
 
     switch (egl_version_minor) {
         case 0:
@@ -275,7 +264,7 @@ static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
             if (cfg_arrts->renderable_type != EGL_OPENGL_ES_BIT ||
              ctx_attrs->context_major_version != 1 ||
              ctx_attrs->context_minor_version != 0) {
-                attrs_changed = true;
+                *version_changed = true;
                 cfg_arrts->renderable_type = EGL_OPENGL_ES_BIT;
                 ctx_attrs->context_major_version = 1;
                 ctx_attrs->context_minor_version = 0;
@@ -285,11 +274,11 @@ static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
             if (cfg_arrts->renderable_type == EGL_OPENGL_ES_BIT &&
              (ctx_attrs->context_major_version != 1 ||
              ctx_attrs->context_minor_version != 0)) {
-                attrs_changed = true;
+                *version_changed = true;
                 ctx_attrs->context_major_version = 1;
                 ctx_attrs->context_minor_version = 0;
             } else if (cfg_arrts->renderable_type != EGL_OPENGL_ES2_BIT) {
-                attrs_changed = true;
+                *version_changed = true;
                 cfg_arrts->renderable_type = EGL_OPENGL_ES2_BIT;
                 ctx_attrs->context_major_version = 2;
                 ctx_attrs->context_minor_version = 0;
@@ -299,7 +288,7 @@ static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
             if ((cfg_arrts->renderable_type == EGL_OPENGL_ES_BIT ||
              cfg_arrts->renderable_type == EGL_OPENGL_BIT) &&
              (!have_ctx_extension && ctx_attrs->context_minor_version != 0)) {
-                attrs_changed = true;
+                *version_changed = true;
                 ctx_attrs->context_minor_version = 0;
             } else if (cfg_arrts->renderable_type == EGL_OPENGL_ES3_BIT_KHR &&
              !have_ctx_extension) {
@@ -315,59 +304,80 @@ static bool process_attrs(cfg_attrs_t *cfg_arrts, ctx_attrs_t *ctx_attrs,
             break;
     }
 
-    return attrs_changed;
+    if (ctx_attrs->context_opengl_debug
+     && ((egl_version_minor < 4)
+      || ((egl_version_minor == 4) && !have_ctx_extension))) {
+        ctx_attrs->context_opengl_debug = EGL_FALSE;
+        *debug_changed = true;
+    }
 }
 
 static void fill_cfg_attrs(EGLint dst[CFG_ATTRS_LEN], cfg_attrs_t *attrs,
  EGLint egl_version_minor) {
-    dst[RED_SIZE_INDEX] = EGL_RED_SIZE;
-    dst[RED_SIZE_INDEX + 1] = attrs->red_size;
-    dst[GREEN_SIZE_INDEX] = EGL_GREEN_SIZE;
-    dst[GREEN_SIZE_INDEX + 1] = attrs->green_size;
-    dst[BLUE_SIZE_INDEX] = EGL_BLUE_SIZE;
-    dst[BLUE_SIZE_INDEX + 1] = attrs->blue_size;
-    dst[ALPHA_SIZE_INDEX] = EGL_ALPHA_SIZE;
-    dst[ALPHA_SIZE_INDEX + 1] = attrs->alpha_size;
-    dst[CONFIG_CAVEAT_INDEX] = EGL_CONFIG_CAVEAT;
-    dst[CONFIG_CAVEAT_INDEX + 1] = EGL_NONE;
-    dst[RENDERABLE_TYPE_INDEX] = EGL_RENDERABLE_TYPE;
-    if (attrs->renderable_type == EGL_OPENGL_ES3_BIT_KHR) {
-        if (egl_version_minor == 5) // NOLINT(readability-magic-numbers)
-            dst[RENDERABLE_TYPE_INDEX + 1] = EGL_OPENGL_ES3_BIT;
-    }
-    dst[CFG_ATTR_END_INDEX] = EGL_NONE;
+    assert(CFG_ATTRS_LEN == 13);
+
+    dst[0] = EGL_RED_SIZE;
+    dst[1] = attrs->red_size;
+
+    dst[2] = EGL_GREEN_SIZE;
+    dst[3] = attrs->green_size;
+
+    dst[4] = EGL_BLUE_SIZE;
+    dst[5] = attrs->blue_size;
+
+    dst[6] = EGL_ALPHA_SIZE;
+    dst[7] = attrs->alpha_size;
+
+    dst[8] = EGL_CONFIG_CAVEAT;
+    dst[9] = EGL_NONE;
+
+    dst[10] = EGL_RENDERABLE_TYPE;
+    dst[11] = attrs->renderable_type;
+
+    dst[12] = EGL_NONE;
 }
 
 static void fill_ctx_attrs(EGLint dst[CTX_ATTRS_LEN], ctx_attrs_t *attrs,
  EGLint egl_version_minor, bool have_ctx_extension) {
+    assert(CTX_ATTRS_LEN == 9);
+
     if (attrs->context_major_version == EGL_NONE) {
-        dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_NONE;
+        dst[0] = EGL_NONE;
     } else {
         if (egl_version_minor < 4 ||
          (egl_version_minor == 4 && !have_ctx_extension)) {
-            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_CLIENT_VERSION;
-            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
-            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_NONE;
+            dst[0] = EGL_CONTEXT_CLIENT_VERSION;
+            dst[1] = attrs->context_major_version;
+
+            dst[2] = EGL_NONE;
         } else if (egl_version_minor == 4 && have_ctx_extension) {
-            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_MAJOR_VERSION_KHR;
-            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
-            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_CONTEXT_MINOR_VERSION_KHR;
-            dst[CONTEXT_MINOR_VERSION_INDEX + 1] = attrs->context_minor_version;
-            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX] =
-             EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
-            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX + 1] =
-             EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
-            dst[CTX_ATTR_END_INDEX] = EGL_NONE;
+            dst[0] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+            dst[1] = attrs->context_major_version;
+
+            dst[2] = EGL_CONTEXT_MINOR_VERSION_KHR;
+            dst[3] = attrs->context_minor_version;
+
+            dst[4] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+            dst[5] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
+
+            dst[6] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+            dst[7] = attrs->context_opengl_debug;
+
+            dst[8] = EGL_NONE;
         } else {
-            dst[CONTEXT_MAJOR_VERSION_INDEX] = EGL_CONTEXT_MAJOR_VERSION;
-            dst[CONTEXT_MAJOR_VERSION_INDEX + 1] = attrs->context_major_version;
-            dst[CONTEXT_MINOR_VERSION_INDEX] = EGL_CONTEXT_MINOR_VERSION;
-            dst[CONTEXT_MINOR_VERSION_INDEX + 1] = attrs->context_minor_version;
-            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX] =
-             EGL_CONTEXT_OPENGL_PROFILE_MASK;
-            dst[CONTEXT_OPENGL_PROFILE_MASK_INDEX + 1] =
-             EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
-            dst[CTX_ATTR_END_INDEX] = EGL_NONE;
+            dst[0] = EGL_CONTEXT_MAJOR_VERSION;
+            dst[1] = attrs->context_major_version;
+
+            dst[2] = EGL_CONTEXT_MINOR_VERSION;
+            dst[3] = attrs->context_minor_version;
+
+            dst[4] = EGL_CONTEXT_OPENGL_PROFILE_MASK;
+            dst[5] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
+
+            dst[6] = EGL_CONTEXT_OPENGL_DEBUG;
+            dst[7] = attrs->context_opengl_debug;
+
+            dst[8] = EGL_NONE;
         }
     }
 }
@@ -497,6 +507,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
     ctx_attrs_t ctx_attrs = {
         .context_major_version = major,
         .context_minor_version = minor,
+        .context_opengl_debug  = EGL_TRUE,
     };
     EGLint           egl_cfg_attrs[CFG_ATTRS_LEN] = {0};
     EGLint           egl_ctx_attrs[CTX_ATTRS_LEN] = {0};
@@ -505,7 +516,8 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
     bool             egl_khr_create_context_supported = false;
     EGLint           egl_version_major = 0;
     EGLint           egl_version_minor = 0;
-    bool             attrs_changed = false;
+    bool             version_changed = false;
+    bool             debug_changed = false;
 
     gfxctx = malloc(sizeof(st_gfxctx_t));
     if (!gfxctx) {
@@ -538,19 +550,31 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto egl_init_fail;
     }
 
-    attrs_changed = process_attrs(&cfg_attrs, &ctx_attrs, egl_version_minor,
-     egl_khr_create_context_supported);
+    process_attrs(&cfg_attrs, &ctx_attrs, &version_changed, &debug_changed,
+     egl_version_minor, egl_khr_create_context_supported);
 
-    if (attrs_changed && !shared) {
-        char gapi_str[GAPI_STR_SIZE_MAX];
-
-        attrs_fill_gapi_str(gapi_str, &cfg_attrs, &ctx_attrs);
-
+    if (version_changed && !shared) {
         module->logger.warning(module->logger.ctx,
          "gfxctx_egl: Unable to create context with required version. Possible "
          "reasons: required version of context or minor version of context may "
          "be not supported by current version of EGL or EGL_KHR_create_context "
          "extension is not present");
+    }
+
+    if (debug_changed && !shared) {
+        module->logger.warning(module->logger.ctx,
+         "gfxctx_egl: Debug context is not supported. Possible "
+         "reasons: debug context is not supported by current version of EGL or "
+         "EGL_KHR_create_context extension is not present");
+    }
+
+    gfxctx->debug = !debug_changed;
+
+    if ((version_changed || debug_changed) && !shared) {
+        char gapi_str[GAPI_STR_SIZE_MAX];
+
+        attrs_fill_gapi_str(gapi_str, &cfg_attrs, &ctx_attrs);
+
         module->logger.warning(module->logger.ctx,
          "gfxctx_egl: Current version of EGL: 1.%i", egl_version_minor);
         module->logger.warning(module->logger.ctx,

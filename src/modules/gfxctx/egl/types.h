@@ -45,6 +45,7 @@ typedef struct st_gfxctx_s {
     EGLSurface   surface;
     EGLContext   handle;
     int          gapi;
+    bool         debug;
     st_dlist_t  *shared_data;
 } st_gfxctx_t;
 
