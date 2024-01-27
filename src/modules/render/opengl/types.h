@@ -7,7 +7,6 @@
 #include "steroids/types/modules/dynarr.h"
 #include "steroids/types/modules/gfxctx.h"
 #include "steroids/types/modules/glloader.h"
-#include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/matrix3x3.h"
 #include "steroids/types/modules/sprite.h"
 #include "steroids/types/modules/texture.h"
@@ -15,7 +14,7 @@
 #include "steroids/types/modules/window.h"
 
 #include "glfuncs.h"
-#include "logger.h"
+#include "modules_data.h"
 
 typedef struct {
     st_modctx_t    *ctx;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "steroids/types/modules/logger.h"
+
 typedef struct {
     st_modctx_t        *ctx;
     st_logger_debug_t   debug;

@@ -2,7 +2,7 @@
 
 #include "steroids/types/modules/gfxctx.h"
 
-#include "logger.h"
+#include "modules_data.h"
 
 typedef struct {
     /* Shader - Main */
