@@ -5,6 +5,11 @@
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
+    st_gfxctx_make_current_t make_current;
+    st_gfxctx_t             *handle;
+} st_glloader_egl_gfxctx_t;
+
+typedef struct {
     st_modctx_t      *ctx;
     st_logger_debug_t debug;
     st_logger_info_t  info;
@@ -12,6 +17,7 @@ typedef struct {
 } st_glloader_egl_logger_t;
 
 typedef struct {
+    st_glloader_egl_gfxctx_t gfxctx;
     st_glloader_egl_logger_t logger;
 } st_glloader_egl_t;
 
