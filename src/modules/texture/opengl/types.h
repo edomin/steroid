@@ -8,10 +8,6 @@
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
-    st_glloader_get_proc_address_t get_proc_address;
-} st_texture_opengl_glloader_t;
-
-typedef struct {
     st_modctx_t           *ctx;
     st_bitmap_load_t       load;
     st_bitmap_memload_t    memload;
@@ -36,10 +32,9 @@ typedef struct {
 } st_texture_opengl_gfxctx_t;
 
 typedef struct {
-    st_texture_opengl_bitmap_t   bitmap;
-    st_texture_opengl_glloader_t glloader;
-    st_texture_opengl_logger_t   logger;
-    st_texture_opengl_gfxctx_t   gfxctx;
+    st_texture_opengl_bitmap_t bitmap;
+    st_texture_opengl_logger_t logger;
+    st_texture_opengl_gfxctx_t gfxctx;
 } st_texture_opengl_t;
 
 typedef struct {

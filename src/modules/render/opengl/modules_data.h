@@ -43,14 +43,9 @@ typedef struct {
 typedef struct {
     st_gfxctx_make_current_t make_current;
     st_gfxctx_swap_buffers_t swap_buffers;
-    st_gfxctx_get_window_t   get_window;
-    st_gfxctx_get_api_t      get_api;
+    st_gapi_t                gapi;
     st_gfxctx_t             *handle;
 } st_render_opengl_gfxctx_t;
-
-typedef struct {
-    st_glloader_get_proc_address_t get_proc_address;
-} st_render_opengl_glloader_t;
 
 typedef struct {
     st_modctx_t        *ctx;

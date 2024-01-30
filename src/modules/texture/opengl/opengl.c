@@ -31,8 +31,15 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_texture_import_functions(st_modctx_t *texture_ctx,
- st_modctx_t *bitmap_ctx, st_modctx_t *logger_ctx, st_modctx_t *gfxctx_ctx) {
-    st_texture_opengl_t *module = texture_ctx->data;
+ st_modctx_t *bitmap_ctx, st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx) {
+    st_texture_opengl_t           *module = texture_ctx->data;
+    st_modctx_t                   *gfxctx_ctx;
+    st_modctx_t                   *glloader_ctx;
+    st_gfxctx_get_ctx_t            st_gfxctx_get_ctx;
+    st_gfxctx_get_api_t            st_gfxctx_get_api;
+    st_glloader_init_t             st_glloader_init;
+    st_glloader_quit_t             st_glloader_quit;
+    st_glloader_get_proc_address_t st_glloader_get_proc_address;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, logger_ctx, "error");
@@ -44,7 +51,26 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("texture_opengl", glloader, NULL, get_proc_address);
+    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
+     "gfxctx", NULL, "get_ctx");
+    if (!st_gfxctx_get_ctx) {
+        module->logger.error(module->logger.ctx,
+         "texture_opengl: Unable to load function \"get_ctx\" from module "
+         "\"gfxctx\"\n");
+
+        return false;
+    }
+    st_gfxctx_get_api = global_modsmgr_funcs.get_function(global_modsmgr,
+     "gfxctx", NULL, "get_api");
+    if (!st_gfxctx_get_api) {
+        module->logger.error(module->logger.ctx,
+         "texture_opengl: Unable to load function \"get_api\" from module "
+         "\"gfxctx\"\n");
+
+        return false;
+    }
+    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
+    module->gfxctx.api = st_gfxctx_get_api(gfxctx);
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, info);
@@ -60,15 +86,58 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", gfxctx, make_current);
 
+    st_glloader_init = global_modsmgr_funcs.get_function(global_modsmgr,
+     "glloader", gfxctx_ctx->name, "init");
+    if (!st_glloader_init) {
+        module->logger.error(module->logger.ctx,
+         "texture_opengl: Unable to load function \"init\" from module "
+         "\"glloader\"\n");
+
+        return false;
+    }
+
+    glloader_ctx = st_glloader_init(logger_ctx, gfxctx);
+    if (glloader_ctx) {
+        st_glloader_quit = global_modsmgr_funcs.get_function_from_ctx(
+         global_modsmgr, glloader_ctx, "quit");
+        if (!st_glloader_quit) {
+            module->logger.warning(module->logger.ctx,
+             "texture_opengl: Unable to load function \"quit\" from module "
+             "\"glloader\"\n");
+        }
+
+        st_glloader_get_proc_address =
+         global_modsmgr_funcs.get_function_from_ctx(global_modsmgr,
+         glloader_ctx, "get_proc_address");
+        if (!st_glloader_get_proc_address) {
+            module->logger.error(module->logger.ctx,
+             "texture_opengl: Unable to load function \"get_proc_address\" "
+             "from module \"gllogger\"\n");
+
+            goto get_proc_addr_fail;
+        }
+
+        glGenerateMipmap = st_glloader_get_proc_address(glloader_ctx,
+         "glGenerateMipmap");
+        if (!glGenerateMipmap) {
+            module->logger.warning(module->logger.ctx,
+             "texture_opengl: Unable to load function \"glGenerateMipmap\". "
+             "Mipmaps will not be supported in this OpenGL context");
+        }
+    } else {
+        glGenerateMipmap = NULL;
+    }
+
+get_proc_addr_fail:
+    if (glloader_ctx && st_glloader_quit)
+        st_glloader_quit(glloader_ctx);
+
     return true;
 }
 
 static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
  st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t         *texture_ctx;
-    st_modctx_t         *gfxctx_ctx;
-    st_gfxctx_get_ctx_t  st_gfxctx_get_ctx;
-    st_gfxctx_get_api_t  st_gfxctx_get_api;
     st_texture_opengl_t *module;
 
     texture_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
@@ -84,45 +153,17 @@ static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
     module->logger.ctx = logger_ctx;
     module->gfxctx.handle = gfxctx;
 
-    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_ctx");
-    if (!st_gfxctx_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to load function \"get_ctx\" from module "
-         "\"gfxctx\"\n");
-
-        goto get_ctx_fail;
-    }
-    st_gfxctx_get_api = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_api");
-    if (!st_gfxctx_get_api) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to load function \"get_api\" from module "
-         "\"gfxctx\"\n");
-
-        goto get_api_fail;
-    }
-    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
-    module->gfxctx.api = st_gfxctx_get_api(gfxctx);
-
     if (!st_texture_import_functions(texture_ctx, bitmap_ctx, logger_ctx,
-     gfxctx_ctx))
-        goto func_import_fail;
+     gfxctx)) {
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, texture_ctx);
 
-    glGenerateMipmap = module->glloader.get_proc_address(NULL,
-     "glGenerateMipmap");
+        return NULL;
+    }
 
     module->logger.info(module->logger.ctx,
      "texture_opengl: Texture mgr initialized.");
 
     return texture_ctx;
-
-func_import_fail:
-get_api_fail:
-get_ctx_fail:
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, texture_ctx);
-
-    return NULL;
 }
 
 static void st_texture_quit(st_modctx_t *texture_ctx) {

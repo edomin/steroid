@@ -72,6 +72,7 @@ typedef struct {
 
 static bool glfuncs_load_all(st_glfuncs_t *glfuncs,
  st_glsupported_t *glsupported, st_render_opengl_logger_t *logger,
- st_glloader_get_proc_address_t glload_func, st_gapi_t gapi);
+ st_modctx_t *glloader_ctx, st_glloader_get_proc_address_t get_proc_address,
+ st_gapi_t gapi);
 
 #include "glfuncs.imp"
