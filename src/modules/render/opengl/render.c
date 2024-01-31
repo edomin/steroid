@@ -31,7 +31,6 @@
 #define ATTR_TEXCOORD_COMPONENTS_COUNT 2
 #define ATTR_TEXCOORD_OFFSET           \
  (sizeof(float) * ATTR_POS_COMPONENTS_COUNT)
-#define ERR_MSG_BUF_SIZE               1024
 
 #ifdef _WIN32
     #define MINIMAL_OPENGL "1.1"
@@ -41,7 +40,6 @@
     #error Unknown target OS
 #endif
 
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -70,7 +68,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     st_modctx_t                   *gfxctx_ctx = NULL;
     st_modctx_t                   *window_ctx;
     st_modctx_t                   *glloader_ctx = NULL;
-    errno_t                        err;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, logger_ctx, "error");
@@ -78,31 +75,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
         fprintf(stderr,
          "render_opengl: Unable to load function \"error\" from module "
          "\"logger\"\n");
-
-        return false;
-    }
-
-    err = memset_s(&module->gl, sizeof(st_glfuncs_t), 0, sizeof(st_glfuncs_t));
-
-    if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to set initial states of OpenGL function "
-         "pointers: %s",
-         err_msg_buf);
-
-        return false;
-    }
-
-    err = memset_s(&module->glsupported, sizeof(st_glsupported_t), 0,
-     sizeof(st_glsupported_t));
-
-    if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to set initial states of supported features: "
-         "%s",
-         err_msg_buf);
 
         return false;
     }
@@ -282,6 +254,9 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
     module->logger.ctx = logger_ctx;
     module->matrix3x3.ctx = matrix3x3_ctx;
     module->vec2.ctx = vec2_ctx;
+    module->gl = (const st_glfuncs_t){0};
+    module->glsupported = (const st_glsupported_t){0};
+
 
     if (!st_render_import_functions(render_ctx, angle_ctx, drawq_ctx,
      dynarr_ctx, logger_ctx, matrix3x3_ctx, sprite_ctx, texture_ctx, vec2_ctx,

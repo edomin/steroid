@@ -7,13 +7,11 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE      1024
 #define CTX_METATABLE_NAME    "matrix3x3_ctx"
 #define MATRIX_METATABLE_NAME "matrix3x3"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
-static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static st_matrix3x3_init_t             st_matrix3x3_init;
 static st_matrix3x3_quit_t             st_matrix3x3_quit;
@@ -190,8 +188,7 @@ static int st_matrix3x3_clone_bind(st_luastate_t *lua_state) {
     st_matrix3x3_clone(&new_matrix, matrix);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -213,8 +210,7 @@ static int st_matrix3x3_custom_bind(st_luastate_t *lua_state) {
      (float)r1c3, (float)r2c1, (float)r2c2, (float)r2c3);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -229,8 +225,7 @@ static int st_matrix3x3_identity_bind(st_luastate_t *lua_state) {
     st_matrix3x3_identity(matrix3x3_ctx, &new_matrix);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -247,8 +242,7 @@ static int st_matrix3x3_translation_bind(st_luastate_t *lua_state) {
     st_matrix3x3_translation(matrix3x3_ctx, &new_matrix, (float)x, (float)y);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -266,8 +260,7 @@ static int st_matrix3x3_scaling_bind(st_luastate_t *lua_state) {
      (float)vscale);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -283,8 +276,7 @@ static int st_matrix3x3_rrotation_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rrotation(matrix3x3_ctx, &new_matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -300,8 +292,7 @@ static int st_matrix3x3_drotation_bind(st_luastate_t *lua_state) {
     st_matrix3x3_drotation(matrix3x3_ctx, &new_matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -317,8 +308,7 @@ static int st_matrix3x3_rhshearing_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rhshearing(matrix3x3_ctx, &new_matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -334,8 +324,7 @@ static int st_matrix3x3_dhshearing_bind(st_luastate_t *lua_state) {
     st_matrix3x3_dhshearing(matrix3x3_ctx, &new_matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -351,8 +340,7 @@ static int st_matrix3x3_rvshearing_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rvshearing(matrix3x3_ctx, &new_matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -368,8 +356,7 @@ static int st_matrix3x3_dvshearing_bind(st_luastate_t *lua_state) {
     st_matrix3x3_dvshearing(matrix3x3_ctx, &new_matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), &new_matrix,
-     sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = new_matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -385,7 +372,7 @@ static int st_matrix3x3_apply_bind(st_luastate_t *lua_state) {
     st_matrix3x3_apply(matrix, other);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -401,7 +388,7 @@ static int st_matrix3x3_translate_bind(st_luastate_t *lua_state) {
     st_matrix3x3_translate(matrix, (float)x, (float)y);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -417,7 +404,7 @@ static int st_matrix3x3_scale_bind(st_luastate_t *lua_state) {
     st_matrix3x3_scale(matrix, (float)hscale, (float)vscale);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -432,7 +419,7 @@ static int st_matrix3x3_rrotate_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rrotate(matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -447,7 +434,7 @@ static int st_matrix3x3_drotate_bind(st_luastate_t *lua_state) {
     st_matrix3x3_drotate(matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -462,7 +449,7 @@ static int st_matrix3x3_rhshear_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rhshear(matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -477,7 +464,7 @@ static int st_matrix3x3_dhshear_bind(st_luastate_t *lua_state) {
     st_matrix3x3_dhshear(matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -492,7 +479,7 @@ static int st_matrix3x3_rvshear_bind(st_luastate_t *lua_state) {
     st_matrix3x3_rvshear(matrix, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;
@@ -507,7 +494,7 @@ static int st_matrix3x3_dvshear_bind(st_luastate_t *lua_state) {
     st_matrix3x3_dvshear(matrix, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
-    memcpy_s(userdata, sizeof(st_matrix3x3_t), matrix, sizeof(st_matrix3x3_t));
+    *(st_matrix3x3_t *)userdata = *matrix;
     st_lua_set_metatable(lua_state, MATRIX_METATABLE_NAME);
 
     return 1;

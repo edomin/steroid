@@ -7,11 +7,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(sprite_simple)
 ST_MODULE_DEF_INIT_FUNC(sprite_simple)
@@ -183,12 +180,5 @@ static unsigned st_sprite_get_height(const st_sprite_t *sprite) {
 }
 
 static void st_sprite_export_uv(const st_sprite_t *sprite, st_uv_t *dstuv) {
-    errno_t err = memcpy_s(dstuv, sizeof(st_uv_t), &sprite->uv,
-     sizeof(st_uv_t));
-
-    if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
-        sprite->module->logger.error(sprite->module->logger.ctx,
-         "sprite_simple: Unable to fill sprite uv-coords: %s", err_msg_buf);
-    }
+    *dstuv = sprite->uv;
 }
