@@ -76,7 +76,6 @@ static st_modctx_t *st_luabind_init(st_modctx_t *logger_ctx,
  st_modctx_t *lua_ctx) {
     st_modctx_t      *luabind_ctx;
     st_luabind_png_t *luabind;
-    errno_t           err;
 
     luabind_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_luabind_png_data, sizeof(st_luabind_png_t));
