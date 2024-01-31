@@ -1,16 +1,11 @@
 #include "xlib.h"
 
+#include <stdio.h>
+
 #include <X11/Xatom.h> // NOLINT(llvm-include-order)
 #include <X11/XKBlib.h> // NOLINT(llvm-include-order)
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
 
 #define ATOM_BITS 32
 

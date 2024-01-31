@@ -1,17 +1,11 @@
 #include "simple.h"
 
+#include <errno.h>
 #include <float.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
 
 #define DYNARR_INITIAL_CAPACITY 16384
 

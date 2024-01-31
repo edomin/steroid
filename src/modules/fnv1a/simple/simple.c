@@ -5,13 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
 #define OFFSET_BASIS 0x811C9dC5u
 #define PRIME        0x01000193u
 

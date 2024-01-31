@@ -1,11 +1,6 @@
 #include "dynarr.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <stdio.h>
 
 #define METATABLE_NAME "dynarr_ctx"
 

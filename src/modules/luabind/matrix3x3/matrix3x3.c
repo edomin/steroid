@@ -1,11 +1,6 @@
 #include "matrix3x3.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <stdio.h>
 
 #define CTX_METATABLE_NAME    "matrix3x3_ctx"
 #define MATRIX_METATABLE_NAME "matrix3x3"

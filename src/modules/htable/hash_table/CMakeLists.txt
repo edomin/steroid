@@ -36,8 +36,6 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_HTABLE_HASH_TABLE})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SAFEC REQUIRED libsafec)
 find_library(HASH_TABLE_LIBRARY NAMES hash_table)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
@@ -59,6 +57,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    ${SAFEC_LINK_LIBRARIES}
     ${HASH_TABLE_LIBRARY}
 )

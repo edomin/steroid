@@ -41,7 +41,6 @@ st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_LUA_LUAJIT})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SAFEC REQUIRED libsafec)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
@@ -52,7 +51,6 @@ target_sources(${ST_MODULE_TARGET} PRIVATE
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
 
 target_include_directories(${ST_MODULE_TARGET} PRIVATE
-    "${CMAKE_FIND_ROOT_PATH}/include"
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/src"
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -61,6 +59,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     slist
-    ${SAFEC_LINK_LIBRARIES}
     ${LUAJIT_STATIC_LDFLAGS}
 )

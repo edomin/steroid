@@ -1,11 +1,6 @@
 #include "gfxctx.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <stdio.h>
 
 #define MODCTX_METATABLE_NAME "gfxctx_ctx"
 #define GFXCTX_METATABLE_NAME "gfxctx"

@@ -1,16 +1,10 @@
 #include "render.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
 
 #include "batcher.inl"
 #include "shader.inl"

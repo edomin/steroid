@@ -1,15 +1,11 @@
 #include "luajit.h"
 
+#include <errno.h>
+#include <stdio.h>
+
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
 
 #define BINDING_NAME_SIZE 32
 #define BINDINGS_COUNT   256
