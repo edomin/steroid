@@ -11,13 +11,11 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE  1024
 #define BINDING_NAME_SIZE 32
-#define BINDINGS_COUNT    256
+#define BINDINGS_COUNT   256
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static void st_lua_bind_all(st_modctx_t *lua_ctx);
 

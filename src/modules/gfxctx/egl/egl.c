@@ -12,14 +12,13 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE               1024
-#define GAPI_STR_SIZE_MAX                32
-#define RED_BITS                          8
-#define GREEN_BITS                        8
-#define BLUE_BITS                         8
-#define ALPHA_BITS                        8
-#define CFG_ATTRS_LEN                    13
-#define CTX_ATTRS_LEN                     9
+#define GAPI_STR_SIZE_MAX 32
+#define RED_BITS           8
+#define GREEN_BITS         8
+#define BLUE_BITS          8
+#define ALPHA_BITS         8
+#define CFG_ATTRS_LEN     13
+#define CTX_ATTRS_LEN      9
 
 typedef struct {
     EGLint red_size;
@@ -37,7 +36,6 @@ typedef struct {
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(gfxctx_egl)
 ST_MODULE_DEF_INIT_FUNC(gfxctx_egl)

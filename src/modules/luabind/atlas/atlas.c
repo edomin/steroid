@@ -7,12 +7,10 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE     1024
-#define CTX_METATABLE_NAME   "atlas_ctx"
+#define CTX_METATABLE_NAME "atlas_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
-static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static st_atlas_init_t                 st_atlas_init;
 static st_atlas_quit_t                 st_atlas_quit;

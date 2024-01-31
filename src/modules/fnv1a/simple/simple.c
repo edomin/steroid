@@ -12,13 +12,11 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-#define OFFSET_BASIS     0x811C9dC5u
-#define PRIME            0x01000193u
+#define OFFSET_BASIS 0x811C9dC5u
+#define PRIME        0x01000193u
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(fnv1a_simple)
 ST_MODULE_DEF_INIT_FUNC(fnv1a_simple)

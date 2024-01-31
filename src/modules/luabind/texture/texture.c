@@ -7,13 +7,11 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE   1024
 #define CTX_METATABLE_NAME "texture_ctx"
 #define TEX_METATABLE_NAME "texture"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
-static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static st_texture_init_t               st_texture_init;
 static st_texture_quit_t               st_texture_quit;

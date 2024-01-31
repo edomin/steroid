@@ -7,12 +7,10 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-#define METATABLE_NAME   "fs_ctx"
+#define METATABLE_NAME "fs_ctx"
 
 static st_modsmgr_t                   *global_modsmgr;
 static st_modsmgr_funcs_t              global_modsmgr_funcs;
-static char                            err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static st_fs_init_t                    st_fs_init;
 static st_fs_quit_t                    st_fs_quit;
