@@ -104,7 +104,8 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     if (snprintf_s(display_name, DISPLAY_NAME_SIZE_MAX, ":0.%u",
      index) < 0) {
         module->logger.error(module->logger.ctx,
-         "monitor_xlib: Unable to construct display name: %s", strerror(errno));
+         "monitor_xlib: Unable to construct display name for display with "
+         "index %u", index);
 
         return NULL;
     }
