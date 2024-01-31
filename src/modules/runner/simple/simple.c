@@ -16,7 +16,6 @@
 
 #define DEFAULT_CONFIG_FILENAME   "steroids.ini"
 #define DEFAULT_DIRECTORY_NAME    "."
-#define ERR_MSG_BUF_SIZE          1024
 #define RUNNABLE_MODULE_NAME_SIZE 256
 
 typedef st_modctx_t *(*runnable_init_func_t)(st_modctx_t *logger_ctx,
@@ -27,7 +26,6 @@ typedef void (*runnable_run_func_t)(st_modctx_t *runner_ctx,
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(runner_simple)
 ST_MODULE_DEF_INIT_FUNC(runner_simple)
@@ -131,9 +129,11 @@ static bool get_config_filename(st_runner_simple_t *module,
     }
 
     err = strcpy_s(filename, PATH_MAX, DEFAULT_CONFIG_FILENAME);
-
     if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+        char   err_msg_buf[err_msg_buf_size];
+
+        strerror_s(err_msg_buf, err_msg_buf_size, err);
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to copy default config filename");
 
@@ -162,7 +162,10 @@ static bool get_directory_name(st_runner_simple_t *module,
 
         err = strcpy_s(dirname, PATH_MAX, DEFAULT_DIRECTORY_NAME);
         if (err) {
-            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+            size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+            char   err_msg_buf[err_msg_buf_size];
+
+            strerror_s(err_msg_buf, err_msg_buf_size, err);
             module->logger.error(module->logger.ctx,
              "runner_simple: Unable to copy default plugin directory name "
              "\"%s\": %s", DEFAULT_DIRECTORY_NAME, err_msg_buf);

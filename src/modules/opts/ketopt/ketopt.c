@@ -15,16 +15,14 @@
 #include <safeclib/safe_types.h>
 
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
-#define SHORTOPT_FMT_SIZE            3
+#define SHORTOPT_FMT_SIZE              3
 #define SHORT_OPTS_FMT_SIZE          100
-#define LONGOPTS_COUNT               64
-#define ERR_MSG_BUF_SIZE             1024
-#define OPTS_COLUMNS_MAX             1024
-#define HELP_COLUMNS_MIN             8
+#define LONGOPTS_COUNT                64
+#define OPTS_COLUMNS_MAX            1024
+#define HELP_COLUMNS_MIN               8
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 typedef enum {
     ST_OT_SHORT,
@@ -91,7 +89,10 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     err = memset_s(opts->opts, sizeof(st_opt_t) * ST_OPTS_OPTS_MAX, '\0',
      sizeof(st_opt_t) * ST_OPTS_OPTS_MAX);
     if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+        char   err_msg_buf[err_msg_buf_size];
+
+        strerror_s(err_msg_buf, err_msg_buf_size, err);
         fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
         global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
 
@@ -212,7 +213,10 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
             err = strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt,
              SHORTOPT_FMT_SIZE);
             if (err) {
-                strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+                size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+                char   err_msg_buf[err_msg_buf_size];
+
+                strerror_s(err_msg_buf, err_msg_buf_size, err);
                 opts->logger.error(opts->logger.ctx,
                  "opts_ketopt: Unable to construct shortopts format: %s",
                  err_msg_buf);
@@ -256,7 +260,10 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
 
             errno_t err = strcpy_s(dst, dstsize, kopt.arg);
             if (err) {
-                strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+                size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+                char   err_msg_buf[err_msg_buf_size];
+
+                strerror_s(err_msg_buf, err_msg_buf_size, err);
                 opts->logger.error(opts->logger.ctx,
                  "opts_ketopt: Unable to get option argument: %s", err_msg_buf);
 
@@ -289,7 +296,10 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
 
     err = strcat_s(dst, dstsize, module->argv[0]);
     if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+        char   err_msg_buf[err_msg_buf_size];
+
+        strerror_s(err_msg_buf, err_msg_buf_size, err);
         module->logger.error(module->logger.ctx, "opts_ketopt: strcpy_s: %s",
          err_msg_buf);
 

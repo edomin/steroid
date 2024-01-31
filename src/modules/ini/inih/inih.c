@@ -15,7 +15,6 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE 1024
 #define SAVE_BUFFER_SIZE 131072
 
 typedef struct {
@@ -25,7 +24,6 @@ typedef struct {
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
@@ -259,7 +257,10 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
 
         err = strncpy_s(zero_terminated, size + 1, ptr, size + 1);
         if (err) {
-            strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+            size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+            char   err_msg_buf[err_msg_buf_size];
+
+            strerror_s(err_msg_buf, err_msg_buf_size, err);
             module->logger.error(module->logger.ctx,
              "ini_inih: Unable to copy ini data to temp buffer: %s",
              err_msg_buf);
@@ -480,9 +481,9 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         if (sec_key[0] != '\n') { // if section is not unnamed
             sec_ret = snprintf_s(buffer, bufsize, "[%s]\n", sec_key);
             if (sec_ret < 0) {
-                strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
                 module->logger.error(module->logger.ctx,
-                 "ini_inih: snprintf_s: %s\n", err_msg_buf);
+                 "ini_inih: Unable to construct section header for section: "
+                 "%s\n", sec_key);
 
                 return NULL;
             }
@@ -500,9 +501,9 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             int         ret = snprintf_s(buffer, bufsize, "%s=%s\n", key, value);
 
             if (ret < 0) {
-                strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, errno);
                 module->logger.error(module->logger.ctx,
-                 "ini_inih: snprintf_s: %s\n", err_msg_buf);
+                 "ini_inih: Unable to construct key-value record for key: %s\n",
+                 key);
 
                 return NULL;
             }
@@ -536,7 +537,8 @@ static bool st_ini_save(const st_ini_t *ini, const char *filename) {
 
     if (!file) {
         module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to open file \"%s\": %s\n", filename, err_msg_buf);
+         "ini_inih: Unable to open file \"%s\": %s\n", filename,
+         strerror(errno));
 
         return false;
     }

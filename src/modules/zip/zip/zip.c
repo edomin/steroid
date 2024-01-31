@@ -17,11 +17,8 @@
 
 #include <zip/zip.h>
 
-#define ERR_MSG_BUF_SIZE 1024
-
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(zip_zip)
 ST_MODULE_DEF_INIT_FUNC(zip_zip)
@@ -207,7 +204,10 @@ static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
 
     err = strcpy_s(dst, dstsize, entry_name);
     if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+        char   err_msg_buf[err_msg_buf_size];
+
+        strerror_s(err_msg_buf, err_msg_buf_size, err);
         module->logger.error(module->logger.ctx,
          "zip_zip: Unable to get entry name: %s", err_msg_buf);
     }

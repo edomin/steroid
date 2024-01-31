@@ -10,11 +10,8 @@
 #pragma GCC diagnostic pop
 #include <safeclib/safe_types.h>
 
-#define ERR_MSG_BUF_SIZE      1024
-
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static char               err_msg_buf[ERR_MSG_BUF_SIZE];
 
 ST_MODULE_DEF_GET_FUNC(bitmap_simple)
 ST_MODULE_DEF_INIT_FUNC(bitmap_simple)
@@ -239,7 +236,10 @@ static st_bitmap_t *st_bitmap_import(st_modctx_t *bitmap_ctx, const void *data,
 
     err = memcpy_s(bitmap->data, data_size, data, data_size);
     if (err) {
-        strerror_s(err_msg_buf, ERR_MSG_BUF_SIZE, err);
+        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
+        char   err_msg_buf[err_msg_buf_size];
+
+        strerror_s(err_msg_buf, err_msg_buf_size, err);
         module->logger.error(module->logger.ctx,
          "bitmap_simple: Unable to copy bitmap pixels: %s", err_msg_buf);
         free(bitmap);
