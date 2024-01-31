@@ -1,18 +1,13 @@
 #pragma once
 
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
 
 #include "dlist.h"
-
-typedef void *EGLObjectKHR;
-typedef void *EGLLabelKHR;
-typedef void (*EGLDEBUGPROCKHR)(EGLenum error, const char *command,
- EGLint messageType, EGLLabelKHR threadLabel, EGLLabelKHR objectLabel,
- const char* message);
 
 typedef struct {
     st_modctx_t        *ctx;

@@ -509,8 +509,8 @@ static st_logger_generic_msg_t msgtype_to_logger_func(st_gfxctx_egl_t *module,
 }
 
 static void st_debug_callback(__attribute__((unused)) EGLenum error,
- const char *command, EGLint message_type, void *thread_label,
- __attribute__((unused)) void *object_label, const char* message) {
+ const char *command, EGLint message_type, EGLLabelKHR thread_label,
+ __attribute__((unused)) EGLLabelKHR object_label, const char* message) {
     st_gfxctx_egl_t *module = thread_label;
 
     msgtype_to_logger_func(module, message_type)(module->logger.ctx,
