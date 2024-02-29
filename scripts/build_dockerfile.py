@@ -5,106 +5,96 @@ from pathlib import Path
 import argparse
 
 def GetDepsfileName(target):
-    return {
-        "x86_64-linux-gnu": "deps/x86_64-linux-gnu",
-    }[target]
+    return "deps/{target}".format(target=target)
 
 def GetDockefrileName(target):
-    return {
-        "x86_64-linux-gnu": "dockerfiles/deps-x86_64-linux-gnu.dockerfile",
-    }[target]
+    return "dockerfiles/deps-{target}.dockerfile".format(target=target)
 
 def GetBaseImageName(target):
     return {
-        "x86_64-linux-gnu": "vgazer_min_env_x86_64_debian_bullseye",
+        "any-any-any": "archlinux:latest",
+        "x86_64-linux-gnu": "oraclelinux:7",
+        "x86_64-steamrt-scout":
+            "registry.gitlab.steamos.cloud/steamrt/scout/sdk:"
+            "latest-steam-client-general-availability",
+        "x86_64-steamrt-sniper":
+            "registry.gitlab.steamos.cloud/steamrt/sniper/sdk:"
+            "latest-steam-client-general-availability",
+        "x86_64-w64-mingw32": "archlinux:latest",
     }[target]
 
-def GetTargetArch(target):
+def TargetIsHost(target):
     return {
-        "x86_64-linux-gnu": "x86_64",
+        "any-any-any":           True,
+        "x86_64-linux-gnu":      False,
+        "x86_64-steamrt-scout":  True,
+        "x86_64-steamrt-sniper": True,
+        "x86_64-w64-mingw32":    False,
     }[target]
 
-def GetTargetOs(target):
+def GetPreInstallCmds(target):
     return {
-        "x86_64-linux-gnu": "linux",
+        "any-any-any":           "groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& pacman-key --init \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -Syu \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -S python python-pip git \\\n",
+        "x86_64-linux-gnu":      "groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& yum -y install python3 python3-pip git \\\n",
+        "x86_64-steamrt-scout":  "TODO",
+        "x86_64-steamrt-sniper": "TODO",
+        "x86_64-w64-mingw32":    "groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& pacman-key --init \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -Syu \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -S python python-pip git \\\n",
     }[target]
 
-def GetTargetAbi(target):
+def GetPipInstall(target):
     return {
-        "x86_64-linux-gnu": "gnu",
+        "any-any-any":           "pip3 install --break-system-packages",
+        "x86_64-linux-gnu":      "pip3 install",
+        "x86_64-steamrt-scout":  "pip3 install",
+        "x86_64-steamrt-sniper": "pip3 install",
+        "x86_64-w64-mingw32":    "pip3 install --break-system-packages",
     }[target]
 
-def GetDeps(filename):
-    with open(filename) as f:
-        return f.read().splitlines()
+def GenerateDockerfile(target):
+    depsFile = GetDepsfileName(target)
+    dockerfileName = GetDockefrileName(target)
+    baseImageName = GetBaseImageName(target)
+    preInstallCmds = GetPreInstallCmds(target)
+    pipInstall = GetPipInstall(target)
 
-def GetGithubUsername():
-    with open(
-        os.path.join(str(Path.home()), ".vgazer/github/username"), "r"
-    ) as f:
-        return f.read()
+    isHost = TargetIsHost(target)
 
-def GetGithubToken():
-    with open(
-        os.path.join(str(Path.home()), ".vgazer/github/token"), "r"
-    ) as f:
-        return f.read().rstrip()
+    targetArg = "" if TargetIsHost(target) else "--target={target}".format(
+     target=target)
 
-def GenerateDockerfile(filename, baseImageName, targetArch, targetOs,
- targetAbi, deps):
-    with open(filename, "w") as f:
-        f.write(
+    with open(dockerfileName, "w") as dockerfile:
+        dockerfile.write(
             "FROM {baseImageName} as build \n"
             "MAINTAINER Vasiliy Edomin <Vasiliy.Edomin@gmail.com> \n"
             "ARG USER_ID \n"
             "ARG GROUP_ID \n"
-            "WORKDIR /tmp/.steroids \n"
-            "RUN addgroup --gid $GROUP_ID user \\\n"
-            "&& adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user \\\n"
-            "&& python3 -m venv ./.venv --system-site-packages \\\n"
-            "&& . ./.venv/bin/activate \\\n"
-            "&& python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps vgazer \\\n"
-            "&& echo \"#!/usr/bin/env python3\" >> ./deps_installer.py \\\n"
-            "&& echo \"from vgazer import Vgazer\" >> ./deps_installer.py \\\n"
-            "&& echo \"deps=[\" >> ./deps_installer.py \\\n"
-            "&& mkdir -p ~/.vgazer/github \\\n"
-            "&& echo \"{username}\" >> ~/.vgazer/github/username \\\n"
-            "&& echo \"{token}\" >> ~/.vgazer/github/token \\\n"
-            "".format(baseImageName=baseImageName, username=GetGithubUsername(),
-                token=GetGithubToken())
-        )
-        for dep in deps:
-            f.write(
-                "&& echo \"\\\"{dep}\\\",\" >> ./deps_installer.py \\\n"
-                "".format(dep=dep)
-            )
-        f.write(
-            "&& echo \"]\" >> ./deps_installer.py \\\n"
-            "&& echo \"gazer = Vgazer(arch=\\\"{arch}\\\", os=\\\"{os}\\\", osVersion=\\\"any\\\", abi=\\\"{abi}\\\")\" >> ./deps_installer.py \\\n"
-            "&& echo \"gazer.InstallList(deps, verbose=True)\" >> ./deps_installer.py \\\n"
-            "&& chmod u+x ./deps_installer.py \\\n"
-            "&& python3 -u ./deps_installer.py \n"
+            "RUN {preInstallCmds} \\\n"
+            "&& {pipInstall} vgazer \n"
             "WORKDIR /mnt/steroids \n"
+            "RUN --mount=type=bind,source=.,target=/mnt/steroids vgazer install {targetArg} {depsFile} \n"
             "USER user \n"
-            "".format(arch = targetArch, os = targetOs, abi = targetAbi)
+            "".format(baseImageName=baseImageName,
+             preInstallCmds=preInstallCmds, pipInstall=pipInstall,
+             targetArg=targetArg, depsFile=depsFile)
         )
-
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--target")
     args = parser.parse_args()
-    depsFile = GetDepsfileName(args.target)
-    deps = GetDeps(depsFile)
-    dockerfileName = GetDockefrileName(args.target)
-    baseImageName = GetBaseImageName(args.target)
-    targetArch = GetTargetArch(args.target)
-    targetOs = GetTargetOs(args.target)
-    targetAbi = GetTargetAbi(args.target)
     if not os.path.exists("./dockerfiles"):
         os.makedirs("./dockerfiles")
-    GenerateDockerfile(dockerfileName, baseImageName, targetArch, targetOs,
-        targetAbi, deps)
+    GenerateDockerfile(args.target)
 
 if __name__ == "__main__":
     main()

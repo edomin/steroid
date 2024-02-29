@@ -1,9 +1,11 @@
 cfgpath
+clang-tidy
 cmake
 cmake_barebones
 glu
 hash_table
 inih
+iwyu
 ketopt
 libpng
 libsir

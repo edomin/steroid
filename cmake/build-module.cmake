@@ -15,6 +15,10 @@ function(st_add_module ST_TARGET ST_BUILD_MODE)
 
     bb_add_library(${ST_TARGET} ${ST_LIBRARY_MODE})
 
+    if (NOT BB_TRIPLET)
+        bb_get_triplet(BB_TRIPLET)
+    endif()
+
     if (ST_BUILD_MODE STREQUAL "shared")
         add_custom_target(${ST_TARGET}.stp
             ALL

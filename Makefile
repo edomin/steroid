@@ -2,10 +2,15 @@ all: debug
 
 include barebones.mk
 
-arch?=x86_64
-os?=linux
-abi?=gnu
-TRIPLET=$(arch)-$(os)-$(abi)
+TRIPLET=any-any-any
+
+ifeq ($(TRIPLET),any-any-any)
+    TOOLCHAIN_OPT=toolchain=cc
+    INCLUDE_OPT=--include-dir=/usr/local/include
+else
+    TOOLCHAIN_OPT=toolchain=$(TRIPLET)-gcc
+    INCLUDE_OPT=--include-dir=/usr/local/$(TRIPLET)/include
+endif
 
 run-image:
 	docker run --net=host -i -t -v ~/.vgazer:/root/.vgazer \
@@ -15,36 +20,33 @@ release:
 	docker run --net=host -i -t \
      -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
      --entrypoint sh steroids-deps-$(TRIPLET) \
-     -E -c "make bb_build_release toolchain=$(TRIPLET)-gcc \
-     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+     -E -c "make bb_build_release $(TOOLCHAIN_OPT) $(INCLUDE_OPT)" \
+    | tee build.log
 
 debug:
 	docker run --net=host -i -t \
      -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
      --entrypoint sh steroids-deps-$(TRIPLET) \
-     -E -c "make bb_build_debug toolchain=$(TRIPLET)-gcc \
-     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+     -E -c "make bb_build_debug $(TOOLCHAIN_OPT) $(INCLUDE_OPT)" | tee build.log
 
 coverage:
 	docker run --net=host -i -t \
      -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
      --entrypoint sh steroids-deps-$(TRIPLET) \
-     -E -c "make bb_build_coverage toolchain=$(TRIPLET)-gcc \
-     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+     -E -c "make bb_build_coverage $(TOOLCHAIN_OPT) $(INCLUDE_OPT)" \
+    | tee build.log
 
 lint:
 	docker run --net=host -i -t \
      -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
      --entrypoint sh steroids-deps-$(TRIPLET) \
-     -E -c "make bb_build_lint toolchain=$(TRIPLET)-gcc \
-     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+     -E -c "make bb_build_lint $(TOOLCHAIN_OPT) $(INCLUDE_OPT)" | tee build.log
 
 iwyu:
 	docker run --net=host -i -t \
      -v ~/.vgazer:/root/.vgazer -v `pwd`:/mnt/steroids \
      --entrypoint sh steroids-deps-$(TRIPLET) \
-     -E -c "make bb_build_iwyu toolchain=$(TRIPLET)-gcc \
-     --include-dir=/usr/local/$(TRIPLET)/include" | tee build.log
+     -E -c "make bb_build_iwyu $(TOOLCHAIN_OPT) $(INCLUDE_OPT)" | tee build.log
 
 lint_build: bb_lint_build
 
@@ -56,12 +58,13 @@ dockerfiles/deps-$(TRIPLET).dockerfile: deps/$(TRIPLET) scripts/build_dockerfile
 	scripts/build_dockerfile.py --target=$(TRIPLET)
 
 build-image: dockerfiles/deps-$(TRIPLET).dockerfile
-	docker build --network=host --no-cache \
-     -f dockerfiles/deps-$(TRIPLET).dockerfile \
-     -t steroids-deps-$(TRIPLET) --build-arg USER_ID=$(SUDO_UID) \
-     --build-arg GROUP_ID=$(SUDO_GID) .
+	docker build --progress=plain --network=host --no-cache \
+     -f dockerfiles/deps-$(TRIPLET).dockerfile -t steroids-deps-$(TRIPLET) \
+     --build-arg USER_ID=$(SUDO_UID) --build-arg GROUP_ID=$(SUDO_GID) .
 
 build-image-with-cache: dockerfiles/deps-$(TRIPLET).dockerfile
-	docker build --network=host -f dockerfiles/deps-$(TRIPLET).dockerfile \
-     -t steroids-deps-$(TRIPLET) --build-arg USER_ID=$(SUDO_UID) \
-     --build-arg GROUP_ID=$(SUDO_GID) .
+	docker build --progress=plain --network=host \
+     -f dockerfiles/deps-$(TRIPLET).dockerfile -t steroids-deps-$(TRIPLET) \
+     --build-arg USER_ID=$(SUDO_UID) --build-arg GROUP_ID=$(SUDO_GID) .
+
+build-container:
