@@ -1,7 +1,6 @@
 #pragma once
 
 #include "steroids/types/modules/events.h"
-#include "steroids/types/modules/fnv1a.h"
 #include "steroids/types/modules/htable.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/keyboard.h"
@@ -35,10 +34,6 @@ typedef struct {
 } st_keyboard_simple_logger_t;
 
 typedef struct {
-    st_fnv1a_get_u32hashstr_func_t get_u32hashstr_func;
-} st_keyboard_simple_fnv1a_t;
-
-typedef struct {
     st_modctx_t               *ctx;
     st_htable_init_t           init;
     st_htable_quit_t           quit;
@@ -55,7 +50,6 @@ typedef struct {
 typedef struct {
     st_keyboard_simple_events_t events;
     st_keyboard_simple_logger_t logger;
-    st_keyboard_simple_fnv1a_t  fnv1a;
     st_keyboard_simple_htable_t htable;
     st_evtypeid_t               evtypes[EV_MAX];
     st_evq_t                   *evq;

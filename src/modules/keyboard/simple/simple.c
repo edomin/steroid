@@ -38,8 +38,6 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
         return false;
     }
 
-    ST_LOAD_FUNCTION("keyboard_simple", fnv1a, NULL, get_u32hashstr_func);
-
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, create);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, init);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, quit);

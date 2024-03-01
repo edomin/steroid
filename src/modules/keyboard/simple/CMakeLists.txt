@@ -13,10 +13,6 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
     {
-        .subsystem = "fnv1a",
-        .name = NULL,
-    },
-    {
         .subsystem = "htable",
         .name = NULL,
     },
@@ -25,7 +21,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 4)
+set(ST_MODULE_PREREQS_COUNT 3)
 
 configure_file(
     "config.h.in"
