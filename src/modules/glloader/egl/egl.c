@@ -91,5 +91,9 @@ static void st_glloader_quit(st_modctx_t *glloader_ctx) {
 
 static void *st_glloader_get_proc_address(st_modctx_t *glloader_ctx,
  const char *funcname) {
+    st_glloader_egl_t *module = glloader_ctx->data;
+
+    module->gfxctx.make_current(module->gfxctx.handle);
+
     return eglGetProcAddress(funcname);
 }
