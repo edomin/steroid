@@ -170,8 +170,13 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
     return ini;
 }
 
+#if INI_HANDLER_LINENO
 static int st_ini_parse_handler(void *userdata, const char *section,
  const char *key, const char *value, int lineno) {
+#else
+static int st_ini_parse_handler(void *userdata, const char *section,
+ const char *key, const char *value) {
+#endif
     st_userdata_t *typed_userdata = userdata;
     st_ini_t      *ini = typed_userdata->ini;
 
