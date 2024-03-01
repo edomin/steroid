@@ -45,7 +45,6 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, insert);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, contains);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get);
-    // ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, find);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, next);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get_iter_key);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get_iter_value);
