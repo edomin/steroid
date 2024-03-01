@@ -17,6 +17,8 @@ st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_get_shared_index = st_gfxctx_get_shared_index,
     .gfxctx_destroy          = st_gfxctx_destroy,
     .gfxctx_debug_enabled    = st_gfxctx_debug_enabled,
+    .gfxctx_set_userdata     = st_gfxctx_set_userdata,
+    .gfxctx_get_userdata     = st_gfxctx_get_userdata,
 };
 
 st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
@@ -32,5 +34,7 @@ st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {"get_shared_index", st_gfxctx_get_shared_index},
     {"destroy",          st_gfxctx_destroy},
     {"debug_enabled",    st_gfxctx_debug_enabled},
+    {"set_userdata",     st_gfxctx_set_userdata},
+    {"get_userdata",     st_gfxctx_get_userdata},
     {NULL, NULL},
 };

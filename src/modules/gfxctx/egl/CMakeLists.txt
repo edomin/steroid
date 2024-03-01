@@ -9,6 +9,14 @@ set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
     {
+        .subsystem = "fnv1a",
+        .name = NULL,
+    },
+    {
+        .subsystem = "htable",
+        .name = NULL,
+    },
+    {
         .subsystem = "logger",
         .name = NULL,
     },
@@ -21,7 +29,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 3)
+set(ST_MODULE_PREREQS_COUNT 5)
 
 configure_file(
     "config.h.in"

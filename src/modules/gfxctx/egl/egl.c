@@ -62,6 +62,15 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
         return false;
     }
 
+    ST_LOAD_FUNCTION("gfxctx_egl", fnv1a, NULL, get_u32hashstr_func);
+
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, create);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, init);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, quit);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, destroy);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, insert);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, get);
+
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, warning);
@@ -71,6 +80,10 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", window, get_handle);
 
     return true;
+}
+
+static bool st_keyeqfunc(const void *left, const void *right) {
+    return strcmp(left, right) == 0;
 }
 
 static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
@@ -93,20 +106,29 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     module->debug_enabled = false;
 
     if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, monitor_ctx,
-     window_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, gfxctx_ctx);
+     window_ctx))
+        goto import_fail;
 
-        return NULL;
-    }
+    module->htable.ctx = module->htable.init(module->logger.ctx);
+    if (!module->htable.ctx)
+        goto ht_ctx_init_fail;
 
     module->logger.info(module->logger.ctx,
      "gfxctx_egl: Graphics context mgr initialized");
 
     return gfxctx_ctx;
+
+ht_ctx_init_fail:
+import_fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, gfxctx_ctx);
+
+    return NULL;
 }
 
 static void st_gfxctx_quit(st_modctx_t *gfxctx_ctx) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
+
+    module->htable.quit(module->htable.ctx);
 
     module->logger.info(module->logger.ctx,
      "gfxctx_egl: Graphics context mgr destroyed");
@@ -594,6 +616,14 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
     }
 
     gfxctx->ctx = gfxctx_ctx;
+
+    gfxctx->userdata = module->htable.create(module->htable.ctx,
+     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
+     st_keyeqfunc, free, NULL);
+    if (!gfxctx->userdata)
+        goto udata_fail;
+
+
     gfxctx->display = eglGetDisplay(
      (EGLNativeDisplayType)module->monitor.get_handle(monitor));
 
@@ -614,6 +644,16 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
              get_egl_error_str(eglGetError()));
 
         goto egl_init_fail;
+    }
+
+    if (egl_version_minor < 5
+     && renderable_type == EGL_OPENGL_BIT
+     && ((major == 1 && minor > MINIMAL_OPENGL_MINOR) || major > 1)
+     && !shared) {
+        module->logger.warning(module->logger.ctx,
+             "gfxctx_egl: EGL 1.%i doesn't able to export core OpenGL %i.%i "
+             "functions. Try to use another gfxctx module if available",
+             egl_version_minor, major, minor);
     }
 
     st_try_to_enable_debug(gfxctx);
@@ -758,6 +798,8 @@ choose_config_fail:
     eglTerminate(gfxctx->display);
 egl_init_fail:
 get_display_fail:
+    module->htable.destroy(gfxctx->userdata);
+udata_fail:
     free(gfxctx);
 
     return NULL;
@@ -828,6 +870,8 @@ static unsigned st_gfxctx_get_shared_index(const st_gfxctx_t *gfxctx) {
 }
 
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
+    st_gfxctx_egl_t *module = gfxctx->ctx->data;
+
     if (eglGetCurrentContext() == gfxctx->handle)
         eglMakeCurrent(gfxctx->display, EGL_NO_SURFACE, EGL_NO_SURFACE,
          EGL_NO_CONTEXT);
@@ -853,9 +897,31 @@ static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
         }
     }
 
+    module->htable.destroy(gfxctx->userdata);
+
     free(gfxctx);
 }
 
 static bool st_gfxctx_debug_enabled(const st_gfxctx_t *gfxctx) {
     return gfxctx->debug;
+}
+
+static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
+ uintptr_t value) {
+    st_gfxctx_egl_t *module = gfxctx->ctx->data;
+    char            *keydup = strdup(key);
+
+    if (keydup)
+        module->htable.insert(gfxctx->userdata, NULL, keydup, (void *)value);
+    else
+        module->logger.error(module->logger.ctx,
+         "ini_inih: Unable to allocate memory for key of userdata \"%s\": %s",
+         key, strerror(errno));
+}
+
+static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,
+ const char *key) {
+    st_gfxctx_egl_t *module = gfxctx->ctx->data;
+
+    return (void *)module->htable.get(gfxctx->userdata, key);
 }
