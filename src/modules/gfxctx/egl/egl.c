@@ -20,6 +20,14 @@
 #define CFG_ATTRS_LEN     13
 #define CTX_ATTRS_LEN      9
 
+#ifdef _WIN32
+    #define MINIMAL_OPENGL_MINOR 1
+#elif __linux__
+    #define MINIMAL_OPENGL_MINOR 2
+#else
+    #error Unknown target OS
+#endif
+
 typedef struct {
     EGLint red_size;
     EGLint green_size;
