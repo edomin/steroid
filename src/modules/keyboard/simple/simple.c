@@ -147,7 +147,7 @@ create_queue_fail:
 cur_state_fail:
     module->htable.destroy(module->prev_state);
 prev_state_fail:
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, module->htable.ctx);
+    module->htable.quit(module->htable.ctx);
 ht_ctx_init_fail:
 import_fail:
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, keyboard_ctx);
@@ -161,7 +161,7 @@ static void st_keyboard_quit(st_modctx_t *keyboard_ctx) {
     module->events.destroy_queue(module->evq);
     module->htable.destroy(module->cur_state);
     module->htable.destroy(module->prev_state);
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, module->htable.ctx);
+    module->htable.quit(module->htable.ctx);
 
     module->logger.info(module->logger.ctx,
      "keyboard_simple: Keyboard destroyed");
