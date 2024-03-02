@@ -75,6 +75,11 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", bitmap, get_width);
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", bitmap, get_height);
 
+    ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, init);
+    ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, quit);
+    ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, label_texture);
+    ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, unlabel_texture);
+    ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, get_error_msg);
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", gfxctx, make_current);
 
@@ -127,6 +132,17 @@ get_proc_addr_fail:
     return true;
 }
 
+static void st_texture_label(st_texture_opengl_t *module, unsigned id,
+ const char *label) {
+    if (module->gldebug.ctx)
+        module->gldebug.label_texture(module->gldebug.ctx, id, label);
+}
+
+static void st_texture_unlabel(st_texture_opengl_t *module, unsigned id) {
+    if (module->gldebug.ctx)
+        module->gldebug.unlabel_texture(module->gldebug.ctx, id);
+}
+
 static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
  st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx) {
     st_modctx_t         *texture_ctx;
@@ -152,6 +168,11 @@ static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
         return NULL;
     }
 
+    module->gldebug.ctx = module->gldebug.init(logger_ctx, gfxctx);
+    if (!module->gldebug.ctx)
+        module->logger.warning(module->logger.ctx,
+         "texture_opengl: Unable to initialize gldebug");
+
     module->logger.info(module->logger.ctx,
      "texture_opengl: Texture mgr initialized.");
 
@@ -160,6 +181,9 @@ static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
 
 static void st_texture_quit(st_modctx_t *texture_ctx) {
     st_texture_opengl_t *module = texture_ctx->data;
+
+    if (module->gldebug.ctx)
+        module->gldebug.quit(module->gldebug.ctx);
 
     module->logger.info(module->logger.ctx,
      "texture_opengl: Texture mgr destroyed");
@@ -195,6 +219,7 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
 
     module->gfxctx.make_current(module->gfxctx.handle);
     glGenTextures(1, &texture->id);
+    st_texture_label(module, texture->id, name ? name : "(unnamed)");
     glBindTexture(GL_TEXTURE_2D, texture->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap) {
@@ -272,6 +297,7 @@ static st_texture_t *st_texture_memload(st_modctx_t *texture_ctx,
 }
 
 static void st_texture_destroy(st_texture_t *texture) {
+    st_texture_unlabel(texture->module, texture->id);
     glDeleteTextures(1, &texture->id);
     free(texture);
 }
