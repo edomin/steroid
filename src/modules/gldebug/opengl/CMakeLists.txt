@@ -9,7 +9,7 @@ set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
     {
-        .subsystem = "gfxcgtx",
+        .subsystem = "gfxctx",
         .name = NULL,
     },
     {
