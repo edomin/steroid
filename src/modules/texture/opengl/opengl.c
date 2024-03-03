@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 static void (*glGenerateMipmap)(GLenum target);
 
@@ -243,7 +242,8 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
         if (error != GL_NO_ERROR) {
             module->logger.warning(module->logger.ctx,
              "texture_opengl: Unable to generate mipmap for texture \"%s\": %s",
-             name ? name : "(unnamed)", gluErrorString(error));
+             name ? name : "(unnamed)",
+             module->gldebug.get_error_msg(module->gldebug.ctx, error));
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
         }
@@ -310,7 +310,9 @@ static bool st_texture_bind(const st_texture_t *texture, unsigned unit) {
     error = glGetError();
     if (error != GL_NO_ERROR) {
         texture->module->logger.error(texture->module->logger.ctx,
-         "texture_opengl: Unable to bind texture: %s", gluErrorString(error));
+         "texture_opengl: Unable to bind texture: %s",
+         texture->module->gldebug.get_error_msg(
+          texture->module->gldebug.ctx, error));
 
         return false;
     }
