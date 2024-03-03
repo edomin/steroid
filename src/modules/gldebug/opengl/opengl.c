@@ -25,16 +25,32 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool extension_supported(const char *ext) {
-    const char *extensions = glGetString(GL_EXTENSIONS);
-
-    return extensions && strstr(extensions, ext);
-}
-
 static bool glapi_least(st_gapi_t current_api, st_gapi_t req_api) {
     return req_api >= ST_GAPI_GL1
         && req_api <= ST_GAPI_GL46
         && current_api >= req_api;
+}
+
+static bool extension_supported(st_modctx_t *gldebug_ctx, const char *ext) {
+    st_gldebug_opengl_t *module = gldebug_ctx->data;
+    const char          *extensions;
+
+    if (glapi_least(module->gfxctx.api, ST_GAPI_GL3)) {
+        GLint extensions_count;
+
+        glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);
+        if (extensions_count <= 0)
+            return false;
+
+        for (GLuint i = 0; i < (GLuint)extensions_count; i++) {
+            if (strcmp(module->gl.get_string_i(GL_EXTENSIONS, i), ext) == 0)
+                return true;
+        }
+    }
+
+    extensions = glGetString(GL_EXTENSIONS);
+
+    return extensions && strstr(extensions, ext);
 }
 
 static void *glfuncs_load_with_check(st_gldebug_opengl_logger_t *logger,
@@ -338,9 +354,13 @@ static void load_gl_funcs(st_modctx_t *gldebug_ctx, st_modctx_t *glloader_ctx,
         return;
     }
 
+    if (glapi_least(module->gfxctx.api, ST_GAPI_GL3))
+        module->gl.get_string_i = get_proc_address(glloader_ctx,
+         "glGetStringi");
+
     if (glapi_least(module->gfxctx.api, ST_GAPI_GL43)
      || (glapi_least(module->gfxctx.api, ST_GAPI_GL11)
-     && extension_supported("GL_KHR_debug"))) {
+     && extension_supported(gldebug_ctx, "GL_KHR_debug"))) {
         /* Callback - Main */
         module->gl.debug_message_callback = glfuncs_load_with_check(
          &module->logger, glloader_ctx, get_proc_address,
@@ -383,7 +403,7 @@ static void load_gl_funcs(st_modctx_t *gldebug_ctx, st_modctx_t *glloader_ctx,
         if (module->glsupported.cbk_main)
             module->glsupported.cbk_ext = EXT_CORE;
     } else if (glapi_least(module->gfxctx.api, ST_GAPI_GL11)
-     && extension_supported("GL_ARB_debug_output")) {
+     && extension_supported(gldebug_ctx, "GL_ARB_debug_output")) {
         /* Callback - Main */
         module->gl.debug_message_callback_arb = glfuncs_load_with_check(
          &module->logger, glloader_ctx, get_proc_address,
@@ -401,7 +421,7 @@ static void load_gl_funcs(st_modctx_t *gldebug_ctx, st_modctx_t *glloader_ctx,
         if (module->glsupported.cbk_main)
             module->glsupported.cbk_ext = EXT_ARB;
     } else if (glapi_least(module->gfxctx.api, ST_GAPI_GL11)
-     && extension_supported("GL_AMD_debug_output")) {
+     && extension_supported(gldebug_ctx, "GL_AMD_debug_output")) {
         /* Callback - Main */
         module->gl.debug_message_callback_amd = glfuncs_load_with_check(
          &module->logger, glloader_ctx, get_proc_address,

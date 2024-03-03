@@ -25,6 +25,7 @@ typedef struct {
 
 typedef struct {
     /* Core */
+    const GLubyte *(*get_string_i)(GLenum name, GLuint index);
     void (*debug_message_callback)(GLDEBUGPROC callback, void *userParam);
     void (*debug_message_control)(GLenum source, GLenum type, GLenum severity,
      GLsizei count, const GLuint *ids, GLboolean enabled);
