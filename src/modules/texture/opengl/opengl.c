@@ -219,8 +219,8 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
 
     module->gfxctx.make_current(module->gfxctx.handle);
     glGenTextures(1, &texture->id);
-    st_texture_label(module, texture->id, name ? name : "(unnamed)");
     glBindTexture(GL_TEXTURE_2D, texture->id);
+    st_texture_label(module, texture->id, name ? name : "(unnamed)");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap) {
         float mip_max = log2f(
