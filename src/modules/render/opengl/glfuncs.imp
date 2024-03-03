@@ -29,10 +29,9 @@
  "VAO will not be able to be deleted on this render ctx"
 
 static bool glapi_least(st_gapi_t current_api, st_gapi_t req_api) {
-    if (req_api < ST_GAPI_GL11 || req_api > ST_GAPI_GL46)
-        return false;
-
-    return current_api >= req_api;
+    return req_api >= ST_GAPI_GL1
+        && req_api <= ST_GAPI_GL46
+        && current_api >= req_api;
 }
 
 static void *glfuncs_load_with_check(st_render_opengl_logger_t *logger,
