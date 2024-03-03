@@ -635,7 +635,9 @@ static bool st_gldebug_import_functions(st_modctx_t *gldebug_ctx,
          global_modsmgr_funcs.get_function_from_ctx(global_modsmgr,
          glloader_ctx, "get_proc_address");
         if (st_glloader_get_proc_address) {
-
+            module->gfxctx.make_current(module->gfxctx.handle);
+            load_gl_funcs(gldebug_ctx, glloader_ctx,
+             st_glloader_get_proc_address);
         } else {
             module->logger.error(module->logger.ctx,
              "gldebug_opengl: Unable to load function \"get_proc_address\" "
@@ -645,8 +647,6 @@ static bool st_gldebug_import_functions(st_modctx_t *gldebug_ctx,
         if (st_glloader_quit)
             st_glloader_quit(glloader_ctx);
     }
-
-    load_gl_funcs(gldebug_ctx, glloader_ctx, st_glloader_get_proc_address);
 
     return true;
 }
@@ -672,9 +672,6 @@ static st_modctx_t *st_gldebug_init(st_modctx_t *logger_ctx,
     if (!st_gldebug_import_functions(gldebug_ctx, logger_ctx, gfxctx))
         goto func_import_fail;
 
-
-
-
     if (module->glsupported.cbk_main) {
         uintptr_t gldebug_ref_counter;
 
@@ -691,6 +688,7 @@ static st_modctx_t *st_gldebug_init(st_modctx_t *logger_ctx,
         }
 
         module->agn.set_callback(gldebug_ctx);
+        module->agn.init_control(gldebug_ctx);
 
         if (!module->gfxctx.get_userdata(gfxctx, &gldebug_ref_counter,
          "gldebug_ref_counter"))
@@ -698,10 +696,6 @@ static st_modctx_t *st_gldebug_init(st_modctx_t *logger_ctx,
 
         module->gfxctx.set_userdata(gfxctx, "gldebug_ref_counter",
          ++gldebug_ref_counter);
-    }
-
-    if (module->glsupported.cbk_main) {
-
     }
 
     module->logger.info(module->logger.ctx,
