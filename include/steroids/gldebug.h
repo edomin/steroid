@@ -35,4 +35,5 @@ static void st_gldebug_unlabel_texture(const st_modctx_t *gldebug_ctx,
  unsigned id);
 static void st_gldebug_unlabel_framebuffer(const st_modctx_t *gldebug_ctx,
  unsigned id);
-static const char *st_gldebug_get_error_msg(const st_modctx_t *gldebug_ctx);
+static const char *st_gldebug_get_error_msg(const st_modctx_t *gldebug_ctx,
+ unsigned err);

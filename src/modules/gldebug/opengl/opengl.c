@@ -828,8 +828,9 @@ static void st_gldebug_unlabel_framebuffer(const st_modctx_t *gldebug_ctx,
     module->agn.unlabel_framebuffer(gldebug_ctx, id);
 }
 
-static const char *st_gldebug_get_error_msg(const st_modctx_t *gldebug_ctx) {
-    switch (glGetError()) {
+static const char *st_gldebug_get_error_msg(const st_modctx_t *gldebug_ctx,
+ unsigned err) {
+    switch (err) {
         case GL_NO_ERROR:
             return "No error";
         case GL_INVALID_ENUM:

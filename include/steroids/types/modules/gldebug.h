@@ -36,7 +36,7 @@ typedef void (*st_gldebug_unlabel_texture_t)(const st_modctx_t *gldebug_ctx,
 typedef void (*st_gldebug_unlabel_framebuffer_t)(const st_modctx_t *gldebug_ctx,
  unsigned id);
 typedef const char *(*st_gldebug_get_error_msg_t)(
- const st_modctx_t *gldebug_ctx);
+ const st_modctx_t *gldebug_ctx, unsigned err);
 
 typedef struct {
     st_gldebug_init_t                gldebug_init;
