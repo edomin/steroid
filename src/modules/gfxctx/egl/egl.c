@@ -112,6 +112,8 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     module->monitor.ctx = monitor_ctx;
     module->window.ctx = window_ctx;
     module->debug_enabled = false;
+    module->must_quit = false;
+    module->gfxctxs_count = 0;
 
     if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, monitor_ctx,
      window_ctx))
@@ -135,6 +137,12 @@ import_fail:
 
 static void st_gfxctx_quit(st_modctx_t *gfxctx_ctx) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
+
+    if (module->gfxctxs_count > 0) {
+        module->must_quit = true;
+
+        return;
+    }
 
     module->htable.quit(module->htable.ctx);
 
@@ -631,7 +639,6 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
     if (!gfxctx->userdata)
         goto udata_fail;
 
-
     gfxctx->display = eglGetDisplay(
      (EGLNativeDisplayType)module->monitor.get_handle(monitor));
 
@@ -796,6 +803,8 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
              get_egl_error_str(eglGetError()));
     }
 
+    module->gfxctxs_count++;
+
     return gfxctx;
 
 create_context_fail:
@@ -879,6 +888,7 @@ static unsigned st_gfxctx_get_shared_index(const st_gfxctx_t *gfxctx) {
 
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
     st_gfxctx_egl_t *module = gfxctx->ctx->data;
+    st_modctx_t     *gfxctx_ctx = gfxctx->ctx;
 
     if (eglGetCurrentContext() == gfxctx->handle)
         eglMakeCurrent(gfxctx->display, EGL_NO_SURFACE, EGL_NO_SURFACE,
@@ -908,6 +918,11 @@ static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
     module->htable.destroy(gfxctx->userdata);
 
     free(gfxctx);
+
+    module->gfxctxs_count--;
+    if (module->must_quit)
+        st_gfxctx_quit(gfxctx_ctx);
+
 }
 
 static bool st_gfxctx_debug_enabled(const st_gfxctx_t *gfxctx) {

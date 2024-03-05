@@ -54,6 +54,8 @@ typedef struct {
      EGLDEBUGPROCKHR callback, const EGLAttrib *attrib_list);
     EGLint                (*egl_label_object_khr)(EGLDisplay display,
      EGLenum objectType, EGLObjectKHR object, EGLLabelKHR label);
+    bool                    must_quit;
+    size_t                  gfxctxs_count;
 } st_gfxctx_egl_t;
 
 typedef struct {
