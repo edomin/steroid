@@ -68,6 +68,8 @@ build-image-with-cache: dockerfiles/deps-$(TRIPLET).dockerfile
      --build-arg USER_ID=$(SUDO_UID) --build-arg GROUP_ID=$(SUDO_GID) .
 
 build-container:
+	-distrobox-stop --root -Y steroids-deps-$(TRIPLET)
+	-distrobox-rm --root steroids-deps-$(TRIPLET)
 	distrobox-create --root --image steroids-deps-$(TRIPLET) \
      --name steroids-deps-$(TRIPLET)
 
