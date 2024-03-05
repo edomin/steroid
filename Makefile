@@ -73,6 +73,6 @@ build-container:
 	distrobox-create --root --image steroids-deps-$(TRIPLET) \
      --name steroids-deps-$(TRIPLET)
 
-test-run:
+run:
 	distrobox enter --root steroids-deps-$(TRIPLET) -- ./cmake_build/steroids \
      --cfg=./cmake_build/steroids.ini
