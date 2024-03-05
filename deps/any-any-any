@@ -15,6 +15,7 @@ make
 opengl
 safeclib
 scv
+valgrind
 x86_64-linux-gnu-gcc
 x86_64-linux-gnu-pkg-config
 xlib
