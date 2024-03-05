@@ -111,12 +111,9 @@ static void st_opts_quit(st_modctx_t *opts_ctx) {
 
     opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Destroying opts.");
     for (unsigned i = 0; i < opts->opts_count; i++) {
-        if (opts->opts[i].longopt)
-            free(opts->opts[i].longopt);
-        if (opts->opts[i].arg_fmt)
-            free(opts->opts[i].arg_fmt);
-        if (opts->opts[i].opt_descr)
-            free(opts->opts[i].opt_descr);
+        free(opts->opts[i].longopt);
+        free(opts->opts[i].arg_fmt);
+        free(opts->opts[i].opt_descr);
     }
 
     opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Opts destroyed.");
