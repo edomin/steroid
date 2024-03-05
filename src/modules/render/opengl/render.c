@@ -96,7 +96,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
         return false;
     }
 
-    module->gfxctx.handle = gfxctx;
     module->gfxctx.gapi = st_gfxctx_get_api(gfxctx);
 
     st_gfxctx_get_window = global_modsmgr_funcs.get_function_from_ctx(
@@ -245,12 +244,12 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
     module->angle.ctx = angle_ctx;
     module->drawq.ctx = drawq_ctx;
     module->dynarr.ctx = dynarr_ctx;
+    module->gfxctx.handle = gfxctx;
     module->logger.ctx = logger_ctx;
     module->matrix3x3.ctx = matrix3x3_ctx;
     module->vec2.ctx = vec2_ctx;
     module->gl = (const st_glfuncs_t){0};
     module->glsupported = (const st_glsupported_t){0};
-
 
     if (!st_render_import_functions(render_ctx, angle_ctx, drawq_ctx,
      dynarr_ctx, logger_ctx, matrix3x3_ctx, sprite_ctx, texture_ctx, vec2_ctx,
