@@ -77,7 +77,8 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, quit);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, destroy);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, insert);
-    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, get);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, find);
+    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, get_iter_value);
 
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
@@ -91,7 +92,7 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
 }
 
 static bool st_keyeqfunc(const void *left, const void *right) {
-    return strcmp(left, right) == 0;
+    return left && right && strcmp(left, right) == 0;
 }
 
 static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
@@ -945,6 +946,14 @@ static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
 static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,
  const char *key) {
     st_gfxctx_egl_t *module = gfxctx->ctx->data;
+    st_htiter_t      it;
+    void            *userdata;
 
-    return (void *)module->htable.get(gfxctx->userdata, key);
+    if (!module->htable.find(gfxctx->userdata, &it, key))
+        return false;
+
+    userdata = module->htable.get_iter_value(&it);
+    *dst = (uintptr_t)userdata;
+
+    return true;
 }
