@@ -726,7 +726,7 @@ static void st_gldebug_quit(st_modctx_t *gldebug_ctx) {
     }
 
     module->logger.info(module->logger.ctx,
-     "texture_opengl: Texture mgr destroyed");
+     "gldebug_opengl: OpenGL debug destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, gldebug_ctx);
 }
 

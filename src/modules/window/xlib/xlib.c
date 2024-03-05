@@ -140,7 +140,7 @@ static void st_window_quit(st_modctx_t *window_ctx) {
     module->windows = NULL;
 
     module->logger.info(module->logger.ctx,
-     "monitor_xlib: Windows mgr destroyed");
+     "window_xlib: Windows mgr destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, window_ctx);
 }
 
