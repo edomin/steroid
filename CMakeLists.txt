@@ -119,8 +119,6 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/cwalk"
  "${CMAKE_BINARY_DIR}/src/modules/pathtools/cwalk")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/simple"
-#  "${CMAKE_BINARY_DIR}/src/modules/pathtools/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/plugin/simple"
  "${CMAKE_BINARY_DIR}/src/modules/plugin/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/png/libpng"
