@@ -1,9 +1,9 @@
-if (${ST_MODULE_PATHTOOLS_SIMPLE} STREQUAL "no")
+if (${ST_MODULE_PATHTOOLS_CWALK} STREQUAL "no")
     return()
 endif()
 
-set(ST_MODULE_NAME "simple")
-set(ST_MODULE_TYPE ${ST_MODULE_PATHTOOLS_SIMPLE})
+set(ST_MODULE_NAME "cwalk")
+set(ST_MODULE_TYPE ${ST_MODULE_PATHTOOLS_CWALK})
 set(ST_MODULE_SUBSYSTEM "pathtools")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
@@ -32,15 +32,14 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_PATHTOOLS_SIMPLE})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_PATHTOOLS_CWALK})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SAFEC REQUIRED libsafec)
+find_package(Cwalk REQUIRED)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
-    "simple.c"
+    "cwalk.c"
 )
 
 bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
@@ -52,5 +51,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    ${SAFEC_LINK_LIBRARIES}
+    cwalk
 )

@@ -2,6 +2,7 @@ cfgpath
 clang-tidy
 cmake
 cmake_barebones
+cwalk
 glu
 hash_table
 inih
