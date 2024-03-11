@@ -281,6 +281,7 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
     errno_t           err;
     size_t            opts_columns;
     size_t            descr_columns;
+    int               ret;
 
     if (columns <= HELP_COLUMNS_MIN)
         columns = HELP_COLUMNS_MIN;
@@ -288,38 +289,27 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
     opts_columns = columns / 2 - 1;
     descr_columns = columns / 2 - 1;
 
-    if (strcpy_s(dst, dstsize, "Usage:\n") != 0)
+    ret = snprintf(dst, dstsize, "Usage:\n%s [OPTS]\n\n", module->argv[0]);
+    if (ret < 0 || (size_t)ret == dstsize)
         return false;
-
-    err = strcat_s(dst, dstsize, module->argv[0]);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
-        module->logger.error(module->logger.ctx, "opts_ketopt: strcpy_s: %s",
-         err_msg_buf);
-
-        return false;
-    }
-
-    if (strcat_s(dst, dstsize, " [OPTS]\n\n") != 0)
-        return false;
+    dst += ret;
+    dstsize -= (size_t)ret;
 
     for (unsigned i = 0; i < module->opts_count; i++) {
         char        opts[OPTS_COLUMNS_MAX] = {0};
+        char       *popts = opts + 2;
+        size_t      columns = OPTS_COLUMNS_MAX - 2;
         size_t      opts_len;
         const char *descr = module->opts[i].opt_descr;
         size_t      descr_len = strlen(descr);
+        int         ret;
 
         if (module->opts[i].shortopt != ST_OPTS_SHORT_UNSPEC) {
             opts[0] = '-';
             opts[1] = module->opts[i].shortopt;
-            opts[2] = '\0';
         } else {
             opts[0] = ' ';
             opts[1] = ' ';
-            opts[2] = '\0';
         }
 
         if (module->opts[i].longopt) {
@@ -329,57 +319,66 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
             opts[3] = ' ';
             opts[4] = '-';
             opts[5] = '-'; // NOLINT(readability-magic-numbers)
-            opts[6] = '\0'; // NOLINT(readability-magic-numbers)
 
-            if (strcat_s(opts, OPTS_COLUMNS_MAX, module->opts[i].longopt) != 0)
+            popts += 4;
+            columns -= 4;
+
+            ret = snprintf(popts, columns, "%s", module->opts[i].longopt);
+            if (ret < 0 || (size_t)ret == columns)
                 return false;
+            popts += ret;
+            columns -= (size_t)ret;
         }
 
         if (module->opts[i].arg != ST_OA_NO) {
             if (module->opts[i].arg == ST_OA_OPTIONAL) {
-                if (strncat_s(opts, OPTS_COLUMNS_MAX, "[", 1) != 0)
+                if (columns-- == 0)
                     return false;
+                *popts++ = '[';
             }
 
-            if (module->opts[i].longopt) {
-                if (strncat_s(opts, OPTS_COLUMNS_MAX, "=", 1) != 0)
-                    return false;
-            } else {
-                if (strncat_s(opts, OPTS_COLUMNS_MAX, " ", 1) != 0)
-                    return false;
-            }
-
-            if (strcat_s(opts, OPTS_COLUMNS_MAX, module->opts[i].arg_fmt) != 0)
+            if (columns-- == 0)
                 return false;
+            *popts++ = module->opts[i].longopt ? '=' : ' ';
+
+            ret = snprintf(popts, columns, "%s", module->opts[i].arg_fmt);
+            if (ret < 0 || (size_t)ret == columns)
+                return false;
+            popts += ret;
+            columns -= (size_t)ret;
 
             if (module->opts[i].arg == ST_OA_OPTIONAL) {
-                if (strncat_s(opts, OPTS_COLUMNS_MAX, "]", 1) != 0)
+                if (columns-- == 0)
                     return false;
+                *popts++ = ']';
             }
         }
+
+        ret = snprintf(dst, dstsize, "%s", opts);
+        if (ret < 0 || (size_t)ret == dstsize)
+            return false;
+        dst += ret;
+        dstsize -= (size_t)ret;
 
         opts_len = strlen(opts);
-        if (strncat_s(dst, dstsize, opts, opts_len) != 0)
-            return false;
 
         if (opts_len > opts_columns) {
-            if (strncat_s(dst, dstsize, "\n", 1) != 0)
+            if (dstsize-- == 0)
                 return false;
-            for (unsigned column = 0; column <= opts_columns; column++) {
-                if (strncat_s(dst, dstsize, " ", 1) != 0)
-                    return false;
-            }
-        } else {
-            for (unsigned column = 0; column <= opts_columns - opts_len;
-             column++) {
-                if (strncat_s(dst, dstsize, " ", 1) != 0)
-                    return false;
-            }
+            *dst++ = '\n';
         }
 
-        if (strncat_s(dst, dstsize, " ", 1) != 0)
+        ret = snprintf(dst, dstsize, "%*s",
+         (opts_len > opts_columns) ? opts_columns : (opts_columns - opts_len),
+         "");
+        if (ret < 0 || (size_t)ret == dstsize)
             return false;
+        dst += ret;
+        dstsize -= (size_t)ret;
 
+        if (dstsize-- == 0)
+            return false;
+        *dst++ = ' ';
 
         while (descr_len > 0) {
             size_t      to_copy_len;
@@ -398,17 +397,24 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
                 to_copy_len = descr_len;
             }
 
-            if (strncat_s(dst, dstsize, descr, to_copy_len) != 0)
+            if (dstsize < to_copy_len)
                 return false;
+            ret = snprintf(dst, to_copy_len + 1, "%s", descr);
+            if (ret < 0 || (size_t)ret == dstsize)
+                return false;
+            dst += to_copy_len;
+            dstsize -= to_copy_len;
 
             if (to_copy_len < descr_len) {
-                if (strncat_s(dst, dstsize, "\n", 1) != 0)
+                if (dstsize-- == 0)
                     return false;
-                for (unsigned column = 0; column <= opts_columns;
-                 column++) {
-                    if (strncat_s(dst, dstsize, " ", 1) != 0)
-                        return false;
-                }
+                *dst++ = '\n';
+
+                ret = snprintf(dst, dstsize, "%*s", opts_columns, "");
+                if (ret < 0 || (size_t)ret == dstsize)
+                    return false;
+                dst += ret;
+                dstsize -= (size_t)ret;
             }
 
             if (descr == space)
@@ -418,8 +424,9 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
             descr += to_copy_len;
         }
 
-        if (strncat_s(dst, dstsize, "\n", 1) != 0)
+        if (dstsize-- == 0)
             return false;
+        *dst++ = '\n';
     }
 
     return true;
