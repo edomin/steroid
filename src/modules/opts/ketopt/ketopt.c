@@ -7,15 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
-#define SHORTOPT_FMT_SIZE              3
 #define SHORT_OPTS_FMT_SIZE          100
 #define LONGOPTS_COUNT                64
 #define OPTS_COLUMNS_MAX            1024
@@ -63,8 +55,7 @@ static bool st_opts_import_functions(st_modctx_t *opts_ctx,
 static st_modctx_t *st_opts_init(int argc, char **argv,
  st_modctx_t *logger_ctx) {
     st_modctx_t      *opts_ctx;
-    st_opts_ketopt_t *opts;
-    errno_t           err;
+    st_opts_ketopt_t *module;
 
     opts_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_opts_ketopt_data, sizeof(st_opts_ketopt_t));
@@ -74,8 +65,8 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
 
     opts_ctx->funcs = &st_opts_ketopt_funcs;
 
-    opts = opts_ctx->data;
-    opts->logger.ctx = logger_ctx;
+    module = opts_ctx->data;
+    module->logger.ctx = logger_ctx;
 
     if (!st_opts_import_functions(opts_ctx, logger_ctx)) {
         global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
@@ -83,61 +74,51 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
         return NULL;
     }
 
-    opts->argc = argc;
-    opts->argv = argv;
+    module->argc = argc;
+    module->argv = argv;
+    memset(module->opts, '\0', sizeof(st_opt_t) * ST_OPTS_OPTS_MAX);
+    module->opts_count = 0;
 
-    err = memset_s(opts->opts, sizeof(st_opt_t) * ST_OPTS_OPTS_MAX, '\0',
-     sizeof(st_opt_t) * ST_OPTS_OPTS_MAX);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
-        fprintf(stderr, "Unable to init opts_ketopt: %s\n", err_msg_buf);
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
-
-        return NULL;
-    }
-
-    opts->opts_count = 0;
-
-    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Opts initialized.");
+    module->logger.info(module->logger.ctx, "%s",
+     "opts_ketopt: Opts initialized.");
 
     return opts_ctx;
 }
 
 static void st_opts_quit(st_modctx_t *opts_ctx) {
-    st_opts_ketopt_t *opts = opts_ctx->data;
+    st_opts_ketopt_t *module = opts_ctx->data;
 
-    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Destroying opts.");
-    for (unsigned i = 0; i < opts->opts_count; i++) {
-        free(opts->opts[i].longopt);
-        free(opts->opts[i].arg_fmt);
-        free(opts->opts[i].opt_descr);
+    module->logger.info(module->logger.ctx, "%s",
+     "opts_ketopt: Destroying opts");
+    for (unsigned i = 0; i < module->opts_count; i++) {
+        free(module->opts[i].longopt);
+        free(module->opts[i].arg_fmt);
+        free(module->opts[i].opt_descr);
     }
 
-    opts->logger.info(opts->logger.ctx, "%s", "opts_ketopt: Opts destroyed.");
+    module->logger.info(module->logger.ctx, "%s",
+     "opts_ketopt: Opts destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
 }
 
 static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
  const char *long_option, st_opt_arg_t arg, const char *arg_fmt,
  const char *option_descr) {
-    st_opts_ketopt_t *opts = opts_ctx->data;
-    st_opt_t         *opt = &opts->opts[opts->opts_count];
+    st_opts_ketopt_t *module = opts_ctx->data;
+    st_opt_t         *opt = &module->opts[module->opts_count];
     bool              opt_set = false;
 
     if (!long_option || long_option[0] == '\0' || long_option[1] == '\0') {
-        opts->logger.error(opts->logger.ctx,
+        module->logger.error(module->logger.ctx,
          "opts_ketopt: Incorrect long option: %s", long_option);
     } else {
         opt->longopt = strdup(long_option);
         if (!opt->longopt) {
-            opts->logger.error(opts->logger.ctx,
+            module->logger.error(module->logger.ctx,
              "opts_ketopt: Unable to allocate memory for long option \"%s\": "
              "%s", long_option, strerror(errno));
         } else {
-            opt->longopt_index = (int)opts->opts_count +
+            opt->longopt_index = (int)module->opts_count +
              LONG_OPT_NUM_TO_INDEX_OFFSET;
             opt_set = true;
         }
@@ -148,7 +129,7 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
             opt->shortopt = short_option;
             opt_set = true;
         } else {
-            opts->logger.error(opts->logger.ctx,
+            module->logger.error(module->logger.ctx,
              "opts_ketopt: Incorrect character for short option \"%c\"",
              short_option);
         }
@@ -162,26 +143,27 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
     if (arg_fmt) {
         opt->arg_fmt = strdup(arg_fmt);
         if (!opt->arg_fmt)
-            opts->logger.warning(opts->logger.ctx,
+            module->logger.warning(module->logger.ctx,
              "opts_ketopt: Unable to allocate memory for option argument "
              "format");
     }
     if (option_descr) {
         opt->opt_descr = strdup(option_descr);
         if (!opt->opt_descr)
-            opts->logger.warning(opts->logger.ctx,
+            module->logger.warning(module->logger.ctx,
              "opts_ketopt: Unable to allocate memory for option description");
     }
 
-    opts->opts_count++;
+    module->opts_count++;
 
     return true;
 }
 
 static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
  size_t dstsize) {
-    st_opts_ketopt_t *opts = opts_ctx->data;
+    st_opts_ketopt_t *module = opts_ctx->data;
     char              short_opts_fmt[SHORT_OPTS_FMT_SIZE] = "";
+    char             *pshortopts_fmt = short_opts_fmt;
     ko_longopt_t      longopts[LONGOPTS_COUNT] = {0};
     size_t            longopts_count = 0;
     int               longopt_index = -1;
@@ -192,52 +174,46 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
         return false;
 
     if (!opt || opt[0] == '\0') {
-        opts->logger.error(opts->logger.ctx, "opts_ketopt: Empty option");
+        module->logger.error(module->logger.ctx, "opts_ketopt: Empty option");
 
         return false;
     }
 
-    for (unsigned i = 0; i < opts->opts_count; i++) {
-        if (opts->opts[i].shortopt) {
-            errno_t err;
-            char short_opt_fmt[SHORTOPT_FMT_SIZE] = {opts->opts[i].shortopt,
-             '\0', '\0'};
+    for (unsigned i = 0; i < module->opts_count; i++) {
+        if (module->opts[i].shortopt) {
+            ptrdiff_t opt_fmt_size = module->opts[i].arg == ST_OA_NO ? 1 : 2;
 
-            if (opts->opts[i].arg != ST_OA_NO)
-                short_opt_fmt[1] = opts->opts[i].arg == ST_OA_REQUIRED
-                 ? ':' : '?';
+            if (pshortopts_fmt - short_opts_fmt
+             >= SHORT_OPTS_FMT_SIZE - opt_fmt_size) {
+                module->logger.error(module->logger.ctx,
+                 "opts_ketopt: Short opts format overflow");
+            } else {
+                *pshortopts_fmt++ = module->opts[i].shortopt;
 
-            err = strncat_s(short_opts_fmt, SHORT_OPTS_FMT_SIZE, short_opt_fmt,
-             SHORTOPT_FMT_SIZE);
-            if (err) {
-                size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-                char   err_msg_buf[err_msg_buf_size];
-
-                strerror_s(err_msg_buf, err_msg_buf_size, err);
-                opts->logger.error(opts->logger.ctx,
-                 "opts_ketopt: Unable to construct shortopts format: %s",
-                 err_msg_buf);
-
-                return false;
+                if (module->opts[i].arg != ST_OA_NO) {
+                    *pshortopts_fmt++ = module->opts[i].arg == ST_OA_REQUIRED
+                        ?':'
+                        : '?';
+                }
             }
         }
 
-        if (opts->opts[i].longopt) {
-            if (strcmp(opts->opts[i].longopt, opt) == 0 ||
-             (opt[1] == '\0' && opts->opts[i].shortopt == opt[0])) {
-                longopt_index = opts->opts[i].longopt_index;
-                shortopt = opts->opts[i].shortopt;
+        if (module->opts[i].longopt) {
+            if (strcmp(module->opts[i].longopt, opt) == 0 ||
+             (opt[1] == '\0' && module->opts[i].shortopt == opt[0])) {
+                longopt_index = module->opts[i].longopt_index;
+                shortopt = module->opts[i].shortopt;
             }
 
-            longopts[longopts_count].name = opts->opts[i].longopt;
-            longopts[longopts_count].has_arg = (int)opts->opts[i].arg;
-            longopts[longopts_count].val = opts->opts[i].longopt_index;
+            longopts[longopts_count].name = module->opts[i].longopt;
+            longopts[longopts_count].has_arg = (int)module->opts[i].arg;
+            longopts[longopts_count].val = module->opts[i].longopt_index;
             longopts_count++;
         }
     }
 
     while (true) {
-        int parse_result = ketopt(&kopt, opts->argc, opts->argv, true,
+        int parse_result = ketopt(&kopt, module->argc, module->argv, true,
          short_opts_fmt, longopts);
 
         if (parse_result == '?' || parse_result == ':')
@@ -249,20 +225,18 @@ static bool st_opts_get_str(st_modctx_t *opts_ctx, const char *opt, char *dst,
         if (parse_result == longopt_index ||
          (opt[1] == '\0' && parse_result == opt[0]) ||
          parse_result == shortopt) {
+            int ret;
+
             if (!kopt.arg) {
                 dst[0] = '\0';
 
                 return true;
             }
 
-            errno_t err = strcpy_s(dst, dstsize, kopt.arg);
-            if (err) {
-                size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-                char   err_msg_buf[err_msg_buf_size];
-
-                strerror_s(err_msg_buf, err_msg_buf_size, err);
-                opts->logger.error(opts->logger.ctx,
-                 "opts_ketopt: Unable to get option argument: %s", err_msg_buf);
+            ret = snprintf(dst, dstsize, "%s", kopt.arg);
+            if (ret < 0 || (size_t)ret == dstsize) {
+                module->logger.error(module->logger.ctx,
+                 "opts_ketopt: Unable to get option argument");
 
                 return false;
             }
@@ -278,7 +252,6 @@ static bool st_opts_get_help(st_modctx_t *opts_ctx, char *dst, size_t dstsize,
  size_t columns) {
     st_opts_ketopt_t *module = opts_ctx->data;
     size_t            block_size;
-    errno_t           err;
     size_t            opts_columns;
     size_t            descr_columns;
     int               ret;
