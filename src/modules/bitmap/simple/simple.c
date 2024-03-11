@@ -1,14 +1,9 @@
 #include "simple.h"
 
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <string.h>
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -206,7 +201,6 @@ static st_bitmap_t *st_bitmap_import(st_modctx_t *bitmap_ctx, const void *data,
     unsigned            bytes_per_pixel;
     size_t              data_size;
     st_bitmap_t        *bitmap;
-    errno_t             err;
 
     if (width == 0 || height == 0) {
         module->logger.error(module->logger.ctx,
@@ -234,19 +228,7 @@ static st_bitmap_t *st_bitmap_import(st_modctx_t *bitmap_ctx, const void *data,
         return NULL;
     }
 
-    err = memcpy_s(bitmap->data, data_size, data, data_size);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
-        module->logger.error(module->logger.ctx,
-         "bitmap_simple: Unable to copy bitmap pixels: %s", err_msg_buf);
-        free(bitmap);
-
-        return NULL;
-    }
-
+    memcpy(bitmap->data, data, data_size);
     bitmap->module = bitmap_ctx->data;
     bitmap->width = width;
     bitmap->height = height;
