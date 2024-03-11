@@ -6,13 +6,6 @@
 
 #include <scv.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-    #include <safeclib/safe_mem_lib.h>
-    #include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_lib.h>
-
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -112,23 +105,20 @@ static bool st_dynarr_clear(st_dynarr_t *dynarr) {
 
 static bool st_dynarr_sort(st_dynarr_t *dynarr,
  int (*cmpfunc)(const void *, const void *, void *), void *userptr) {
-    errno_t err = qsort_s(scv_data(dynarr), scv_size(dynarr),
-     scv_objsize(dynarr), cmpfunc, userptr);
+    qsort_r(scv_data(dynarr), scv_size(dynarr), scv_objsize(dynarr), cmpfunc,
+     userptr);
 
-    return err == 0;
+    return true;
 }
 
 static bool st_dynarr_export(const st_dynarr_t *dynarr, void *dst,
  size_t index) {
-    errno_t err;
-    size_t  size = scv_objsize(dynarr);
-
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wcast-qual"
-        err = memcpy_s(dst, size, scv_at((st_dynarr_t *)dynarr, index), size);
+        memcpy(dst, scv_at((st_dynarr_t *)dynarr, index), scv_objsize(dynarr));
     #pragma GCC diagnostic pop
 
-    return err == 0;
+    return true;
 }
 
 static const void *st_dynarr_get(st_dynarr_t *dynarr, size_t index) {
