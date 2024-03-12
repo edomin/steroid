@@ -29,7 +29,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 4)
+set(ST_MODULE_PREREQS_COUNT 5)
 
 configure_file(
     "config.h.in"
