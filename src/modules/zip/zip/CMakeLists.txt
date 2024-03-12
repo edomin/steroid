@@ -43,8 +43,6 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_ZIP_ZIP})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SAFEC REQUIRED libsafec)
 find_package(zip REQUIRED)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
@@ -61,6 +59,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
-    ${SAFEC_LINK_LIBRARIES}
     zip::zip
 )
