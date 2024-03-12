@@ -23,48 +23,9 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static void st_logger_init_fallback(st_modctx_t *logger_ctx,
- st_modctx_t *events_ctx) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-
-    logger->use_fallback_module = true;
-    logger->logger_fallback_active = true;
-
-    logger->logger_fallback_init = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "init");
-    logger->logger_fallback_quit = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "quit");
-    logger->logger_fallback_set_stdout_levels =
-     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
-      "set_stdout_levels");
-    logger->logger_fallback_set_stderr_levels =
-     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
-      "set_stderr_levels");
-    logger->logger_fallback_set_log_file = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "set_log_file");
-    logger->logger_fallback_set_callback = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "set_callback");
-    logger->logger_fallback_debug = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "debug");
-    logger->logger_fallback_info = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "info");
-    logger->logger_fallback_warning = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "warning");
-    logger->logger_fallback_error = global_modsmgr_funcs.get_function(
-     global_modsmgr, "logger", "simple", "error");
-    logger->logger_fallback_set_postmortem_msg =
-     global_modsmgr_funcs.get_function(global_modsmgr, "logger", "simple",
-      "set_postmortem_msg");
-
-    logger->logger_fallback_ctx = logger->logger_fallback_init(events_ctx);
-    logger->logger_fallback_warning(logger->logger_fallback_ctx, "%s\n",
-     "logger_libsir: Unable to initialize \"logger_libsir\" properly. Using "
-     "fallback module \"logger_simple\" internally.");
-}
-
 static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
-    bool         use_fallback = false;
-    sirinit      init_options = {
+    st_logger_libsir_t *module;
+    sirinit             init_options = {
         .d_stdout = {
             .levels = ST_LL_NONE,
             .opts = (sir_options)SIRO_NOHOST | (sir_options)SIRO_NONAME |
@@ -98,29 +59,25 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
 
     logger_ctx->funcs = &st_logger_libsir_funcs;
 
-    if (sir_init(&init_options)) {
-        st_logger_libsir_t *logger = logger_ctx->data;
+    module = logger_ctx->data;
 
-        logger->use_fallback_module = false;
-        logger->events.ctx = events_ctx;
-        logger->callbacks_count = 0;
+    if (!sir_init(&init_options))
+        return NULL;
 
-        if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
-            logger->events.ctx = NULL;
+    module->events.ctx = events_ctx;
+    module->callbacks_count = 0;
 
-        if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
-            st_logger_error(logger_ctx,
-             "logger_libsir: Unable to init lock mutex while initializing "
-             "logger");
-            global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
-            use_fallback = true;
-        }
-    } else {
-        use_fallback = true;
+    if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
+        module->events.ctx = NULL;
+
+    if (mtx_init(&module->lock, mtx_plain) == thrd_error) {
+        st_logger_error(logger_ctx,
+         "logger_libsir: Unable to init lock mutex while initializing "
+         "logger");
+        global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
+
+        return NULL;
     }
-
-    if (use_fallback)
-        st_logger_init_fallback(logger_ctx, events_ctx);
 
     st_logger_info(logger_ctx, "logger_libsir: Logger initialized");
 
@@ -134,8 +91,6 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         return;
 
     st_logger_info(logger_ctx, "logger_libsir: Destroying logger");
-    if (logger->use_fallback_module)
-        logger->logger_fallback_quit(logger->logger_fallback_ctx);
     sir_cleanup();
     mtx_destroy(&logger->lock);
 
@@ -206,51 +161,27 @@ import_fail:
 
 static bool st_logger_set_stdout_levels( st_modctx_t *logger_ctx,
  st_loglvl_t levels) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-
-    if (logger->use_fallback_module)
-        return logger->logger_fallback_set_stdout_levels(
-         logger->logger_fallback_ctx, levels);
-
     return sir_stdoutlevels((sir_levels)levels);
 }
 
 static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
  st_loglvl_t levels) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-
-    if (logger->use_fallback_module)
-        return logger->logger_fallback_set_stderr_levels(
-         logger->logger_fallback_ctx, levels);
-
     return sir_stderrlevels((sir_levels)levels);
 }
 
 static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
  st_loglvl_t levels) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-
-    if (logger->use_fallback_module)
-        return logger->logger_fallback_set_syslog_levels(
-         logger->logger_fallback_ctx, levels);
-
     return sir_sysloglevels((sir_levels)levels);
 }
 
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
     st_logger_libsir_t *logger = logger_ctx->data;
-    sirfileid file;
-
-    if (logger->use_fallback_module)
-        return logger->logger_fallback_set_log_file(
-         logger->logger_fallback_ctx, filename, levels);
-
-    file = sir_addfile(filename, SIRL_ALL,
+    sirfileid           file = sir_addfile(filename, SIRL_ALL,
      (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
      (sir_options)SIRO_NOTID);
 
-    if (file)
+    if (!file)
         return false;
 
     return sir_filelevels(file, (sir_levels)levels);
@@ -260,10 +191,6 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
  st_logcbk_t callback, void *userdata, st_loglvl_t levels) {
     st_logger_libsir_t *logger = logger_ctx->data;
     unsigned            cbk_num = logger->callbacks_count;
-
-    if (logger->use_fallback_module)
-        return logger->logger_fallback_set_callback(
-         logger->logger_fallback_ctx, callback, userdata, levels);
 
     for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
         if (callback == logger->callbacks[logger->callbacks_count].func) {
@@ -292,18 +219,13 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
 }
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 4096
-#define ST_LOGGER_NOLOCK_FUNC(st_func, st_fallback, sir_func, log_level,     \
- evtype_id_field)                                                            \
+#define ST_LOGGER_NOLOCK_FUNC(st_func, sir_func, log_level, evtype_id_field) \
     static __attribute__ ((format (printf, 2, 0))) void st_func(             \
      const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
         st_logger_libsir_t *logger = logger_ctx->data;                       \
         char                message[ST_LOGGER_MESSAGE_LEN_MAX];              \
         vsnprintf(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);         \
-        if (logger->use_fallback_module)                                     \
-            logger->st_fallback(logger->logger_fallback_ctx,                 \
-             "%s", message);                                                 \
-        else                                                                 \
-            sir_func("%s", message);                                         \
+        sir_func("%s", message);                                         \
         for (unsigned i = 0; i < logger->callbacks_count; i++) {             \
             if ((logger->callbacks[i].log_levels & (unsigned)(log_level)) == \
              (log_level))                                                    \
@@ -317,14 +239,14 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
         }                                                                    \
     }
 
-ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, logger_fallback_debug, sir_debug, // NOLINT(cert-err33-c)
- ST_LL_DEBUG, ev_log_output_debug);
-ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, logger_fallback_info, sir_info, // NOLINT(cert-err33-c)
- ST_LL_INFO, ev_log_output_info);
-ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, logger_fallback_warning, // NOLINT(cert-err33-c)
- sir_warn, ST_LL_WARNING, ev_log_output_warning);
-ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, logger_fallback_error, sir_error, // NOLINT(cert-err33-c)
- ST_LL_ERROR, ev_log_output_warning);
+ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, sir_debug, ST_LL_DEBUG, // NOLINT(cert-err33-c)
+ ev_log_output_debug);
+ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, sir_info, ST_LL_INFO, // NOLINT(cert-err33-c)
+ ev_log_output_info);
+ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, sir_warn, ST_LL_WARNING, // NOLINT(cert-err33-c)
+ ev_log_output_warning);
+ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, sir_error, ST_LL_ERROR, // NOLINT(cert-err33-c)
+ ev_log_output_warning);
 
 #define ST_LOGGER_LOG_FUNC(st_func, st_nolock_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \
@@ -347,13 +269,6 @@ ST_LOGGER_LOG_FUNC(st_logger_error,   st_logger_error_nolock);
 static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
  const char *msg) {
     st_logger_libsir_t *module = logger_ctx->data;
-
-    if (module->use_fallback_module) {
-        module->logger_fallback_set_postmortem_msg(module->logger_fallback_ctx,
-         msg);
-
-        return;
-    }
 
     snprintf(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, "%s", msg);
 }
