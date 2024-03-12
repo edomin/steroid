@@ -1,13 +1,9 @@
 #include "xlib.h"
 
-#include <X11/Xlib.h>
+#include <errno.h>
+#include <stdio.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <X11/Xlib.h>
 
 #define DISPLAY_NAME_SIZE_MAX 128
 
@@ -100,9 +96,10 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     st_monitor_xlib_t *module = monitor_ctx->data;
     char               display_name[DISPLAY_NAME_SIZE_MAX];
     st_monitor_t      *monitor;
+    int                ret = snprintf(display_name, DISPLAY_NAME_SIZE_MAX,
+     ":0.%u", index);
 
-    if (snprintf_s(display_name, DISPLAY_NAME_SIZE_MAX, ":0.%u",
-     index) < 0) {
+    if (ret < 0 || ret == DISPLAY_NAME_SIZE_MAX) {
         module->logger.error(module->logger.ctx,
          "monitor_xlib: Unable to construct display name for display with "
          "index %u", index);
