@@ -8,12 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-
 #define DEFAULT_CONFIG_FILENAME   "steroids.ini"
 #define DEFAULT_DIRECTORY_NAME    "."
 #define RUNNABLE_MODULE_NAME_SIZE 256
@@ -112,7 +106,7 @@ static void st_runner_quit(st_modctx_t *runner_ctx) {
 
 static bool get_config_filename(st_runner_simple_t *module,
  char filename[PATH_MAX]) {
-    errno_t err;
+    int ret;
 
     if (module->opts.add_option(module->opts.ctx, 'c', "cfg", ST_OA_REQUIRED,
      "filename", "Config file")) {
@@ -128,12 +122,8 @@ static bool get_config_filename(st_runner_simple_t *module,
          "Using default config file \"%s\"", DEFAULT_CONFIG_FILENAME);
     }
 
-    err = strcpy_s(filename, PATH_MAX, DEFAULT_CONFIG_FILENAME);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
+    ret = snprintf(filename, PATH_MAX, "%s", DEFAULT_CONFIG_FILENAME);
+    if (ret < 0 || ret == PATH_MAX) {
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to copy default config filename");
 
@@ -154,21 +144,17 @@ static bool get_directory_name(st_runner_simple_t *module,
 
     if (ini && !module->ini.fill_str(ini, dirname, PATH_MAX, "steroids.runner",
      "plugin_path")) {
-        errno_t err;
+        int ret;
 
         module->logger.warning(module->logger.ctx,
          "runner_simple: Unable to get plugin directory name. Using default "
          "directory \"%s\"", DEFAULT_DIRECTORY_NAME);
 
-        err = strcpy_s(dirname, PATH_MAX, DEFAULT_DIRECTORY_NAME);
-        if (err) {
-            size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-            char   err_msg_buf[err_msg_buf_size];
-
-            strerror_s(err_msg_buf, err_msg_buf_size, err);
+        ret = snprintf(dirname, PATH_MAX, "%s", DEFAULT_DIRECTORY_NAME);
+        if (ret < 0 || ret == PATH_MAX) {
             module->logger.error(module->logger.ctx,
              "runner_simple: Unable to copy default plugin directory name "
-             "\"%s\": %s", DEFAULT_DIRECTORY_NAME, err_msg_buf);
+             "\"%s\"", DEFAULT_DIRECTORY_NAME);
 
             return false;
         }
