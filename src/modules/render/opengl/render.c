@@ -142,6 +142,18 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, make_current);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, swap_buffers);
 
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, init);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, quit);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, label_buffer);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, label_shader);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, label_shdprog);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, label_vao);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, unlabel_buffer);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, unlabel_shader);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, unlabel_shdprog);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, unlabel_vao);
+    ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, get_error_msg);
+
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, info);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, warning);
@@ -255,6 +267,11 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
      dynarr_ctx, logger_ctx, matrix3x3_ctx, sprite_ctx, texture_ctx, vec2_ctx,
      gfxctx))
         goto import_fail;
+
+    module->gldebug.ctx = module->gldebug.init(logger_ctx, gfxctx);
+    if (!module->gldebug.ctx)
+        module->logger.warning(module->logger.ctx,
+         "render_opengl: Unable to initialize gldebug");
 
     module->drawq.handle = module->drawq.create(module->drawq.ctx);
     if (!module->drawq.handle) {
@@ -371,6 +388,8 @@ batcher_fail:
 vertices_fail:
     module->drawq.destroy(module->drawq.handle);
 drawq_fail:
+    if (module->gldebug.ctx)
+        module->gldebug.quit(module->gldebug.ctx);
 import_fail:
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, render_ctx);
 
@@ -391,6 +410,9 @@ static void st_render_quit(st_modctx_t *render_ctx) {
     batcher_free(&module->batcher);
     vertices_free(&module->vertices);
     module->drawq.destroy(module->drawq.handle);
+
+    if (module->gldebug.ctx)
+        module->gldebug.quit(module->gldebug.ctx);
 
     module->logger.info(module->logger.ctx,
      "render_opengl: Render subsystem destroyed");

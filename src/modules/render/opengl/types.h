@@ -57,6 +57,7 @@ typedef struct st_render_opengl_s {
     st_render_opengl_drawq_t     drawq;
     st_render_opengl_dynarr_t    dynarr;
     st_render_opengl_gfxctx_t    gfxctx;
+    st_render_opengl_gldebug_t   gldebug;
     st_render_opengl_logger_t    logger;
     st_render_opengl_matrix3x3_t matrix3x3;
     st_render_opengl_sprite_t    sprite;

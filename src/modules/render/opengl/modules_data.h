@@ -4,6 +4,7 @@
 #include "steroids/types/modules/drawq.h"
 #include "steroids/types/modules/dynarr.h"
 #include "steroids/types/modules/gfxctx.h"
+#include "steroids/types/modules/gldebug.h"
 #include "steroids/types/modules/glloader.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/matrix3x3.h"
@@ -46,6 +47,21 @@ typedef struct {
     st_gapi_t                gapi;
     st_gfxctx_t             *handle;
 } st_render_opengl_gfxctx_t;
+
+typedef struct {
+    st_modctx_t                 *ctx;
+    st_gldebug_init_t            init;
+    st_gldebug_quit_t            quit;
+    st_gldebug_label_buffer_t    label_buffer;
+    st_gldebug_label_shader_t    label_shader;
+    st_gldebug_label_shdprog_t   label_shdprog;
+    st_gldebug_label_vao_t       label_vao;
+    st_gldebug_unlabel_buffer_t  unlabel_buffer;
+    st_gldebug_unlabel_shader_t  unlabel_shader;
+    st_gldebug_unlabel_shdprog_t unlabel_shdprog;
+    st_gldebug_unlabel_vao_t     unlabel_vao;
+    st_gldebug_get_error_msg_t   get_error_msg;
+} st_render_opengl_gldebug_t;
 
 typedef struct {
     st_modctx_t        *ctx;

@@ -21,6 +21,10 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
     {
+        .subsystem = "gldebug",
+        .name = NULL,
+    },
+    {
         .subsystem = "glloader",
         .name = NULL,
     },
@@ -41,7 +45,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 8)
+set(ST_MODULE_PREREQS_COUNT 9)
 
 configure_file(
     "config.h.in"
