@@ -1,16 +1,11 @@
 #include "egl.h"
 
 #include <assert.h>
+#include <errno.h>
+#include <stdio.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
 
 #define GAPI_STR_SIZE_MAX 32
 #define RED_BITS           8
@@ -441,7 +436,7 @@ static void attrs_fill_gapi_str(char dst[GAPI_STR_SIZE_MAX],
             break;
     }
 
-    sprintf_s(dst, GAPI_STR_SIZE_MAX, "%s %i.%i", api_name,
+    snprintf(dst, GAPI_STR_SIZE_MAX, "%s %i.%i", api_name,
      ctx_attrs->context_major_version, ctx_attrs->context_minor_version);
 }
 
