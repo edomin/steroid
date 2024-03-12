@@ -5,6 +5,7 @@
 
 #include <X11/Xlib.h>
 
+#define ERRMSGBUF_SIZE        128
 #define DISPLAY_NAME_SIZE_MAX 128
 
 static st_modsmgr_t      *global_modsmgr;
@@ -109,9 +110,12 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
 
     monitor = malloc(sizeof(st_monitor_t));
     if (!monitor) {
-        module->logger.error(module->logger.ctx,
-         "monitor_xlib: Unable to allocate memory for monitor structure: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "monitor_xlib: Unable to allocate memory for monitor structure: "
+             "%s", errbuf);
 
         return NULL;
     }

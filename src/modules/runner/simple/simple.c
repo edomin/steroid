@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define ERRMSGBUF_SIZE            128
 #define DEFAULT_CONFIG_FILENAME   "steroids.ini"
 #define DEFAULT_DIRECTORY_NAME    "."
 #define RUNNABLE_MODULE_NAME_SIZE 256
@@ -205,9 +206,12 @@ static bool load_plugins(st_runner_simple_t *module,
     DIR           *dir = opendir(dirname);
 
     if (!dir) {
-        module->logger.error(module->logger.ctx,
-         "runner_simple: Unable to open directory \"%s\": %s", dirname,
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "runner_simple: Unable to open directory \"%s\": %s", dirname,
+             errbuf);
 
         return false;
     }

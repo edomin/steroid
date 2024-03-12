@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ERRMSGBUF_SIZE               128
 #define LONG_OPT_NUM_TO_INDEX_OFFSET 300
 #define SHORT_OPTS_FMT_SIZE          100
 #define LONGOPTS_COUNT                64
@@ -114,9 +115,12 @@ static bool st_opts_add_option(st_modctx_t *opts_ctx, char short_option,
     } else {
         opt->longopt = strdup(long_option);
         if (!opt->longopt) {
-            module->logger.error(module->logger.ctx,
-             "opts_ketopt: Unable to allocate memory for long option \"%s\": "
-             "%s", long_option, strerror(errno));
+            char errbuf[ERRMSGBUF_SIZE];
+
+            if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+                module->logger.error(module->logger.ctx,
+                 "opts_ketopt: Unable to allocate memory for long option "
+                 "\"%s\": %s", long_option, errbuf);
         } else {
             opt->longopt_index = (int)module->opts_count +
              LONG_OPT_NUM_TO_INDEX_OFFSET;

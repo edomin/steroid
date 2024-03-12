@@ -7,13 +7,14 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#define GAPI_STR_SIZE_MAX 32
-#define RED_BITS           8
-#define GREEN_BITS         8
-#define BLUE_BITS          8
-#define ALPHA_BITS         8
-#define CFG_ATTRS_LEN     13
-#define CTX_ATTRS_LEN      9
+#define ERRMSGBUF_SIZE    128
+#define GAPI_STR_SIZE_MAX  32
+#define RED_BITS            8
+#define GREEN_BITS          8
+#define BLUE_BITS           8
+#define ALPHA_BITS          8
+#define CFG_ATTRS_LEN      13
+#define CTX_ATTRS_LEN       9
 
 #ifdef _WIN32
     #define MINIMAL_OPENGL_MINOR 1
@@ -620,9 +621,12 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
 
     gfxctx = malloc(sizeof(st_gfxctx_t));
     if (!gfxctx) {
-        module->logger.error(module->logger.ctx,
-         "gfxctx_egl: Unable to allocate memory for gfx context: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "gfxctx_egl: Unable to allocate memory for gfx context: %s",
+             errbuf);
 
         return NULL;
     }
@@ -930,12 +934,16 @@ static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
     st_gfxctx_egl_t *module = gfxctx->ctx->data;
     char            *keydup = strdup(key);
 
-    if (keydup)
+    if (keydup) {
         module->htable.insert(gfxctx->userdata, NULL, keydup, (void *)value);
-    else
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for key of userdata \"%s\": %s",
-         key, strerror(errno));
+    } else {
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for key of userdata \"%s\": "
+             "%s", key, errbuf);
+    }
 }
 
 static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,

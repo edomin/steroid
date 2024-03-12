@@ -10,6 +10,8 @@
 
 #include <zip/zip.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -95,9 +97,13 @@ static st_zip_t *st_zip_open(st_modctx_t *zip_ctx, const char *filename) {
 
     zip = malloc(sizeof(st_zip_t));
     if (!zip) {
-        module->logger.error(module->logger.ctx,
-         "zip_zip: Unable to allocate memory for opened zip structure while "
-         "opening file \"%s\": %s", filename, strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "zip_zip: Unable to allocate memory for opened zip structure "
+             "while opening file \"%s\": %s", filename, errbuf);
+
         zip_close(handle);
 
         return NULL;
@@ -126,9 +132,13 @@ static st_zip_t *st_zip_memopen(st_modctx_t *zip_ctx, const void *data,
 
     zip = malloc(sizeof(st_zip_t));
     if (!zip) {
-        module->logger.error(module->logger.ctx,
-         "zip_zip: Unable to allocate memory for opened zip structure: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "zip_zip: Unable to allocate memory for opened zip structure: %s",
+             errbuf);
+
         zip_close(handle);
 
         return NULL;
@@ -264,10 +274,9 @@ static bool st_zip_extract_entry(st_zip_t *zip, size_t entrynum,
     }
 
     ret = zip_entry_fread(zip->handle, presult_filename);
-    if (ret < 0) {
+    if (ret < 0)
         module->logger.error(module->logger.ctx,
          "zip_zip: Unable to extract entry: %s", zip_strerror(ret));
-    }
 
     zip_entry_close(zip->handle);
 

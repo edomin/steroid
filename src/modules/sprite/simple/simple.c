@@ -3,6 +3,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -94,9 +96,12 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     st_sprite_t        *sprite = malloc(sizeof(st_sprite_t));
 
     if (!sprite) {
-        module->logger.error(module->logger.ctx,
-         "sprite_simple: Unable to allocate memory for new sprite: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "sprite_simple: Unable to allocate memory for new sprite: %s",
+             errbuf);
 
         return NULL;
     }
@@ -134,9 +139,12 @@ static st_sprite_t *st_sprite_from_texture(st_modctx_t *sprite_ctx,
     st_sprite_t        *sprite = malloc(sizeof(st_sprite_t));
 
     if (!sprite) {
-        module->logger.error(module->logger.ctx,
-         "sprite_simple: Unable to allocate memory for new sprite: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "sprite_simple: Unable to allocate memory for new sprite: %s",
+             errbuf);
 
         return NULL;
     }

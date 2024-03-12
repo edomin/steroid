@@ -5,6 +5,8 @@
 
 #include <png.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -101,6 +103,7 @@ static st_bitmap_t *st_png_load(st_modctx_t *png_ctx, const char *filename) {
     png_image        image = {0};
     png_bytep        buffer;
     st_bitmap_t     *result = NULL;
+    char             errbuf[ERRMSGBUF_SIZE];
 
     image.version = PNG_IMAGE_VERSION;
 
@@ -111,17 +114,19 @@ static st_bitmap_t *st_png_load(st_modctx_t *png_ctx, const char *filename) {
 
     buffer = malloc(PNG_IMAGE_SIZE(image)); // NOLINT(hicpp-signed-bitwise)
     if (!buffer) {
-        module->logger.info(module->logger.ctx,
-         "png_libpng: Unable to allocate memory for read buffer: %s",
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.info(module->logger.ctx,
+             "png_libpng: Unable to allocate memory for read buffer: %s",
+             errbuf);
 
         goto malloc_fail;
     }
 
     if (!png_image_finish_read(&image, NULL, buffer, 0, NULL)) {
-        module->logger.warning(module->logger.ctx,
-         "png_libpng: Unable to decode PNG file \"%s\": %s", filename,
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.warning(module->logger.ctx,
+             "png_libpng: Unable to decode PNG file \"%s\": %s", filename,
+             errbuf);
 
         goto read_fail;
     }
@@ -143,6 +148,7 @@ static st_bitmap_t *st_png_memload(st_modctx_t *png_ctx, const void *data,
     png_image        image = {0};
     png_bytep        buffer;
     st_bitmap_t     *result = NULL;
+    char             errbuf[ERRMSGBUF_SIZE];
 
     image.version = PNG_IMAGE_VERSION;
 
@@ -153,16 +159,18 @@ static st_bitmap_t *st_png_memload(st_modctx_t *png_ctx, const void *data,
 
     buffer = malloc(PNG_IMAGE_SIZE(image)); // NOLINT(hicpp-signed-bitwise)
     if (!buffer) {
-        module->logger.info(module->logger.ctx,
-         "png_libpng: Unable to allocate memory for read buffer: %s",
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.info(module->logger.ctx,
+             "png_libpng: Unable to allocate memory for read buffer: %s",
+             errbuf);
 
         goto malloc_fail;
     }
 
     if (!png_image_finish_read(&image, NULL, buffer, 0, NULL)) {
-        module->logger.warning(module->logger.ctx,
-         "png_libpng: Unable to decode PNG data: %s", strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "png_libpng: Unable to decode PNG data: %s", errbuf);
 
         goto read_fail;
     }

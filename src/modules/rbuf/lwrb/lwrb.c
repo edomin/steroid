@@ -8,6 +8,8 @@
 
 #include <lwrb.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -77,20 +79,23 @@ static void st_rbuf_quit(st_modctx_t *rbuf_ctx) {
 static st_rbuf_t *st_rbuf_create(st_modctx_t *rbuf_ctx, size_t size) {
     st_rbuf_lwrb_t *module = rbuf_ctx->data;
     st_rbuf_t      *rbuf = malloc(sizeof(st_rbuf_t));
+    char            errbuf[ERRMSGBUF_SIZE];
 
     if (!rbuf) {
-        module->logger.error(module->logger.ctx,
-         "rbuf_lwrb: Unable to allocate memory for ring buffer structure: %s",
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "rbuf_lwrb: Unable to allocate memory for ring buffer structure: "
+             "%s", errbuf);
 
         return NULL;
     }
 
     rbuf->data = malloc(size);
     if (!rbuf->data) {
-        module->logger.error(module->logger.ctx,
-         "rbuf_lwrb: Unable to allocate memory for ring buffer data: %s",
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "rbuf_lwrb: Unable to allocate memory for ring buffer data: %s",
+             errbuf);
 
         goto malloc_data_fail;
     }

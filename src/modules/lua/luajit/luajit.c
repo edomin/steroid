@@ -7,8 +7,9 @@
 #include <lua.h>
 #include <lualib.h>
 
-#define BINDING_NAME_SIZE 32
-#define BINDINGS_COUNT   256
+#define ERRMSGBUF_SIZE    128
+#define BINDING_NAME_SIZE  32
+#define BINDINGS_COUNT    256
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -107,9 +108,13 @@ static void st_lua_init_bindings(st_modctx_t *logger_ctx,
 
         binding = malloc(sizeof(st_lua_luajit_binding_t));
         if (!binding) {
-            module->logger.error(module->logger.ctx,
-             "lua_luajit: Unable to allocate memory for binding entry of "
-             "module \"luabind_%s\": %s", binding_name, strerror(errno));
+            char errbuf[ERRMSGBUF_SIZE];
+
+            if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+                module->logger.error(module->logger.ctx,
+                 "lua_luajit: Unable to allocate memory for binding entry of "
+                 "module \"luabind_%s\": %s", binding_name, errbuf);
+
             quit_func(ctx);
 
             continue;

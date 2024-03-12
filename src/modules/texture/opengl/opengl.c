@@ -6,6 +6,8 @@
 
 #include <GL/gl.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static void (*glGenerateMipmap)(GLenum target);
 
 static st_modsmgr_t      *global_modsmgr;
@@ -205,9 +207,12 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
     st_texture_t        *texture = malloc(sizeof(st_texture_t));
 
     if (!texture) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to allocate memory for texture struct \"%s\": "
-         "%s", name ? name : "(unnamed)", strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "texture_opengl: Unable to allocate memory for texture struct "
+             "\"%s\": %s", name ? name : "(unnamed)", errbuf);
 
         return NULL;
     }

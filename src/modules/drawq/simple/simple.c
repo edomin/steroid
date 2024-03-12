@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define ERRMSGBUF_SIZE           1024
 #define DYNARR_INITIAL_CAPACITY 16384
 
 static st_modsmgr_t      *global_modsmgr;
@@ -99,9 +100,12 @@ static st_drawq_t *st_drawq_create(const st_modctx_t *drawq_ctx) {
     st_drawq_t        *drawq = malloc(sizeof(st_drawq_t));
 
     if (!drawq) {
-        module->logger.error(module->logger.ctx,
-         "drawq_simple: Unable to allocate memory for draw queue: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "drawq_simple: Unable to allocate memory for draw queue: %s",
+             errbuf);
 
         return NULL;
     }

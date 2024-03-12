@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define ERRMSGBUF_SIZE 128
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -221,9 +223,12 @@ static st_bitmap_t *st_bitmap_import(st_modctx_t *bitmap_ctx, const void *data,
 
     bitmap = malloc(sizeof(st_bitmap_t) + data_size);
     if (!bitmap) {
-        module->logger.error(module->logger.ctx,
-         "bitmap_simple: Unable to allocate memory for bitmap pixels: %s",
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "bitmap_simple: Unable to allocate memory for bitmap pixels: %s",
+             errbuf);
 
         return NULL;
     }

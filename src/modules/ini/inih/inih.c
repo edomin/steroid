@@ -8,6 +8,7 @@
 
 #include <ini.h>
 
+#define ERRMSGBUF_SIZE      128
 #define SAVE_BUFFER_SIZE 131072
 
 typedef struct {
@@ -142,8 +143,11 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
     st_ini_t      *ini = malloc(sizeof(st_ini_t));
 
     if (!ini) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for ini: %s", strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for ini: %s", errbuf);
 
         return NULL;
     }
@@ -246,9 +250,13 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
         zero_terminated = malloc(size + 1);
 
         if (!zero_terminated) {
-            module->logger.error(module->logger.ctx,
-             "ini_inih: Unable to allocate memory for temporary ini buffer: %s",
-             strerror);
+            char errbuf[ERRMSGBUF_SIZE];
+
+            if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+                module->logger.error(module->logger.ctx,
+                 "ini_inih: Unable to allocate memory for temporary ini "
+                 "buffer: %s", errbuf);
+
             goto ini_destroy;
         }
 
@@ -356,9 +364,10 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
 }
 
 static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
-    st_ini_inih_t *module = ini->module;
-    st_inisection_t  *section;
-    char          *section_key;
+    st_ini_inih_t   *module = ini->module;
+    st_inisection_t *section;
+    char            *section_key;
+    char             errbuf[ERRMSGBUF_SIZE];
 
     if (module->htable.contains(ini->sections, section_name))
         return true;
@@ -376,9 +385,10 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
 
     section = malloc(sizeof(st_inisection_t));
     if (!section) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for section \"%s\": %s",
-         section_name, strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for section \"%s\": %s",
+             section_name, errbuf);
 
         goto malloc_fail;
     }
@@ -387,9 +397,9 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
 
     section_key = strdup(section_name);
     if (!section_key) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for section key: %s",
-         strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for section key: %s", errbuf);
 
         goto strdup_fail;
     }
@@ -420,6 +430,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     st_inisection_t *section;
     char            *keydup;
     char            *valdup;
+    char             errbuf[ERRMSGBUF_SIZE];
 
     if (!st_ini_add_section(ini, section_name))
         return false;
@@ -428,16 +439,18 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
 
     keydup = strdup(key);
     if (!keydup) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for key: %s", strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for key: %s", errbuf);
 
         return false;
     }
 
     valdup = strdup(value);
     if (!valdup) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to allocate memory for value: %s", strerror(errno));
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to allocate memory for value: %s", errbuf);
 
         goto valdup_fail;
     }
@@ -537,9 +550,11 @@ static bool st_ini_save(const st_ini_t *ini, const char *filename) {
     file = fopen(filename, "wbe");
 
     if (!file) {
-        module->logger.error(module->logger.ctx,
-         "ini_inih: Unable to open file \"%s\": %s\n", filename,
-         strerror(errno));
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Unable to open file \"%s\": %s\n", filename, errbuf);
 
         return false;
     }
