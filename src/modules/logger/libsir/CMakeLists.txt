@@ -36,8 +36,6 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_OPTS_KETOPT})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SAFEC REQUIRED libsafec)
 find_library(LIBSIR_LIBRARY NAMES sir_s)
 find_package(Threads)
 
@@ -61,6 +59,5 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     ${LIBSIR_LIBRARY}
-    ${SAFEC_LINK_LIBRARIES}
     Threads::Threads
 )
