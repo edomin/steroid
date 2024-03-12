@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <syslog.h>
-#include <threads.h>
 
 #define CBK_BUF_SIZE 4096
 
@@ -42,14 +41,6 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
         logger->events.ctx = NULL;
 
-    if (mtx_init(&logger->lock, mtx_plain) == thrd_error) {
-        st_logger_error(logger_ctx,
-         "logger_simple: Unable to init lock mutex while initializing logger");
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
-
-        return NULL;
-    }
-
     st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized");
 
     return logger_ctx;
@@ -64,13 +55,15 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         closelog();
 
     for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        (void)fflush(logger->log_files[i].file);
+        flockfile(logger->log_files[i].file);
+            (void)fflush(logger->log_files[i].file);
+        funlockfile(logger->log_files[i].file);
         (void)fclose(logger->log_files[i].file);
     }
 
-    printf("%s", logger->postmortem_msg);
-
-    mtx_destroy(&logger->lock);
+    flockfile(stdout);
+        printf("%s", logger->postmortem_msg);
+    funlockfile(stdout);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
 }
@@ -248,20 +241,27 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
     char                buffer[CBK_BUF_SIZE];
 
     if ((logger->stdout_levels & log_level) == log_level) {
-        if (vprintf(format, args) > 0)
-            putc('\n', stdout);
+        flockfile(stdout);
+            if (vprintf(format, args) > 0)
+                putc('\n', stdout);
+        funlockfile(stdout);
     }
     if ((logger->stderr_levels & log_level) == log_level) {
-        if (vfprintf(stderr, format, args) > 0)
-            putc('\n', stdout);
+        flockfile(stderr);
+            if (vfprintf(stderr, format, args) > 0)
+                putc('\n', stderr);
+        funlockfile(stderr);
     }
     if ((logger->syslog_levels & log_level) == log_level)
         vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);
 
     for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if ((logger->log_files[i].log_levels & log_level) == log_level &&
-         vfprintf(logger->log_files[i].file, format, args) > 0)
-            fflush(logger->log_files[i].file);
+        if ((logger->log_files[i].log_levels & log_level) == log_level) {
+            flockfile(logger->log_files[i].file);
+                if (vfprintf(logger->log_files[i].file, format, args) > 0)
+                    fflush(logger->log_files[i].file);
+            funlockfile(logger->log_files[i].file);
+        }
     }
 
     if (vsnprintf(buffer, CBK_BUF_SIZE, format, args) > 0) {
@@ -279,7 +279,7 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
     }
 }
 
-#define ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_func, level, evtype_id_field)         \
+#define ST_LOGGER_SIMPLE_VFUNC(st_func, level, evtype_id_field)               \
     static __attribute__((format (printf, 2, 0))) void st_func(               \
      const st_modctx_t *logger_ctx, const char* format, va_list args) {       \
         st_logger_simple_t *module = logger_ctx->data;                        \
@@ -287,26 +287,22 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
          args);                                                               \
     }
 
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_debug_nolock, ST_LL_DEBUG,
+ST_LOGGER_SIMPLE_VFUNC(st_logger_debug_nolock, ST_LL_DEBUG,
  ev_log_output_debug);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_info_nolock, ST_LL_INFO,
- ev_log_output_info);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_warning_nolock, ST_LL_WARNING,
+ST_LOGGER_SIMPLE_VFUNC(st_logger_info_nolock, ST_LL_INFO, ev_log_output_info);
+ST_LOGGER_SIMPLE_VFUNC(st_logger_warning_nolock, ST_LL_WARNING,
  ev_log_output_warning);
-ST_LOGGER_SIMPLE_NOLOCK_FUNC(st_logger_error_nolock, ST_LL_ERROR,
+ST_LOGGER_SIMPLE_VFUNC(st_logger_error_nolock, ST_LL_ERROR,
  ev_log_output_error);
 
-#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, st_nolock_func) \
-    static __attribute__((format (printf, 2, 3))) void st_func(   \
-     const st_modctx_t *logger_ctx, const char* format, ...) {    \
-        st_logger_simple_t *module = logger_ctx->data;            \
-        va_list             args;                                 \
-        if (mtx_lock(&module->lock) == thrd_error)                \
-            return;                                               \
-        va_start(args, format);                                   \
-        st_nolock_func(logger_ctx, format, args);                 \
-        mtx_unlock(&module->lock);                                \
-        va_end(args);                                             \
+#define ST_LOGGER_SIMPLE_LOG_FUNC(st_func, st_vfunc) \
+    static __attribute__((format (printf, 2, 3))) void st_func( \
+     const st_modctx_t *logger_ctx, const char* format, ...) {  \
+        st_logger_simple_t *module = logger_ctx->data;          \
+        va_list             args;                               \
+        va_start(args, format);                                 \
+            st_vfunc(logger_ctx, format, args);                 \
+        va_end(args);                                           \
     }
 
 ST_LOGGER_SIMPLE_LOG_FUNC(st_logger_debug    , st_logger_debug_nolock);
