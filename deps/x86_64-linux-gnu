@@ -2,7 +2,6 @@ cfgpath
 cmake
 cmake_barebones
 cwalk
-glu
 hash_table
 inih
 ketopt

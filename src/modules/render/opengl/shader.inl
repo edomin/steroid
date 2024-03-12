@@ -39,7 +39,7 @@ static bool shader_init(st_modctx_t *render_ctx, st_shader_t *shader,
     if (!shader->handle) {
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable create shader: %s",
-         gluErrorString(glGetError()));
+         module->gldebug.get_error_msg(module->gldebug.ctx, glGetError()));
 
         return false;
     }

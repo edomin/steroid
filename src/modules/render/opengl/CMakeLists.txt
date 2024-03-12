@@ -69,7 +69,6 @@ st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GL REQUIRED gl)
-pkg_check_modules(GLU REQUIRED glu)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
@@ -86,5 +85,4 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     ${GL_LINK_LIBRARIES}
-    ${GLU_LINK_LIBRARIES}
 )

@@ -14,7 +14,8 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable to get attribute \"%s\" location in shader "
          "program: %s",
-         name, gluErrorString(glGetError()));
+         name,
+         module->gldebug.get_error_msg(module->gldebug.ctx, glGetError()));
 
         return false;
     }
@@ -27,11 +28,10 @@ static bool vertattr_init(st_modctx_t *render_ctx, st_vertattr_t *vertattr,
      (void *)(uintptr_t)offset);
 
     error = glGetError();
-    if (error != GL_NO_ERROR) {
+    if (error != GL_NO_ERROR)
         module->logger.error(module->logger.ctx,
          "render_opengl: Unable to init vertex attribute: %s",
-         gluErrorString(error));
-    }
+         module->gldebug.get_error_msg(module->gldebug.ctx, error));
 
     vbo_unbind(&module->vbo);
     gl->disable_vertex_attrib_array((GLuint)vertattr->handle);

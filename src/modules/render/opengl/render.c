@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "batcher.inl"
 #include "shader.inl"
@@ -642,7 +641,8 @@ static void st_render_process(st_modctx_t *render_ctx) {
         error = glGetError();
         if (error != GL_NO_ERROR) {
             module->logger.error(module->logger.ctx,
-             "render_opengl: Unable to draw array: %s", gluErrorString(error));
+             "render_opengl: Unable to draw array: %s",
+             module->gldebug.get_error_msg(module->gldebug.ctx, error));
 
             break;
         }
