@@ -14,7 +14,6 @@ luajit
 lwrb
 make
 opengl
-safeclib
 scv
 valgrind
 x86_64-linux-gnu-gcc
