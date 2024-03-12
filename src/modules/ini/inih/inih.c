@@ -8,13 +8,6 @@
 
 #include <ini.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
 #define SAVE_BUFFER_SIZE 131072
 
 typedef struct {
@@ -250,7 +243,6 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
             goto ini_destroy;
         }
     } else {
-        errno_t err;
         zero_terminated = malloc(size + 1);
 
         if (!zero_terminated) {
@@ -260,15 +252,11 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
             goto ini_destroy;
         }
 
-        err = strncpy_s(zero_terminated, size + 1, ptr, size + 1);
-        if (err) {
-            size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-            char   err_msg_buf[err_msg_buf_size];
-
-            strerror_s(err_msg_buf, err_msg_buf_size, err);
+        ret = snprintf(zero_terminated, size + 1, "%s", (const char *)ptr);
+        if (ret < 0 || (size_t)ret == size + 1) {
             module->logger.error(module->logger.ctx,
-             "ini_inih: Unable to copy ini data to temp buffer: %s",
-             err_msg_buf);
+             "ini_inih: Unable to copy ini data to temp buffer");
+
             goto free_terminated_and_ini_destroy;
         }
 
@@ -323,11 +311,14 @@ static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
 static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
  const char *section_name, const char *key) {
     const char *str = st_ini_get_str(ini, section_name, key);
+    int         ret;
 
     if (!str)
         return false;
 
-    return strcpy_s(dst, dstsize, str) == 0;
+    ret = snprintf(dst, dstsize, "%s", str);
+
+    return ret > 0 && (size_t)ret < dstsize;
 }
 
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
@@ -425,10 +416,10 @@ malloc_fail:
 
 static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
  const char *key, const char *value) {
-    st_ini_inih_t *module = ini->module;
-    st_inisection_t  *section;
-    char          *keydup;
-    char          *valdup;
+    st_ini_inih_t   *module = ini->module;
+    st_inisection_t *section;
+    char            *keydup;
+    char            *valdup;
 
     if (!st_ini_add_section(ini, section_name))
         return false;
@@ -484,11 +475,11 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         int              sec_ret = 0;
 
         if (sec_key[0] != '\n') { // if section is not unnamed
-            sec_ret = snprintf_s(buffer, bufsize, "[%s]\n", sec_key);
-            if (sec_ret < 0) {
+            sec_ret = snprintf(buffer, bufsize, "[%s]\n", sec_key);
+            if (sec_ret < 0 || (size_t)sec_ret == bufsize) {
                 module->logger.error(module->logger.ctx,
-                 "ini_inih: Unable to construct section header for section: "
-                 "%s\n", sec_key);
+                 "ini_inih: Unable to construct section header for section: %s",
+                 sec_key);
 
                 return NULL;
             }
@@ -503,11 +494,11 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         do {
             const char *key = module->htable.get_iter_key(&key_it);
             char       *value = module->htable.get_iter_value(&key_it);
-            int         ret = snprintf_s(buffer, bufsize, "%s=%s\n", key, value);
+            int         ret = snprintf(buffer, bufsize, "%s=%s\n", key, value);
 
-            if (ret < 0) {
+            if (ret < 0 || (size_t)ret == bufsize) {
                 module->logger.error(module->logger.ctx,
-                 "ini_inih: Unable to construct key-value record for key: %s\n",
+                 "ini_inih: Unable to construct key-value record for key: %s",
                  key);
 
                 return NULL;
@@ -517,9 +508,14 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             bufsize -= (size_t)ret;
         } while (module->htable.next(section->data, &key_it, &key_it));
 
-        snprintf_s(buffer, bufsize, "\n");
-        buffer++;
-        bufsize--;
+        if (bufsize-- == 0) {
+            module->logger.error(module->logger.ctx,
+             "ini_inih: Buffer overflow while trying to export section \"%s\"",
+             sec_key);
+
+            return NULL;
+        }
+        *buffer++ = '\n';
     } while (module->htable.next(ini->sections, &section_it, &section_it));
 
     buffer[bufsize - 1] = '\n';
