@@ -1,11 +1,6 @@
 #include "simple.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <stdio.h>
 
 #include "steroids/types/modules/window.h"
 
@@ -75,7 +70,6 @@ static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
  st_modctx_t *logger_ctx) {
     st_modctx_t          *keyboard_ctx;
     st_keyboard_simple_t *module;
-    errno_t               err;
 
     keyboard_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_keyboard_simple_data, sizeof(st_keyboard_simple_t));
@@ -120,27 +114,13 @@ static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
     module->events.subscribe(module->evq, module->evtypes[EV_KEY_PRESS]);
     module->events.subscribe(module->evq, module->evtypes[EV_KEY_RELEASE]);
     module->events.subscribe(module->evq, module->evtypes[EV_KEY_INPUT]);
-
-    err = memset_s(module->input, INPUT_SIZE, 0, INPUT_SIZE);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
-        module->logger.error(module->logger.ctx,
-         "keyboard_simple: Unable to set initial values of input: %s",
-         err_msg_buf);
-
-        goto memset_fail;
-    }
+    memset(module->input, 0, INPUT_SIZE);
 
     module->logger.info(module->logger.ctx,
      "keyboard_simple: Keyboard initialized");
 
     return keyboard_ctx;
 
-memset_fail:
-    module->events.destroy_queue(module->evq);
 create_queue_fail:
     module->htable.destroy(module->cur_state);
 cur_state_fail:
@@ -193,7 +173,7 @@ static void st_keyboard_process_input(st_modctx_t *keyboard_ctx) {
 
     module->events.pop(module->evq, &event);
 
-    memcpy_s(module->input, INPUT_SIZE, event.value, INPUT_SIZE);
+    memcpy(module->input, event.value, INPUT_SIZE);
 }
 
 static void (*procfuncs[])(st_modctx_t *keyboard_ctx) = {
@@ -215,7 +195,7 @@ static void st_keyboard_process(st_modctx_t *keyboard_ctx) {
         } while (module->htable.next(module->cur_state, &it, &it));
     }
 
-    memset_s(module->input, INPUT_SIZE, 0, INPUT_SIZE);
+    memset(module->input, 0, INPUT_SIZE);
 
     while (!module->events.is_empty(module->evq)) {
         st_evtypeid_t evtype = module->events.peek_type(module->evq);
