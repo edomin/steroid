@@ -6,13 +6,6 @@
 #include <threads.h>
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
-#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sir.h>
 #pragma GCC diagnostic pop
@@ -306,7 +299,7 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
      const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
         st_logger_libsir_t *logger = logger_ctx->data;                       \
         char                message[ST_LOGGER_MESSAGE_LEN_MAX];              \
-        vsnprintf_s(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);       \
+        vsnprintf(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);         \
         if (logger->use_fallback_module)                                     \
             logger->st_fallback(logger->logger_fallback_ctx,                 \
              "%s", message);                                                 \
@@ -363,5 +356,5 @@ static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
         return;
     }
 
-    strcpy_s(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, msg);
+    snprintf(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, "%s", msg);
 }
