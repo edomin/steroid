@@ -12,7 +12,6 @@
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
-static bool               global_sir_inited = false;
 
 ST_MODULE_DEF_GET_FUNC(logger_libsir)
 ST_MODULE_DEF_INIT_FUNC(logger_libsir)
@@ -88,7 +87,7 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     };
     st_modctx_t *logger_ctx;
 
-    if (global_sir_inited)
+    if (sir_isinitialized())
         return NULL;
 
     logger_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
@@ -123,8 +122,6 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     if (use_fallback)
         st_logger_init_fallback(logger_ctx, events_ctx);
 
-    global_sir_inited = true;
-
     st_logger_info(logger_ctx, "logger_libsir: Logger initialized");
 
     return logger_ctx;
@@ -132,6 +129,9 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
 
 static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_libsir_t *logger = logger_ctx->data;
+
+    if (!sir_isinitialized())
+        return;
 
     st_logger_info(logger_ctx, "logger_libsir: Destroying logger");
     if (logger->use_fallback_module)
@@ -142,7 +142,6 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
     printf("%s", logger->postmortem_msg);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
-    global_sir_inited = false;
 }
 
 #define ST_LOGGER_LOAD_FUNCTION(mod, function)                               \
