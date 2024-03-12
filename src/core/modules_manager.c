@@ -7,11 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-
 #include "internal_modules.h"
 #include "utils.h"
 
@@ -125,6 +120,7 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
     while (node) {
         st_moddata_t *module_data = st_dlist_get_data(node);
         char         *modname;
+        int           ret;
 
         node = st_dlist_get_next(node);
 
@@ -135,7 +131,12 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
         if (!modname)
             break;
 
-        if (strcpy_s(modname, modname_size, module_data->name) != 0)
+        /* False positive?  */
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wformat-truncation"
+        ret = snprintf(modname, modname_size, "%s", module_data->name);
+        #pragma GCC diagnostic pop
+        if (ret < 0 || (size_t)ret == modname_size)
             continue;
 
         if (++mod_index == mods_count)
