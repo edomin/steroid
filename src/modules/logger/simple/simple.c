@@ -6,13 +6,6 @@
 #include <syslog.h>
 #include <threads.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
 #define CBK_BUF_SIZE 4096
 
 static st_modsmgr_t      *global_modsmgr;
@@ -271,7 +264,7 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
             fflush(logger->log_files[i].file);
     }
 
-    if (vsprintf_s(buffer, CBK_BUF_SIZE, format, args) > 0) {
+    if (vsnprintf(buffer, CBK_BUF_SIZE, format, args) > 0) {
         for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
             if ((logger->callbacks[i].log_levels & log_level) == log_level) {
                 logger->callbacks[i].func(buffer,
@@ -325,5 +318,5 @@ static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
  const char *msg) {
     st_logger_simple_t *module = logger_ctx->data;
 
-    strcpy_s(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, msg);
+    snprintf(module->postmortem_msg, ST_POSTMORTEM_MSG_SIZE_MAX, "%s", msg);
 }
