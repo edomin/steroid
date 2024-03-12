@@ -1,11 +1,6 @@
 #include "simple.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
+#include <stdio.h>
 
 #define EVQ_POOL_SIZE 1024
 
@@ -93,10 +88,8 @@ static st_modctx_t *st_mouse_init(st_modctx_t *events_ctx,
 
     module->x = 0;
     module->y = 0;
-    memset_s(module->prev_mbstate, sizeof(int) * ST_MB_MAX, 0,
-     sizeof(int) * ST_MB_MAX);
-    memset_s(module->curr_mbstate, sizeof(int) * ST_MB_MAX, 0,
-     sizeof(int) * ST_MB_MAX);
+    memset(module->prev_mbstate, sizeof(int) * ST_MB_MAX, 0);
+    memset(module->curr_mbstate, sizeof(int) * ST_MB_MAX, 0);
     module->wheel = 0;
     module->move = NULL;
     module->enter = NULL;
