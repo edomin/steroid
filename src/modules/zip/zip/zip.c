@@ -8,13 +8,6 @@
 #include <string.h>
 #include <sys/types.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#include <safeclib/safe_mem_lib.h>
-#include <safeclib/safe_str_lib.h>
-#pragma GCC diagnostic pop
-#include <safeclib/safe_types.h>
-
 #include <zip/zip.h>
 
 static st_modsmgr_t      *global_modsmgr;
@@ -180,7 +173,6 @@ static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
     st_zip_zip_t *module = zip->module;
     int           ret;
     const char   *entry_name;
-    errno_t       err;
 
     if (!zip || !zip->handle)
         return 0;
@@ -202,19 +194,14 @@ static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
         return false;
     }
 
-    err = strcpy_s(dst, dstsize, entry_name);
-    if (err) {
-        size_t err_msg_buf_size = strerrorlen_s(err) + 1;
-        char   err_msg_buf[err_msg_buf_size];
-
-        strerror_s(err_msg_buf, err_msg_buf_size, err);
+    ret = snprintf(dst, dstsize, "%s", entry_name);
+    if (ret < 0 || (size_t)ret == dstsize)
         module->logger.error(module->logger.ctx,
-         "zip_zip: Unable to get entry name: %s", err_msg_buf);
-    }
+         "zip_zip: Unable to get entry name");
 
     zip_entry_close(zip->handle);
 
-    return !err;
+    return ret > 0 && (size_t)ret <= dstsize;
 }
 
 static st_zipentrytype_t st_zip_get_entry_type(st_zip_t *zip, size_t entrynum) {
