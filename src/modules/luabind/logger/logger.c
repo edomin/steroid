@@ -11,7 +11,6 @@ static st_logger_init_t                    st_logger_init;
 static st_logger_quit_t                    st_logger_quit;
 static st_logger_set_stdout_levels_t       st_logger_set_stdout_levels;
 static st_logger_set_stderr_levels_t       st_logger_set_stderr_levels;
-static st_logger_set_syslog_levels_t       st_logger_set_syslog_levels;
 static st_logger_set_log_file_t            st_logger_set_log_file;
 static st_logger_set_callback_t            st_logger_set_callback;
 static st_logger_debug_t                   st_logger_debug;
@@ -69,7 +68,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_stdout_levels);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_stderr_levels);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_syslog_levels);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_log_file);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, set_callback);
     ST_LOAD_GLOBAL_FUNCTION("luabind_logger", logger, debug);
@@ -195,18 +193,6 @@ static int st_logger_set_stderr_levels_bind(st_luastate_t *lua_state) {
     return 1;
 }
 
-static int st_logger_set_syslog_levels_bind(st_luastate_t *lua_state) {
-    st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, METATABLE_NAME);
-    ptrdiff_t    levels = st_lua_get_integer(lua_state, 2);
-    bool         result = st_logger_set_syslog_levels(logger_ctx,
-     (st_loglvl_t)levels);
-
-    st_lua_push_bool(lua_state, result);
-
-    return 1;
-}
-
 static int st_logger_set_log_file_bind(st_luastate_t *lua_state) {
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, METATABLE_NAME);
@@ -309,8 +295,6 @@ static void st_luabind_bind_all(st_modctx_t *luabind_ctx) {
      st_logger_set_stdout_levels_bind);
     st_lua_set_cfunction_to_field(lua_state, "set_stderr_levels",
      st_logger_set_stderr_levels_bind);
-    st_lua_set_cfunction_to_field(lua_state, "set_syslog_levels",
-     st_logger_set_syslog_levels_bind);
     st_lua_set_cfunction_to_field(lua_state, "set_log_file",
      st_logger_set_log_file_bind);
     st_lua_set_cfunction_to_field(lua_state, "set_callback",

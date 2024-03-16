@@ -28,8 +28,6 @@ typedef bool (*st_logger_set_stdout_levels_t)(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
 typedef bool (*st_logger_set_stderr_levels_t)(st_modctx_t *logger_ctx,
  st_loglvl_t levels);
-typedef bool (*st_logger_set_syslog_levels_t)(st_modctx_t *logger_ctx,
- st_loglvl_t levels);
 typedef bool (*st_logger_set_log_file_t)(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels);
 typedef bool (*st_logger_set_callback_t)(st_modctx_t *logger_ctx,
@@ -47,7 +45,6 @@ typedef struct {
     st_logger_enable_events_t      logger_enable_events;
     st_logger_set_stdout_levels_t  logger_set_stdout_levels;
     st_logger_set_stderr_levels_t  logger_set_stderr_levels;
-    st_logger_set_syslog_levels_t  logger_set_syslog_levels;
     st_logger_set_log_file_t       logger_set_log_file;
     st_logger_set_callback_t       logger_set_callback;
     st_logger_debug_t              logger_debug;

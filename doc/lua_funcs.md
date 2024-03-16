@@ -379,7 +379,6 @@ Logger.ll_all: integer
 logger_ctx:destroy()
 logger_ctx:set_stdout_levels(levels: integer): bool
 logger_ctx:set_stderr_levels(levels: integer): bool
-logger_ctx:set_syslog_levels(levels: integer): bool
 logger_ctx:set_log_file(filename: string, levels: integer): bool
 logger_ctx:set_callback(): bool
 logger_ctx:debug(msg: string)

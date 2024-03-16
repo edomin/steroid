@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
-#include <syslog.h>
 
 #define ERRMSGBUF_SIZE 1024
 #define CBK_BUF_SIZE   4096
@@ -43,7 +42,6 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     module->events.ctx = events_ctx;
     module->stdout_levels = ST_LL_NONE;
     module->stderr_levels = ST_LL_ALL;
-    module->syslog_levels = ST_LL_NONE;
 
     module->callbacks = st_dlist_create(sizeof(st_logger_simple_callback_t),
      NULL);
@@ -70,9 +68,6 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
     st_logger_simple_t *module = logger_ctx->data; // NOLINT(altera-id-dependent-backward-branch)
 
     st_logger_info(logger_ctx, "logger_simple: Destroying logger");
-
-    if (module->syslog_levels != ST_LL_NONE)
-        closelog();
 
     if (module->callbacks)
         st_dlist_destroy(module->callbacks);
@@ -161,20 +156,6 @@ static bool st_logger_set_stderr_levels(st_modctx_t *logger_ctx,
     st_logger_simple_t *logger = logger_ctx->data;
 
     logger->stderr_levels = levels;
-
-    return true;
-}
-
-static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
- st_loglvl_t levels) {
-    st_logger_simple_t *logger = logger_ctx->data;
-
-    if (logger->syslog_levels == ST_LL_NONE && levels != ST_LL_NONE)
-        openlog("steroids", LOG_CONS, LOG_USER); // NOLINT(hicpp-signed-bitwise)
-    else if (levels == ST_LL_NONE)
-        closelog();
-
-    logger->syslog_levels = levels;
 
     return true;
 }
@@ -301,16 +282,6 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx, st_logcbk_t func,
     return true;
 }
 
-static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
-    int      result = 0;
-    unsigned u_log_level = log_level;
-
-    for (u_log_level >>= 1u; u_log_level > 0; u_log_level >>= 1u) // NOLINT(altera-id-dependent-backward-branch)
-        result++;
-
-    return result;
-}
-
 static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
  const st_modctx_t *logger_ctx, st_loglvl_t log_level, st_evtypeid_t evtype_id,
  const char *format, va_list args) {
@@ -329,8 +300,6 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
                 putc('\n', stderr);
         funlockfile(stderr);
     }
-    if ((module->syslog_levels & log_level) == log_level)
-        vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);
 
     if (module->log_files) {
         st_dlnode_t *node = st_dlist_get_head(module->log_files);

@@ -36,7 +36,6 @@ typedef struct {
     st_evtypeid_t               ev_log_output_error;
     st_loglvl_t                 stdout_levels;
     st_loglvl_t                 stderr_levels;
-    st_loglvl_t                 syslog_levels;
     st_dlist_t                 *log_files;
     st_dlist_t                 *callbacks;
     char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
@@ -48,7 +47,6 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_enable_events      = st_logger_enable_events,
     .logger_set_stdout_levels  = st_logger_set_stdout_levels,
     .logger_set_stderr_levels  = st_logger_set_stderr_levels,
-    .logger_set_syslog_levels  = st_logger_set_syslog_levels,
     .logger_set_log_file       = st_logger_set_log_file,
     .logger_set_callback       = st_logger_set_callback,
     .logger_debug              = st_logger_debug,
@@ -64,7 +62,6 @@ st_modfuncentry_t st_module_logger_simple_funcs[] = {
     {"enable_events",      st_logger_enable_events},
     {"set_stdout_levels",  st_logger_set_stdout_levels},
     {"set_stderr_levels",  st_logger_set_stderr_levels},
-    {"set_syslog_levels",  st_logger_set_syslog_levels},
     {"set_log_file",       st_logger_set_log_file},
     {"set_callback",       st_logger_set_callback},
     {"debug",              st_logger_debug},
