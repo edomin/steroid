@@ -44,7 +44,13 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     module->stdout_levels = ST_LL_NONE;
     module->stderr_levels = ST_LL_ALL;
     module->syslog_levels = ST_LL_NONE;
-    module->callbacks_count = 0;
+
+    module->callbacks = st_dlist_create(sizeof(st_logger_simple_callback_t),
+     NULL);
+    if (!module->callbacks)
+        st_logger_warning(logger_ctx, "logger_simple: Unable to initialize "
+         "dlist for callbacks. Logging callbacks is not available on this run");
+
     module->log_files = st_dlist_create(sizeof(st_logger_simple_log_file_t),
      log_file_destroy);
     if (!module->log_files)
@@ -67,6 +73,9 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
 
     if (module->syslog_levels != ST_LL_NONE)
         closelog();
+
+    if (module->callbacks)
+        st_dlist_destroy(module->callbacks);
 
     if (module->log_files)
         st_dlist_destroy(module->log_files);
@@ -244,32 +253,50 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return true;
 }
 
-static bool st_logger_set_callback(st_modctx_t *logger_ctx,
- st_logcbk_t callback, void *userdata, st_loglvl_t levels) {
-    st_logger_simple_t *logger = logger_ctx->data;
-    unsigned            cbk_num = logger->callbacks_count;
+static bool st_logger_set_callback(st_modctx_t *logger_ctx, st_logcbk_t func,
+ void *userdata, st_loglvl_t levels) {
+    st_logger_simple_t *module;
+    st_dlnode_t        *node;
 
-    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if (callback == logger->callbacks[logger->callbacks_count].func) {
-            cbk_num = i;
+    if (!logger_ctx || !func)
+        return false;
 
-            break;
+    module = logger_ctx->data;
+
+    if (!module->callbacks)
+        return false;
+
+    node = st_dlist_get_head(module->callbacks);
+
+    while (node) {
+        st_logger_simple_callback_t *callback = st_dlist_get_data(node);
+
+        if (callback->func == func && callback->userdata == userdata) {
+            if (levels == ST_LL_NONE)
+                st_dlist_remove(node);
+            else
+                callback->log_levels = levels;
+
+            return true;
         }
+
+        node = st_dlist_get_next(node);
     }
 
-    if (cbk_num == logger->callbacks_count) {
-        if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
-            st_logger_error(logger_ctx, "logger_simple: Unable to set callback "
-             "because callbacks limit reached.");
+    if (levels != ST_LL_NONE) {
+        st_logger_simple_callback_t callback = {
+            .func       = func,
+            .userdata   = userdata,
+            .log_levels = levels,
+        };
+
+        if (!!st_dlist_push_back(module->callbacks, &callback)) {
+            st_logger_error(logger_ctx,
+             "logger_simple: Unable to add callback entry to the list");
 
             return false;
         }
-        logger->callbacks[cbk_num].func = callback;
-        logger->callbacks[cbk_num].userdata = userdata;
-        logger->callbacks_count++;
     }
-
-    logger->callbacks[cbk_num].log_levels = levels;
 
     return true;
 }
@@ -322,12 +349,20 @@ static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
         }
     }
 
-    if (vsnprintf(buffer, CBK_BUF_SIZE, format, args) > 0) {
-        for (unsigned i = 0; i < module->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-            if ((module->callbacks[i].log_levels & log_level) == log_level) {
-                module->callbacks[i].func(buffer,
-                 module->callbacks[i].userdata);
-            }
+    if ((!module->callbacks && !module->events.ctx)
+     || vsnprintf(buffer, CBK_BUF_SIZE, format, args) <= 0)
+        return;
+
+    if (module->callbacks) {
+        st_dlnode_t *node = st_dlist_get_head(module->callbacks);
+
+        while (node) {
+            st_logger_simple_callback_t *callback = st_dlist_get_data(node);
+
+            if ((callback->log_levels & log_level) == log_level)
+                callback->func(buffer, callback->userdata);
+
+            node = st_dlist_get_next(node);
         }
     }
 

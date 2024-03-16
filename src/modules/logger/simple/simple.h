@@ -8,7 +8,6 @@
 #include "steroids/logger.h"
 #include "steroids/types/modules/events.h"
 
-#define ST_LOGGER_CALLBACKS_MAX    16
 #define ST_POSTMORTEM_MSG_SIZE_MAX 131072
 
 typedef struct {
@@ -39,8 +38,7 @@ typedef struct {
     st_loglvl_t                 stderr_levels;
     st_loglvl_t                 syslog_levels;
     st_dlist_t                 *log_files;
-    st_logger_simple_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
-    unsigned                    callbacks_count;
+    st_dlist_t                 *callbacks;
     char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
 } st_logger_simple_t;
 

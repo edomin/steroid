@@ -70,7 +70,12 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
         return NULL;
 
     module->events.ctx = events_ctx;
-    module->callbacks_count = 0;
+
+    module->callbacks = st_dlist_create(sizeof(st_logger_libsir_callback_t),
+     NULL);
+    if (!module->callbacks)
+        st_logger_warning(logger_ctx, "logger_libsir: Unable to initialize "
+         "dlist for callbacks. Logging callbacks is not available on this run");
 
     module->log_files = st_dlist_create(sizeof(st_logger_libsir_log_file_t),
      log_file_destroy);
@@ -102,6 +107,9 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         return;
 
     st_logger_info(logger_ctx, "logger_libsir: Destroying logger");
+
+    if (module->callbacks)
+        st_dlist_destroy(module->callbacks);
 
     if (module->log_files)
         st_dlist_destroy(module->log_files);
@@ -239,7 +247,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
         ret = snprintf(log_file.filename, PATH_MAX, "%s", filename);
         if (ret < 0 || ret == PATH_MAX) {
             st_logger_error(logger_ctx,
-             "logger_simple: Unable to set log filename");
+             "logger_libsir: Unable to set log filename");
 
             return false;
         }
@@ -284,7 +292,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
             sir_remfile(log_file.file);
 
             st_logger_error(logger_ctx,
-             "logger_simple: Unable to add \"%s\" log file entry to the list",
+             "logger_libsir: Unable to add \"%s\" log file entry to the list",
              filename);
 
             return false;
@@ -294,32 +302,50 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
     return true;
 }
 
-static bool st_logger_set_callback(st_modctx_t *logger_ctx,
- st_logcbk_t callback, void *userdata, st_loglvl_t levels) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-    unsigned            cbk_num = logger->callbacks_count;
+static bool st_logger_set_callback(st_modctx_t *logger_ctx, st_logcbk_t func,
+ void *userdata, st_loglvl_t levels) {
+    st_logger_libsir_t *module;
+    st_dlnode_t        *node;
 
-    for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if (callback == logger->callbacks[logger->callbacks_count].func) {
-            cbk_num = i;
+    if (!logger_ctx || !func)
+        return false;
 
-            break;
+    module = logger_ctx->data;
+
+    if (!module->callbacks)
+        return false;
+
+    node = st_dlist_get_head(module->callbacks);
+
+    while (node) {
+        st_logger_libsir_callback_t *callback = st_dlist_get_data(node);
+
+        if (callback->func == func && callback->userdata == userdata) {
+            if (levels == ST_LL_NONE)
+                st_dlist_remove(node);
+            else
+                callback->log_levels = levels;
+
+            return true;
         }
+
+        node = st_dlist_get_next(node);
     }
 
-    if (cbk_num == logger->callbacks_count) {
-        if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
-            st_logger_error(logger_ctx, "logger_simple: Unable to set callback "
-             "because callbacks limit reached");
+    if (levels != ST_LL_NONE) {
+        st_logger_libsir_callback_t callback = {
+            .func       = func,
+            .userdata   = userdata,
+            .log_levels = levels,
+        };
+
+        if (!!st_dlist_push_back(module->callbacks, &callback)) {
+            st_logger_error(logger_ctx,
+             "libsir: Unable to add callback entry to the list");
 
             return false;
         }
-        logger->callbacks[cbk_num].func = callback;
-        logger->callbacks[cbk_num].userdata = userdata;
-        logger->callbacks_count++;
     }
-
-    logger->callbacks[cbk_num].log_levels = levels;
 
     return true;
 }
@@ -328,19 +354,26 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
 #define ST_LOGGER_NOLOCK_FUNC(st_func, sir_func, log_level, evtype_id_field) \
     static __attribute__ ((format (printf, 2, 0))) void st_func(             \
      const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
-        st_logger_libsir_t *logger = logger_ctx->data;                       \
+        st_logger_libsir_t *module = logger_ctx->data;                       \
         char                message[ST_LOGGER_MESSAGE_LEN_MAX];              \
         vsnprintf(message, ST_LOGGER_MESSAGE_LEN_MAX, format, args);         \
-        sir_func("%s", message);                                         \
-        for (unsigned i = 0; i < logger->callbacks_count; i++) {             \
-            if ((logger->callbacks[i].log_levels & (unsigned)(log_level)) == \
-             (log_level))                                                    \
-                logger->callbacks[i].func(message,                           \
-                 logger->callbacks[i].userdata);                             \
+        sir_func("%s", message);                                             \
+        if (module->callbacks) {                                             \
+            st_dlnode_t *node = st_dlist_get_head(module->callbacks);        \
+            while (node) {                                                   \
+                st_logger_libsir_callback_t *callback = st_dlist_get_data(   \
+                 node);                                                      \
+                if ((callback->log_levels & log_level) == log_level)         \
+                    callback->func(message, callback->userdata);             \
+                node = st_dlist_get_next(node);                              \
+            }                                                                \
         }                                                                    \
-        if (logger->events.ctx) {                                            \
-            message[ST_EV_LOG_MSG_SIZE - 1] = '\0';                          \
-            logger->events.push(logger->events.ctx, logger->evtype_id_field, \
+        if (module->events.ctx) {                                            \
+            size_t min_size = ST_EV_LOG_MSG_SIZE < ST_LOGGER_MESSAGE_LEN_MAX \
+                ? ST_EV_LOG_MSG_SIZE                                         \
+                : ST_LOGGER_MESSAGE_LEN_MAX;                                 \
+            message[min_size - 1] = '\0';                                    \
+            module->events.push(module->events.ctx, module->evtype_id_field, \
              message);                                                       \
         }                                                                    \
     }
