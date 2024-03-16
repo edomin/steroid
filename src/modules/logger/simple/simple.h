@@ -4,12 +4,10 @@
 #include <stdio.h>
 
 #include "config.h" // IWYU pragma: keep
+#include "dlist.h"
 #include "steroids/logger.h"
 #include "steroids/types/modules/events.h"
 
-// TODO(edomin): version
-
-#define ST_LOGGER_LOG_FILES_MAX    16
 #define ST_LOGGER_CALLBACKS_MAX    16
 #define ST_POSTMORTEM_MSG_SIZE_MAX 131072
 
@@ -40,8 +38,7 @@ typedef struct {
     st_loglvl_t                 stdout_levels;
     st_loglvl_t                 stderr_levels;
     st_loglvl_t                 syslog_levels;
-    st_logger_simple_log_file_t log_files[ST_LOGGER_LOG_FILES_MAX];
-    unsigned                    log_files_count;
+    st_dlist_t                 *log_files;
     st_logger_simple_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
     unsigned                    callbacks_count;
     char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];

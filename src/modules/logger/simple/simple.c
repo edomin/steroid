@@ -1,11 +1,13 @@
 #include "simple.h"
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
 #include <syslog.h>
 
-#define CBK_BUF_SIZE 4096
+#define ERRMSGBUF_SIZE 1024
+#define CBK_BUF_SIZE   4096
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -20,26 +22,38 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
+static void log_file_destroy(void *plog_file) {
+    st_logger_simple_log_file_t *log_file = plog_file;
+
+    fflush(log_file->file);
+    fclose(log_file->file);
+}
+
 static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     st_modctx_t        *logger_ctx = global_modsmgr_funcs.init_module_ctx(
      global_modsmgr, &st_module_logger_simple_data, sizeof(st_logger_simple_t));
-    st_logger_simple_t *logger;
+    st_logger_simple_t *module;
 
     if (!logger_ctx)
         return NULL;
 
     logger_ctx->funcs = &st_logger_simple_funcs;
 
-    logger = logger_ctx->data;
-    logger->events.ctx = events_ctx;
-    logger->stdout_levels = ST_LL_NONE;
-    logger->stderr_levels = ST_LL_ALL;
-    logger->syslog_levels = ST_LL_NONE;
-    logger->log_files_count = 0;
-    logger->callbacks_count = 0;
+    module = logger_ctx->data;
+    module->events.ctx = events_ctx;
+    module->stdout_levels = ST_LL_NONE;
+    module->stderr_levels = ST_LL_ALL;
+    module->syslog_levels = ST_LL_NONE;
+    module->callbacks_count = 0;
+    module->log_files = st_dlist_create(sizeof(st_logger_simple_log_file_t),
+     log_file_destroy);
+    if (!module->log_files)
+        st_logger_warning(logger_ctx, "logger_simple: Unable to initialize "
+         "dlist for opened files. Logging to file is not available on this run"
+        );
 
     if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
-        logger->events.ctx = NULL;
+        module->events.ctx = NULL;
 
     st_logger_info(logger_ctx, "%s", "logger_simple: Logger initialized");
 
@@ -47,22 +61,18 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
 }
 
 static void st_logger_quit(st_modctx_t *logger_ctx) {
-    st_logger_simple_t *logger = logger_ctx->data; // NOLINT(altera-id-dependent-backward-branch)
+    st_logger_simple_t *module = logger_ctx->data; // NOLINT(altera-id-dependent-backward-branch)
 
     st_logger_info(logger_ctx, "%s", "logger_simple: Destroying logger");
 
-    if (logger->syslog_levels != ST_LL_NONE)
+    if (module->syslog_levels != ST_LL_NONE)
         closelog();
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        flockfile(logger->log_files[i].file);
-            (void)fflush(logger->log_files[i].file);
-        funlockfile(logger->log_files[i].file);
-        (void)fclose(logger->log_files[i].file);
-    }
+    if (module->log_files)
+        st_dlist_destroy(module->log_files);
 
     flockfile(stdout);
-        printf("%s", logger->postmortem_msg);
+        printf("%s", module->postmortem_msg);
     funlockfile(stdout);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
@@ -162,33 +172,74 @@ static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
 
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
-    st_logger_simple_t *logger = logger_ctx->data;
-    unsigned            file_num = logger->log_files_count;
+    st_logger_simple_t *module;
+    st_dlnode_t        *node;
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        bool filenames_equal = strcmp(filename,
-         logger->log_files[logger->log_files_count].filename) == 0;
+    if (!logger_ctx || !filename)
+        return false;
 
-        if (filenames_equal) {
-            file_num = i;
+    module = logger_ctx->data;
 
-            break;
+    if (!module->log_files)
+        return false;
+
+    node = st_dlist_get_head(module->log_files);
+
+    while (node) {
+        st_logger_simple_log_file_t *log_file = st_dlist_get_data(node);
+
+        if (strncmp(log_file->filename, filename, PATH_MAX) == 0) {
+            if (levels == ST_LL_NONE)
+                st_dlist_remove(node);
+            else
+                log_file->log_levels = levels;
+
+            return true;
         }
+
+        node = st_dlist_get_next(node);
     }
 
-    if (file_num == logger->log_files_count) {
-        if (file_num == ST_LOGGER_LOG_FILES_MAX) {
+    if (levels != ST_LL_NONE) {
+        int                         ret;
+        st_logger_simple_log_file_t log_file = {
+            .file = NULL,
+            .log_levels = levels,
+        };
+
+        ret = snprintf(log_file.filename, PATH_MAX, "%s", filename);
+        if (ret < 0 || ret == PATH_MAX) {
             st_logger_error(logger_ctx, "%s",
-             "logger_simple: Unable to set log file because opened files "
-             "limit reached.");
+             "logger_simple: Unable to set log filename");
 
             return false;
         }
-        logger->log_files[file_num].file = fopen(filename, "wbe");
-        logger->log_files_count++;
-    }
 
-    logger->log_files[file_num].log_levels = levels;
+        log_file.file = fopen(filename, "wbe");
+        if (!log_file.file) {
+            char errbuf[ERRMSGBUF_SIZE];
+
+            if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+                st_logger_error(logger_ctx,
+                 "logger_simple: Unable to open file \"%s\": %s", filename,
+                 errbuf);
+            else
+                st_logger_error(logger_ctx,
+                 "logger_simple: Unable to open file \"%s\"", filename);
+
+            return false;
+        }
+
+        if (!!st_dlist_push_back(module->log_files, &log_file)) {
+            fclose(log_file.file);
+
+            st_logger_error(logger_ctx,
+             "logger_simple: Unable to add \"%s\" log file entry to the list",
+             filename);
+
+            return false;
+        }
+    }
 
     return true;
 }
@@ -237,45 +288,53 @@ static inline int st_logger_level_to_syslog_priority(st_loglvl_t log_level) {
 static inline __attribute__((format (printf, 4, 0))) void st_logger_general(
  const st_modctx_t *logger_ctx, st_loglvl_t log_level, st_evtypeid_t evtype_id,
  const char *format, va_list args) {
-    st_logger_simple_t *logger = logger_ctx->data;
+    st_logger_simple_t *module = logger_ctx->data;
     char                buffer[CBK_BUF_SIZE];
 
-    if ((logger->stdout_levels & log_level) == log_level) {
+    if ((module->stdout_levels & log_level) == log_level) {
         flockfile(stdout);
             if (vprintf(format, args) > 0)
                 putc('\n', stdout);
         funlockfile(stdout);
     }
-    if ((logger->stderr_levels & log_level) == log_level) {
+    if ((module->stderr_levels & log_level) == log_level) {
         flockfile(stderr);
             if (vfprintf(stderr, format, args) > 0)
                 putc('\n', stderr);
         funlockfile(stderr);
     }
-    if ((logger->syslog_levels & log_level) == log_level)
+    if ((module->syslog_levels & log_level) == log_level)
         vsyslog(st_logger_level_to_syslog_priority(log_level), format, args);
 
-    for (unsigned i = 0; i < logger->log_files_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-        if ((logger->log_files[i].log_levels & log_level) == log_level) {
-            flockfile(logger->log_files[i].file);
-                if (vfprintf(logger->log_files[i].file, format, args) > 0)
-                    fflush(logger->log_files[i].file);
-            funlockfile(logger->log_files[i].file);
+    if (module->log_files) {
+        st_dlnode_t *node = st_dlist_get_head(module->log_files);
+
+        while (node) {
+            st_logger_simple_log_file_t *log_file = st_dlist_get_data(node);
+
+            if ((log_file->log_levels & log_level) == log_level) {
+                flockfile(log_file->file);
+                    if (vfprintf(log_file->file, format, args) > 0)
+                        fflush(log_file->file);
+                funlockfile(log_file->file);
+            }
+
+            node = st_dlist_get_next(node);
         }
     }
 
     if (vsnprintf(buffer, CBK_BUF_SIZE, format, args) > 0) {
-        for (unsigned i = 0; i < logger->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
-            if ((logger->callbacks[i].log_levels & log_level) == log_level) {
-                logger->callbacks[i].func(buffer,
-                 logger->callbacks[i].userdata);
+        for (unsigned i = 0; i < module->callbacks_count; i++) { // NOLINT(altera-id-dependent-backward-branch)
+            if ((module->callbacks[i].log_levels & log_level) == log_level) {
+                module->callbacks[i].func(buffer,
+                 module->callbacks[i].userdata);
             }
         }
     }
 
-    if (logger->events.ctx) {
+    if (module->events.ctx) {
         buffer[ST_EV_LOG_MSG_SIZE - 1] = '\0';
-        logger->events.push(logger->events.ctx, evtype_id, buffer);
+        module->events.push(module->events.ctx, evtype_id, buffer);
     }
 }
 
