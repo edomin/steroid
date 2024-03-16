@@ -9,6 +9,7 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sir.h>
 #pragma GCC diagnostic pop
+#include <sir/errors.h>
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -22,6 +23,12 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
     return st_module_logger_libsir_init(modsmgr, modsmgr_funcs);
 }
 #endif
+
+static void log_file_destroy(void *plog_file) {
+    st_logger_libsir_log_file_t *log_file = plog_file;
+
+    sir_remfile(log_file->file);
+}
 
 static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     st_logger_libsir_t *module;
@@ -67,6 +74,12 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     module->events.ctx = events_ctx;
     module->callbacks_count = 0;
 
+    module->log_files = st_dlist_create(sizeof(st_logger_libsir_log_file_t),
+     log_file_destroy);
+    if (!module->log_files)
+        st_logger_warning(logger_ctx, "logger_libsir: Unable to initialize "
+         "dlist for log files. Logging to file is not available on this run");
+
     if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
         module->events.ctx = NULL;
 
@@ -85,16 +98,20 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
 }
 
 static void st_logger_quit(st_modctx_t *logger_ctx) {
-    st_logger_libsir_t *logger = logger_ctx->data;
+    st_logger_libsir_t *module = logger_ctx->data;
 
     if (!sir_isinitialized())
         return;
 
     st_logger_info(logger_ctx, "logger_libsir: Destroying logger");
-    sir_cleanup();
-    mtx_destroy(&logger->lock);
 
-    printf("%s", logger->postmortem_msg);
+    if (module->log_files)
+        st_dlist_destroy(module->log_files);
+
+    sir_cleanup();
+    mtx_destroy(&module->lock);
+
+    printf("%s", module->postmortem_msg);
 
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
 }
@@ -176,15 +193,107 @@ static bool st_logger_set_syslog_levels(st_modctx_t *logger_ctx,
 
 static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
  const char *filename, st_loglvl_t levels) {
-    st_logger_libsir_t *logger = logger_ctx->data;
-    sirfileid           file = sir_addfile(filename, SIRL_ALL,
-     (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
-     (sir_options)SIRO_NOTID);
+    st_logger_libsir_t *module;
+    st_dlnode_t        *node;
 
-    if (!file)
+    if (!logger_ctx || !filename)
         return false;
 
-    return sir_filelevels(file, (sir_levels)levels);
+    module = logger_ctx->data;
+
+    if (!module->log_files)
+        return false;
+
+    node = st_dlist_get_head(module->log_files);
+
+    while (node) {
+        st_logger_libsir_log_file_t *log_file = st_dlist_get_data(node);
+
+        if (strncmp(log_file->filename, filename, PATH_MAX) == 0) {
+            if (levels == ST_LL_NONE) {
+                st_dlist_remove(node);
+            } else if (!sir_filelevels(log_file->file, (sir_levels)levels)) {
+                char errmsg[SIR_MAXERROR];
+
+                if (sir_geterror(errmsg) == SIR_E_NOERROR) {
+                    st_logger_error(logger_ctx,
+                     "logger_libsir: Unable to update \"%s\" log file levels: "
+                     "%s", filename, errmsg);
+                } else {
+                    st_logger_error(logger_ctx,
+                     "logger_libsir: Unable to update \"%s\" log file levels",
+                     filename);
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
+        node = st_dlist_get_next(node);
+    }
+
+    if (levels != ST_LL_NONE) {
+        int                         ret;
+        st_logger_libsir_log_file_t log_file;
+
+        ret = snprintf(log_file.filename, PATH_MAX, "%s", filename);
+        if (ret < 0 || ret == PATH_MAX) {
+            st_logger_error(logger_ctx, "%s",
+             "logger_simple: Unable to set log filename");
+
+            return false;
+        }
+
+        log_file.file = sir_addfile(filename, SIRL_ALL,
+         (sir_options)SIRO_NONAME | (sir_options)SIRO_NOPID |
+         (sir_options)SIRO_NOTID);
+        if (!log_file.file) {
+            char errmsg[SIR_MAXERROR];
+
+            if (sir_geterror(errmsg) == SIR_E_NOERROR) {
+                st_logger_error(logger_ctx,
+                 "logger_libsir: Unable to add \"%s\" log file: %s", filename,
+                 errmsg);
+            } else {
+                st_logger_error(logger_ctx,
+                 "logger_libsir: Unable to add \"%s\" log file", filename);
+            }
+
+            return false;
+        }
+
+        if (!sir_filelevels(log_file.file, (sir_levels)levels)) {
+            char errmsg[SIR_MAXERROR];
+
+            if (sir_geterror(errmsg) == SIR_E_NOERROR) {
+                st_logger_error(logger_ctx,
+                 "logger_libsir: Unable to set \"%s\" log file levels: %s",
+                 filename, errmsg);
+            } else {
+                st_logger_error(logger_ctx,
+                 "logger_libsir: Unable to set \"%s\" log file levels",
+                 filename);
+            }
+
+            sir_remfile(log_file.file);
+
+            return false;
+        }
+
+        if (!!st_dlist_push_back(module->log_files, &log_file)) {
+            sir_remfile(log_file.file);
+
+            st_logger_error(logger_ctx,
+             "logger_simple: Unable to add \"%s\" log file entry to the list",
+             filename);
+
+            return false;
+        }
+    }
+
+    return true;
 }
 
 static bool st_logger_set_callback(st_modctx_t *logger_ctx,
@@ -204,7 +313,7 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
         if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
             st_logger_error(logger_ctx, "%s",
              "logger_simple: Unable to set callback because callbacks limit "
-             "reached.");
+             "reached");
 
             return false;
         }

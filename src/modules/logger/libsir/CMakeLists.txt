@@ -49,10 +49,12 @@ bb_add_iwyu_mapping_file(
 target_include_directories(${ST_MODULE_TARGET} PRIVATE
     "${CMAKE_FIND_ROOT_PATH}/include"
     "${CMAKE_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/src"
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
+    dlist
     ${LIBSIR_LIBRARY}
     Threads::Threads
 )

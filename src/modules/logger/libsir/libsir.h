@@ -1,9 +1,15 @@
 #pragma once
 
-#include <stdbool.h>
+#include <limits.h>
 #include <threads.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include <sir.h>
+#pragma GCC diagnostic pop
+
 #include "config.h" // IWYU pragma: keep
+#include "dlist.h"
 #include "steroids/logger.h"
 #include "steroids/types/modules/events.h"
 
@@ -17,6 +23,11 @@ typedef struct {
 } st_logger_libsir_events_t;
 
 typedef struct {
+    char      filename[PATH_MAX];
+    sirfileid file;
+} st_logger_libsir_log_file_t;
+
+typedef struct {
     st_logcbk_t func;
     void       *userdata;
     st_loglvl_t log_levels;
@@ -24,6 +35,7 @@ typedef struct {
 
 typedef struct {
     st_logger_libsir_events_t   events;
+    st_dlist_t                 *log_files;
     st_logger_libsir_callback_t callbacks[ST_LOGGER_CALLBACKS_MAX];
     unsigned                    callbacks_count;
     st_evtypeid_t               ev_log_output_debug;
