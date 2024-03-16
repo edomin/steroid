@@ -62,7 +62,7 @@ static st_modctx_t *st_fnv1a_init(st_modctx_t *logger_ctx) {
         return NULL;
     }
 
-    fnv1a->logger.info(fnv1a->logger.ctx, "%s",
+    fnv1a->logger.info(fnv1a->logger.ctx,
      "fnv1a_simple: FNV-1a hasher initialized.");
 
     return fnv1a_ctx;
@@ -86,7 +86,7 @@ static uint32_t fnv1_hash_string(const char *str) {
 static void st_fnv1a_quit(st_modctx_t *fnv1a_ctx) {
     st_fnv1a_simple_t *fnv1a = fnv1a_ctx->data;
 
-    fnv1a->logger.info(fnv1a->logger.ctx, "%s",
+    fnv1a->logger.info(fnv1a->logger.ctx,
      "fnv1a_simple: FNV-1a hasher destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, fnv1a_ctx);
 }

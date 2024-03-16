@@ -80,8 +80,7 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
     memset(module->opts, '\0', sizeof(st_opt_t) * ST_OPTS_OPTS_MAX);
     module->opts_count = 0;
 
-    module->logger.info(module->logger.ctx, "%s",
-     "opts_ketopt: Opts initialized.");
+    module->logger.info(module->logger.ctx, "opts_ketopt: Opts initialized.");
 
     return opts_ctx;
 }
@@ -89,16 +88,14 @@ static st_modctx_t *st_opts_init(int argc, char **argv,
 static void st_opts_quit(st_modctx_t *opts_ctx) {
     st_opts_ketopt_t *module = opts_ctx->data;
 
-    module->logger.info(module->logger.ctx, "%s",
-     "opts_ketopt: Destroying opts");
+    module->logger.info(module->logger.ctx, "opts_ketopt: Destroying opts");
     for (unsigned i = 0; i < module->opts_count; i++) {
         free(module->opts[i].longopt);
         free(module->opts[i].arg_fmt);
         free(module->opts[i].opt_descr);
     }
 
-    module->logger.info(module->logger.ctx, "%s",
-     "opts_ketopt: Opts destroyed");
+    module->logger.info(module->logger.ctx, "opts_ketopt: Opts destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, opts_ctx);
 }
 

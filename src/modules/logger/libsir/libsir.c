@@ -49,9 +49,7 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
             .identity = "",
             .category = "",
         },
-        .name = "steroids", /* TODO(edomin): move name management to
-                             * module
-                             */
+        .name = "steroids", /* TODO(edomin): move name management to module */
     };
     st_modctx_t *logger_ctx;
 
@@ -240,7 +238,7 @@ static bool st_logger_set_log_file(st_modctx_t *logger_ctx,
 
         ret = snprintf(log_file.filename, PATH_MAX, "%s", filename);
         if (ret < 0 || ret == PATH_MAX) {
-            st_logger_error(logger_ctx, "%s",
+            st_logger_error(logger_ctx,
              "logger_simple: Unable to set log filename");
 
             return false;
@@ -311,9 +309,8 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx,
 
     if (cbk_num == logger->callbacks_count) {
         if (cbk_num == ST_LOGGER_CALLBACKS_MAX) {
-            st_logger_error(logger_ctx, "%s",
-             "logger_simple: Unable to set callback because callbacks limit "
-             "reached");
+            st_logger_error(logger_ctx, "logger_simple: Unable to set callback "
+             "because callbacks limit reached");
 
             return false;
         }

@@ -68,7 +68,7 @@ static st_modctx_t *st_vec2_init(st_modctx_t *logger_ctx,
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "vec2_simple: 2D Vector utilities module initialized.");
 
     return vec2_ctx;
@@ -77,7 +77,7 @@ static st_modctx_t *st_vec2_init(st_modctx_t *logger_ctx,
 static void st_vec2_quit(st_modctx_t *vec2_ctx) {
     st_vec2_simple_t *module = vec2_ctx->data;
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "vec2_simple: 2D Vector utilities module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, vec2_ctx);
 }

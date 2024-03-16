@@ -75,7 +75,7 @@ static st_modctx_t *st_so_init(st_modctx_t *logger_ctx) {
         goto fail;
     }
 
-    so->logger.info(so->logger.ctx, "%s", "so_simple: So initialized");
+    so->logger.info(so->logger.ctx, "so_simple: So initialized");
 
     return so_ctx;
 
@@ -129,7 +129,7 @@ static st_so_t *st_so_memopen(st_modctx_t *so_ctx,
  __attribute__((unused)) const void *data, __attribute__((unused))size_t size) {
     st_so_simple_t *so = so_ctx->data;
 
-    so->logger.error(so->logger.ctx, "%s",
+    so->logger.error(so->logger.ctx,
      "so_simple: Unable to open so from memory. Not implemented yet");
 
     return NULL;
@@ -149,7 +149,7 @@ static void st_so_close(st_so_t *so) {
         node = st_dlist_get_next(node);
     }
 
-    module->logger.info(module->logger.ctx, "%s", "so_simple: So file closed");
+    module->logger.info(module->logger.ctx, "so_simple: So file closed");
 }
 
 static void *st_so_load_symbol(st_so_t *so, const char *name) {

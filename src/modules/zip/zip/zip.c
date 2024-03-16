@@ -70,7 +70,7 @@ static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx, "%s", "zip_zip: ZIP initialized.");
+    module->logger.info(module->logger.ctx, "zip_zip: ZIP initialized.");
 
     return zip_ctx;
 }
@@ -78,7 +78,7 @@ static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
 static void st_zip_quit(st_modctx_t *zip_ctx) {
     st_zip_zip_t *module = zip_ctx->data;
 
-    module->logger.info(module->logger.ctx, "%s", "zip_zip: ZIP destroyed");
+    module->logger.info(module->logger.ctx, "zip_zip: ZIP destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, zip_ctx);
 }
 

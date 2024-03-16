@@ -67,7 +67,7 @@ static st_modctx_t *st_matrix3x3_init(st_modctx_t *logger_ctx,
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "matrix3x3_simple: Matrix 3x3 utilities module initialized.");
 
     return matrix3x3_ctx;
@@ -76,7 +76,7 @@ static st_modctx_t *st_matrix3x3_init(st_modctx_t *logger_ctx,
 static void st_matrix3x3_quit(st_modctx_t *matrix3x3_ctx) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "matrix3x3_simple: Matrix 3x3 utilities module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, matrix3x3_ctx);
 }

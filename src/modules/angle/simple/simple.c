@@ -59,7 +59,7 @@ static st_modctx_t *st_angle_init(st_modctx_t *logger_ctx) {
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "angle_simple: Angle utilities module initialized.");
 
     return angle_ctx;
@@ -68,7 +68,7 @@ static st_modctx_t *st_angle_init(st_modctx_t *logger_ctx) {
 static void st_angle_quit(st_modctx_t *angle_ctx) {
     st_angle_simple_t *module = angle_ctx->data;
 
-    module->logger.info(module->logger.ctx, "%s",
+    module->logger.info(module->logger.ctx,
      "angle_simple: Angle utilities module destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, angle_ctx);
 }
