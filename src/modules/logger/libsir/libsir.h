@@ -1,7 +1,6 @@
 #pragma once
 
 #include <limits.h>
-#include <threads.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -40,7 +39,6 @@ typedef struct {
     st_evtypeid_t               ev_log_output_info;
     st_evtypeid_t               ev_log_output_warning;
     st_evtypeid_t               ev_log_output_error;
-    mtx_t                       lock;
     char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
 } st_logger_libsir_t;
 

@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <threads.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -86,15 +85,6 @@ static st_modctx_t *st_logger_init(st_modctx_t *events_ctx) {
     if (events_ctx && !st_logger_enable_events(logger_ctx, events_ctx))
         module->events.ctx = NULL;
 
-    if (mtx_init(&module->lock, mtx_plain) == thrd_error) {
-        st_logger_error(logger_ctx,
-         "logger_libsir: Unable to init lock mutex while initializing "
-         "logger");
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, logger_ctx);
-
-        return NULL;
-    }
-
     st_logger_info(logger_ctx, "logger_libsir: Logger initialized");
 
     return logger_ctx;
@@ -115,7 +105,6 @@ static void st_logger_quit(st_modctx_t *logger_ctx) {
         st_dlist_destroy(module->log_files);
 
     sir_cleanup();
-    mtx_destroy(&module->lock);
 
     printf("%s", module->postmortem_msg);
 
@@ -351,7 +340,7 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx, st_logcbk_t func,
 }
 
 #define ST_LOGGER_MESSAGE_LEN_MAX 4096
-#define ST_LOGGER_NOLOCK_FUNC(st_func, sir_func, log_level, evtype_id_field) \
+#define ST_LOGGER_OUTPUT_FUNC(st_func, sir_func, log_level, evtype_id_field) \
     static __attribute__ ((format (printf, 2, 0))) void st_func(             \
      const st_modctx_t *logger_ctx, const char* format, va_list args) {      \
         st_logger_libsir_t *module = logger_ctx->data;                       \
@@ -378,32 +367,29 @@ static bool st_logger_set_callback(st_modctx_t *logger_ctx, st_logcbk_t func,
         }                                                                    \
     }
 
-ST_LOGGER_NOLOCK_FUNC(st_logger_debug_nolock, sir_debug, ST_LL_DEBUG, // NOLINT(cert-err33-c)
+ST_LOGGER_OUTPUT_FUNC(st_logger_debug_output, sir_debug, ST_LL_DEBUG, // NOLINT(cert-err33-c)
  ev_log_output_debug);
-ST_LOGGER_NOLOCK_FUNC(st_logger_info_nolock, sir_info, ST_LL_INFO, // NOLINT(cert-err33-c)
+ST_LOGGER_OUTPUT_FUNC(st_logger_info_output, sir_info, ST_LL_INFO, // NOLINT(cert-err33-c)
  ev_log_output_info);
-ST_LOGGER_NOLOCK_FUNC(st_logger_warning_nolock, sir_warn, ST_LL_WARNING, // NOLINT(cert-err33-c)
+ST_LOGGER_OUTPUT_FUNC(st_logger_warning_output, sir_warn, ST_LL_WARNING, // NOLINT(cert-err33-c)
  ev_log_output_warning);
-ST_LOGGER_NOLOCK_FUNC(st_logger_error_nolock, sir_error, ST_LL_ERROR, // NOLINT(cert-err33-c)
+ST_LOGGER_OUTPUT_FUNC(st_logger_error_output, sir_error, ST_LL_ERROR, // NOLINT(cert-err33-c)
  ev_log_output_warning);
 
-#define ST_LOGGER_LOG_FUNC(st_func, st_nolock_func) \
+#define ST_LOGGER_LOG_FUNC(st_func, st_output_func) \
     static __attribute__((format (printf, 2, 3))) void st_func(   \
      const st_modctx_t *logger_ctx, const char* format, ...) {    \
         st_logger_libsir_t *module = logger_ctx->data;            \
         va_list             args;                                 \
-        if (mtx_lock(&module->lock) == thrd_error)                \
-            return;                                               \
         va_start(args, format);                                   \
-        st_nolock_func(logger_ctx, format, args);                 \
-        mtx_unlock(&module->lock);                                \
+        st_output_func(logger_ctx, format, args);                 \
         va_end(args);                                             \
     }
 
-ST_LOGGER_LOG_FUNC(st_logger_debug,   st_logger_debug_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_info,    st_logger_info_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_warning, st_logger_warning_nolock);
-ST_LOGGER_LOG_FUNC(st_logger_error,   st_logger_error_nolock);
+ST_LOGGER_LOG_FUNC(st_logger_debug,   st_logger_debug_output);
+ST_LOGGER_LOG_FUNC(st_logger_info,    st_logger_info_output);
+ST_LOGGER_LOG_FUNC(st_logger_warning, st_logger_warning_output);
+ST_LOGGER_LOG_FUNC(st_logger_error,   st_logger_error_output);
 
 static void st_logger_set_postmortem_msg(st_modctx_t *logger_ctx,
  const char *msg) {
