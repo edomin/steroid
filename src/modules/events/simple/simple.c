@@ -154,8 +154,9 @@ static st_evtypeid_t st_events_get_type_id(st_modctx_t *events_ctx,
 static st_evq_t *st_events_create_queue(st_modctx_t *events_ctx,
  size_t pool_size) {
     st_events_simple_t *module = events_ctx->data;
-    st_rbuf_t *handle = module->rbuf.create(module->rbuf.ctx, pool_size);
-    st_evq_t  *queue;
+    st_evq_t           *queue;
+    st_rbuf_t          *handle = module->rbuf.create(module->rbuf.ctx,
+     pool_size);
 
     if (!handle)
         return NULL;
