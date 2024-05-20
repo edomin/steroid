@@ -7,7 +7,6 @@
 static st_bitmap_funcs_t st_bitmap_simple_funcs = {
     .bitmap_init             = st_bitmap_init,
     .bitmap_quit             = st_bitmap_quit,
-    .bitmap_add_codec        = st_bitmap_add_codec,
     .bitmap_load             = st_bitmap_load,
     .bitmap_memload          = st_bitmap_memload,
     .bitmap_save             = st_bitmap_save,
@@ -23,7 +22,6 @@ static st_bitmap_funcs_t st_bitmap_simple_funcs = {
 static st_modfuncentry_t st_module_bitmap_simple_funcs[] = {
     {"init"            , st_bitmap_init},
     {"quit"            , st_bitmap_quit},
-    {"add_codec"       , st_bitmap_add_codec},
     {"load"            , st_bitmap_load},
     {"memload"         , st_bitmap_memload},
     {"save"            , st_bitmap_save},

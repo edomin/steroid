@@ -10,7 +10,7 @@ typedef struct {
     st_bitmap_get_width_t        get_width;
     st_bitmap_get_height_t       get_height;
     st_bitmap_get_pixel_format_t get_pixel_format;
-} st_png_libpng_bitmap_t;
+} st_bmcodec_libpng_bitmap_t;
 
 typedef struct {
     st_modctx_t        *ctx;
@@ -18,9 +18,9 @@ typedef struct {
     st_logger_info_t    info;
     st_logger_warning_t warning;
     st_logger_error_t   error;
-} st_png_libpng_logger_t;
+} st_bmcodec_libpng_logger_t;
 
 typedef struct {
-    st_png_libpng_bitmap_t bitmap;
-    st_png_libpng_logger_t logger;
-} st_png_libpng_t;
+    st_bmcodec_libpng_bitmap_t bitmap;
+    st_bmcodec_libpng_logger_t logger;
+} st_bmcodec_libpng_t;
