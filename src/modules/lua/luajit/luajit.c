@@ -7,9 +7,9 @@
 #include <lua.h>
 #include <lualib.h>
 
-#define ERRMSGBUF_SIZE    128
-#define BINDING_NAME_SIZE  32
-#define BINDINGS_COUNT    256
+#define ERRMSGBUF_SIZE   128
+#define BINDING_NAME_SIZE 32
+#define BINDINGS_COUNT   256
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
@@ -96,7 +96,7 @@ static void st_lua_init_bindings(st_modctx_t *logger_ctx,
 
         quit_func = global_modsmgr_funcs.get_function(global_modsmgr,
          "luabind", binding_name, "quit");
-        if (!init_func) {
+        if (!quit_func) {
             module->logger.error(module->logger.ctx,
              "lua_luajit: Unable to get function \"quit\" from module "
              "\"luabind_%s\"", binding_name);
