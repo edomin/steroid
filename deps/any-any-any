@@ -16,6 +16,7 @@ make
 opengl
 pkg-config
 scv
+stb_image
 valgrind
 xlib
 zip

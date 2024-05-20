@@ -12,6 +12,7 @@ lwrb
 make
 opengl
 scv
+stb_image
 x86_64-linux-gnu-gcc
 x86_64-linux-gnu-pkg-config
 xlib

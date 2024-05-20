@@ -52,7 +52,6 @@ static st_modctx_t *st_bmcodec_init(st_modctx_t *bitmap_ctx,
  st_modctx_t *logger_ctx) {
     st_modctx_t          *bmcodec_ctx;
     st_bmcodec_libpng_t  *module;
-    // st_bitmap_add_codec_t add_codec;
 
     bmcodec_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
      &st_module_bmcodec_libpng_data, sizeof(st_bmcodec_libpng_t));
@@ -68,18 +67,6 @@ static st_modctx_t *st_bmcodec_init(st_modctx_t *bitmap_ctx,
 
     if (!st_bmcodec_import_functions(bmcodec_ctx, bitmap_ctx, logger_ctx))
         goto fail;
-
-    // add_codec = global_modsmgr_funcs.get_function_from_ctx(global_modsmgr,
-    //  bitmap_ctx, "add_codec");
-    // if (!add_codec) {
-    //     module->logger.error(module->logger.ctx,
-    //      "bmcodec_libpng: Unable to load function \"add_codec\" from module "
-    //      "\"bitmap\"\n");
-
-    //     goto fail;
-    // }
-
-    // add_codec(bitmap_ctx, bmcodec_ctx);
 
     module->logger.info(module->logger.ctx,
      "bmcodec_libpng: libpng codec initialized");
