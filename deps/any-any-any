@@ -3,6 +3,7 @@ clang-tidy
 cmake
 cmake_barebones
 cwalk
+gcc
 hash_table
 inih
 iwyu
@@ -13,9 +14,8 @@ luajit
 lwrb
 make
 opengl
+pkg-config
 scv
 valgrind
-x86_64-linux-gnu-gcc
-x86_64-linux-gnu-pkg-config
 xlib
 zip
