@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/keyboard.h"
 
-st_keyboard_funcs_t st_keyboard_simple_funcs = {
+static st_keyboard_funcs_t st_keyboard_simple_funcs = {
     .keyboard_init      = st_keyboard_init,
     .keyboard_quit      = st_keyboard_quit,
     .keyboard_process   = st_keyboard_process,
@@ -14,7 +14,7 @@ st_keyboard_funcs_t st_keyboard_simple_funcs = {
     .keyboard_get_input = st_keyboard_get_input,
 };
 
-st_modfuncentry_t st_module_keyboard_simple_funcs[] = {
+static st_modfuncentry_t st_module_keyboard_simple_funcs[] = {
     {"init",      st_keyboard_init},
     {"quit",      st_keyboard_quit},
     {"process",   st_keyboard_process},

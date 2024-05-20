@@ -38,7 +38,7 @@ typedef struct {
     unsigned                opts_count;
 } st_opts_ketopt_t;
 
-st_opts_funcs_t st_opts_ketopt_funcs = {
+static st_opts_funcs_t st_opts_ketopt_funcs = {
     .opts_init       = st_opts_init,
     .opts_quit       = st_opts_quit,
     .opts_add_option = st_opts_add_option,
@@ -46,7 +46,7 @@ st_opts_funcs_t st_opts_ketopt_funcs = {
     .opts_get_help   = st_opts_get_help,
 };
 
-st_modfuncentry_t st_module_opts_ketopt_funcs[] = {
+static st_modfuncentry_t st_module_opts_ketopt_funcs[] = {
     {"init"      , st_opts_init},
     {"quit"      , st_opts_quit},
     {"add_option", st_opts_add_option},

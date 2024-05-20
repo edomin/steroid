@@ -41,7 +41,7 @@ typedef struct {
     char                        postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
 } st_logger_simple_t;
 
-st_logger_funcs_t st_logger_simple_funcs = {
+static st_logger_funcs_t st_logger_simple_funcs = {
     .logger_init               = st_logger_init,
     .logger_quit               = st_logger_quit,
     .logger_enable_events      = st_logger_enable_events,
@@ -56,7 +56,7 @@ st_logger_funcs_t st_logger_simple_funcs = {
     .logger_set_postmortem_msg = st_logger_set_postmortem_msg,
 };
 
-st_modfuncentry_t st_module_logger_simple_funcs[] = {
+static st_modfuncentry_t st_module_logger_simple_funcs[] = {
     {"init",               st_logger_init},
     {"quit",               st_logger_quit},
     {"enable_events",      st_logger_enable_events},

@@ -15,7 +15,7 @@ typedef struct {
     st_spcpaths_cfgpath_logger_t logger;
 } st_spcpaths_cfgpath_t;
 
-st_spcpaths_funcs_t st_spcpaths_cfgpath_funcs = {
+static st_spcpaths_funcs_t st_spcpaths_cfgpath_funcs = {
     .spcpaths_init            = st_spcpaths_init,
     .spcpaths_quit            = st_spcpaths_quit,
     .spcpaths_get_config_path = st_spcpaths_get_config_path,
@@ -23,7 +23,7 @@ st_spcpaths_funcs_t st_spcpaths_cfgpath_funcs = {
     .spcpaths_get_cache_path  = st_spcpaths_get_cache_path,
 };
 
-st_modfuncentry_t st_module_spcpaths_cfgpath_funcs[] = {
+static st_modfuncentry_t st_module_spcpaths_cfgpath_funcs[] = {
     {"init"           , st_spcpaths_init},
     {"quit"           , st_spcpaths_quit},
     {"get_config_path", st_spcpaths_get_config_path},

@@ -4,7 +4,7 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/dynarr.h"
 
-st_dynarr_funcs_t st_dynarr_scv_funcs = {
+static st_dynarr_funcs_t st_dynarr_scv_funcs = {
     .dynarr_init               = st_dynarr_init,
     .dynarr_quit               = st_dynarr_quit,
     .dynarr_create             = st_dynarr_create,
@@ -20,7 +20,7 @@ st_dynarr_funcs_t st_dynarr_scv_funcs = {
     .dynarr_is_empty           = st_dynarr_is_empty,
 };
 
-st_modfuncentry_t st_module_dynarr_scv_funcs[] = {
+static st_modfuncentry_t st_module_dynarr_scv_funcs[] = {
     {"init",               st_dynarr_init},
     {"quit",               st_dynarr_quit},
     {"create",             st_dynarr_create},

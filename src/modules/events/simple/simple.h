@@ -4,7 +4,7 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/events.h"
 
-st_events_funcs_t st_events_simple_funcs = {
+static st_events_funcs_t st_events_simple_funcs = {
     .events_init            = st_events_init,
     .events_quit            = st_events_quit,
     .events_register_type   = st_events_register_type,
@@ -24,7 +24,7 @@ st_events_funcs_t st_events_simple_funcs = {
     .events_clear           = st_events_clear,
 };
 
-st_modfuncentry_t st_module_events_simple_funcs[] = {
+static st_modfuncentry_t st_module_events_simple_funcs[] = {
     {"init",            st_events_init},
     {"quit",            st_events_quit},
     {"register_type",   st_events_register_type},

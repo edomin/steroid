@@ -4,7 +4,7 @@
 #include "types.h"
 #include "steroids/lua.h"
 
-st_lua_funcs_t st_lua_luajit_funcs = {
+static st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_init                       = st_lua_init,
     .lua_quit                       = st_lua_quit,
     .lua_run_string                 = st_lua_run_string,
@@ -39,7 +39,7 @@ st_lua_funcs_t st_lua_luajit_funcs = {
     .lua_raise_error                = st_lua_raise_error,
 };
 
-st_modfuncentry_t st_module_lua_luajit_funcs[] = {
+static st_modfuncentry_t st_module_lua_luajit_funcs[] = {
     {"init",                       st_lua_init},
     {"quit",                       st_lua_quit},
     {"run",                        st_lua_run_file},

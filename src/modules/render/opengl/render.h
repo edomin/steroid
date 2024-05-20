@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/render.h"
 
-st_render_funcs_t st_render_opengl_funcs = {
+static st_render_funcs_t st_render_opengl_funcs = {
     .render_init                 = st_render_init,
     .render_quit                 = st_render_quit,
     .render_put_sprite           = st_render_put_sprite,
@@ -17,7 +17,7 @@ st_render_funcs_t st_render_opengl_funcs = {
     .render_process              = st_render_process,
 };
 
-st_modfuncentry_t st_module_render_opengl_funcs[] = {
+static st_modfuncentry_t st_module_render_opengl_funcs[] = {
     {"init",                 st_render_init},
     {"quit",                 st_render_quit},
     {"put_sprite",           st_render_put_sprite},

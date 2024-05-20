@@ -15,7 +15,7 @@ typedef struct {
     st_pathtools_cwalk_logger_t logger;
 } st_pathtools_cwalk_t;
 
-st_pathtools_funcs_t st_pathtools_cwalk_funcs = {
+static st_pathtools_funcs_t st_pathtools_cwalk_funcs = {
     .pathtools_init           = st_pathtools_init,
     .pathtools_quit           = st_pathtools_quit,
     .pathtools_resolve        = st_pathtools_resolve,
@@ -23,7 +23,7 @@ st_pathtools_funcs_t st_pathtools_cwalk_funcs = {
     .pathtools_concat         = st_pathtools_concat,
 };
 
-st_modfuncentry_t st_module_pathtools_cwalk_funcs[] = {
+static st_modfuncentry_t st_module_pathtools_cwalk_funcs[] = {
     {"init"          , st_pathtools_init},
     {"quit"          , st_pathtools_quit},
     {"resolve"       , st_pathtools_resolve},

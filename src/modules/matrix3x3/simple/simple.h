@@ -4,7 +4,7 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/matrix3x3.h"
 
-st_matrix3x3_funcs_t st_matrix3x3_simple_funcs = {
+static st_matrix3x3_funcs_t st_matrix3x3_simple_funcs = {
     .matrix3x3_init        = st_matrix3x3_init,
     .matrix3x3_quit        = st_matrix3x3_quit,
     .matrix3x3_clone       = st_matrix3x3_clone,
@@ -30,7 +30,7 @@ st_matrix3x3_funcs_t st_matrix3x3_simple_funcs = {
     .matrix3x3_get_data    = st_matrix3x3_get_data,
 };
 
-st_modfuncentry_t st_module_matrix3x3_simple_funcs[] = {
+static st_modfuncentry_t st_module_matrix3x3_simple_funcs[] = {
     {"init",        st_matrix3x3_init},
     {"quit",        st_matrix3x3_quit},
     {"clone",       st_matrix3x3_clone},

@@ -12,7 +12,7 @@ typedef struct {
 @INTERNAL_MODULES_INIT_FUNCS_PROTOTYPES@
 
 #define ST_INTERNAL_MODULES_COUNT @ST_INTERNAL_MODULES_COUNT@
-st_modsentrpts_t st_internal_modules_entrypoints = {
+static st_modsentrpts_t st_internal_modules_entrypoints = {
     .modules_count = ST_INTERNAL_MODULES_COUNT,
     .modules_init_funcs = {
         @ST_INTERNAL_MODULES_INIT_FUNCS@

@@ -22,14 +22,14 @@ typedef struct {
     st_fs_simple_pathtools_t pathtools;
 } st_fs_simple_t;
 
-st_fs_funcs_t st_fs_simple_funcs = {
+static st_fs_funcs_t st_fs_simple_funcs = {
     .fs_init          = st_fs_init,
     .fs_quit          = st_fs_quit,
     .fs_get_file_type = st_fs_get_file_type,
     .fs_mkdir         = st_fs_mkdir,
 };
 
-st_modfuncentry_t st_module_fs_simple_funcs[] = {
+static st_modfuncentry_t st_module_fs_simple_funcs[] = {
     {"init"         , st_fs_init},
     {"quit"         , st_fs_quit},
     {"get_file_type", st_fs_get_file_type},

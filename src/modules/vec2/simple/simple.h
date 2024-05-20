@@ -4,7 +4,7 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/vec2.h"
 
-st_vec2_funcs_t st_vec2_simple_funcs = {
+static st_vec2_funcs_t st_vec2_simple_funcs = {
     .vec2_init               = st_vec2_init,
     .vec2_quit               = st_vec2_quit,
     .vec2_add                = st_vec2_add,
@@ -36,7 +36,7 @@ st_vec2_funcs_t st_vec2_simple_funcs = {
     .vec2_default_basis_yvec = st_vec2_default_basis_yvec,
 };
 
-st_modfuncentry_t st_module_vec2_simple_funcs[] = {
+static st_modfuncentry_t st_module_vec2_simple_funcs[] = {
     {"init",               st_vec2_init},
     {"quit",               st_vec2_quit},
     {"add",                st_vec2_add},

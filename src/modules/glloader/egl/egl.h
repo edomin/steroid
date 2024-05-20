@@ -21,13 +21,13 @@ typedef struct {
     st_glloader_egl_logger_t logger;
 } st_glloader_egl_t;
 
-st_glloader_funcs_t st_glloader_egl_funcs = {
+static st_glloader_funcs_t st_glloader_egl_funcs = {
     .glloader_init             = st_glloader_init,
     .glloader_quit             = st_glloader_quit,
     .glloader_get_proc_address = st_glloader_get_proc_address,
 };
 
-st_modfuncentry_t st_module_glloader_egl_funcs[] = {
+static st_modfuncentry_t st_module_glloader_egl_funcs[] = {
     {"init",             st_glloader_init},
     {"quit",             st_glloader_quit},
     {"get_proc_address", st_glloader_get_proc_address},

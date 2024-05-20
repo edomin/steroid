@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/atlas.h"
 
-st_atlas_funcs_t st_atlas_simple_funcs = {
+static st_atlas_funcs_t st_atlas_simple_funcs = {
     .atlas_init            = st_atlas_init,
     .atlas_quit            = st_atlas_quit,
     .atlas_create          = st_atlas_create,
@@ -18,7 +18,7 @@ st_atlas_funcs_t st_atlas_simple_funcs = {
     .atlas_get_clip_height = st_atlas_get_clip_height,
 };
 
-st_modfuncentry_t st_module_atlas_simple_funcs[] = {
+static st_modfuncentry_t st_module_atlas_simple_funcs[] = {
     {"init",            st_atlas_init},
     {"quit",            st_atlas_quit},
     {"create",          st_atlas_create},

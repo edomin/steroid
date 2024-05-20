@@ -6,7 +6,7 @@
 
 void *st_module_window_xlib_get_func(const char *func_name);
 
-st_moddata_t st_module_window_xlib_data = {
+static st_moddata_t st_module_window_xlib_data = {
     .name = "@ST_MODULE_NAME@",
     .type = "@ST_MODULE_TYPE@",
     .subsystem = "@ST_MODULE_SUBSYSTEM@",

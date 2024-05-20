@@ -15,7 +15,7 @@ typedef struct {
     st_timer_simple_logger_t logger;
 } st_timer_simple_t;
 
-st_timer_funcs_t st_timer_simple_funcs = {
+static st_timer_funcs_t st_timer_simple_funcs = {
     .timer_init          = st_timer_init,
     .timer_quit          = st_timer_quit,
     .timer_start         = st_timer_start,
@@ -24,7 +24,7 @@ st_timer_funcs_t st_timer_simple_funcs = {
     .timer_sleep_for_fps = st_timer_sleep_for_fps,
 };
 
-st_modfuncentry_t st_module_timer_simple_funcs[] = {
+static st_modfuncentry_t st_module_timer_simple_funcs[] = {
     {"init"         , st_timer_init},
     {"quit"         , st_timer_quit},
     {"start"        , st_timer_start},

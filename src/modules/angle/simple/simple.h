@@ -15,7 +15,7 @@ typedef struct {
     st_angle_simple_logger_t logger;
 } st_angle_simple_t;
 
-st_angle_funcs_t st_angle_simple_funcs = {
+static st_angle_funcs_t st_angle_simple_funcs = {
     .angle_init           = st_angle_init,
     .angle_quit           = st_angle_quit,
     .angle_rtod           = st_angle_rtod,
@@ -34,7 +34,7 @@ st_angle_funcs_t st_angle_simple_funcs = {
     .angle_dgacos         = st_angle_dgacos,
 };
 
-st_modfuncentry_t st_module_angle_simple_funcs[] = {
+static st_modfuncentry_t st_module_angle_simple_funcs[] = {
     {"init",           st_angle_init},
     {"quit",           st_angle_quit},
     {"rtod",           st_angle_rtod},
