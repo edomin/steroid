@@ -22,12 +22,12 @@ typedef struct {
     st_luabind_keyboard_lua_t    lua;
 } st_luabind_keyboard_t;
 
-st_luabind_funcs_t st_luabind_keyboard_funcs = {
+static st_luabind_funcs_t st_luabind_keyboard_funcs = {
     .luabind_init = st_luabind_init,
     .luabind_quit = st_luabind_quit,
 };
 
-st_modfuncentry_t st_module_luabind_keyboard_funcs[] = {
+static st_modfuncentry_t st_module_luabind_keyboard_funcs[] = {
     {"init", st_luabind_init},
     {"quit", st_luabind_quit},
     {NULL, NULL},

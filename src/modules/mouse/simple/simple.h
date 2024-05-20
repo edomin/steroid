@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/mouse.h"
 
-st_mouse_funcs_t st_mouse_simple_funcs = {
+static st_mouse_funcs_t st_mouse_simple_funcs = {
     .mouse_init               = st_mouse_init,
     .mouse_quit               = st_mouse_quit,
     .mouse_process            = st_mouse_process,
@@ -20,7 +20,7 @@ st_mouse_funcs_t st_mouse_simple_funcs = {
     .mouse_get_window         = st_mouse_get_window,
 };
 
-st_modfuncentry_t st_module_mouse_simple_funcs[] = {
+static st_modfuncentry_t st_module_mouse_simple_funcs[] = {
     {"init",               st_mouse_init},
     {"quit",               st_mouse_quit},
     {"process",            st_mouse_process},

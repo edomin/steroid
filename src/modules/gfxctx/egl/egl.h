@@ -4,7 +4,7 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/gfxctx.h"
 
-st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
+static st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_init             = st_gfxctx_init,
     .gfxctx_quit             = st_gfxctx_quit,
     .gfxctx_create           = st_gfxctx_create,
@@ -21,7 +21,7 @@ st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
     .gfxctx_get_userdata     = st_gfxctx_get_userdata,
 };
 
-st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
+static st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {"init",             st_gfxctx_init},
     {"quit",             st_gfxctx_quit},
     {"create",           st_gfxctx_create},

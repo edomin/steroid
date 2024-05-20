@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/window.h"
 
-st_window_funcs_t st_window_xlib_funcs = {
+static st_window_funcs_t st_window_xlib_funcs = {
     .window_init        = st_window_init,
     .window_quit        = st_window_quit,
     .window_create      = st_window_create,
@@ -18,7 +18,7 @@ st_window_funcs_t st_window_xlib_funcs = {
     .window_get_height  = st_window_get_height,
 };
 
-st_modfuncentry_t st_module_window_xlib_funcs[] = {
+static st_modfuncentry_t st_module_window_xlib_funcs[] = {
     {"init",        st_window_init},
     {"quit",        st_window_quit},
     {"create",      st_window_create},

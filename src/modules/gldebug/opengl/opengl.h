@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/gldebug.h"
 
-st_gldebug_funcs_t st_gldebug_opengl_funcs = {
+static st_gldebug_funcs_t st_gldebug_opengl_funcs = {
     .gldebug_init                = st_gldebug_init,
     .gldebug_quit                = st_gldebug_quit,
     .gldebug_label_buffer        = st_gldebug_label_buffer,
@@ -24,7 +24,7 @@ st_gldebug_funcs_t st_gldebug_opengl_funcs = {
     .gldebug_get_error_msg       = st_gldebug_get_error_msg,
 };
 
-st_modfuncentry_t st_module_gldebug_opengl_funcs[] = {
+static st_modfuncentry_t st_module_gldebug_opengl_funcs[] = {
     {"init",                st_gldebug_init},
     {"quit",                st_gldebug_quit},
     {"label_buffer",        st_gldebug_label_buffer},

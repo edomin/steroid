@@ -4,7 +4,7 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/monitor.h"
 
-st_monitor_funcs_t st_monitor_xlib_funcs = {
+static st_monitor_funcs_t st_monitor_xlib_funcs = {
     .monitor_init               = st_monitor_init,
     .monitor_quit               = st_monitor_quit,
     .monitor_get_monitors_count = st_monitor_get_monitors_count,
@@ -15,7 +15,7 @@ st_monitor_funcs_t st_monitor_xlib_funcs = {
     .monitor_get_handle         = st_monitor_get_handle,
 };
 
-st_modfuncentry_t st_module_monitor_xlib_funcs[] = {
+static st_modfuncentry_t st_module_monitor_xlib_funcs[] = {
     {"init"              , st_monitor_init},
     {"quit"              , st_monitor_quit},
     {"get_monitors_count", st_monitor_get_monitors_count},
