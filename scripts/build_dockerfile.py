@@ -12,7 +12,7 @@ def GetDockefrileName(target):
 
 def GetBaseImageName(target):
     return {
-        "any-any-any": "archlinux:latest",
+        "any-any-any": "fedora:40",
         "x86_64-linux-gnu": "oraclelinux:7",
         "x86_64-steamrt-scout":
             "registry.gitlab.steamos.cloud/steamrt/scout/sdk:"
@@ -36,9 +36,7 @@ def GetPreInstallCmds(target):
     return {
         "any-any-any":           "groupadd --gid $GROUP_ID user \\\n"
                               "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
-                              "&& pacman-key --init \\\n"
-                              "&& pacman --noconfirm --disable-download-timeout -Syu \\\n"
-                              "&& pacman --noconfirm --disable-download-timeout -S python python-pip git \\\n",
+                              "&& dnf -y install python3 python3-pip git \\\n",
         "x86_64-linux-gnu":      "groupadd --gid $GROUP_ID user \\\n"
                               "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
                               "&& yum -y install python3 python3-pip git \\\n",
