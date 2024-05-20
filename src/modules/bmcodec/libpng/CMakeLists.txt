@@ -1,10 +1,10 @@
-if (${ST_MODULE_PNG_LIBPNG} STREQUAL "no")
+if (${ST_MODULE_BMCODEC_LIBPNG} STREQUAL "no")
     return()
 endif()
 
 set(ST_MODULE_NAME "libpng")
-set(ST_MODULE_TYPE ${ST_MODULE_PNG_LIBPNG})
-set(ST_MODULE_SUBSYSTEM "png")
+set(ST_MODULE_TYPE ${ST_MODULE_BMCODEC_LIBPNG})
+set(ST_MODULE_SUBSYSTEM "bmcodec")
 set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
@@ -36,7 +36,7 @@ bb_add_more_warnings(
     OPTIONS C_COMPILE_OPTIONS
 )
 
-st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_PNG_LIBPNG})
+st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_BMCODEC_LIBPNG})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 find_package(PkgConfig REQUIRED)

@@ -35,6 +35,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/atlas/simple"
  "${CMAKE_BINARY_DIR}/src/modules/atlas/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bitmap/simple"
  "${CMAKE_BINARY_DIR}/src/modules/bitmap/simple")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/bmcodec/libpng"
+ "${CMAKE_BINARY_DIR}/src/modules/bmcodec/libpng")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/drawq/simple"
  "${CMAKE_BINARY_DIR}/src/modules/drawq/simple")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/dynarr/scv"
@@ -93,8 +95,6 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/opts"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/opts")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/pathtools"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/pathtools")
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/png"
- "${CMAKE_BINARY_DIR}/src/modules/luabind/png")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/render"
  "${CMAKE_BINARY_DIR}/src/modules/luabind/render")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/luabind/sprite"
@@ -121,8 +121,6 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/cwalk"
  "${CMAKE_BINARY_DIR}/src/modules/pathtools/cwalk")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/plugin/simple"
  "${CMAKE_BINARY_DIR}/src/modules/plugin/simple")
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/png/libpng"
- "${CMAKE_BINARY_DIR}/src/modules/png/libpng")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/render/opengl"
  "${CMAKE_BINARY_DIR}/src/modules/render/opengl")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/rbuf/lwrb"

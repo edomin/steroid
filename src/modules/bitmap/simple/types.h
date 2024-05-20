@@ -1,6 +1,9 @@
 #pragma once
 
+#include "steroids/types/modules/bmcodec.h"
 #include "steroids/types/modules/logger.h"
+
+#include "slist.h"
 
 #define CODECS_MAX 32
 
@@ -11,9 +14,9 @@ typedef struct st_bitmap_s *(*st_bmcodec_load_t)(st_modctx_t *codec_ctx,
 typedef struct st_bitmap_s *(*st_bmcodec_memload_t)(st_modctx_t *codec_ctx,
  const void *data, size_t size);
 typedef bool (*st_bmcodec_save_t)(st_modctx_t *codec_ctx,
- const struct st_bitmap_s *bitmap, const char *filename);
-typedef const char *(*st_bmcodec_memsave_t)(st_modctx_t *codec_ctx, void *dst,
- size_t *size, const struct st_bitmap_s *bitmap);
+ const struct st_bitmap_s *bitmap, const char *filename, const char *format);
+typedef bool (*st_bmcodec_memsave_t)(st_modctx_t *codec_ctx, void *dst,
+ size_t *size, const struct st_bitmap_s *bitmap, const char *format);
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -24,6 +27,7 @@ typedef struct {
 
 typedef struct {
     st_modctx_t         *ctx;
+    st_bmcodec_quit_t    quit;
     st_bmcodec_load_t    load;
     st_bmcodec_memload_t memload;
     st_bmcodec_save_t    save;
@@ -32,8 +36,7 @@ typedef struct {
 
 typedef struct {
     st_bitmap_simple_logger_t logger;
-    st_bitmap_simple_codec_t  codecs[CODECS_MAX];
-    size_t                    codecs_count;
+    st_slist_t               *codecs;
 } st_bitmap_simple_t;
 
 typedef struct st_bitmap_s {
