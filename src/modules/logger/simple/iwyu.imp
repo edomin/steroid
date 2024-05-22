@@ -1,4 +1,0 @@
-[
-    { include: ["\"steroids/types/modules/logger.h\"", "private", "\"steroids/logger.h\"", "public"] },
-    { include: ["\"steroids/module.h\""              , "private", "\"steroids/logger.h\"", "public"] },
-]
