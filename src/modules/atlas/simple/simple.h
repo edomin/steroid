@@ -4,18 +4,9 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/atlas.h"
 
-static st_atlas_funcs_t st_atlas_simple_funcs = {
-    .atlas_init            = st_atlas_init,
-    .atlas_quit            = st_atlas_quit,
-    .atlas_create          = st_atlas_create,
-    .atlas_destroy         = st_atlas_destroy,
-    .atlas_set_clip        = st_atlas_set_clip,
-    .atlas_get_texture     = st_atlas_get_texture,
-    .atlas_get_clips_count = st_atlas_get_clips_count,
-    .atlas_get_clip_x      = st_atlas_get_clip_x,
-    .atlas_get_clip_y      = st_atlas_get_clip_y,
-    .atlas_get_clip_width  = st_atlas_get_clip_width,
-    .atlas_get_clip_height = st_atlas_get_clip_height,
+static st_atlasctx_funcs_t st_atlas_simple_funcs = {
+    .quit   = st_atlas_quit,
+    .create = st_atlas_create,
 };
 
 static st_modfuncentry_t st_module_atlas_simple_funcs[] = {

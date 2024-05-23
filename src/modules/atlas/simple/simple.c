@@ -5,6 +5,17 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_atlas_funcs_t atlas_funcs = {
+    .destroy         = st_atlas_destroy,
+    .set_clip        = st_atlas_set_clip,
+    .get_texture     = st_atlas_get_texture,
+    .get_clips_count = st_atlas_get_clips_count,
+    .get_clip_x      = st_atlas_get_clip_x,
+    .get_clip_y      = st_atlas_get_clip_y,
+    .get_clip_width  = st_atlas_get_clip_width,
+    .get_clip_height = st_atlas_get_clip_height,
+};
+
 ST_MODULE_DEF_GET_FUNC(atlas_simple)
 ST_MODULE_DEF_INIT_FUNC(atlas_simple)
 
@@ -87,7 +98,7 @@ static st_atlas_t *st_atlas_create(st_modctx_t *atlas_ctx,
         return NULL;
     }
 
-    atlas->module = module;
+    st_object_make(atlas, atlas_ctx, &atlas_funcs);
     atlas->texture = texture;
     atlas->clips_count = clips_count;
 

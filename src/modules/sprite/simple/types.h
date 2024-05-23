@@ -1,16 +1,7 @@
 #pragma once
 
-#include "steroids/types/modules/atlas.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/texture.h"
-
-typedef struct {
-    st_atlas_get_texture_t     get_texture;
-    st_atlas_get_clip_x_t      get_clip_x;
-    st_atlas_get_clip_y_t      get_clip_y;
-    st_atlas_get_clip_width_t  get_clip_width;
-    st_atlas_get_clip_height_t get_clip_height;
-} st_sprite_simple_atlas_t;
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -25,7 +16,6 @@ typedef struct {
 } st_sprite_simple_texture_t;
 
 typedef struct {
-    st_sprite_simple_atlas_t   atlas;
     st_sprite_simple_logger_t  logger;
     st_sprite_simple_texture_t texture;
 } st_sprite_simple_t;

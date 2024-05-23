@@ -3,6 +3,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "steroids/types/modules/atlas.h"
+
 #define ERRMSGBUF_SIZE 128
 
 static st_modsmgr_t      *global_modsmgr;
@@ -31,12 +33,6 @@ static bool st_sprite_import_functions(st_modctx_t *sprite_ctx,
 
         return false;
     }
-
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", atlas, get_texture);
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", atlas, get_clip_x);
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", atlas, get_clip_y);
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", atlas, get_clip_width);
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", atlas, get_clip_height);
 
     ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", logger, info);
@@ -107,15 +103,15 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     }
 
     sprite->module = module;
-    sprite->texture = module->atlas.get_texture(atlas);
+    sprite->texture = ST_ATLAS_CALL(atlas, get_texture);
 
     texture_width = module->texture.get_width(sprite->texture);
     texture_height = module->texture.get_height(sprite->texture);
-    clip_x = module->atlas.get_clip_x(atlas, clip_num);
-    clip_y = module->atlas.get_clip_y(atlas, clip_num);
+    clip_x = ST_ATLAS_CALL(atlas, get_clip_x, clip_num);
+    clip_y = ST_ATLAS_CALL(atlas, get_clip_y, clip_num);
 
-    sprite->width = module->atlas.get_clip_width(atlas, clip_num);
-    sprite->height = module->atlas.get_clip_height(atlas, clip_num);
+    sprite->width = ST_ATLAS_CALL(atlas, get_clip_width, clip_num);
+    sprite->height = ST_ATLAS_CALL(atlas, get_clip_height, clip_num);
 
     sprite->uv.upper_left.u = (float)clip_x / (float)texture_width;
     sprite->uv.upper_left.v = (float)clip_y / (float)texture_height;

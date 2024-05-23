@@ -2,6 +2,7 @@
 
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/texture.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -26,11 +27,10 @@ typedef struct {
     unsigned height;
 } st_texclip_t;
 
-typedef struct {
-    st_atlas_simple_t *module;
-    st_texture_t      *texture;
-    size_t             clips_count;
-    st_texclip_t       clips[];
-} st_atlas_t;
+ST_CLASS(
+    st_texture_t *texture;
+    size_t        clips_count;
+    st_texclip_t  clips[];
+) st_atlas_t;
 
 #define ST_ATLAS_T_DEFINED
