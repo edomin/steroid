@@ -4,19 +4,11 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/bitmap.h"
 
-static st_bitmap_funcs_t st_bitmap_simple_funcs = {
-    .bitmap_init             = st_bitmap_init,
-    .bitmap_quit             = st_bitmap_quit,
-    .bitmap_load             = st_bitmap_load,
-    .bitmap_memload          = st_bitmap_memload,
-    .bitmap_save             = st_bitmap_save,
-    .bitmap_memsave          = st_bitmap_memsave,
-    .bitmap_import           = st_bitmap_import,
-    .bitmap_destroy          = st_bitmap_destroy,
-    .bitmap_get_data         = st_bitmap_get_data,
-    .bitmap_get_width        = st_bitmap_get_width,
-    .bitmap_get_height       = st_bitmap_get_height,
-    .bitmap_get_pixel_format = st_bitmap_get_pixel_format,
+static st_bitmapctx_funcs_t st_bitmap_simple_funcs = {
+    .quit    = st_bitmap_quit,
+    .load    = st_bitmap_load,
+    .memload = st_bitmap_memload,
+    .import  = st_bitmap_import,
 };
 
 static st_modfuncentry_t st_module_bitmap_simple_funcs[] = {

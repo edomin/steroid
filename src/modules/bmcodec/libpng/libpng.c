@@ -40,10 +40,6 @@ static bool st_bmcodec_import_functions(st_modctx_t *bmcodec_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", logger, warning);
 
     ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", bitmap, import);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", bitmap, get_data);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", bitmap, get_width);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", bitmap, get_height);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_libpng", bitmap, get_pixel_format);
 
     return true;
 }
@@ -195,15 +191,15 @@ static bool st_bmcodec_save(st_modctx_t *bmcodec_ctx, const st_bitmap_t *bitmap,
     image  = (png_image){
         .version          = PNG_IMAGE_VERSION,
         .opaque           = NULL,
-        .width            = module->bitmap.get_width(bitmap),
-        .height           = module->bitmap.get_height(bitmap),
+        .width            = ST_BITMAP_CALL(bitmap, get_width),
+        .height           = ST_BITMAP_CALL(bitmap, get_height),
         .format           = PNG_FORMAT_RGBA,
         .flags            = 0,
         .colormap_entries = 0,
     };
 
     return png_image_write_to_file(&image, filename, true,
-     module->bitmap.get_data(bitmap), 0, NULL);
+     ST_BITMAP_CALL(bitmap, get_data), 0, NULL);
 }
 
 static bool st_bmcodec_memsave(st_modctx_t *bmcodec_ctx, void *dst,
@@ -220,14 +216,13 @@ static bool st_bmcodec_memsave(st_modctx_t *bmcodec_ctx, void *dst,
     image  = (png_image){
         .version          = PNG_IMAGE_VERSION,
         .opaque           = NULL,
-        .width            = module->bitmap.get_width(bitmap),
-        .height           = module->bitmap.get_height(bitmap),
+        .width            = ST_BITMAP_CALL(bitmap, get_width),
+        .height           = ST_BITMAP_CALL(bitmap, get_height),
         .format           = PNG_FORMAT_RGBA,
         .flags            = 0,
         .colormap_entries = 0,
     };
 
     return png_image_write_to_memory (&image, dst, size, true,
-     module->bitmap.get_data(bitmap), 0, NULL);
+     ST_BITMAP_CALL(bitmap, get_data), 0, NULL);
 }
-

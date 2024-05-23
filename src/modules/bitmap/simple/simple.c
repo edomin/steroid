@@ -12,6 +12,16 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_bitmap_funcs_t bitmap_funcs = {
+    .save             = st_bitmap_save,
+    .memsave          = st_bitmap_memsave,
+    .destroy          = st_bitmap_destroy,
+    .get_data         = st_bitmap_get_data,
+    .get_width        = st_bitmap_get_width,
+    .get_height       = st_bitmap_get_height,
+    .get_pixel_format = st_bitmap_get_pixel_format,
+};
+
 ST_MODULE_DEF_GET_FUNC(bitmap_simple)
 ST_MODULE_DEF_INIT_FUNC(bitmap_simple)
 
@@ -256,7 +266,7 @@ static st_bitmap_t *st_bitmap_memload(st_modctx_t *bitmap_ctx, const void *data,
 
 static bool st_bitmap_save(const st_bitmap_t *bitmap, const char *filename,
  const char *format) {
-    st_bitmap_simple_t *module = bitmap->module;
+    st_bitmap_simple_t *module = ((st_modctx_t *)st_object_get_owner(bitmap))->data;
     st_slnode_t        *node = st_slist_get_first(module->codecs);
 
     while (node) {
@@ -273,7 +283,7 @@ static bool st_bitmap_save(const st_bitmap_t *bitmap, const char *filename,
 
 static bool st_bitmap_memsave(void *dst, size_t *size,
  const st_bitmap_t *bitmap, const char *format) {
-    st_bitmap_simple_t *module = bitmap->module;
+    st_bitmap_simple_t *module = ((st_modctx_t *)st_object_get_owner(bitmap))->data;
     st_slnode_t        *node = st_slist_get_first(module->codecs);
 
     while (node) {
@@ -335,7 +345,7 @@ static st_bitmap_t *st_bitmap_import(st_modctx_t *bitmap_ctx, const void *data,
     }
 
     memcpy(bitmap->data, data, data_size);
-    bitmap->module = bitmap_ctx->data;
+    st_object_make(bitmap, bitmap_ctx, &bitmap_funcs);
     bitmap->width = width;
     bitmap->height = height;
     bitmap->pixel_format = (int)pixel_format;

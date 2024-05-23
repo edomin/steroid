@@ -4,12 +4,8 @@
 #include "steroids/types/modules/logger.h"
 
 typedef struct {
-    st_modctx_t                 *ctx;
-    st_bitmap_import_t           import;
-    st_bitmap_get_data_t         get_data;
-    st_bitmap_get_width_t        get_width;
-    st_bitmap_get_height_t       get_height;
-    st_bitmap_get_pixel_format_t get_pixel_format;
+    st_modctx_t       *ctx;
+    st_bitmap_import_t import;
 } st_bmcodec_libpng_bitmap_t;
 
 typedef struct {

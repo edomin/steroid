@@ -2,6 +2,7 @@
 
 #include "steroids/types/modules/bmcodec.h"
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 #include "slist.h"
 
@@ -39,13 +40,12 @@ typedef struct {
     st_slist_t               *codecs;
 } st_bitmap_simple_t;
 
-typedef struct st_bitmap_s {
-    st_bitmap_simple_t *module;
-    unsigned            width;
-    unsigned            height;
-    int                 pixel_format;
-    char                data[];
-} st_bitmap_t;
+ST_STRUCT_CLASS(st_bitmap_s,
+    unsigned width;
+    unsigned height;
+    int      pixel_format;
+    char     data[];
+) st_bitmap_t;
 
 #define ST_BITMAP_CODEC_FUNCS_DEFINED
 #define ST_BITMAP_T_DEFINED

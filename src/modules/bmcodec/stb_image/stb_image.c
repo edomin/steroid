@@ -41,10 +41,6 @@ static bool st_bmcodec_import_functions(st_modctx_t *bmcodec_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", logger, info);
 
     ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", bitmap, import);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", bitmap, get_data);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", bitmap, get_width);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", bitmap, get_height);
-    ST_LOAD_FUNCTION_FROM_CTX("bmcodec_stb_image", bitmap, get_pixel_format);
 
     return true;
 }
@@ -150,4 +146,3 @@ static bool st_bmcodec_memsave(__attribute__((unused)) st_modctx_t *bmcodec_ctx,
  __attribute__((unused)) const char *format) {
     return false; /* Not supported by implementation */
 }
-
