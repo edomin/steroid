@@ -1,9 +1,15 @@
 #pragma once
 
-#define ST_CLASS(body)  \
-typedef struct {        \
+#define ST_CLASS(body)   \
+typedef struct {         \
     st_object_t _object; \
-    body;               \
+    body;                \
+}
+
+#define ST_STRUCT_CLASS(struct_name, body)  \
+typedef struct struct_name {                \
+    st_object_t _object;                    \
+    body;                                   \
 }
 
 typedef struct {
