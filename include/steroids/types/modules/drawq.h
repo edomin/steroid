@@ -28,7 +28,7 @@ typedef st_modctx_t *(*st_drawq_init_t)(st_modctx_t *dynarr_ctx,
  st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx);
 typedef void (*st_drawq_quit_t)(st_modctx_t *drawq_ctx);
 
-typedef st_drawq_t *(*st_drawq_create_t)(const st_modctx_t *drawq_ctx);
+typedef st_drawq_t *(*st_drawq_create_t)(st_modctx_t *drawq_ctx);
 typedef void (*st_drawq_destroy_t)(st_drawq_t *drawq);
 typedef size_t (*st_drawq_len_t)(const st_drawq_t *drawq);
 typedef bool (*st_drawq_empty_t)(const st_drawq_t *drawq);

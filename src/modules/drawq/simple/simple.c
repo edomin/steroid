@@ -95,7 +95,7 @@ static void st_drawq_quit(st_modctx_t *drawq_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, drawq_ctx);
 }
 
-static st_drawq_t *st_drawq_create(const st_modctx_t *drawq_ctx) {
+static st_drawq_t *st_drawq_create(st_modctx_t *drawq_ctx) {
     st_drawq_simple_t *module = drawq_ctx->data;
     st_drawq_t        *drawq = malloc(sizeof(st_drawq_t));
 
