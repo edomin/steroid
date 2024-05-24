@@ -5,6 +5,7 @@
 #include "steroids/types/modules/dynarr.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/sprite.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t                   *ctx;
@@ -37,9 +38,8 @@ typedef struct {
     st_drawq_simple_sprite_t sprite;
 } st_drawq_simple_t;
 
-typedef struct {
-    st_drawq_simple_t *module;
-    st_dynarr_t       *entries;
-} st_drawq_t;
+ST_CLASS(
+    st_dynarr_t *entries;
+) st_drawq_t;
 
 #define ST_DRAWQ_T_DEFINED

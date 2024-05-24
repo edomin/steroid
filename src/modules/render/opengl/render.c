@@ -123,12 +123,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", angle, dtor);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, create);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, destroy);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, len);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, get_all);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, add);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, sort);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", drawq, clear);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, create);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, destroy);
@@ -385,7 +379,7 @@ vert_fail:
 batcher_fail:
     vertices_free(&module->vertices);
 vertices_fail:
-    module->drawq.destroy(module->drawq.handle);
+    ST_DRAWQ_CALL(module->drawq.handle, destroy);
 drawq_fail:
     if (module->gldebug.ctx)
         module->gldebug.quit(module->gldebug.ctx);
@@ -408,7 +402,7 @@ static void st_render_quit(st_modctx_t *render_ctx) {
         vao_free(&module->vao);
     batcher_free(&module->batcher);
     vertices_free(&module->vertices);
-    module->drawq.destroy(module->drawq.handle);
+    ST_DRAWQ_CALL(module->drawq.handle, destroy);
 
     if (module->gldebug.ctx)
         module->gldebug.quit(module->gldebug.ctx);
@@ -423,7 +417,7 @@ static void st_render_put_sprite(st_modctx_t *render_ctx,
  float vscale, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      0.0f, 0.0f, 0.0f, pivot_x, pivot_y);
 }
 
@@ -432,7 +426,7 @@ static void st_render_put_sprite_rdangled(st_modctx_t *render_ctx,
  float vscale, float radians, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      radians, 0.0f, 0.0f, pivot_x, pivot_y);
 }
 
@@ -441,7 +435,7 @@ static void st_render_put_sprite_dgangled(st_modctx_t *render_ctx,
  float vscale, float degrees, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      module->angle.dtor(module->angle.ctx, degrees), 0.0f, 0.0f, pivot_x,
      pivot_y);
 }
@@ -451,7 +445,7 @@ static void st_render_put_sprite_rhsheared(st_modctx_t *render_ctx,
  float vscale, float radians, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      0.0f, radians, 0.0f, pivot_x, pivot_y);
 }
 
@@ -460,7 +454,7 @@ static void st_render_put_sprite_dhsheared(st_modctx_t *render_ctx,
  float vscale, float degrees, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      0.0f, module->angle.dtor(module->angle.ctx, degrees), 0.0f, pivot_x,
      pivot_y);
 }
@@ -470,7 +464,7 @@ static void st_render_put_sprite_rvsheared(st_modctx_t *render_ctx,
  float vscale, float radians, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      0.0f, 0.0f, radians, pivot_x, pivot_y);
 }
 
@@ -479,7 +473,7 @@ static void st_render_put_sprite_dvsheared(st_modctx_t *render_ctx,
  float vscale, float degrees, float pivot_x, float pivot_y) {
     st_render_opengl_t *module = render_ctx->data;
 
-    module->drawq.add(module->drawq.handle, sprite, x, y, z, hscale, vscale,
+    ST_DRAWQ_CALL(module->drawq.handle, add, sprite, x, y, z, hscale, vscale,
      0.0f, 0.0f, module->angle.dtor(module->angle.ctx, degrees), pivot_x,
      pivot_y);
 }
@@ -508,10 +502,10 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
      module->window.handle);
     unsigned            window_height = module->window.get_height(
      module->window.handle);
-    const st_drawrec_t *draw_entries = module->drawq.get_all(
-     module->drawq.handle);
-    size_t              draw_entries_count = module->drawq.len(
-     module->drawq.handle);
+    const st_drawrec_t *draw_entries = ST_DRAWQ_CALL(module->drawq.handle,
+     get_all);
+    size_t              draw_entries_count = ST_DRAWQ_CALL(module->drawq.handle,
+     len);
 
     vertices_clear(&module->vertices);
     batcher_clear(&module->batcher);
@@ -519,7 +513,7 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
     if (draw_entries_count == 0)
         return;
 
-    module->drawq.sort(module->drawq.handle);
+    ST_DRAWQ_CALL(module->drawq.handle, sort);
     for (size_t i = 0; i < draw_entries_count; i++) {
         const st_sprite_t  *sprite = draw_entries[i].sprite;
         const st_texture_t *texture = module->sprite.get_texture(sprite);
@@ -657,5 +651,5 @@ static void st_render_process(st_modctx_t *render_ctx) {
     }
     shdprog_unuse(&module->shdprog);
     module->gfxctx.swap_buffers(module->gfxctx.handle);
-    module->drawq.clear(module->drawq.handle);
+    ST_DRAWQ_CALL(module->drawq.handle, clear);
 }

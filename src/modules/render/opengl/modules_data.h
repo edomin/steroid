@@ -19,15 +19,9 @@ typedef struct {
 } st_render_opengl_angle_t;
 
 typedef struct {
-    st_modctx_t       *ctx;
-    st_drawq_create_t  create;
-    st_drawq_destroy_t destroy;
-    st_drawq_len_t     len;
-    st_drawq_get_all_t get_all;
-    st_drawq_add_t     add;
-    st_drawq_sort_t    sort;
-    st_drawq_clear_t   clear;
-    st_drawq_t        *handle;
+    st_modctx_t      *ctx;
+    st_drawq_create_t create;
+    st_drawq_t       *handle;
 } st_render_opengl_drawq_t;
 
 typedef struct {

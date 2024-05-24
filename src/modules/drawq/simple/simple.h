@@ -4,18 +4,9 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/drawq.h"
 
-static st_drawq_funcs_t st_drawq_simple_funcs = {
-    .drawq_init         = st_drawq_init,
-    .drawq_quit         = st_drawq_quit,
-    .drawq_create       = st_drawq_create,
-    .drawq_destroy      = st_drawq_destroy,
-    .drawq_len          = st_drawq_len,
-    .drawq_empty        = st_drawq_empty,
-    .drawq_export_entry = st_drawq_export_entry,
-    .drawq_get_all      = st_drawq_get_all,
-    .drawq_add          = st_drawq_add,
-    .drawq_sort         = st_drawq_sort,
-    .drawq_clear        = st_drawq_clear,
+static st_drawqctx_funcs_t st_drawq_simple_funcs = {
+    .quit = st_drawq_quit,
+    .create = st_drawq_create,
 };
 
 static st_modfuncentry_t st_module_drawq_simple_funcs[] = {

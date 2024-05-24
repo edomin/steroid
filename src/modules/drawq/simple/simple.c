@@ -13,6 +13,17 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_drawq_funcs_t drawq_funcs = {
+    .destroy      = st_drawq_destroy,
+    .len          = st_drawq_len,
+    .empty        = st_drawq_empty,
+    .export_entry = st_drawq_export_entry,
+    .get_all      = st_drawq_get_all,
+    .add          = st_drawq_add,
+    .sort         = st_drawq_sort,
+    .clear        = st_drawq_clear,
+};
+
 ST_MODULE_DEF_GET_FUNC(drawq_simple)
 ST_MODULE_DEF_INIT_FUNC(drawq_simple)
 
@@ -120,37 +131,49 @@ static st_drawq_t *st_drawq_create(st_modctx_t *drawq_ctx) {
         return NULL;
     }
 
-    drawq->module = module;
+    st_object_make(drawq, drawq_ctx, &drawq_funcs);
 
     return drawq;
 }
 
 static void st_drawq_destroy(st_drawq_t *drawq) {
-    drawq->module->dynarr.destroy(drawq->entries);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    module->dynarr.destroy(drawq->entries);
     free(drawq);
 }
 
 static size_t st_drawq_len(const st_drawq_t *drawq) {
-    return drawq->module->dynarr.get_elements_count(drawq->entries);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.get_elements_count(drawq->entries);
 }
 
 static bool st_drawq_empty(const st_drawq_t *drawq) {
-    return drawq->module->dynarr.is_empty(drawq->entries);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.is_empty(drawq->entries);
 }
 
 static bool st_drawq_export_entry(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index) {
-    return drawq->module->dynarr.export(drawq->entries, drawrec, index);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.export(drawq->entries, drawrec, index);
 }
 
 static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq) {
-    return drawq->module->dynarr.get_all(drawq->entries);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.get_all(drawq->entries);
 }
 
 static bool st_drawq_add(st_drawq_t *drawq, const st_sprite_t *sprite, float x,
  float y, float z, float hscale, float vscale, float angle, float hshear,
  float vshear, float pivot_x, float pivot_y) {
-    return drawq->module->dynarr.append(drawq->entries, &(st_drawrec_t){
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.append(drawq->entries, &(st_drawrec_t){
         .sprite  = sprite,
         .x       = x,
         .y       = y,
@@ -185,10 +208,13 @@ static int st_drawrec_cmp(const void *leftptr, const void *rightptr,
 }
 
 static bool st_drawq_sort(st_drawq_t *drawq) {
-    return drawq->module->dynarr.sort(drawq->entries, st_drawrec_cmp,
-     drawq->module);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.sort(drawq->entries, st_drawrec_cmp, module);
 }
 
 static bool st_drawq_clear(st_drawq_t *drawq) {
-    return drawq->module->dynarr.clear(drawq->entries);
+    st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
+
+    return module->dynarr.clear(drawq->entries);
 }
