@@ -111,7 +111,7 @@ static bool st_dynarr_sort(st_dynarr_t *dynarr,
     return true;
 }
 
-static bool st_dynarr_export(const st_dynarr_t *dynarr, void *dst,
+static bool st_dynarr_extract(const st_dynarr_t *dynarr, void *dst,
  size_t index) {
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wcast-qual"

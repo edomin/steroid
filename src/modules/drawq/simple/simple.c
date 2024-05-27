@@ -53,7 +53,7 @@ static bool st_drawq_import_functions(st_modctx_t *drawq_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, append);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, clear);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, sort);
-    ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, export);
+    ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, extract);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, get_all);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, is_empty);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", dynarr, get_elements_count);
@@ -159,7 +159,7 @@ static bool st_drawq_export_entry(const st_drawq_t *drawq,
  st_drawrec_t *drawrec, size_t index) {
     st_drawq_simple_t *module = ((st_modctx_t *)st_object_get_owner(drawq))->data;
 
-    return module->dynarr.export(drawq->entries, drawrec, index);
+    return module->dynarr.extract(drawq->entries, drawrec, index);
 }
 
 static const st_drawrec_t *st_drawq_get_all(const st_drawq_t *drawq) {

@@ -16,7 +16,7 @@ static bool st_dynarr_set(st_dynarr_t *dynarr, size_t index, const void *data);
 static bool st_dynarr_clear(st_dynarr_t *dynarr);
 static bool st_dynarr_sort(st_dynarr_t *dynarr,
  int (*cmpfunc)(const void *, const void *, void *), void *userptr);
-static bool st_dynarr_export(const st_dynarr_t *dynarr, void *dst,
+static bool st_dynarr_extract(const st_dynarr_t *dynarr, void *dst,
  size_t index);
 static const void *st_dynarr_get(st_dynarr_t *dynarr, size_t index);
 static const void *st_dynarr_get_all(st_dynarr_t *dynarr);

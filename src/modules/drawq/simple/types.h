@@ -14,7 +14,7 @@ typedef struct {
     st_dynarr_append_t             append;
     st_dynarr_clear_t              clear;
     st_dynarr_sort_t               sort;
-    st_dynarr_export_t             export;
+    st_dynarr_extract_t            extract;
     st_dynarr_get_all_t            get_all;
     st_dynarr_get_elements_count_t get_elements_count;
     st_dynarr_is_empty_t           is_empty;
