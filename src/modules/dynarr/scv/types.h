@@ -3,6 +3,7 @@
 #include <scv.h>
 
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -15,6 +16,8 @@ typedef struct {
     st_dynarr_scv_logger_t logger;
 } st_dynarr_scv_t;
 
-typedef struct scv_vector st_dynarr_t;
+ST_CLASS(
+    struct scv_vector *handle;
+) st_dynarr_t;
 
 #define ST_DYNARR_T_DEFINED

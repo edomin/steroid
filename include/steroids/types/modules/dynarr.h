@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "steroids/module.h"
+#include "steroids/types/object.h"
 
 #ifndef ST_DYNARR_T_DEFINED
     typedef struct st_dynarr_s st_dynarr_t;
@@ -29,17 +30,22 @@ typedef size_t (*st_dynarr_get_elements_count_t)(const st_dynarr_t *dynarr);
 typedef bool (*st_dynarr_is_empty_t)(const st_dynarr_t *dynarr);
 
 typedef struct {
-    st_dynarr_init_t               dynarr_init;
-    st_dynarr_quit_t               dynarr_quit;
-    st_dynarr_create_t             dynarr_create;
-    st_dynarr_destroy_t            dynarr_destroy;
-    st_dynarr_append_t             dynarr_append;
-    st_dynarr_set_t                dynarr_set;
-    st_dynarr_clear_t              dynarr_clear;
-    st_dynarr_sort_t               dynarr_sort;
-    st_dynarr_extract_t            dynarr_extract;
-    st_dynarr_get_t                dynarr_get;
-    st_dynarr_get_all_t            dynarr_get_all;
-    st_dynarr_get_elements_count_t dynarr_get_elements_count;
-    st_dynarr_is_empty_t           dynarr_is_empty;
+    st_dynarr_quit_t   quit;
+    st_dynarr_create_t create;
+} st_dynarrctx_funcs_t;
+
+typedef struct {
+    st_dynarr_destroy_t            destroy;
+    st_dynarr_append_t             append;
+    st_dynarr_set_t                set;
+    st_dynarr_clear_t              clear;
+    st_dynarr_sort_t               sort;
+    st_dynarr_extract_t            extract;
+    st_dynarr_get_t                get;
+    st_dynarr_get_all_t            get_all;
+    st_dynarr_get_elements_count_t get_elements_count;
+    st_dynarr_is_empty_t           is_empty;
 } st_dynarr_funcs_t;
+
+#define ST_DYNARR_CALL(object, func, ...) \
+    ((st_dynarr_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
