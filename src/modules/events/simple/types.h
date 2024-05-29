@@ -5,6 +5,7 @@
 
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/rbuf.h"
+#include "steroids/types/object.h"
 
 #define EVENT_TYPE_NAME_SIZE 32
 #define EVENT_TYPES_MAX      32
@@ -32,11 +33,10 @@ typedef struct {
     st_rbuf_is_empty_t       is_empty;
 } st_events_simple_rbuf_t;
 
-typedef struct {
-    st_modctx_t *ctx;
-    st_rbuf_t   *handle;
-    bool         active;
-} st_evq_t;
+ST_CLASS(
+    st_rbuf_t *handle;
+    bool       active;
+) st_evq_t;
 
 typedef struct {
     char      name[EVENT_TYPE_NAME_SIZE];

@@ -17,14 +17,9 @@ typedef enum {
 } evtype_index_t;
 
 typedef struct {
-    st_modctx_t                *ctx;
-    st_events_get_type_id_t     get_type_id;
-    st_events_create_queue_t    create_queue;
-    st_events_destroy_queue_t   destroy_queue;
-    st_events_subscribe_t       subscribe;
-    st_events_is_empty_t        is_empty;
-    st_events_peek_type_t       peek_type;
-    st_events_pop_t             pop;
+    st_modctx_t             *ctx;
+    st_events_get_type_id_t  get_type_id;
+    st_events_create_queue_t create_queue;
 } st_mouse_simple_events_t;
 
 typedef struct {

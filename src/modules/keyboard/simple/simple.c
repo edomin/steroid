@@ -46,11 +46,6 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, get_type_id);
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, create_queue);
-    ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, destroy_queue);
-    ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, subscribe);
-    ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, is_empty);
-    ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, peek_type);
-    ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, pop);
 
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", logger, info);
@@ -111,9 +106,9 @@ static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
     if (!module->evq)
         goto create_queue_fail;
 
-    module->events.subscribe(module->evq, module->evtypes[EV_KEY_PRESS]);
-    module->events.subscribe(module->evq, module->evtypes[EV_KEY_RELEASE]);
-    module->events.subscribe(module->evq, module->evtypes[EV_KEY_INPUT]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_KEY_PRESS]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_KEY_RELEASE]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_KEY_INPUT]);
     memset(module->input, 0, INPUT_SIZE);
 
     module->logger.info(module->logger.ctx,
@@ -137,7 +132,7 @@ import_fail:
 static void st_keyboard_quit(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
 
-    module->events.destroy_queue(module->evq);
+    ST_EVQ_CALL(module->evq, destroy_queue);
     module->htable.destroy(module->cur_state);
     module->htable.destroy(module->prev_state);
     module->htable.quit(module->htable.ctx);
@@ -151,7 +146,7 @@ static void st_keyboard_process_press(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
     st_evwinu64_t         event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->htable.insert(module->cur_state, NULL, (const void *)event.value,
      (void *)1ull);
@@ -161,7 +156,7 @@ static void st_keyboard_process_release(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
     st_evwinu64_t         event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->htable.insert(module->cur_state, NULL, (const void *)event.value,
      (void *)0ull);
@@ -171,7 +166,7 @@ static void st_keyboard_process_input(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
     st_evwinsymbol_t      event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     memcpy(module->input, event.value, INPUT_SIZE);
 }
@@ -197,8 +192,8 @@ static void st_keyboard_process(st_modctx_t *keyboard_ctx) {
 
     memset(module->input, 0, INPUT_SIZE);
 
-    while (!module->events.is_empty(module->evq)) {
-        st_evtypeid_t evtype = module->events.peek_type(module->evq);
+    while (!ST_EVQ_CALL(module->evq, is_empty)) {
+        st_evtypeid_t evtype = ST_EVQ_CALL(module->evq, peek_type);
 
         for (evtype_index_t evt = 0; evt < EV_MAX; evt++) {
             if (evtype == module->evtypes[evt]) {

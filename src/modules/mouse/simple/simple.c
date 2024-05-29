@@ -33,11 +33,6 @@ static bool st_mouse_import_functions(st_modctx_t *mouse_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, get_type_id);
     ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, create_queue);
-    ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, destroy_queue);
-    ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, subscribe);
-    ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, is_empty);
-    ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, peek_type);
-    ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", events, pop);
 
     ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("mouse_simple", logger, info);
@@ -79,12 +74,12 @@ static st_modctx_t *st_mouse_init(st_modctx_t *events_ctx,
      "window_mouse_leave");
 
     module->evq = module->events.create_queue(events_ctx, EVQ_POOL_SIZE);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_PRESS]);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_RELEASE]);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_WHEEL]);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_MOVE]);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_ENTER]);
-    module->events.subscribe(module->evq, module->evtypes[EV_MOUSE_LEAVE]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_PRESS]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_RELEASE]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_WHEEL]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_MOVE]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_ENTER]);
+    ST_EVQ_CALL(module->evq, subscribe, module->evtypes[EV_MOUSE_LEAVE]);
 
     module->x = 0;
     module->y = 0;
@@ -110,7 +105,7 @@ fail:
 static void st_mouse_quit(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
 
-    module->events.destroy_queue(module->evq);
+    ST_EVQ_CALL(module->evq, destroy_queue);
 
     module->logger.info(module->logger.ctx, "mouse_simple: Mouse destroyed");
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, mouse_ctx);
@@ -120,7 +115,7 @@ static void st_mouse_process_press(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwinunsigned_t event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->curr_mbstate[event.value] = true;
 }
@@ -129,7 +124,7 @@ static void st_mouse_process_release(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwinunsigned_t event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->curr_mbstate[event.value] = false;
 }
@@ -138,7 +133,7 @@ static void st_mouse_process_wheel(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwininteger_t  event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->wheel = event.value;
 }
@@ -147,7 +142,7 @@ static void st_mouse_process_move(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwinuvec2_t    event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->x = event.hvalue;
     module->y = event.vvalue;
@@ -159,7 +154,7 @@ static void st_mouse_process_enter(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwinuvec2_t    event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->enter = true;
     module->current_window = event.window;
@@ -169,19 +164,19 @@ static void st_mouse_process_leave(st_modctx_t *mouse_ctx) {
     st_mouse_simple_t *module = mouse_ctx->data;
     st_evwinuvec2_t    event;
 
-    module->events.pop(module->evq, &event);
+    ST_EVQ_CALL(module->evq, pop, &event);
 
     module->leave = true;
     module->current_window = NULL;
 }
 
 static void (*procfuncs[])(st_modctx_t *mouse_ctx) = {
-    [EV_MOUSE_PRESS] = st_mouse_process_press,
+    [EV_MOUSE_PRESS]   = st_mouse_process_press,
     [EV_MOUSE_RELEASE] = st_mouse_process_release,
-    [EV_MOUSE_WHEEL] = st_mouse_process_wheel,
-    [EV_MOUSE_MOVE] = st_mouse_process_move,
-    [EV_MOUSE_ENTER] = st_mouse_process_enter,
-    [EV_MOUSE_LEAVE] = st_mouse_process_leave,
+    [EV_MOUSE_WHEEL]   = st_mouse_process_wheel,
+    [EV_MOUSE_MOVE]    = st_mouse_process_move,
+    [EV_MOUSE_ENTER]   = st_mouse_process_enter,
+    [EV_MOUSE_LEAVE]   = st_mouse_process_leave,
 };
 
 static void st_mouse_process(st_modctx_t *mouse_ctx) {
@@ -195,8 +190,8 @@ static void st_mouse_process(st_modctx_t *mouse_ctx) {
     module->enter = false;
     module->leave = false;
 
-    while (!module->events.is_empty(module->evq)) {
-        st_evtypeid_t evtype = module->events.peek_type(module->evq);
+    while (!ST_EVQ_CALL(module->evq, is_empty)) {
+        st_evtypeid_t evtype = ST_EVQ_CALL(module->evq, peek_type);
 
         for (evtype_index_t evt = 0; evt < EV_MAX; evt++) {
             if (evtype == module->evtypes[evt]) {

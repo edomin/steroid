@@ -5,6 +5,20 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_evq_funcs_t evq_funcs = {
+    .destroy_queue   = st_events_destroy_queue,
+    .subscribe       = st_events_subscribe,
+    .unsubscribe     = st_events_unsubscribe,
+    .unsubscribe_all = st_events_unsubscribe_all,
+    .suspend         = st_events_suspend,
+    .resume          = st_events_resume,
+    .is_empty        = st_events_is_empty,
+    .peek_type       = st_events_peek_type,
+    .pop             = st_events_pop,
+    .drop            = st_events_drop,
+    .clear           = st_events_clear,
+};
+
 ST_MODULE_DEF_GET_FUNC(events_simple)
 ST_MODULE_DEF_INIT_FUNC(events_simple)
 
@@ -168,7 +182,7 @@ static st_evq_t *st_events_create_queue(st_modctx_t *events_ctx,
         return NULL;
     }
 
-    queue->ctx = events_ctx;
+    st_object_make(queue, events_ctx, &evq_funcs);
     queue->handle = handle;
     queue->active = true;
 
@@ -176,7 +190,7 @@ static st_evq_t *st_events_create_queue(st_modctx_t *events_ctx,
 }
 
 static void st_events_destroy_queue(st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
     st_events_unsubscribe_all(queue);
 
@@ -185,7 +199,7 @@ static void st_events_destroy_queue(st_evq_t *queue) {
 }
 
 static bool st_events_subscribe(st_evq_t *queue, st_evtypeid_t type_id) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtype_t        *evtype;
 
     if (type_id >= (st_evtypeid_t)module->types_count)
@@ -207,7 +221,7 @@ static bool st_events_subscribe(st_evq_t *queue, st_evtypeid_t type_id) {
 }
 
 static void st_events_unsubscribe(st_evq_t *queue, st_evtypeid_t type_id) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtype_t        *evtype;
 
     if (type_id >= (st_evtypeid_t)module->types_count)
@@ -232,7 +246,7 @@ static void st_events_unsubscribe(st_evq_t *queue, st_evtypeid_t type_id) {
 }
 
 static void st_events_unsubscribe_all(st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
     for (int i = 0; i < (st_evtypeid_t)module->types_count; i++)
         st_events_unsubscribe(queue, i);
@@ -274,13 +288,13 @@ static void st_events_push(st_modctx_t *events_ctx, st_evtypeid_t type_id,
 }
 
 static bool st_events_is_empty(const st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
     return module->rbuf.is_empty(queue->handle);
 }
 
 static st_evtypeid_t st_events_peek_type(const st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
     bool                success = module->rbuf.peek(queue->handle, &type_id,
      sizeof(st_evtypeid_t));
@@ -289,7 +303,7 @@ static st_evtypeid_t st_events_peek_type(const st_evq_t *queue) {
 }
 
 static bool st_events_pop(st_evq_t *queue, void *data) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
 
     if (!module->rbuf.pop(queue->handle, &type_id, sizeof(st_evtypeid_t)))
@@ -300,7 +314,7 @@ static bool st_events_pop(st_evq_t *queue, void *data) {
 }
 
 static bool st_events_drop(st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
 
     if (!module->rbuf.pop(queue->handle, &type_id, sizeof(st_evtypeid_t)))
@@ -310,7 +324,7 @@ static bool st_events_drop(st_evq_t *queue) {
 }
 
 static bool st_events_clear(st_evq_t *queue) {
-    st_events_simple_t *module = queue->ctx->data;
+    st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
     return module->rbuf.clear(queue->handle);
 }

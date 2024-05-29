@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "steroids/module.h"
+#include "steroids/types/object.h"
 
 #define ST_EVTYPE_ID_NONE -1
 
@@ -37,21 +38,26 @@ typedef bool (*st_events_drop_t)(st_evq_t *queue);
 typedef bool (*st_events_clear_t)(st_evq_t *queue);
 
 typedef struct {
-    st_events_init_t            events_init;
-    st_events_quit_t            events_quit;
-    st_events_register_type_t   events_register_type;
-    st_events_get_type_id_t     events_get_type_id;
-    st_events_create_queue_t    events_create_queue;
-    st_events_destroy_queue_t   events_destroy_queue;
-    st_events_subscribe_t       events_subscribe;
-    st_events_unsubscribe_t     events_unsubscribe;
-    st_events_unsubscribe_all_t events_unsubscribe_all;
-    st_events_suspend_t         events_suspend;
-    st_events_resume_t          events_resume;
-    st_events_push_t            events_push;
-    st_events_is_empty_t        events_is_empty;
-    st_events_peek_type_t       events_peek_type;
-    st_events_pop_t             events_pop;
-    st_events_drop_t            events_drop;
-    st_events_clear_t           events_clear;
-} st_events_funcs_t;
+    st_events_quit_t          quit;
+    st_events_register_type_t register_type;
+    st_events_get_type_id_t   get_type_id;
+    st_events_create_queue_t  create_queue;
+    st_events_push_t          push;
+} st_eventsctx_funcs_t;
+
+typedef struct {
+    st_events_destroy_queue_t   destroy_queue;
+    st_events_subscribe_t       subscribe;
+    st_events_unsubscribe_t     unsubscribe;
+    st_events_unsubscribe_all_t unsubscribe_all;
+    st_events_suspend_t         suspend;
+    st_events_resume_t          resume;
+    st_events_is_empty_t        is_empty;
+    st_events_peek_type_t       peek_type;
+    st_events_pop_t             pop;
+    st_events_drop_t            drop;
+    st_events_clear_t           clear;
+} st_evq_funcs_t;
+
+#define ST_EVQ_CALL(object, func, ...) \
+    ((st_evq_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
