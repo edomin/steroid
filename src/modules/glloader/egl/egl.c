@@ -20,8 +20,6 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 static bool st_glloader_import_functions(st_modctx_t *glloader_ctx,
  st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx) {
     st_glloader_egl_t  *module = glloader_ctx->data;
-    st_gfxctx_get_ctx_t st_gfxctx_get_ctx;
-    st_modctx_t        *gfxctx_ctx;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
      global_modsmgr, logger_ctx, "error");
@@ -32,19 +30,6 @@ static bool st_glloader_import_functions(st_modctx_t *glloader_ctx,
 
         return false;
     }
-
-    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_ctx");
-    if (!st_gfxctx_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "glloader_egl: Unable to load function \"get_ctx\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
-
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, make_current);
 
     ST_LOAD_FUNCTION_FROM_CTX("glloader_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("glloader_egl", logger, info);
@@ -66,7 +51,7 @@ static st_modctx_t *st_glloader_init(st_modctx_t *logger_ctx,
     glloader_ctx->funcs = &st_glloader_egl_funcs;
 
     module = glloader_ctx->data;
-    module->gfxctx.handle = gfxctx;
+    module->gfxctx = gfxctx;
     module->logger.ctx = logger_ctx;
 
     if (!st_glloader_import_functions(glloader_ctx, logger_ctx, gfxctx)) {
@@ -93,7 +78,7 @@ static void *st_glloader_get_proc_address(st_modctx_t *glloader_ctx,
  const char *funcname) {
     st_glloader_egl_t *module = glloader_ctx->data;
 
-    module->gfxctx.make_current(module->gfxctx.handle);
+    ST_GFXCTX_CALL(module->gfxctx, make_current);
 
     return eglGetProcAddress(funcname);
 }

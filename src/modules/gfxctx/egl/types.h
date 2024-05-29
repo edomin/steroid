@@ -8,6 +8,7 @@
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
+#include "steroids/types/object.h"
 
 #include "dlist.h"
 
@@ -64,8 +65,7 @@ typedef struct {
     unsigned            index;
 } st_gfxctx_shared_data_t;
 
-typedef struct st_gfxctx_s {
-    st_modctx_t *ctx;
+ST_STRUCT_CLASS(st_gfxctx_s,
     st_window_t *window;
     EGLDisplay   display;
     EGLConfig    cfg;
@@ -75,6 +75,6 @@ typedef struct st_gfxctx_s {
     bool         debug;
     st_dlist_t  *shared_data;
     st_htable_t *userdata;
-} st_gfxctx_t;
+) st_gfxctx_t;
 
 #define ST_GFXCTX_T_DEFINED

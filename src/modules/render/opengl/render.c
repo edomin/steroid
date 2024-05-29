@@ -52,13 +52,11 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
  st_modctx_t *texture_ctx, st_modctx_t *vec2_ctx, st_gfxctx_t *gfxctx) {
     st_render_opengl_t            *module = render_ctx->data;
     st_gfxctx_get_api_t            st_gfxctx_get_api = NULL;
-    st_gfxctx_get_ctx_t            st_gfxctx_get_ctx;
-    st_gfxctx_get_window_t         st_gfxctx_get_window;
     st_glloader_init_t             st_glloader_init;
     st_glloader_quit_t             st_glloader_quit;
     st_glloader_get_proc_address_t st_glloader_get_proc_address;
     st_window_get_ctx_t            st_window_get_ctx;
-    st_modctx_t                   *gfxctx_ctx = NULL;
+    st_modctx_t                   *gfxctx_ctx = st_object_get_owner(gfxctx);
     st_modctx_t                   *window_ctx;
     st_modctx_t                   *glloader_ctx = NULL;
 
@@ -72,42 +70,8 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
         return false;
     }
 
-    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_ctx");
-    if (!st_gfxctx_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to load function \"get_ctx\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-
-    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
-    if (gfxctx_ctx)
-        st_gfxctx_get_api = global_modsmgr_funcs.get_function_from_ctx(
-         global_modsmgr, gfxctx_ctx, "get_api");
-
-    if (!st_gfxctx_get_api) {
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to load function \"get_api\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-
-    module->gfxctx.gapi = st_gfxctx_get_api(gfxctx);
-
-    st_gfxctx_get_window = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, gfxctx_ctx, "get_window");
-    if (!st_gfxctx_get_window) {
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to load function \"get_window\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-
-    module->window.handle = st_gfxctx_get_window(gfxctx);
+    module->gfxctx.gapi = ST_GFXCTX_CALL(gfxctx, get_api);
+    module->window.handle = ST_GFXCTX_CALL(gfxctx, get_window);
 
     st_window_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
      "window", NULL, "get_ctx");
@@ -131,9 +95,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_all);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", dynarr, get_elements_count);
-
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, make_current);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", gfxctx, swap_buffers);
 
     ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, init);
     ST_LOAD_FUNCTION("render_opengl", gldebug, NULL, quit);
@@ -288,7 +249,7 @@ static st_modctx_t *st_render_init(st_modctx_t *angle_ctx,
         goto batcher_fail;
     }
 
-    module->gfxctx.make_current(module->gfxctx.handle);
+    ST_GFXCTX_CALL(module->gfxctx.handle, make_current);
 
     if (glapi_least(module->gfxctx.gapi, ST_GAPI_GL3))
         vao_init(render_ctx, &module->vao);
@@ -608,7 +569,7 @@ static void st_render_process(st_modctx_t *render_ctx) {
 
     st_render_process_queue(render_ctx);
 
-    module->gfxctx.make_current(module->gfxctx.handle);
+    ST_GFXCTX_CALL(module->gfxctx.handle, make_current);
     glClear((GLbitfield)GL_COLOR_BUFFER_BIT | (GLbitfield)GL_DEPTH_BUFFER_BIT);
 
     shdprog_use(&module->shdprog);
@@ -650,6 +611,6 @@ static void st_render_process(st_modctx_t *render_ctx) {
         vbo_unbind(&module->vbo);
     }
     shdprog_unuse(&module->shdprog);
-    module->gfxctx.swap_buffers(module->gfxctx.handle);
+    ST_GFXCTX_CALL(module->gfxctx.handle, swap_buffers);
     ST_DRAWQ_CALL(module->drawq.handle, clear);
 }

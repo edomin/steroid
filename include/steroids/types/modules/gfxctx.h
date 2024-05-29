@@ -3,6 +3,7 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
+#include "steroids/types/object.h"
 
 #ifndef ST_GFXCTX_T_DEFINED
     typedef struct st_gfxctx_s st_gfxctx_t;
@@ -49,7 +50,6 @@ typedef st_gfxctx_t *(*st_gfxctx_create_shared_t)(st_modctx_t *gfxctx_ctx,
  st_monitor_t *monitor, st_window_t *window, st_gfxctx_t *other);
 typedef bool (*st_gfxctx_make_current_t)(st_gfxctx_t *gfxctx);
 typedef bool (*st_gfxctx_swap_buffers_t)(st_gfxctx_t *gfxctx);
-typedef st_modctx_t *(*st_gfxctx_get_ctx_t)(st_gfxctx_t *gfxctx);
 typedef st_window_t *(*st_gfxctx_get_window_t)(st_gfxctx_t *gfxctx);
 typedef st_gapi_t (*st_gfxctx_get_api_t)(st_gfxctx_t *gfxctx);
 typedef unsigned (*st_gfxctx_get_shared_index_t)(const st_gfxctx_t *gfxctx);
@@ -61,18 +61,22 @@ typedef bool (*st_gfxctx_get_userdata_t)(const st_gfxctx_t *gfxctx,
  uintptr_t *dst, const char *key);
 
 typedef struct {
-    st_gfxctx_init_t             gfxctx_init;
-    st_gfxctx_quit_t             gfxctx_quit;
-    st_gfxctx_create_t           gfxctx_create;
-    st_gfxctx_create_shared_t    gfxctx_create_shared;
-    st_gfxctx_make_current_t     gfxctx_make_current;
-    st_gfxctx_swap_buffers_t     gfxctx_swap_buffers;
-    st_gfxctx_get_ctx_t          gfxctx_get_ctx;
-    st_gfxctx_get_window_t       gfxctx_get_window;
-    st_gfxctx_get_api_t          gfxctx_get_api;
-    st_gfxctx_get_shared_index_t gfxctx_get_shared_index;
-    st_gfxctx_destroy_t          gfxctx_destroy;
-    st_gfxctx_debug_enabled_t    gfxctx_debug_enabled;
-    st_gfxctx_set_userdata_t     gfxctx_set_userdata;
-    st_gfxctx_get_userdata_t     gfxctx_get_userdata;
+    st_gfxctx_quit_t          quit;
+    st_gfxctx_create_t        create;
+    st_gfxctx_create_shared_t create_shared;
+} st_gfxctxctx_funcs_t;
+
+typedef struct {
+    st_gfxctx_make_current_t     make_current;
+    st_gfxctx_swap_buffers_t     swap_buffers;
+    st_gfxctx_get_window_t       get_window;
+    st_gfxctx_get_api_t          get_api;
+    st_gfxctx_get_shared_index_t get_shared_index;
+    st_gfxctx_destroy_t          destroy;
+    st_gfxctx_debug_enabled_t    debug_enabled;
+    st_gfxctx_set_userdata_t     set_userdata;
+    st_gfxctx_get_userdata_t     get_userdata;
 } st_gfxctx_funcs_t;
+
+#define ST_GFXCTX_CALL(object, func, ...) \
+    ((st_gfxctx_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

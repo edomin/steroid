@@ -16,11 +16,8 @@ typedef struct {
 } st_gldebug_opengl_logger_t;
 
 typedef struct {
-    st_gfxctx_t             *handle;
-    st_gapi_t                api;
-    st_gfxctx_make_current_t make_current;
-    st_gfxctx_set_userdata_t set_userdata;
-    st_gfxctx_get_userdata_t get_userdata;
+    st_gfxctx_t *handle;
+    st_gapi_t    api;
 } st_gldebug_opengl_gfxctx_t;
 
 typedef struct {

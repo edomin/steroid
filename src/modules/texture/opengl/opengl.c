@@ -28,8 +28,6 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
     st_texture_opengl_t           *module = texture_ctx->data;
     st_modctx_t                   *gfxctx_ctx;
     st_modctx_t                   *glloader_ctx;
-    st_gfxctx_get_ctx_t            st_gfxctx_get_ctx;
-    st_gfxctx_get_api_t            st_gfxctx_get_api;
     st_glloader_init_t             st_glloader_init;
     st_glloader_quit_t             st_glloader_quit;
     st_glloader_get_proc_address_t st_glloader_get_proc_address;
@@ -44,26 +42,8 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
         return false;
     }
 
-    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_ctx");
-    if (!st_gfxctx_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to load function \"get_ctx\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-    st_gfxctx_get_api = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_api");
-    if (!st_gfxctx_get_api) {
-        module->logger.error(module->logger.ctx,
-         "texture_opengl: Unable to load function \"get_api\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
-    module->gfxctx.api = st_gfxctx_get_api(gfxctx);
+    gfxctx_ctx = st_object_get_owner(gfxctx);
+    module->gfxctx.api = ST_GFXCTX_CALL(gfxctx, get_api);
 
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", logger, info);
@@ -81,8 +61,6 @@ static bool st_texture_import_functions(st_modctx_t *texture_ctx,
     ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, label_texture);
     ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, unlabel_texture);
     ST_LOAD_FUNCTION("texture_opengl", gldebug, NULL, get_error_msg);
-
-    ST_LOAD_FUNCTION_FROM_CTX("texture_opengl", gfxctx, make_current);
 
     st_glloader_init = global_modsmgr_funcs.get_function(global_modsmgr,
      "glloader", gfxctx_ctx->name, "init");
@@ -221,7 +199,7 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
     texture->width = module->bitmap.get_width(bitmap);
     texture->height = module->bitmap.get_height(bitmap);
 
-    module->gfxctx.make_current(module->gfxctx.handle);
+    ST_GFXCTX_CALL(module->gfxctx.handle, make_current);
     glGenTextures(1, &texture->id);
     glBindTexture(GL_TEXTURE_2D, texture->id);
     st_texture_label(module, texture->id, name ? name : "(unnamed)");

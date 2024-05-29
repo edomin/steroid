@@ -4,21 +4,10 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/gfxctx.h"
 
-static st_gfxctx_funcs_t st_gfxctx_egl_funcs = {
-    .gfxctx_init             = st_gfxctx_init,
-    .gfxctx_quit             = st_gfxctx_quit,
-    .gfxctx_create           = st_gfxctx_create,
-    .gfxctx_create_shared    = st_gfxctx_create_shared,
-    .gfxctx_make_current     = st_gfxctx_make_current,
-    .gfxctx_swap_buffers     = st_gfxctx_swap_buffers,
-    .gfxctx_get_ctx          = st_gfxctx_get_ctx,
-    .gfxctx_get_window       = st_gfxctx_get_window,
-    .gfxctx_get_api          = st_gfxctx_get_api,
-    .gfxctx_get_shared_index = st_gfxctx_get_shared_index,
-    .gfxctx_destroy          = st_gfxctx_destroy,
-    .gfxctx_debug_enabled    = st_gfxctx_debug_enabled,
-    .gfxctx_set_userdata     = st_gfxctx_set_userdata,
-    .gfxctx_get_userdata     = st_gfxctx_get_userdata,
+static st_gfxctxctx_funcs_t st_gfxctx_egl_funcs = {
+    .quit          = st_gfxctx_quit,
+    .create        = st_gfxctx_create,
+    .create_shared = st_gfxctx_create_shared,
 };
 
 static st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
@@ -28,7 +17,6 @@ static st_modfuncentry_t st_module_gfxctx_egl_funcs[] = {
     {"create_shared",    st_gfxctx_create_shared},
     {"make_current",     st_gfxctx_make_current},
     {"swap_buffers",     st_gfxctx_swap_buffers},
-    {"get_ctx",          st_gfxctx_get_ctx},
     {"get_window",       st_gfxctx_get_window},
     {"get_api",          st_gfxctx_get_api},
     {"get_shared_index", st_gfxctx_get_shared_index},

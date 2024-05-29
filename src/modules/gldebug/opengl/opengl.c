@@ -560,12 +560,11 @@ static void load_gl_funcs(st_modctx_t *gldebug_ctx, st_modctx_t *glloader_ctx,
 static bool st_gldebug_import_functions(st_modctx_t *gldebug_ctx,
  st_modctx_t *logger_ctx, st_gfxctx_t *gfxctx) {
     st_gldebug_opengl_t           *module = gldebug_ctx->data;
-    st_gfxctx_get_ctx_t            st_gfxctx_get_ctx;
     st_gfxctx_get_api_t            st_gfxctx_get_api;
     st_glloader_init_t             st_glloader_init;
     st_glloader_quit_t             st_glloader_quit;
     st_glloader_get_proc_address_t st_glloader_get_proc_address = NULL;
-    st_modctx_t                   *gfxctx_ctx;
+    st_modctx_t                   *gfxctx_ctx = st_object_get_owner(gfxctx);
     st_modctx_t                   *glloader_ctx;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -577,39 +576,12 @@ static bool st_gldebug_import_functions(st_modctx_t *gldebug_ctx,
 
         return false;
     }
-
-    st_gfxctx_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "gfxctx", NULL, "get_ctx");
-    if (!st_gfxctx_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "gldebug_opengl: Unable to load function \"get_ctx\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-
-    gfxctx_ctx = st_gfxctx_get_ctx(gfxctx);
-    if (gfxctx_ctx)
-        st_gfxctx_get_api = global_modsmgr_funcs.get_function_from_ctx(
-         global_modsmgr, gfxctx_ctx, "get_api");
-
-    if (!st_gfxctx_get_api) {
-        module->logger.error(module->logger.ctx,
-         "gldebug_opengl: Unable to load function \"get_api\" from module "
-         "\"gfxctx\"\n");
-
-        return false;
-    }
-
-    module->gfxctx.api = st_gfxctx_get_api(gfxctx);
+    
+    module->gfxctx.api = ST_GFXCTX_CALL(gfxctx, get_api);
 
     ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", logger, info);
     ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", logger, warning);
-
-    ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", gfxctx, make_current);
-    ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", gfxctx, set_userdata);
-    ST_LOAD_FUNCTION_FROM_CTX("gldebug_opengl", gfxctx, get_userdata);
 
     st_glloader_init = global_modsmgr_funcs.get_function(global_modsmgr,
      "glloader", gfxctx_ctx->name, "init");
@@ -635,7 +607,7 @@ static bool st_gldebug_import_functions(st_modctx_t *gldebug_ctx,
          global_modsmgr_funcs.get_function_from_ctx(global_modsmgr,
          glloader_ctx, "get_proc_address");
         if (st_glloader_get_proc_address) {
-            module->gfxctx.make_current(module->gfxctx.handle);
+            ST_GFXCTX_CALL(gfxctx, make_current);
             load_gl_funcs(gldebug_ctx, glloader_ctx,
              st_glloader_get_proc_address);
         } else {
@@ -690,11 +662,11 @@ static st_modctx_t *st_gldebug_init(st_modctx_t *logger_ctx,
         module->agn.set_callback(gldebug_ctx);
         module->agn.init_control(gldebug_ctx);
 
-        if (!module->gfxctx.get_userdata(gfxctx, &gldebug_ref_counter,
+        if (!ST_GFXCTX_CALL(gfxctx, get_userdata, &gldebug_ref_counter,
          "gldebug_ref_counter"))
             gldebug_ref_counter = 0;
 
-        module->gfxctx.set_userdata(gfxctx, "gldebug_ref_counter",
+        ST_GFXCTX_CALL(gfxctx, set_userdata, "gldebug_ref_counter",
          ++gldebug_ref_counter);
     }
 
@@ -715,9 +687,9 @@ static void st_gldebug_quit(st_modctx_t *gldebug_ctx) {
     if (module->glsupported.cbk_main) {
         uintptr_t gldebug_ref_counter;
 
-        if (module->gfxctx.get_userdata(module->gfxctx.handle,
+        if (ST_GFXCTX_CALL(module->gfxctx.handle, get_userdata,
          &gldebug_ref_counter, "gldebug_ref_counter")) {
-            module->gfxctx.set_userdata(module->gfxctx.handle,
+            ST_GFXCTX_CALL(module->gfxctx.handle, set_userdata,
              "gldebug_ref_counter", --gldebug_ref_counter);
 
             if (gldebug_ref_counter == 0)

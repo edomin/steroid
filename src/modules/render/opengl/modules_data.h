@@ -36,10 +36,8 @@ typedef struct {
 } st_render_opengl_dynarr_t;
 
 typedef struct {
-    st_gfxctx_make_current_t make_current;
-    st_gfxctx_swap_buffers_t swap_buffers;
-    st_gapi_t                gapi;
-    st_gfxctx_t             *handle;
+    st_gapi_t    gapi;
+    st_gfxctx_t *handle;
 } st_render_opengl_gfxctx_t;
 
 typedef struct {

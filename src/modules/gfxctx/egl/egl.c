@@ -41,6 +41,18 @@ typedef struct {
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_gfxctx_funcs_t gfxctx_funcs = {
+    .make_current     = st_gfxctx_make_current,
+    .swap_buffers     = st_gfxctx_swap_buffers,
+    .get_window       = st_gfxctx_get_window,
+    .get_api          = st_gfxctx_get_api,
+    .get_shared_index = st_gfxctx_get_shared_index,
+    .destroy          = st_gfxctx_destroy,
+    .debug_enabled    = st_gfxctx_debug_enabled,
+    .set_userdata     = st_gfxctx_set_userdata,
+    .get_userdata     = st_gfxctx_get_userdata,
+};
+
 ST_MODULE_DEF_GET_FUNC(gfxctx_egl)
 ST_MODULE_DEF_INIT_FUNC(gfxctx_egl)
 
@@ -553,8 +565,7 @@ static void st_debug_callback(__attribute__((unused)) EGLenum error,
 }
 
 void st_try_to_enable_debug(st_gfxctx_t *gfxctx) {
-    st_modctx_t     *ctx = gfxctx->ctx;
-    st_gfxctx_egl_t *module = ctx->data;
+    st_gfxctx_egl_t *module = ((st_modctx_t *)st_object_get_owner(gfxctx))->data;
     EGLint           ret;
 
     if (module->debug_enabled)
@@ -631,7 +642,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         return NULL;
     }
 
-    gfxctx->ctx = gfxctx_ctx;
+    st_object_make(gfxctx, gfxctx_ctx, &gfxctx_funcs);
 
     gfxctx->userdata = module->htable.create(module->htable.ctx,
      (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
@@ -858,10 +869,6 @@ static bool st_gfxctx_swap_buffers(st_gfxctx_t *gfxctx) {
     return eglSwapBuffers(gfxctx->display, gfxctx->surface);
 }
 
-static st_modctx_t *st_gfxctx_get_ctx(st_gfxctx_t *gfxctx) {
-    return gfxctx->ctx;
-}
-
 static st_window_t *st_gfxctx_get_window(st_gfxctx_t *gfxctx) {
     return gfxctx->window;
 }
@@ -887,8 +894,8 @@ static unsigned st_gfxctx_get_shared_index(const st_gfxctx_t *gfxctx) {
 }
 
 static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
-    st_gfxctx_egl_t *module = gfxctx->ctx->data;
-    st_modctx_t     *gfxctx_ctx = gfxctx->ctx;
+    st_modctx_t     *gfxctx_ctx = st_object_get_owner(gfxctx);
+    st_gfxctx_egl_t *module = gfxctx_ctx->data;
 
     if (eglGetCurrentContext() == gfxctx->handle)
         eglMakeCurrent(gfxctx->display, EGL_NO_SURFACE, EGL_NO_SURFACE,
@@ -931,7 +938,7 @@ static bool st_gfxctx_debug_enabled(const st_gfxctx_t *gfxctx) {
 
 static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
  uintptr_t value) {
-    st_gfxctx_egl_t *module = gfxctx->ctx->data;
+    st_gfxctx_egl_t *module = ((st_modctx_t *)st_object_get_owner(gfxctx))->data;
     char            *keydup = strdup(key);
 
     if (keydup) {
@@ -948,7 +955,7 @@ static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
 
 static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,
  const char *key) {
-    st_gfxctx_egl_t *module = gfxctx->ctx->data;
+    st_gfxctx_egl_t *module = ((st_modctx_t *)st_object_get_owner(gfxctx))->data;
     st_htiter_t      it;
     void            *userdata;
 

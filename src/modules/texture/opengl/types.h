@@ -36,9 +36,8 @@ typedef struct {
 } st_texture_opengl_logger_t;
 
 typedef struct {
-    st_gfxctx_t             *handle;
-    st_gapi_t                api;
-    st_gfxctx_make_current_t make_current;
+    st_gfxctx_t *handle;
+    st_gapi_t    api;
 } st_texture_opengl_gfxctx_t;
 
 typedef struct {
