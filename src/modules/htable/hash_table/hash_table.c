@@ -10,6 +10,12 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_htiter_funcs_t htiter_funcs = {
+    .get_next  = st_htable_next,
+    .get_key   = st_htable_get_iter_key,
+    .get_value = st_htable_get_iter_value,
+};
+
 ST_MODULE_DEF_GET_FUNC(htable_hash_table)
 ST_MODULE_DEF_INIT_FUNC(htable_hash_table)
 
@@ -132,7 +138,7 @@ static bool st_htable_insert(st_htable_t *htable, st_htiter_t *iter,
         return false;
 
     if (iter) {
-        iter->htable = htable;
+        st_object_make(iter, htable, &htiter_funcs);
         iter->handle = entry;
     }
 
@@ -210,6 +216,7 @@ static bool st_htable_find(st_htable_t *htable, st_htiter_t *dst,
     if (!handle)
         return false;
 
+    st_object_make(dst, htable, &htiter_funcs);
     dst->handle = handle;
 
     return true;
@@ -228,7 +235,7 @@ static bool st_htable_first_or_next(st_htable_t *htable, st_htiter_t *current,
     if (!entry)
         return false;
 
-    dst->htable = htable;
+    st_object_make(dst, htable, &htiter_funcs);
     dst->handle = entry;
 
     return true;
@@ -240,7 +247,7 @@ static bool st_htable_first(st_htable_t *htable, st_htiter_t *dst) {
 
 static bool st_htable_next(st_htiter_t *current, st_htiter_t *dst) {
     return current
-        ? st_htable_first_or_next(current->htable, current, dst)
+        ? st_htable_first_or_next(st_object_get_owner(current), current, dst)
         : false;
 }
 

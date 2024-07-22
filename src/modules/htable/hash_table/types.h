@@ -1,6 +1,7 @@
 #pragma once
 
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef void (*st_freefunc_t)(void *ptr);
 
@@ -22,10 +23,9 @@ typedef struct {
     st_freefunc_t           valdelfunc;
 } st_htable_t;
 
-typedef struct {
-    st_htable_t       *htable;
+ST_CLASS(
     struct hash_entry *handle;
-} st_htiter_t;
+) st_htiter_t;
 
 #define ST_FREEFUNC_T_DEFINED
 #define ST_HTABLE_T_DEFINED

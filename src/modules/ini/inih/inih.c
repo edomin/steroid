@@ -62,9 +62,6 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, contains);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, find);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, first);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, next);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_key);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_value);
 
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, info);
@@ -345,7 +342,7 @@ static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
     if (!module->htable.find(ini->sections, &section_iter, section_name))
         return false;
 
-    section = module->htable.get_iter_value(&section_iter);
+    section = ST_HTITER_CALL(&section_iter, get_value);
 
     return module->htable.remove(section->data, key);
 }
@@ -358,7 +355,7 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
     if (!module->htable.find(ini->sections, &section_iter, section_name))
         return false;
 
-    section = module->htable.get_iter_value(&section_iter);
+    section = ST_HTITER_CALL(&section_iter, get_value);
     module->htable.clear(section->data);
 
     return true;
@@ -483,8 +480,8 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         return true;
 
     do {
-        const char      *sec_key = module->htable.get_iter_key(&section_it);
-        st_inisection_t *section = module->htable.get_iter_value(&section_it);
+        const char      *sec_key = ST_HTITER_CALL(&section_it, get_key);
+        st_inisection_t *section = ST_HTITER_CALL(&section_it, get_value);
         st_htiter_t      key_it;
         int              sec_ret = 0;
 
@@ -506,8 +503,8 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             continue;
 
         do {
-            const char *key = module->htable.get_iter_key(&key_it);
-            char       *value = module->htable.get_iter_value(&key_it);
+            const char *key = ST_HTITER_CALL(&key_it, get_key);
+            char       *value = ST_HTITER_CALL(&key_it, get_value);
             int         ret = snprintf(buffer, bufsize, "%s=%s\n", key, value);
 
             if (ret < 0 || (size_t)ret == bufsize) {
@@ -520,7 +517,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
 
             buffer += ret;
             bufsize -= (size_t)ret;
-        } while (module->htable.next(&key_it, &key_it));
+        } while (ST_HTITER_CALL(&key_it, get_next, &key_it));
 
         if (bufsize-- == 0) {
             module->logger.error(module->logger.ctx,
@@ -530,7 +527,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             return NULL;
         }
         *buffer++ = '\n';
-    } while (module->htable.next(&section_it, &section_it));
+    } while (ST_HTITER_CALL(&section_it, get_next, &section_it));
 
     buffer[bufsize - 1] = '\n';
 

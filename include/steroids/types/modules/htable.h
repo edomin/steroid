@@ -3,14 +3,15 @@
 #include <stdint.h>
 
 #include "steroids/module.h"
+#include "steroids/types/object.h"
 
 #ifndef ST_HTABLE_T_DEFINED
     typedef struct st_htable_s st_htable_t;
 #endif
 #ifndef ST_HTITER_T_DEFINED
     typedef struct {
-        void *private1;
-        void *private2;
+        st_object_t _object;
+        void       *_private;
     } st_htiter_t;
 #endif
 
@@ -56,4 +57,11 @@ typedef struct {
     st_htable_get_iter_value_t htable_get_iter_value;
 } st_htable_funcs_t;
 
+typedef struct st_htiter_funcs {
+    st_htable_next_t           get_next;
+    st_htable_get_iter_key_t   get_key;
+    st_htable_get_iter_value_t get_value;
+} st_htiter_funcs_t;
 
+#define ST_HTITER_CALL(object, func, ...) \
+    ((st_htiter_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

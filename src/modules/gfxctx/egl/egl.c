@@ -86,7 +86,6 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, destroy);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, insert);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, find);
-    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, get_iter_value);
 
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
@@ -962,7 +961,7 @@ static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,
     if (!module->htable.find(gfxctx->userdata, &it, key))
         return false;
 
-    userdata = module->htable.get_iter_value(&it);
+    userdata = ST_HTITER_CALL(&it, get_value);
     *dst = (uintptr_t)userdata;
 
     return true;

@@ -29,18 +29,15 @@ typedef struct {
 } st_keyboard_simple_logger_t;
 
 typedef struct {
-    st_modctx_t               *ctx;
-    st_htable_init_t           init;
-    st_htable_quit_t           quit;
-    st_htable_create_t         create;
-    st_htable_destroy_t        destroy;
-    st_htable_insert_t         insert;
-    st_htable_contains_t       contains;
-    st_htable_get_t            get;
-    st_htable_first_t          first;
-    st_htable_next_t           next;
-    st_htable_get_iter_key_t   get_iter_key;
-    st_htable_get_iter_value_t get_iter_value;
+    st_modctx_t         *ctx;
+    st_htable_init_t     init;
+    st_htable_quit_t     quit;
+    st_htable_create_t   create;
+    st_htable_destroy_t  destroy;
+    st_htable_insert_t   insert;
+    st_htable_contains_t contains;
+    st_htable_get_t      get;
+    st_htable_first_t    first;
 } st_keyboard_simple_htable_t;
 
 typedef struct {
