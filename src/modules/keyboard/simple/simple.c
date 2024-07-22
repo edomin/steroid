@@ -36,11 +36,6 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, create);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, init);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, quit);
-    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, destroy);
-    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, insert);
-    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, contains);
-    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get);
-    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, first);
 
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, get_type_id);
     ST_LOAD_FUNCTION_FROM_CTX("keyboard_simple", events, create_queue);
@@ -115,9 +110,9 @@ static st_modctx_t *st_keyboard_init(st_modctx_t *events_ctx,
     return keyboard_ctx;
 
 create_queue_fail:
-    module->htable.destroy(module->cur_state);
+    ST_HTABLE_CALL(module->cur_state, destroy);
 cur_state_fail:
-    module->htable.destroy(module->prev_state);
+    ST_HTABLE_CALL(module->prev_state, destroy);
 prev_state_fail:
     module->htable.quit(module->htable.ctx);
 ht_ctx_init_fail:
@@ -131,8 +126,8 @@ static void st_keyboard_quit(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
 
     ST_EVQ_CALL(module->evq, destroy_queue);
-    module->htable.destroy(module->cur_state);
-    module->htable.destroy(module->prev_state);
+    ST_HTABLE_CALL(module->cur_state, destroy);
+    ST_HTABLE_CALL(module->prev_state, destroy);
     module->htable.quit(module->htable.ctx);
 
     module->logger.info(module->logger.ctx,
@@ -145,8 +140,7 @@ static void st_keyboard_process_press(st_modctx_t *keyboard_ctx) {
     st_evwinu64_t         event;
 
     ST_EVQ_CALL(module->evq, pop, &event);
-
-    module->htable.insert(module->cur_state, NULL, (const void *)event.value,
+    ST_HTABLE_CALL(module->cur_state, insert, NULL, (const void *)event.value,
      (void *)1ull);
 }
 
@@ -156,7 +150,7 @@ static void st_keyboard_process_release(st_modctx_t *keyboard_ctx) {
 
     ST_EVQ_CALL(module->evq, pop, &event);
 
-    module->htable.insert(module->cur_state, NULL, (const void *)event.value,
+    ST_HTABLE_CALL(module->cur_state, insert, NULL, (const void *)event.value,
      (void *)0ull);
 }
 
@@ -179,12 +173,12 @@ static void st_keyboard_process(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
     st_htiter_t           it;
 
-    if (module->htable.first(module->cur_state, &it)) {
+    if (ST_HTABLE_CALL(module->cur_state, get_first, &it)) { ;
         do {
-            const void *key = ST_HTITER_CALL(&it, get_key);
+            const void *key   = ST_HTITER_CALL(&it, get_key);
             void       *value = ST_HTITER_CALL(&it, get_value);
 
-            module->htable.insert(module->prev_state, NULL, key, value);
+            ST_HTABLE_CALL(module->prev_state, insert, NULL, key, value);
         } while (ST_HTITER_CALL(&it, get_next, &it));
     }
 
@@ -205,23 +199,22 @@ static void st_keyboard_process(st_modctx_t *keyboard_ctx) {
 
 static bool st_keyboard_press(const st_modctx_t *keyboard_ctx, st_key_t key) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
-
-    return module->htable.get(module->cur_state, (const void *)key)
-     && !module->htable.get(module->prev_state, (const void *)key);
+    return ST_HTABLE_CALL(module->cur_state, get, (const void *)key)
+     && !ST_HTABLE_CALL(module->prev_state, get, (const void *)key);
 }
 
 static bool st_keyboard_release(const st_modctx_t *keyboard_ctx, st_key_t key) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
 
-    return !module->htable.get(module->cur_state, (const void *)key)
-     && module->htable.get(module->prev_state, (const void *)key);
+    return !ST_HTABLE_CALL(module->cur_state, get, (const void *)key)
+     && ST_HTABLE_CALL(module->prev_state, get, (const void *)key);
 }
 
 static bool st_keyboard_pressed(const st_modctx_t *keyboard_ctx, st_key_t key) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
 
-    return module->htable.get(module->cur_state, (const void *)key)
-     && module->htable.get(module->prev_state, (const void *)key);
+    return ST_HTABLE_CALL(module->cur_state, get, (const void *)key)
+     && ST_HTABLE_CALL(module->prev_state, get, (const void *)key);
 }
 
 static const char *st_keyboard_get_input(const st_modctx_t *keyboard_ctx) {

@@ -83,9 +83,6 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, create);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, init);
     ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, quit);
-    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, destroy);
-    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, insert);
-    ST_LOAD_FUNCTION("gfxctx_egl", htable, NULL, find);
 
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
@@ -825,7 +822,7 @@ choose_config_fail:
     eglTerminate(gfxctx->display);
 egl_init_fail:
 get_display_fail:
-    module->htable.destroy(gfxctx->userdata);
+    ST_HTABLE_CALL(gfxctx->userdata, destroy);
 udata_fail:
     free(gfxctx);
 
@@ -921,7 +918,7 @@ static void st_gfxctx_destroy(st_gfxctx_t *gfxctx) {
         }
     }
 
-    module->htable.destroy(gfxctx->userdata);
+    ST_HTABLE_CALL(gfxctx->userdata, destroy);
 
     free(gfxctx);
 
@@ -941,7 +938,7 @@ static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
     char            *keydup = strdup(key);
 
     if (keydup) {
-        module->htable.insert(gfxctx->userdata, NULL, keydup, (void *)value);
+        ST_HTABLE_CALL(gfxctx->userdata, insert, NULL, keydup, (void *)value);
     } else {
         char errbuf[ERRMSGBUF_SIZE];
 
@@ -958,7 +955,7 @@ static bool st_gfxctx_get_userdata(const st_gfxctx_t *gfxctx, uintptr_t *dst,
     st_htiter_t      it;
     void            *userdata;
 
-    if (!module->htable.find(gfxctx->userdata, &it, key))
+    if (!ST_HTABLE_CALL(gfxctx->userdata, find, &it, key))
         return false;
 
     userdata = ST_HTITER_CALL(&it, get_value);

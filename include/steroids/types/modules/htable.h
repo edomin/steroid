@@ -41,20 +41,20 @@ typedef const void *(*st_htable_get_iter_key_t)(const st_htiter_t *iter);
 typedef void *(*st_htable_get_iter_value_t)(const st_htiter_t *iter);
 
 typedef struct {
-    st_htable_init_t           htable_init;
-    st_htable_quit_t           htable_quit;
-    st_htable_create_t         htable_create;
-    st_htable_destroy_t        htable_destroy;
-    st_htable_insert_t         htable_insert;
-    st_htable_get_t            htable_get;
-    st_htable_remove_t         htable_remove;
-    st_htable_clear_t          htable_clear;
-    st_htable_contains_t       htable_contains;
-    st_htable_find_t           htable_find;
-    st_htable_first_t          htable_first;
-    st_htable_next_t           htable_next;
-    st_htable_get_iter_key_t   htable_get_iter_key;
-    st_htable_get_iter_value_t htable_get_iter_value;
+    st_htable_init_t   htable_init;
+    st_htable_quit_t   htable_quit;
+    st_htable_create_t htable_create;
+} st_htablectx_funcs_t;
+
+typedef struct {
+    st_htable_destroy_t  destroy;
+    st_htable_insert_t   insert;
+    st_htable_get_t      get;
+    st_htable_remove_t   remove;
+    st_htable_clear_t    clear;
+    st_htable_contains_t contains;
+    st_htable_find_t     find;
+    st_htable_first_t    get_first;
 } st_htable_funcs_t;
 
 typedef struct st_htiter_funcs {
@@ -63,5 +63,7 @@ typedef struct st_htiter_funcs {
     st_htable_get_iter_value_t get_value;
 } st_htiter_funcs_t;
 
+#define ST_HTABLE_CALL(object, func, ...) \
+    ((st_htable_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
 #define ST_HTITER_CALL(object, func, ...) \
     ((st_htiter_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

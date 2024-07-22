@@ -35,13 +35,10 @@ typedef struct {
 } st_gfxctx_egl_fnv1a_t;
 
 typedef struct {
-    st_modctx_t        *ctx;
-    st_htable_init_t    init;
-    st_htable_quit_t    quit;
-    st_htable_create_t  create;
-    st_htable_destroy_t destroy;
-    st_htable_insert_t  insert;
-    st_htable_find_t    find;
+    st_modctx_t       *ctx;
+    st_htable_init_t   init;
+    st_htable_quit_t   quit;
+    st_htable_create_t create;
 } st_gfxctx_egl_htable_t;
 
 typedef struct {

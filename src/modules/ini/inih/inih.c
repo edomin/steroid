@@ -23,7 +23,7 @@ static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
     st_ini_inih_t   *module = section->module;
 
-    module->htable.destroy(section->data);
+    ST_HTABLE_CALL(section->data, destroy);
     free(section);
 }
 
@@ -54,14 +54,6 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
     ST_LOAD_FUNCTION("ini_inih", fnv1a, NULL, get_u32hashstr_func);
 
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, create);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, destroy);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, insert);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, get);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, remove);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, clear);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, contains);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, find);
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, first);
 
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, info);
@@ -287,14 +279,14 @@ ini_destroy:
 static void st_ini_destroy(st_ini_t *ini) {
     st_ini_inih_t *module = ini->module;
 
-    module->htable.destroy(ini->sections);
+    ST_HTABLE_CALL(ini->sections, destroy);
     free(ini);
 }
 
 static bool st_ini_section_exists(const st_ini_t *ini, const char *section) {
     st_ini_inih_t *module = ini->module;
 
-    return !!module->htable.get(ini->sections, !!section ? section : "");
+    return !!ST_HTABLE_CALL(ini->sections, get, !!section ? section : "");
 }
 
 static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
@@ -305,13 +297,13 @@ static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
 static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
  const char *key) {
     st_ini_inih_t *module = ini->module;
-    st_inisection_t *section = module->htable.get(ini->sections,
+    st_inisection_t *section = ST_HTABLE_CALL(ini->sections, get,
      !!section_name ? section_name : "");
 
     if (!section)
         return false;
 
-    return module->htable.get(section->data, key);
+    return ST_HTABLE_CALL(section->data, get, key);
 }
 
 static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
@@ -330,7 +322,7 @@ static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
     st_ini_inih_t *module = ini->module;
 
-    return module->htable.remove(ini->sections, section);
+    return ST_HTABLE_CALL(ini->sections, remove, section);
 }
 
 static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
@@ -339,12 +331,12 @@ static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
-    if (!module->htable.find(ini->sections, &section_iter, section_name))
+    if (!ST_HTABLE_CALL(ini->sections, find, &section_iter, section_name))
         return false;
 
     section = ST_HTITER_CALL(&section_iter, get_value);
 
-    return module->htable.remove(section->data, key);
+    return ST_HTABLE_CALL(section->data, remove, key);
 }
 
 static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
@@ -352,11 +344,11 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
-    if (!module->htable.find(ini->sections, &section_iter, section_name))
+    if (!ST_HTABLE_CALL(ini->sections, find, &section_iter, section_name))
         return false;
 
     section = ST_HTITER_CALL(&section_iter, get_value);
-    module->htable.clear(section->data);
+    ST_HTABLE_CALL(section->data, clear);
 
     return true;
 }
@@ -367,7 +359,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     char            *section_key;
     char             errbuf[ERRMSGBUF_SIZE];
 
-    if (module->htable.contains(ini->sections, section_name))
+    if (ST_HTABLE_CALL(ini->sections, contains, section_name))
         return true;
 
     st_htable_t *section_ht = module->htable.create(
@@ -402,8 +394,7 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
         goto strdup_fail;
     }
 
-    if (!module->htable.insert(ini->sections, NULL, section_key,
-     section)) {
+    if (!ST_HTABLE_CALL(ini->sections, insert, NULL, section_key, section)) {
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to insert unnamed section to sections table");
 
@@ -417,7 +408,7 @@ insert_fail:
 strdup_fail:
     free(section);
 malloc_fail:
-    module->htable.destroy(section_ht);
+    ST_HTABLE_CALL(section_ht, destroy);
 
     return false;
 }
@@ -433,7 +424,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     if (!st_ini_add_section(ini, section_name))
         return false;
 
-    section = module->htable.get(ini->sections, section_name);
+    section = ST_HTABLE_CALL(ini->sections, get, section_name);
 
     keydup = strdup(key);
     if (!keydup) {
@@ -453,7 +444,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
         goto valdup_fail;
     }
 
-    if (!module->htable.insert(section->data, NULL, keydup, valdup)) {
+    if (!ST_HTABLE_CALL(section->data, insert, NULL, keydup, valdup)) {
         module->logger.error(module->logger.ctx,
          "ini_inih: Unable to insert key \"%s\" to section \"%s\"", key,
          section_name);
@@ -476,7 +467,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
     st_htiter_t    section_it;
     size_t         bufoffset;
 
-    if (!module->htable.first(ini->sections, &section_it))
+    if (!ST_HTABLE_CALL(ini->sections, get_first, &section_it))
         return true;
 
     do {
@@ -499,7 +490,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         buffer += sec_ret;
         bufsize -= (size_t)sec_ret;
 
-        if (module->htable.first(section->data, &key_it))
+        if (ST_HTABLE_CALL(section->data, get_first, &key_it))
             continue;
 
         do {

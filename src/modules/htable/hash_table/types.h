@@ -16,14 +16,13 @@ typedef struct {
     st_htable_hash_table_logger_t logger;
 } st_htable_hash_table_t;
 
-typedef struct {
-    st_htable_hash_table_t *module;
-    struct hash_table      *handle;
-    st_freefunc_t           keydelfunc;
-    st_freefunc_t           valdelfunc;
-} st_htable_t;
+ST_CLASS (
+    struct hash_table *handle;
+    st_freefunc_t      keydelfunc;
+    st_freefunc_t      valdelfunc;
+) st_htable_t;
 
-ST_CLASS(
+ST_CLASS (
     struct hash_entry *handle;
 ) st_htiter_t;
 

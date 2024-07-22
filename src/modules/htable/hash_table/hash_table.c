@@ -10,6 +10,17 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_htable_funcs_t htable_funcs = {
+    .destroy   = st_htable_destroy,
+    .insert    = st_htable_insert,
+    .get       = st_htable_get,
+    .remove    = st_htable_remove,
+    .clear     = st_htable_clear,
+    .contains  = st_htable_contains,
+    .find      = st_htable_find,
+    .get_first = st_htable_first,
+};
+
 static st_htiter_funcs_t htiter_funcs = {
     .get_next  = st_htable_next,
     .get_key   = st_htable_get_iter_key,
@@ -104,7 +115,7 @@ static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
         return NULL;
     }
 
-    htable->module = module;
+    st_object_make(htable, htable_ctx, &htable_funcs);
     htable->handle = handle;
     htable->keydelfunc = keydelfunc;
     htable->valdelfunc = valdelfunc;
@@ -114,7 +125,7 @@ static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
 
 static void st_htable_destroy(st_htable_t *htable) {
     if (htable) {
-        st_htable_clear(htable);
+        ST_HTABLE_CALL(htable, clear);
         hash_table_destroy(htable->handle, NULL);
         free(htable);
     }
@@ -159,7 +170,7 @@ static bool st_htable_insert(st_htable_t *htable, st_htiter_t *iter,
 static void *st_htable_get(st_htable_t *htable, const void *key) {
     st_htiter_t iter;
 
-    if (st_htable_find(htable, &iter, key))
+    if (ST_HTABLE_CALL(htable, find, &iter, key))
         return iter.handle->data;
 
     return NULL;
