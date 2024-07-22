@@ -18,7 +18,7 @@ static void st_htable_clear(st_htable_t *htable);
 static bool st_htable_contains(st_htable_t *htable, const void *key);
 static bool st_htable_find(st_htable_t *htable, st_htiter_t *dst,
  const void *key);
-static bool st_htable_next(st_htable_t *htable, st_htiter_t *dst,
- st_htiter_t *current);
+static bool st_htable_first(st_htable_t *htable, st_htiter_t *dst);
+static bool st_htable_next(st_htiter_t *current, st_htiter_t *dst);
 static const void *st_htable_get_iter_key(const st_htiter_t *iter);
 static void *st_htable_get_iter_value(const st_htiter_t *iter);

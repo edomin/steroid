@@ -34,8 +34,8 @@ typedef void (*st_htable_clear_t)(st_htable_t *htable);
 typedef bool (*st_htable_contains_t)(st_htable_t *htable, const void *key);
 typedef bool (*st_htable_find_t)(st_htable_t *htable, st_htiter_t *dst,
  const void *key);
-typedef bool (*st_htable_next_t)(st_htable_t *htable, st_htiter_t *dst,
- st_htiter_t *current);
+typedef bool (*st_htable_first_t)(st_htable_t *htable, st_htiter_t *dst);
+typedef bool (*st_htable_next_t)(st_htiter_t *current, st_htiter_t *dst);
 typedef const void *(*st_htable_get_iter_key_t)(const st_htiter_t *iter);
 typedef void *(*st_htable_get_iter_value_t)(const st_htiter_t *iter);
 
@@ -50,7 +50,10 @@ typedef struct {
     st_htable_clear_t          htable_clear;
     st_htable_contains_t       htable_contains;
     st_htable_find_t           htable_find;
+    st_htable_first_t          htable_first;
     st_htable_next_t           htable_next;
     st_htable_get_iter_key_t   htable_get_iter_key;
     st_htable_get_iter_value_t htable_get_iter_value;
 } st_htable_funcs_t;
+
+

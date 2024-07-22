@@ -20,6 +20,7 @@ typedef struct {
     st_htable_clear_t          clear;
     st_htable_contains_t       contains;
     st_htable_find_t           find;
+    st_htable_first_t          first;
     st_htable_next_t           next;
     st_htable_get_iter_key_t   get_iter_key;
     st_htable_get_iter_value_t get_iter_value;

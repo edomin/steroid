@@ -215,9 +215,14 @@ static bool st_htable_find(st_htable_t *htable, st_htiter_t *dst,
     return true;
 }
 
-static bool st_htable_next(st_htable_t *htable, st_htiter_t *dst,
- st_htiter_t *current) {
-    struct hash_entry *entry = hash_table_next_entry(htable->handle,
+static bool st_htable_first_or_next(st_htable_t *htable, st_htiter_t *current,
+ st_htiter_t *dst) {
+    struct hash_entry *entry;
+
+    if (!htable && !current)
+        return false;
+
+    entry = hash_table_next_entry(htable->handle,
      current ? current->handle : NULL);
 
     if (!entry)
@@ -227,6 +232,16 @@ static bool st_htable_next(st_htable_t *htable, st_htiter_t *dst,
     dst->handle = entry;
 
     return true;
+}
+
+static bool st_htable_first(st_htable_t *htable, st_htiter_t *dst) {
+    return htable ? st_htable_first_or_next(htable, NULL, dst) : false;
+}
+
+static bool st_htable_next(st_htiter_t *current, st_htiter_t *dst) {
+    return current
+        ? st_htable_first_or_next(current->htable, current, dst)
+        : false;
 }
 
 static const void *st_htable_get_iter_key(const st_htiter_t *iter) {

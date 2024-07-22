@@ -61,6 +61,7 @@ static bool st_ini_import_functions(st_modctx_t *ini_ctx,
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, clear);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, contains);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, find);
+    ST_LOAD_FUNCTION("ini_inih", htable, NULL, first);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, next);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_key);
     ST_LOAD_FUNCTION("ini_inih", htable, NULL, get_iter_value);
@@ -478,7 +479,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
     st_htiter_t    section_it;
     size_t         bufoffset;
 
-    if (!module->htable.next(ini->sections, &section_it, NULL))
+    if (!module->htable.first(ini->sections, &section_it))
         return true;
 
     do {
@@ -501,7 +502,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         buffer += sec_ret;
         bufsize -= (size_t)sec_ret;
 
-        if (module->htable.next(section->data, &key_it, NULL))
+        if (module->htable.first(section->data, &key_it))
             continue;
 
         do {
@@ -519,7 +520,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
 
             buffer += ret;
             bufsize -= (size_t)ret;
-        } while (module->htable.next(section->data, &key_it, &key_it));
+        } while (module->htable.next(&key_it, &key_it));
 
         if (bufsize-- == 0) {
             module->logger.error(module->logger.ctx,
@@ -529,7 +530,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             return NULL;
         }
         *buffer++ = '\n';
-    } while (module->htable.next(ini->sections, &section_it, &section_it));
+    } while (module->htable.next(&section_it, &section_it));
 
     buffer[bufsize - 1] = '\n';
 

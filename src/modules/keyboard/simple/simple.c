@@ -40,6 +40,7 @@ static bool st_keyboard_import_functions(st_modctx_t *keyboard_ctx,
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, insert);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, contains);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get);
+    ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, first);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, next);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get_iter_key);
     ST_LOAD_FUNCTION("keyboard_simple", htable, NULL, get_iter_value);
@@ -181,13 +182,13 @@ static void st_keyboard_process(st_modctx_t *keyboard_ctx) {
     st_keyboard_simple_t *module = keyboard_ctx->data;
     st_htiter_t           it;
 
-    if (module->htable.next(module->cur_state, &it, NULL)) {
+    if (module->htable.first(module->cur_state, &it)) {
         do {
             const void *key = module->htable.get_iter_key(&it);
             void       *value = module->htable.get_iter_value(&it);
 
             module->htable.insert(module->prev_state, NULL, key, value);
-        } while (module->htable.next(module->cur_state, &it, &it));
+        } while (module->htable.next(&it, &it));
     }
 
     memset(module->input, 0, INPUT_SIZE);
