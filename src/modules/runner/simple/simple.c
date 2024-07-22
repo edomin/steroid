@@ -48,8 +48,6 @@ static bool st_runner_import_functions(st_modctx_t *runner_ctx,
     }
 
     ST_LOAD_FUNCTION_FROM_CTX("runner_simple", ini, load);
-    ST_LOAD_FUNCTION_FROM_CTX("runner_simple", ini, destroy);
-    ST_LOAD_FUNCTION_FROM_CTX("runner_simple", ini, fill_str);
 
     ST_LOAD_FUNCTION_FROM_CTX("runner_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("runner_simple", logger, info);
@@ -143,7 +141,7 @@ static bool get_directory_name(st_runner_simple_t *module,
             return true;
     }
 
-    if (ini && !module->ini.fill_str(ini, dirname, PATH_MAX, "steroids.runner",
+    if (ini && !ST_INI_CALL(ini, fill_str, dirname, PATH_MAX, "steroids.runner",
      "plugin_path")) {
         int ret;
 
@@ -173,7 +171,7 @@ static bool get_runnable_module_name(st_runner_simple_t *module,
             return true;
     }
 
-    if (ini && !module->ini.fill_str(ini, runnable, RUNNABLE_MODULE_NAME_SIZE,
+    if (ini && !ST_INI_CALL(ini, fill_str, runnable, RUNNABLE_MODULE_NAME_SIZE,
      "steroids.runner", "run_module")) {
         module->logger.error(module->logger.ctx,
          "runner_simple: Unable to get runnable module name");
@@ -193,7 +191,7 @@ static bool get_script_name(st_runner_simple_t *module,
             return true;
     }
 
-    if (ini && !module->ini.fill_str(ini, script_name, PATH_MAX,
+    if (ini && !ST_INI_CALL(ini, fill_str, script_name, PATH_MAX,
      "steroids.runner", "script"))
         return false;
 
@@ -324,5 +322,5 @@ static void st_runner_run(st_modctx_t *runner_ctx,
 
 fail:
     if (ini)
-        module->ini.destroy(ini);
+        ST_INI_CALL(ini, destroy);
 }

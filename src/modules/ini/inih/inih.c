@@ -19,6 +19,21 @@ typedef struct {
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_ini_funcs_t ini_funcs = {
+    .destroy        = st_ini_destroy,
+    .section_exists = st_ini_section_exists,
+    .key_exists     = st_ini_key_exists,
+    .get_str        = st_ini_get_str,
+    .fill_str       = st_ini_fill_str,
+    .delete_section = st_ini_delete_section,
+    .delete_key     = st_ini_delete_key,
+    .clear_section  = st_ini_clear_section,
+    .add_section    = st_ini_add_section,
+    .add_key        = st_ini_add_key,
+    .to_buffer      = st_ini_export,
+    .save           = st_ini_save,
+};
+
 static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
     st_ini_inih_t   *module = section->module;
@@ -142,7 +157,7 @@ static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
         return NULL;
     }
 
-    ini->module = module;
+    st_object_make(ini, ini_ctx, &ini_funcs);
     ini->sections = module->htable.create(module->htable.ctx,
      (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
      st_keyeqfunc, free, st_ini_free_section);
@@ -277,14 +292,14 @@ ini_destroy:
 }
 
 static void st_ini_destroy(st_ini_t *ini) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
 
     ST_HTABLE_CALL(ini->sections, destroy);
     free(ini);
 }
 
 static bool st_ini_section_exists(const st_ini_t *ini, const char *section) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
 
     return !!ST_HTABLE_CALL(ini->sections, get, !!section ? section : "");
 }
@@ -296,7 +311,7 @@ static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
 
 static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
  const char *key) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_inisection_t *section = ST_HTABLE_CALL(ini->sections, get,
      !!section_name ? section_name : "");
 
@@ -320,14 +335,14 @@ static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
 }
 
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
 
     return ST_HTABLE_CALL(ini->sections, remove, section);
 }
 
 static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
  const char *key) {
-    st_ini_inih_t   *module = ini->module;
+    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
@@ -340,7 +355,7 @@ static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
 }
 
 static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
-    st_ini_inih_t   *module = ini->module;
+    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
@@ -354,7 +369,7 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
 }
 
 static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
-    st_ini_inih_t   *module = ini->module;
+    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_inisection_t *section;
     char            *section_key;
     char             errbuf[ERRMSGBUF_SIZE];
@@ -415,7 +430,7 @@ malloc_fail:
 
 static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
  const char *key, const char *value) {
-    st_ini_inih_t   *module = ini->module;
+    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_inisection_t *section;
     char            *keydup;
     char            *valdup;
@@ -463,7 +478,7 @@ valdup_fail:
 }
 
 static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_htiter_t    section_it;
     size_t         bufoffset;
 
@@ -526,7 +541,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
 }
 
 static bool st_ini_save(const st_ini_t *ini, const char *filename) {
-    st_ini_inih_t *module = ini->module;
+    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     char           buffer[SAVE_BUFFER_SIZE];
     bool           buffer_filled = st_ini_export(ini, buffer, SAVE_BUFFER_SIZE);
     FILE          *file;

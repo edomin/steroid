@@ -7,10 +7,8 @@
 #include "steroids/types/modules/plugin.h"
 
 typedef struct {
-    st_modctx_t      *ctx;
-    st_ini_load_t     load;
-    st_ini_destroy_t  destroy;
-    st_ini_fill_str_t fill_str;
+    st_modctx_t  *ctx;
+    st_ini_load_t load;
 } st_runner_simple_ini_t;
 
 typedef struct {

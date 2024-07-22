@@ -33,9 +33,8 @@ typedef struct {
     st_htable_t   *data;
 } st_inisection_t;
 
-typedef struct {
-    st_ini_inih_t *module;
-    st_htable_t   *sections;
-} st_ini_t;
+ST_CLASS (
+    st_htable_t *sections;
+) st_ini_t;
 
 #define ST_INI_T_DEFINED
