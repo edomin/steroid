@@ -3,7 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #include <lwrb.h>
+#pragma GCC diagnostic pop
 
 #include "steroids/types/modules/logger.h"
 

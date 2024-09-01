@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #include <lwrb.h>
+#pragma GCC diagnostic pop
 
 #define ERRMSGBUF_SIZE 128
 
