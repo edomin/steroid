@@ -31,6 +31,8 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_OPTS_KETOPT})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
 find_library(LIBSIR_LIBRARY NAMES sir_s)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
@@ -54,5 +56,6 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
     dlist
+    Threads::Threads
     ${LIBSIR_LIBRARY}
 )
