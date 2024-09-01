@@ -4,10 +4,9 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/matrix3x3.h"
 
-static st_matrix3x3_funcs_t st_matrix3x3_simple_funcs = {
+static st_matrix3x3ctx_funcs_t st_matrix3x3_simple_funcs = {
     .matrix3x3_init        = st_matrix3x3_init,
     .matrix3x3_quit        = st_matrix3x3_quit,
-    .matrix3x3_clone       = st_matrix3x3_clone,
     .matrix3x3_custom      = st_matrix3x3_custom,
     .matrix3x3_identity    = st_matrix3x3_identity,
     .matrix3x3_translation = st_matrix3x3_translation,
@@ -18,16 +17,6 @@ static st_matrix3x3_funcs_t st_matrix3x3_simple_funcs = {
     .matrix3x3_dhshearing  = st_matrix3x3_dhshearing,
     .matrix3x3_rvshearing  = st_matrix3x3_rvshearing,
     .matrix3x3_dvshearing  = st_matrix3x3_dvshearing,
-    .matrix3x3_apply       = st_matrix3x3_apply,
-    .matrix3x3_translate   = st_matrix3x3_translate,
-    .matrix3x3_scale       = st_matrix3x3_scale,
-    .matrix3x3_rrotate     = st_matrix3x3_rrotate,
-    .matrix3x3_drotate     = st_matrix3x3_drotate,
-    .matrix3x3_rhshear     = st_matrix3x3_rhshear,
-    .matrix3x3_dhshear     = st_matrix3x3_dhshear,
-    .matrix3x3_rvshear     = st_matrix3x3_rvshear,
-    .matrix3x3_dvshear     = st_matrix3x3_dvshear,
-    .matrix3x3_get_data    = st_matrix3x3_get_data,
 };
 
 static st_modfuncentry_t st_module_matrix3x3_simple_funcs[] = {

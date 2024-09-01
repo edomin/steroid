@@ -64,13 +64,8 @@ typedef struct {
 } st_render_opengl_logger_t;
 
 typedef struct {
-    st_modctx_t             *ctx;
-    st_matrix3x3_identity_t  identity;
-    st_matrix3x3_translate_t translate;
-    st_matrix3x3_scale_t     scale;
-    st_matrix3x3_drotate_t   rrotate;
-    st_matrix3x3_dhshear_t   rhshear;
-    st_matrix3x3_dvshear_t   rvshear;
+    st_modctx_t            *ctx;
+    st_matrix3x3_identity_t identity;
 } st_render_opengl_matrix3x3_t;
 
 typedef struct {

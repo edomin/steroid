@@ -10,7 +10,6 @@ static st_modsmgr_funcs_t              global_modsmgr_funcs;
 
 static st_matrix3x3_init_t             st_matrix3x3_init;
 static st_matrix3x3_quit_t             st_matrix3x3_quit;
-static st_matrix3x3_clone_t            st_matrix3x3_clone;
 static st_matrix3x3_custom_t           st_matrix3x3_custom;
 static st_matrix3x3_identity_t         st_matrix3x3_identity;
 static st_matrix3x3_translation_t      st_matrix3x3_translation;
@@ -21,16 +20,6 @@ static st_matrix3x3_rhshearing_t       st_matrix3x3_rhshearing;
 static st_matrix3x3_dhshearing_t       st_matrix3x3_dhshearing;
 static st_matrix3x3_rvshearing_t       st_matrix3x3_rvshearing;
 static st_matrix3x3_dvshearing_t       st_matrix3x3_dvshearing;
-static st_matrix3x3_apply_t            st_matrix3x3_apply;
-static st_matrix3x3_translate_t        st_matrix3x3_translate;
-static st_matrix3x3_scale_t            st_matrix3x3_scale;
-static st_matrix3x3_rrotate_t          st_matrix3x3_rrotate;
-static st_matrix3x3_drotate_t          st_matrix3x3_drotate;
-static st_matrix3x3_rhshear_t          st_matrix3x3_rhshear;
-static st_matrix3x3_dhshear_t          st_matrix3x3_dhshear;
-static st_matrix3x3_rvshear_t          st_matrix3x3_rvshear;
-static st_matrix3x3_dvshear_t          st_matrix3x3_dvshear;
-static st_matrix3x3_get_data_t         st_matrix3x3_get_data;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -75,7 +64,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, quit);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, clone);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, custom);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, identity);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, translation);
@@ -86,16 +74,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, dhshearing);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, rvshearing);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, dvshearing);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, apply);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, translate);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, scale);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, rrotate);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, drotate);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, rhshear);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, dhshear);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, rvshear);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, dvshear);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", matrix3x3, get_data);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_matrix3x3", lua, create_userdata);
@@ -180,7 +158,7 @@ static int st_matrix3x3_clone_bind(st_luastate_t *lua_state) {
     st_matrix3x3_t  new_matrix;
     void           *userdata;
 
-    st_matrix3x3_clone(&new_matrix, matrix);
+    ST_MATRIX3X3_CALL(matrix, clone, &new_matrix);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = new_matrix;
@@ -364,7 +342,7 @@ static int st_matrix3x3_apply_bind(st_luastate_t *lua_state) {
      lua_state, 2, MATRIX_METATABLE_NAME);
     void           *userdata;
 
-    st_matrix3x3_apply(matrix, other);
+    ST_MATRIX3X3_CALL(matrix, apply, other);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -380,7 +358,7 @@ static int st_matrix3x3_translate_bind(st_luastate_t *lua_state) {
     double          y = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_translate(matrix, (float)x, (float)y);
+    ST_MATRIX3X3_CALL(matrix, translate, (float)x, (float)y);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -396,7 +374,7 @@ static int st_matrix3x3_scale_bind(st_luastate_t *lua_state) {
     double          vscale = st_lua_get_double(lua_state, 3);
     void           *userdata;
 
-    st_matrix3x3_scale(matrix, (float)hscale, (float)vscale);
+    ST_MATRIX3X3_CALL(matrix, scale, (float)hscale, (float)vscale);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -411,7 +389,7 @@ static int st_matrix3x3_rrotate_bind(st_luastate_t *lua_state) {
     double          radians = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_rrotate(matrix, (float)radians);
+    ST_MATRIX3X3_CALL(matrix, rrotate, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -426,7 +404,7 @@ static int st_matrix3x3_drotate_bind(st_luastate_t *lua_state) {
     double          degrees = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_drotate(matrix, (float)degrees);
+    ST_MATRIX3X3_CALL(matrix, drotate, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -441,7 +419,7 @@ static int st_matrix3x3_rhshear_bind(st_luastate_t *lua_state) {
     double          radians = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_rhshear(matrix, (float)radians);
+    ST_MATRIX3X3_CALL(matrix, rhshear, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -456,7 +434,7 @@ static int st_matrix3x3_dhshear_bind(st_luastate_t *lua_state) {
     double          degrees = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_dhshear(matrix, (float)degrees);
+    ST_MATRIX3X3_CALL(matrix, dhshear, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -471,7 +449,7 @@ static int st_matrix3x3_rvshear_bind(st_luastate_t *lua_state) {
     double          radians = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_rvshear(matrix, (float)radians);
+    ST_MATRIX3X3_CALL(matrix, rvshear, (float)radians);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -486,7 +464,7 @@ static int st_matrix3x3_dvshear_bind(st_luastate_t *lua_state) {
     double          degrees = st_lua_get_double(lua_state, 2);
     void           *userdata;
 
-    st_matrix3x3_dvshear(matrix, (float)degrees);
+    ST_MATRIX3X3_CALL(matrix, dvshear, (float)degrees);
 
     userdata = st_lua_create_userdata(lua_state, sizeof(st_matrix3x3_t));
     *(st_matrix3x3_t *)userdata = *matrix;
@@ -505,7 +483,8 @@ static int st_matrix3x3_get_data_bind(st_luastate_t *lua_state) {
     float           r2c2;
     float           r2c3;
 
-    st_matrix3x3_get_data(&r1c1, &r1c2, &r1c3, &r2c1, &r2c2, &r2c3, matrix);
+    ST_MATRIX3X3_CALL(matrix, get_data, &r1c1, &r1c2, &r1c3, &r2c1, &r2c2,
+     &r2c3);
 
     st_lua_push_double(lua_state, r1c1);
     st_lua_push_double(lua_state, r1c2);

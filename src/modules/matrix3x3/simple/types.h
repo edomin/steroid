@@ -2,6 +2,7 @@
 
 #include "steroids/types/modules/angle.h"
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -24,11 +25,10 @@ typedef struct {
     st_matrix3x3_simple_angle_t  angle;
 } st_matrix3x3_simple_t;
 
-typedef struct {
+ST_CLASS (
     float r1c1, r1c2, r1c3;
     float r2c1, r2c2, r2c3;
     //       0,    0,    1
-    const st_modctx_t *ctx;
-} st_matrix3x3_t;
+) st_matrix3x3_t;
 
 #define ST_MATRIX3X3_T_DEFINED

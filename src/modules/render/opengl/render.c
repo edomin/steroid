@@ -113,11 +113,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", logger, warning);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, identity);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, translate);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, scale);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rrotate);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rhshear);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", matrix3x3, rvshear);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", sprite, get_texture);
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", sprite, get_width);
@@ -512,18 +507,18 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
 
         module->matrix3x3.identity(module->matrix3x3.ctx, &matrix);
 
-        module->matrix3x3.translate(&matrix, draw_entries[i].x,
+        ST_MATRIX3X3_CALL(&matrix, translate, draw_entries[i].x,
          draw_entries[i].y);
 
         if (do_scaling)
-            module->matrix3x3.scale(&matrix, draw_entries[i].hscale,
+            ST_MATRIX3X3_CALL(&matrix, scale, draw_entries[i].hscale,
              draw_entries[i].vscale);
         if (do_hshearing)
-            module->matrix3x3.rhshear(&matrix, draw_entries[i].hshear);
+            ST_MATRIX3X3_CALL(&matrix, rhshear, draw_entries[i].hshear);
         if (do_vshearing)
-            module->matrix3x3.rvshear(&matrix, draw_entries[i].vshear);
+            ST_MATRIX3X3_CALL(&matrix, rvshear, draw_entries[i].vshear);
         if (do_rotation)
-            module->matrix3x3.rrotate(&matrix, draw_entries[i].angle);
+            ST_MATRIX3X3_CALL(&matrix, rrotate, draw_entries[i].angle);
 
         module->vec2.apply_matrix3x3(module->vec2.ctx, &tetragon.upper_left.x,
          &tetragon.upper_left.y, &matrix);

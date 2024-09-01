@@ -1,12 +1,25 @@
 #include "simple.h"
 
-#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+
+static st_matrix3x3_funcs_t st_matrix3x3_funcs = {
+    .clone     = st_matrix3x3_clone,
+    .apply     = st_matrix3x3_apply,
+    .translate = st_matrix3x3_translate,
+    .scale     = st_matrix3x3_scale,
+    .rrotate   = st_matrix3x3_rrotate,
+    .drotate   = st_matrix3x3_drotate,
+    .rhshear   = st_matrix3x3_rhshear,
+    .dhshear   = st_matrix3x3_dhshear,
+    .rvshear   = st_matrix3x3_rvshear,
+    .dvshear   = st_matrix3x3_dvshear,
+    .get_data  = st_matrix3x3_get_data,
+};
 
 ST_MODULE_DEF_GET_FUNC(matrix3x3_simple)
 ST_MODULE_DEF_INIT_FUNC(matrix3x3_simple)
@@ -81,9 +94,9 @@ static void st_matrix3x3_quit(st_modctx_t *matrix3x3_ctx) {
     global_modsmgr_funcs.free_module_ctx(global_modsmgr, matrix3x3_ctx);
 }
 
-static void st_matrix3x3_clone(st_matrix3x3_t *dst,
- const st_matrix3x3_t *matrix) {
-    dst->ctx = matrix->ctx;
+static void st_matrix3x3_clone(const st_matrix3x3_t *matrix,
+ st_matrix3x3_t *dst) {
+    st_object_make(dst, st_object_get_owner(matrix), &st_matrix3x3_funcs);
 
     dst->r1c1 = matrix->r1c1;
     dst->r1c2 = matrix->r1c2;
@@ -94,10 +107,10 @@ static void st_matrix3x3_clone(st_matrix3x3_t *dst,
     dst->r2c3 = matrix->r2c3;
 }
 
-static void st_matrix3x3_custom(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_custom(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float r1c1, float r1c2, float r1c3, float r2c1,
  float r2c2, float r2c3) {
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = r1c1;
     matrix->r1c2 = r1c2;
@@ -108,9 +121,9 @@ static void st_matrix3x3_custom(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = r2c3;
 }
 
-static void st_matrix3x3_identity(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_identity(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix) {
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = 1;
     matrix->r1c2 = 0;
@@ -121,9 +134,9 @@ static void st_matrix3x3_identity(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = 0;
 }
 
-static void st_matrix3x3_translation(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_translation(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float x, float y) {
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = 1;
     matrix->r1c2 = 0;
@@ -134,9 +147,9 @@ static void st_matrix3x3_translation(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = y;
 }
 
-static void st_matrix3x3_scaling(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_scaling(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float hscale, float vscale) {
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = hscale;
     matrix->r1c2 = 0;
@@ -147,13 +160,13 @@ static void st_matrix3x3_scaling(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = 0;
 }
 
-static void st_matrix3x3_rrotation(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_rrotation(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
     module->angle.rnormalize360(module->angle.ctx, &radians);
 
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = module->angle.rdcos(module->angle.ctx, -radians);
     matrix->r1c2 = -module->angle.rdsin(module->angle.ctx, -radians);
@@ -164,7 +177,7 @@ static void st_matrix3x3_rrotation(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = 0;
 }
 
-static void st_matrix3x3_drotation(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_drotation(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
@@ -172,13 +185,13 @@ static void st_matrix3x3_drotation(const st_modctx_t *matrix3x3_ctx,
      module->angle.dtor(module->angle.ctx, degrees));
 }
 
-static void st_matrix3x3_rhshearing(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_rhshearing(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
     module->angle.rnormalize360(module->angle.ctx, &radians);
 
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = 1;
     matrix->r1c2 = module->angle.rdtan(module->angle.ctx, radians);
@@ -189,7 +202,7 @@ static void st_matrix3x3_rhshearing(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = 0;
 }
 
-static void st_matrix3x3_dhshearing(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_dhshearing(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
@@ -197,13 +210,13 @@ static void st_matrix3x3_dhshearing(const st_modctx_t *matrix3x3_ctx,
      module->angle.dtor(module->angle.ctx, degrees));
 }
 
-static void st_matrix3x3_rvshearing(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_rvshearing(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
     module->angle.rnormalize360(module->angle.ctx, &radians);
 
-    matrix->ctx = matrix3x3_ctx;
+    st_object_make(matrix, matrix3x3_ctx, &st_matrix3x3_funcs);
 
     matrix->r1c1 = 1;
     matrix->r1c2 = 0;
@@ -214,7 +227,7 @@ static void st_matrix3x3_rvshearing(const st_modctx_t *matrix3x3_ctx,
     matrix->r2c3 = 0;
 }
 
-static void st_matrix3x3_dvshearing(const st_modctx_t *matrix3x3_ctx,
+static void st_matrix3x3_dvshearing(st_modctx_t *matrix3x3_ctx,
  st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_simple_t *module = matrix3x3_ctx->data;
 
@@ -226,9 +239,9 @@ static void st_matrix3x3_apply(st_matrix3x3_t *matrix,
  const st_matrix3x3_t *other) {
     st_matrix3x3_t old;
 
-    st_matrix3x3_clone(&old, matrix);
+    st_matrix3x3_clone(matrix, &old);
 
-    matrix->ctx = other->ctx;
+    st_object_make(matrix, st_object_get_owner(other), &st_matrix3x3_funcs);
 
     matrix->r1c1 = old.r1c1 * other->r1c1
                  + old.r1c2 * other->r2c1;
@@ -250,7 +263,7 @@ static void st_matrix3x3_apply(st_matrix3x3_t *matrix,
 static void st_matrix3x3_translate(st_matrix3x3_t *matrix, float x, float y) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_translation(matrix->ctx, &other, x, y);
+    st_matrix3x3_translation(st_object_get_owner(matrix), &other, x, y);
     st_matrix3x3_apply(matrix, &other);
 }
 
@@ -258,54 +271,54 @@ static void st_matrix3x3_scale(st_matrix3x3_t *matrix, float hscale,
  float vscale) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_scaling(matrix->ctx, &other, hscale, vscale);
+    st_matrix3x3_scaling(st_object_get_owner(matrix), &other, hscale, vscale);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_rrotate(st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_rrotation(matrix->ctx, &other, radians);
+    st_matrix3x3_rrotation(st_object_get_owner(matrix), &other, radians);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_drotate(st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_drotation(matrix->ctx, &other, degrees);
+    st_matrix3x3_drotation(st_object_get_owner(matrix), &other, degrees);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_rhshear(st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_rhshearing(matrix->ctx, &other, radians);
+    st_matrix3x3_rhshearing(st_object_get_owner(matrix), &other, radians);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_dhshear(st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_dhshearing(matrix->ctx, &other, degrees);
+    st_matrix3x3_dhshearing(st_object_get_owner(matrix), &other, degrees);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_rvshear(st_matrix3x3_t *matrix, float radians) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_rvshearing(matrix->ctx, &other, radians);
+    st_matrix3x3_rvshearing(st_object_get_owner(matrix), &other, radians);
     st_matrix3x3_apply(matrix, &other);
 }
 
 static void st_matrix3x3_dvshear(st_matrix3x3_t *matrix, float degrees) {
     st_matrix3x3_t other;
 
-    st_matrix3x3_dvshearing(matrix->ctx, &other, degrees);
+    st_matrix3x3_dvshearing(st_object_get_owner(matrix), &other, degrees);
     st_matrix3x3_apply(matrix, &other);
 }
 
-static void st_matrix3x3_get_data(float *r1c1, float *r1c2, float *r1c3,
- float *r2c1, float *r2c2, float *r2c3, const st_matrix3x3_t *matrix) {
+static void st_matrix3x3_get_data(const st_matrix3x3_t *matrix, float *r1c1,
+ float *r1c2, float *r1c3, float *r2c1, float *r2c2, float *r2c3) {
     if (r1c1)
         *r1c1 = matrix->r1c1;
     if (r1c2)
