@@ -132,10 +132,14 @@ static void st_modsmgr_get_module_names(st_modsmgr_t *modsmgr, char **dst,
             break;
 
         /* False positive?  */
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wformat-truncation"
+        #if defined(__GNUC__) && __GNUC__ >= 7
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wformat-truncation"
+        #endif
         ret = snprintf(modname, modname_size, "%s", module_data->name);
-        #pragma GCC diagnostic pop
+        #if __GNUC__ >= 7
+            #pragma GCC diagnostic pop
+        #endif
         if (ret < 0 || (size_t)ret == modname_size)
             continue;
 
