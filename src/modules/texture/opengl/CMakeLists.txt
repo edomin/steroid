@@ -36,6 +36,10 @@ configure_file(
     "config.h"
 )
 
+find_library(M_LIBRARY NAMES m)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GL REQUIRED gl)
+
 bb_add_compile_options(LANG C OPTIONS C_COMPILE_OPTIONS)
 bb_add_more_warnings(
     LANG C
@@ -51,9 +55,6 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_TEXTURE_OPENGL})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GL REQUIRED gl)
-
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE
     "opengl.c"
@@ -68,5 +69,6 @@ target_include_directories(${ST_MODULE_TARGET} PRIVATE
 )
 
 target_link_libraries(${ST_MODULE_TARGET} PRIVATE
+    ${M_LIBRARY}
     ${GL_LINK_LIBRARIES}
 )

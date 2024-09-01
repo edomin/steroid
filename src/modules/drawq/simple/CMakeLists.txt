@@ -28,6 +28,8 @@ configure_file(
     "config.h"
 )
 
+find_library(M_LIBRARY NAMES m)
+
 bb_add_compile_options(LANG C OPTIONS C_COMPILE_OPTIONS)
 bb_add_more_warnings(
     LANG C
@@ -53,4 +55,8 @@ bb_set_c_std(${ST_MODULE_TARGET} STD 11 EXTENSIONS)
 target_include_directories(${ST_MODULE_TARGET} PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+target_link_libraries(${ST_MODULE_TARGET} PRIVATE
+    ${M_LIBRARY}
 )
