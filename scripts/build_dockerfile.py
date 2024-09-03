@@ -13,7 +13,7 @@ def GetDockefrileName(target):
 def GetBaseImageName(target):
     return {
         "any-any-any": "fedora:40",
-        "x86_64-linux-gnu": "oraclelinux:7",
+        "x86_64-linux-gnu": "amazonlinux:2",
         "x86_64-steamrt-scout":
             "registry.gitlab.steamos.cloud/steamrt/scout/sdk:"
             "latest-steam-client-general-availability",
@@ -32,23 +32,6 @@ def TargetIsHost(target):
         "x86_64-w64-mingw32":    False,
     }[target]
 
-def GetPreInstallCmds(target):
-    return {
-        "any-any-any":           "groupadd --gid $GROUP_ID user \\\n"
-                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
-                              "&& dnf -y install python3 python3-pip git \\\n",
-        "x86_64-linux-gnu":      "groupadd --gid $GROUP_ID user \\\n"
-                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
-                              "&& yum -y install python3 python3-pip git \\\n",
-        "x86_64-steamrt-scout":  "TODO",
-        "x86_64-steamrt-sniper": "TODO",
-        "x86_64-w64-mingw32":    "groupadd --gid $GROUP_ID user \\\n"
-                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
-                              "&& pacman-key --init \\\n"
-                              "&& pacman --noconfirm --disable-download-timeout -Syu \\\n"
-                              "&& pacman --noconfirm --disable-download-timeout -S python python-pip git \\\n",
-    }[target]
-
 def GetPipInstall(target):
     return {
         "any-any-any":           "pip3 install --break-system-packages",
@@ -56,6 +39,27 @@ def GetPipInstall(target):
         "x86_64-steamrt-scout":  "pip3 install",
         "x86_64-steamrt-sniper": "pip3 install",
         "x86_64-w64-mingw32":    "pip3 install --break-system-packages",
+    }[target]
+
+def GetPreInstallCmds(target):
+    return {
+        "any-any-any":           "groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& dnf -y install python3 python3-pip git \\\n",
+        "x86_64-linux-gnu":      "yum -y install shadow-utils\\\n"
+                              "&& groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& yum -y install python3 python3-pip git \\\n"
+                              "&& {pip_install} urllib3==1.26.6".format(
+                                pip_install=GetPipInstall(target)
+                              ),
+        "x86_64-steamrt-scout":  "TODO",
+        "x86_64-steamrt-sniper": "TODO",
+        "x86_64-w64-mingw32":    "groupadd --gid $GROUP_ID user \\\n"
+                              "&& useradd -m --uid $USER_ID --gid $GROUP_ID user \\\n"
+                              "&& pacman-key --init \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -Syu \\\n"
+                              "&& pacman --noconfirm --disable-download-timeout -S python python-pip git \\\n",
     }[target]
 
 def GenerateDockerfile(target):
