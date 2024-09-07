@@ -36,7 +36,13 @@ configure_file(
     "config.h"
 )
 
-find_library(M_LIBRARY NAMES m)
+bb_find_library(
+  VAR_PREFIX M
+  NAME libm
+  FILENAMES m
+  COMPILER_OPTIONS -lm
+  REQUIRED
+)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GL REQUIRED gl)
 

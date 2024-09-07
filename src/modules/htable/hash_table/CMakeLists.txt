@@ -36,7 +36,13 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_HTABLE_HASH_TABLE})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_library(HASH_TABLE_LIBRARY NAMES hash_table)
+bb_find_library(
+  VAR_PREFIX HASH_TABLE
+  NAME hash_table
+  FILENAMES hash_table
+  COMPILER_OPTIONS -lhash_table
+  REQUIRED
+)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE

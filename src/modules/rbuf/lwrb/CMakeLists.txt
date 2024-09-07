@@ -36,7 +36,13 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_RBUF_LWRB})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_library(LWRB_LIBRARY NAMES lwrb)
+bb_find_library(
+  VAR_PREFIX LWRB
+  NAME lwrb
+  FILENAMES lwrb
+  COMPILER_OPTIONS -llwrb
+  REQUIRED
+)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE

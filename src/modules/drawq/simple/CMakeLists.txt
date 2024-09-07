@@ -28,7 +28,13 @@ configure_file(
     "config.h"
 )
 
-find_library(M_LIBRARY NAMES m)
+bb_find_library(
+  VAR_PREFIX M
+  NAME libm
+  FILENAMES m
+  COMPILER_OPTIONS -lm
+  REQUIRED
+)
 
 bb_add_compile_options(LANG C OPTIONS C_COMPILE_OPTIONS)
 bb_add_more_warnings(

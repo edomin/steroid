@@ -44,7 +44,13 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_INI_INIH})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_library(INIH_LIBRARY NAMES inih)
+bb_find_library(
+  VAR_PREFIX INIH
+  NAME inih
+  FILENAMES inih
+  COMPILER_OPTIONS -linih
+  REQUIRED
+)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE

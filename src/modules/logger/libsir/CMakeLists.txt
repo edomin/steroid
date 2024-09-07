@@ -33,7 +33,13 @@ st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
-find_library(LIBSIR_LIBRARY NAMES sir_s)
+bb_find_library(
+  VAR_PREFIX LIBSIR
+  NAME libsir
+  FILENAMES sir_s
+  COMPILER_OPTIONS -lsir_s
+  REQUIRED
+)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE ${C_COMPILE_OPTIONS})
 target_sources(${ST_MODULE_TARGET} PRIVATE

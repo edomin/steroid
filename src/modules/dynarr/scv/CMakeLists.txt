@@ -36,7 +36,13 @@ bb_add_more_warnings(
 st_add_module(${ST_MODULE_TARGET} ${ST_MODULE_DYNARR_SCV})
 st_process_internal_module(${ST_MODULE_TARGET} ${ST_MODULE_TYPE})
 
-find_library(SCV_LIBRARY NAMES scv)
+bb_find_library(
+  VAR_PREFIX SCV
+  NAME scv
+  FILENAMES scv
+  COMPILER_OPTIONS -lscv
+  REQUIRED
+)
 
 target_compile_options(${ST_MODULE_TARGET} PRIVATE
     ${C_COMPILE_OPTIONS}
