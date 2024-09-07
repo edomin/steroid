@@ -69,7 +69,7 @@ build-image-with-cache: dockerfiles/deps-$(TRIPLET).dockerfile
 
 build-container:
 	-distrobox-stop --root -Y steroids-deps-$(TRIPLET)
-	-distrobox-rm --root steroids-deps-$(TRIPLET)
+	-distrobox-rm --root -Y steroids-deps-$(TRIPLET)
 	distrobox-create --root --image steroids-deps-$(TRIPLET) \
      --name steroids-deps-$(TRIPLET)
 
