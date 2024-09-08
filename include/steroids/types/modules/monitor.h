@@ -1,6 +1,7 @@
 #pragma once
 
 #include "steroids/module.h"
+#include "steroids/types/object.h"
 
 #ifndef ST_MONITOR_T_DEFINED
     typedef struct st_monitor_s st_monitor_t;
@@ -22,8 +23,14 @@ typedef struct {
     st_monitor_quit_t               monitor_quit;
     st_monitor_get_monitors_count_t monitor_get_monitors_count;
     st_monitor_open_t               monitor_open;
-    st_monitor_release_t            monitor_release;
-    st_monitor_get_width_t          monitor_get_width;
-    st_monitor_get_height_t         monitor_get_height;
-    st_monitor_get_handle_t         monitor_get_handle;
+} st_monitorctx_funcs_t;
+
+typedef struct {
+    st_monitor_release_t    release;
+    st_monitor_get_width_t  get_width;
+    st_monitor_get_height_t get_height;
+    st_monitor_get_handle_t get_handle;
 } st_monitor_funcs_t;
+
+#define ST_MONITOR_CALL(object, func, ...) \
+    ((st_monitor_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

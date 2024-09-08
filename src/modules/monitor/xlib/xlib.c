@@ -11,6 +11,13 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_monitor_funcs_t monitor_funcs = {
+    .release    = st_monitor_release,
+    .get_width  = st_monitor_get_width,
+    .get_height = st_monitor_get_height,
+    .get_handle = st_monitor_get_handle,
+};
+
 ST_MODULE_DEF_GET_FUNC(monitor_xlib)
 ST_MODULE_DEF_INIT_FUNC(monitor_xlib)
 
@@ -132,6 +139,7 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
 
     monitor->root_window = DefaultRootWindow(monitor->handle);
     monitor->index = index;
+    st_object_make(monitor, monitor_ctx, &monitor_funcs);
 
     return monitor;
 }

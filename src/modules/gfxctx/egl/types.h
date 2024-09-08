@@ -6,7 +6,6 @@
 #include "steroids/types/modules/fnv1a.h"
 #include "steroids/types/modules/htable.h"
 #include "steroids/types/modules/logger.h"
-#include "steroids/types/modules/monitor.h"
 #include "steroids/types/modules/window.h"
 #include "steroids/types/object.h"
 
@@ -21,8 +20,7 @@ typedef struct {
 } st_gfxctx_egl_logger_t;
 
 typedef struct {
-    st_modctx_t            *ctx;
-    st_monitor_get_handle_t get_handle;
+    st_modctx_t *ctx;
 } st_gfxctx_egl_monitor_t;
 
 typedef struct {

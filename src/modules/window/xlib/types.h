@@ -4,6 +4,7 @@
 
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 #include "dlist.h"
 
@@ -59,11 +60,11 @@ typedef struct {
     st_evtypeid_t            evtypes[EV_MAX];
 } st_window_xlib_t;
 
-typedef struct {
-    void    *private;
+ST_CLASS (
     Display *handle;
     Window   root_window;
-} st_monitor_t;
+    unsigned _private;
+) st_monitor_t;
 
 typedef struct {
     st_modctx_t  *ctx;

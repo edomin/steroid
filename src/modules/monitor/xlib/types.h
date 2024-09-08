@@ -3,6 +3,7 @@
 #include <X11/Xlib.h>
 
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -15,11 +16,10 @@ typedef struct {
     st_monitor_xlib_logger_t logger;
 } st_monitor_xlib_t;
 
-typedef struct {
-    st_monitor_xlib_t *module;
-    Display           *handle;
-    Window             root_window;
-    unsigned           index;
-} st_monitor_t;
+ST_CLASS (
+    Display *handle;
+    Window   root_window;
+    unsigned index;
+) st_monitor_t;
 
 #define ST_MONITOR_T_DEFINED

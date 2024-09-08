@@ -7,6 +7,8 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#include "steroids/types/modules/monitor.h"
+
 #define ERRMSGBUF_SIZE    128
 #define GAPI_STR_SIZE_MAX  32
 #define RED_BITS            8
@@ -64,7 +66,7 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *monitor_ctx, st_modctx_t *window_ctx) {
+ st_modctx_t *logger_ctx, st_modctx_t *window_ctx) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -87,8 +89,6 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, warning);
-
-    ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", monitor, get_handle);
 
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", window, get_handle);
 
@@ -120,8 +120,7 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     module->must_quit = false;
     module->gfxctxs_count = 0;
 
-    if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, monitor_ctx,
-     window_ctx))
+    if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, window_ctx))
         goto import_fail;
 
     module->htable.ctx = module->htable.init(module->logger.ctx);
@@ -647,7 +646,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
         goto udata_fail;
 
     gfxctx->display = eglGetDisplay(
-     (EGLNativeDisplayType)module->monitor.get_handle(monitor));
+     (EGLNativeDisplayType)ST_MONITOR_CALL(monitor, get_handle));
 
     if (gfxctx->display == EGL_NO_DISPLAY) {
         module->logger.error(module->logger.ctx,
