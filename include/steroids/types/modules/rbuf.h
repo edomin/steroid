@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "steroids/module.h"
+#include "steroids/types/object.h"
 
 #ifndef ST_RBUF_T_DEFINED
     typedef struct st_rbuf_s st_rbuf_t;
@@ -23,15 +24,21 @@ typedef size_t (*st_rbuf_get_free_space_t)(const st_rbuf_t *rbuf);
 typedef bool (*st_rbuf_is_empty_t)(const st_rbuf_t *rbuf);
 
 typedef struct {
-    st_rbuf_init_t           rbuf_init;
-    st_rbuf_quit_t           rbuf_quit;
-    st_rbuf_create_t         rbuf_create;
-    st_rbuf_destroy_t        rbuf_destroy;
-    st_rbuf_push_t           rbuf_push;
-    st_rbuf_peek_t           rbuf_peek;
-    st_rbuf_pop_t            rbuf_pop;
-    st_rbuf_drop_t           rbuf_drop;
-    st_rbuf_clear_t          rbuf_clear;
-    st_rbuf_get_free_space_t rbuf_get_free_space;
-    st_rbuf_is_empty_t       rbuf_is_empty;
+    st_rbuf_init_t   rbuf_init;
+    st_rbuf_quit_t   rbuf_quit;
+    st_rbuf_create_t rbuf_create;
+} st_rbufctx_funcs_t;
+
+typedef struct {
+    st_rbuf_destroy_t        destroy;
+    st_rbuf_push_t           push;
+    st_rbuf_peek_t           peek;
+    st_rbuf_pop_t            pop;
+    st_rbuf_drop_t           drop;
+    st_rbuf_clear_t          clear;
+    st_rbuf_get_free_space_t get_free_space;
+    st_rbuf_is_empty_t       is_empty;
 } st_rbuf_funcs_t;
+
+#define ST_RBUF_CALL(object, func, ...) \
+    ((st_rbuf_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

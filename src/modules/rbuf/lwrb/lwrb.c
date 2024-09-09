@@ -16,6 +16,17 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_rbuf_funcs_t rbuf_funcs = {
+    .destroy        = st_rbuf_destroy,
+    .push           = st_rbuf_push,
+    .peek           = st_rbuf_peek,
+    .pop            = st_rbuf_pop,
+    .drop           = st_rbuf_drop,
+    .clear          = st_rbuf_clear,
+    .get_free_space = st_rbuf_get_free_space,
+    .is_empty       = st_rbuf_is_empty,
+};
+
 ST_MODULE_DEF_GET_FUNC(rbuf_lwrb)
 ST_MODULE_DEF_INIT_FUNC(rbuf_lwrb)
 
@@ -110,7 +121,7 @@ static st_rbuf_t *st_rbuf_create(st_modctx_t *rbuf_ctx, size_t size) {
         goto init_fail;
     }
 
-    rbuf->ctx = rbuf_ctx;
+    st_object_make(rbuf, rbuf_ctx, &rbuf_funcs);
 
     return rbuf;
 

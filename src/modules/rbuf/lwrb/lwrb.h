@@ -4,18 +4,10 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/rbuf.h"
 
-static st_rbuf_funcs_t st_rbuf_lwrb_funcs = {
-    .rbuf_init           = st_rbuf_init,
-    .rbuf_quit           = st_rbuf_quit,
-    .rbuf_create         = st_rbuf_create,
-    .rbuf_destroy        = st_rbuf_destroy,
-    .rbuf_push           = st_rbuf_push,
-    .rbuf_peek           = st_rbuf_peek,
-    .rbuf_pop            = st_rbuf_pop,
-    .rbuf_drop           = st_rbuf_drop,
-    .rbuf_clear          = st_rbuf_clear,
-    .rbuf_get_free_space = st_rbuf_get_free_space,
-    .rbuf_is_empty       = st_rbuf_is_empty,
+static st_rbufctx_funcs_t st_rbuf_lwrb_funcs = {
+    .rbuf_init   = st_rbuf_init,
+    .rbuf_quit   = st_rbuf_quit,
+    .rbuf_create = st_rbuf_create,
 };
 
 static st_modfuncentry_t st_module_rbuf_lwrb_funcs[] = {

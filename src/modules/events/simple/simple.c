@@ -47,14 +47,6 @@ static bool st_events_import_functions(st_modctx_t *events_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("events_simple", logger, info);
 
     ST_LOAD_FUNCTION("events_simple", rbuf, NULL, create);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, destroy);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, push);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, peek);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, pop);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, drop);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, clear);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, get_free_space);
-    ST_LOAD_FUNCTION("events_simple", rbuf, NULL, is_empty);
 
     return true;
 }
@@ -177,7 +169,7 @@ static st_evq_t *st_events_create_queue(st_modctx_t *events_ctx,
 
     queue = malloc(sizeof(st_evq_t));
     if (!queue) {
-        module->rbuf.destroy(handle);
+        ST_RBUF_CALL(handle, destroy);
 
         return NULL;
     }
@@ -194,7 +186,7 @@ static void st_events_destroy_queue(st_evq_t *queue) {
 
     st_events_unsubscribe_all(queue);
 
-    module->rbuf.destroy(queue->handle);
+    ST_RBUF_CALL(queue->handle, destroy);
     free(queue);
 }
 
@@ -277,11 +269,11 @@ static void st_events_push(st_modctx_t *events_ctx, st_evtypeid_t type_id,
         if (!evtype->subscribers[i]->active)
             continue;
 
-        if (module->rbuf.get_free_space(evtype->subscribers[i]->handle) >=
+        if (ST_RBUF_CALL(evtype->subscribers[i]->handle, get_free_space) >=
          evtype->data_size + sizeof(st_evtypeid_t)) {
-            module->rbuf.push(evtype->subscribers[i]->handle, &type_id,
+            ST_RBUF_CALL(evtype->subscribers[i]->handle, push, &type_id,
              sizeof(st_evtypeid_t));
-            module->rbuf.push(evtype->subscribers[i]->handle, data,
+            ST_RBUF_CALL(evtype->subscribers[i]->handle, push, data,
              evtype->data_size);
         }
     }
@@ -290,13 +282,13 @@ static void st_events_push(st_modctx_t *events_ctx, st_evtypeid_t type_id,
 static bool st_events_is_empty(const st_evq_t *queue) {
     st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
-    return module->rbuf.is_empty(queue->handle);
+    return ST_RBUF_CALL(queue->handle, is_empty);
 }
 
 static st_evtypeid_t st_events_peek_type(const st_evq_t *queue) {
     st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
-    bool                success = module->rbuf.peek(queue->handle, &type_id,
+    bool                success = ST_RBUF_CALL(queue->handle, peek, &type_id,
      sizeof(st_evtypeid_t));
 
     return success ? type_id : ST_EVTYPE_ID_NONE;
@@ -306,10 +298,10 @@ static bool st_events_pop(st_evq_t *queue, void *data) {
     st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
 
-    if (!module->rbuf.pop(queue->handle, &type_id, sizeof(st_evtypeid_t)))
+    if (!ST_RBUF_CALL(queue->handle, pop, &type_id, sizeof(st_evtypeid_t)))
         return false;
 
-    return module->rbuf.pop(queue->handle, data,
+    return ST_RBUF_CALL(queue->handle, pop, data,
      module->types[type_id].data_size);
 }
 
@@ -317,14 +309,14 @@ static bool st_events_drop(st_evq_t *queue) {
     st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
     st_evtypeid_t       type_id;
 
-    if (!module->rbuf.pop(queue->handle, &type_id, sizeof(st_evtypeid_t)))
+    if (!ST_RBUF_CALL(queue->handle, pop, &type_id, sizeof(st_evtypeid_t)))
         return false;
 
-    return module->rbuf.drop(queue->handle, module->types[type_id].data_size);
+    return ST_RBUF_CALL(queue->handle, drop, module->types[type_id].data_size);
 }
 
 static bool st_events_clear(st_evq_t *queue) {
     st_events_simple_t *module = ((st_modctx_t *)st_object_get_owner(queue))->data;
 
-    return module->rbuf.clear(queue->handle);
+    return ST_RBUF_CALL(queue->handle, clear);
 }

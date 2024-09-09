@@ -9,6 +9,7 @@
 #pragma GCC diagnostic pop
 
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -21,11 +22,10 @@ typedef struct {
     st_rbuf_lwrb_logger_t logger;
 } st_rbuf_lwrb_t;
 
-typedef struct {
-    st_modctx_t *ctx;
-    lwrb_t       handle;
-    bool         can_grow;
-    uint8_t     *data;
-} st_rbuf_t;
+ST_CLASS (
+    lwrb_t   handle;
+    bool     can_grow;
+    uint8_t *data;
+) st_rbuf_t;
 
 #define ST_RBUF_T_DEFINED

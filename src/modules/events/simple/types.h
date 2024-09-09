@@ -19,18 +19,10 @@ typedef struct {
 } st_events_simple_logger_t;
 
 typedef struct {
-    st_modctx_t             *ctx;
-    st_rbuf_init_t           init;
-    st_rbuf_quit_t           quit;
-    st_rbuf_create_t         create;
-    st_rbuf_destroy_t        destroy;
-    st_rbuf_push_t           push;
-    st_rbuf_peek_t           peek;
-    st_rbuf_pop_t            pop;
-    st_rbuf_drop_t           drop;
-    st_rbuf_clear_t          clear;
-    st_rbuf_get_free_space_t get_free_space;
-    st_rbuf_is_empty_t       is_empty;
+    st_modctx_t     *ctx;
+    st_rbuf_init_t   init;
+    st_rbuf_quit_t   quit;
+    st_rbuf_create_t create;
 } st_events_simple_rbuf_t;
 
 ST_CLASS(
