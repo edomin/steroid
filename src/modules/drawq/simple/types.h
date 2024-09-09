@@ -20,8 +20,7 @@ typedef struct {
 } st_drawq_simple_logger_t;
 
 typedef struct {
-    st_modctx_t            *ctx;
-    st_sprite_get_texture_t get_texture;
+    st_modctx_t *ctx;
 } st_drawq_simple_sprite_t;
 
 typedef struct {

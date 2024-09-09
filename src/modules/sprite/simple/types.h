@@ -2,6 +2,7 @@
 
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/texture.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t      *ctx;
@@ -32,13 +33,12 @@ typedef struct {
     st_uvcoord_t lower_right;
 } st_uv_t;
 
-typedef struct {
-    st_sprite_simple_t *module;
+ST_CLASS (
     const st_texture_t *texture;
     unsigned            width;
     unsigned            height;
     st_uv_t             uv;
-} st_sprite_t;
+) st_sprite_t;
 
 #define ST_UV_T_DEFINED
 #define ST_SPRITE_T_DEFINED

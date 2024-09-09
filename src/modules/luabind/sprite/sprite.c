@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "steroids/types/object.h"
+
 #define CTX_METATABLE_NAME    "sprite_ctx"
 #define SPRITE_METATABLE_NAME "sprite"
 
@@ -11,9 +13,6 @@ static st_modsmgr_funcs_t              global_modsmgr_funcs;
 static st_sprite_init_t                st_sprite_init;
 static st_sprite_quit_t                st_sprite_quit;
 static st_sprite_from_texture_t        st_sprite_from_texture;
-static st_sprite_destroy_t             st_sprite_destroy;
-static st_sprite_get_width_t           st_sprite_get_width;
-static st_sprite_get_height_t          st_sprite_get_height;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -58,9 +57,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, from_texture);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, destroy);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, get_width);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", sprite, get_height);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_sprite", lua, create_userdata);
@@ -159,7 +155,7 @@ static int st_sprite_destroy_bind(st_luastate_t *lua_state) {
     st_sprite_t *sprite = *(st_sprite_t **)st_lua_get_named_userdata(lua_state,
      1, SPRITE_METATABLE_NAME);
 
-    st_sprite_destroy(sprite);
+    ST_SPRITE_CALL(sprite, destroy);
 
     return 0;
 }
@@ -167,7 +163,7 @@ static int st_sprite_destroy_bind(st_luastate_t *lua_state) {
 static int st_sprite_get_width_bind(st_luastate_t *lua_state) {
     st_sprite_t *sprite = *(st_sprite_t **)st_lua_get_named_userdata(lua_state,
      1, SPRITE_METATABLE_NAME);
-    unsigned width = st_sprite_get_width(sprite);
+    unsigned width = ST_SPRITE_CALL(sprite, get_width);
 
     st_lua_push_integer(lua_state, (ptrdiff_t)width);
 
@@ -177,7 +173,7 @@ static int st_sprite_get_width_bind(st_luastate_t *lua_state) {
 static int st_sprite_get_height_bind(st_luastate_t *lua_state) {
     st_sprite_t *sprite = *(st_sprite_t **)st_lua_get_named_userdata(lua_state,
      1, SPRITE_METATABLE_NAME);
-    unsigned height = st_sprite_get_height(sprite);
+    unsigned height = ST_SPRITE_CALL(sprite, get_height);
 
     st_lua_push_integer(lua_state, (ptrdiff_t)height);
 

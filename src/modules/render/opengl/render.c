@@ -5,6 +5,8 @@
 
 #include <GL/gl.h>
 
+#include "steroids/types/modules/sprite.h"
+
 #include "batcher.inl"
 #include "shader.inl"
 #include "shdprog.inl"
@@ -472,9 +474,9 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
     ST_DRAWQ_CALL(module->drawq.handle, sort);
     for (size_t i = 0; i < draw_entries_count; i++) {
         const st_sprite_t  *sprite = draw_entries[i].sprite;
-        const st_texture_t *texture = module->sprite.get_texture(sprite);
-        unsigned            sprite_width = module->sprite.get_width(sprite);
-        unsigned            sprite_height = module->sprite.get_height(sprite);
+        const st_texture_t *texture = ST_SPRITE_CALL(sprite, get_texture);
+        unsigned            sprite_width = ST_SPRITE_CALL(sprite, get_width);
+        unsigned            sprite_height = ST_SPRITE_CALL(sprite, get_height);
         float               pos_z = draw_entries[i].z / (float)UINT16_MAX +
          0.5f; // NOLINT(readability-magic-numbers)
         st_uv_t             uv;
@@ -540,7 +542,7 @@ static void st_render_process_queue(st_modctx_t *render_ctx) {
 
         batcher_process_texture(&module->batcher, texture);
 
-        module->sprite.export_uv(sprite, &uv);
+        ST_SPRITE_CALL(sprite, export_uv, &uv);
 
         vertices_add(&module->vertices, tetragon.upper_left.x,
          tetragon.upper_left.y, pos_z, uv.upper_left.u, uv.upper_left.v);

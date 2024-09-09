@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "steroids/types/modules/sprite.h"
+
 #define ERRMSGBUF_SIZE           1024
 #define DYNARR_INITIAL_CAPACITY 16384
 
@@ -35,7 +37,7 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_drawq_import_functions(st_modctx_t *drawq_ctx,
- st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx, st_modctx_t *sprite_ctx) {
+ st_modctx_t *dynarr_ctx, st_modctx_t *logger_ctx) {
     st_drawq_simple_t *module = drawq_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -52,8 +54,6 @@ static bool st_drawq_import_functions(st_modctx_t *drawq_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", logger, info);
-
-    ST_LOAD_FUNCTION_FROM_CTX("drawq_simple", sprite, get_texture);
 
     return true;
 }
@@ -77,8 +77,7 @@ static st_modctx_t *st_drawq_init(st_modctx_t *dynarr_ctx,
     module->logger.ctx = logger_ctx;
     module->sprite.ctx = sprite_ctx;
 
-    if (!st_drawq_import_functions(drawq_ctx, dynarr_ctx, logger_ctx,
-     sprite_ctx)) {
+    if (!st_drawq_import_functions(drawq_ctx, dynarr_ctx, logger_ctx)) {
         global_modsmgr_funcs.free_module_ctx(global_modsmgr, drawq_ctx);
 
         return NULL;
@@ -174,8 +173,8 @@ static int st_drawrec_cmp(const void *leftptr, const void *rightptr,
     const st_drawrec_t *right = rightptr;
     st_drawq_simple_t  *module = userdata;
 
-    const st_texture_t *left_tex = module->sprite.get_texture(left->sprite);
-    const st_texture_t *right_tex = module->sprite.get_texture(right->sprite);
+    const st_texture_t *left_tex = ST_SPRITE_CALL(left->sprite, get_texture);
+    const st_texture_t *right_tex = ST_SPRITE_CALL(right->sprite, get_texture);
 
     if (fabsf(left->z - right->z) <= FLT_EPSILON) {
         if (left_tex == right_tex)

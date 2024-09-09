@@ -4,11 +4,20 @@
 #include <stdio.h>
 
 #include "steroids/types/modules/atlas.h"
+#include "steroids/types/object.h"
 
 #define ERRMSGBUF_SIZE 128
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+
+static st_sprite_funcs_t sprite_funcs = {
+    .destroy     = st_sprite_destroy,
+    .get_texture = st_sprite_get_texture,
+    .get_width   = st_sprite_get_width,
+    .get_height  = st_sprite_get_height,
+    .export_uv   = st_sprite_export_uv,
+};
 
 ST_MODULE_DEF_GET_FUNC(sprite_simple)
 ST_MODULE_DEF_INIT_FUNC(sprite_simple)
@@ -102,7 +111,7 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
         return NULL;
     }
 
-    sprite->module = module;
+    st_object_make(sprite, sprite_ctx, &sprite_funcs);
     sprite->texture = ST_ATLAS_CALL(atlas, get_texture);
 
     texture_width = module->texture.get_width(sprite->texture);
@@ -145,7 +154,7 @@ static st_sprite_t *st_sprite_from_texture(st_modctx_t *sprite_ctx,
         return NULL;
     }
 
-    sprite->module = module;
+    st_object_make(sprite, sprite_ctx, &sprite_funcs);
     sprite->texture = texture;
 
     sprite->width = module->texture.get_width(texture);
