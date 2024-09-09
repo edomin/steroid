@@ -20,5 +20,7 @@ static st_modfuncentry_t st_module_monitor_xlib_funcs[] = {
     {"get_width"         , st_monitor_get_width},
     {"get_height"        , st_monitor_get_height},
     {"get_handle"        , st_monitor_get_handle},
+    {"set_userdata"      , st_monitor_set_userdata},
+    {"get_userdata"      , st_monitor_get_userdata},
     {NULL, NULL},
 };

@@ -12,10 +12,12 @@ static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
 static st_monitor_funcs_t monitor_funcs = {
-    .release    = st_monitor_release,
-    .get_width  = st_monitor_get_width,
-    .get_height = st_monitor_get_height,
-    .get_handle = st_monitor_get_handle,
+    .release      = st_monitor_release,
+    .get_width    = st_monitor_get_width,
+    .get_height   = st_monitor_get_height,
+    .get_handle   = st_monitor_get_handle,
+    .set_userdata = st_monitor_set_userdata,
+    .get_userdata = st_monitor_get_userdata,
 };
 
 ST_MODULE_DEF_GET_FUNC(monitor_xlib)
@@ -42,10 +44,20 @@ static bool st_monitor_import_functions(st_modctx_t *monitor_ctx,
         return false;
     }
 
+    ST_LOAD_FUNCTION("monitor_xlib", fnv1a, NULL, get_u32hashstr_func);
+
+    ST_LOAD_FUNCTION("monitor_xlib", htable, NULL, create);
+    ST_LOAD_FUNCTION("monitor_xlib", htable, NULL, init);
+    ST_LOAD_FUNCTION("monitor_xlib", htable, NULL, quit);
+
     ST_LOAD_FUNCTION_FROM_CTX("monitor_xlib", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("monitor_xlib", logger, info);
 
     return true;
+}
+
+static bool st_keyeqfunc(const void *left, const void *right) {
+    return left && right && strcmp(left, right) == 0;
 }
 
 static st_modctx_t *st_monitor_init(st_modctx_t *logger_ctx) {
@@ -63,16 +75,23 @@ static st_modctx_t *st_monitor_init(st_modctx_t *logger_ctx) {
     module = monitor_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_monitor_import_functions(monitor_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, monitor_ctx);
+    if (!st_monitor_import_functions(monitor_ctx, logger_ctx))
+        goto import_fail;
 
-        return NULL;
-    }
+    module->htable.ctx = module->htable.init(module->logger.ctx);
+    if (!module->htable.ctx)
+        goto ht_ctx_init_fail;
 
     module->logger.info(module->logger.ctx,
      "monitor_xlib: Monitors mgr initialized.");
 
     return monitor_ctx;
+
+ht_ctx_init_fail:
+import_fail:
+    global_modsmgr_funcs.free_module_ctx(global_modsmgr, monitor_ctx);
+
+    return NULL;
 }
 
 static void st_monitor_quit(st_modctx_t *monitor_ctx) {
@@ -104,6 +123,7 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
     st_monitor_xlib_t *module = monitor_ctx->data;
     char               display_name[DISPLAY_NAME_SIZE_MAX];
     st_monitor_t      *monitor;
+    Window             root_window;
     int                ret = snprintf(display_name, DISPLAY_NAME_SIZE_MAX,
      ":0.%u", index);
 
@@ -137,9 +157,21 @@ static st_monitor_t *st_monitor_open(st_modctx_t *monitor_ctx, unsigned index) {
         return NULL;
     }
 
-    monitor->root_window = DefaultRootWindow(monitor->handle);
+
+    root_window = DefaultRootWindow(monitor->handle);
+
     monitor->index = index;
     st_object_make(monitor, monitor_ctx, &monitor_funcs);
+
+    monitor->userdata = module->htable.create(module->htable.ctx,
+     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
+     st_keyeqfunc, free, NULL);
+    if (!monitor->userdata) {
+        free(monitor);
+
+        return NULL;
+    }
+    st_monitor_set_userdata(monitor, "root_window", root_window);
 
     return monitor;
 }
@@ -163,4 +195,38 @@ static unsigned st_monitor_get_height(st_monitor_t *monitor) {
 
 static void *st_monitor_get_handle(st_monitor_t *monitor) {
     return monitor->handle;
+}
+
+static void st_monitor_set_userdata(const st_monitor_t *monitor,
+ const char *key, uintptr_t value) {
+    st_monitor_xlib_t *module = ((st_modctx_t *)st_object_get_owner(monitor)
+     )->data;
+    char              *keydup = strdup(key);
+
+    if (keydup) {
+        ST_HTABLE_CALL(monitor->userdata, insert, NULL, keydup, (void *)value);
+    } else {
+        char errbuf[ERRMSGBUF_SIZE];
+
+        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
+            module->logger.error(module->logger.ctx,
+             "monitor_xlib: Unable to allocate memory for userdata of monitor "
+             "\"%s\": %s", key, errbuf);
+    }
+}
+
+static bool st_monitor_get_userdata(const st_monitor_t *monitor, uintptr_t *dst,
+ const char *key) {
+    st_monitor_xlib_t *module = ((st_modctx_t *)st_object_get_owner(monitor)
+     )->data;
+    st_htiter_t        it;
+    void              *userdata;
+
+    if (!ST_HTABLE_CALL(monitor->userdata, find, &it, key))
+        return false;
+
+    userdata = ST_HTITER_CALL(&it, get_value);
+    *dst = (uintptr_t)userdata;
+
+    return true;
 }

@@ -12,3 +12,7 @@ static void st_monitor_release(st_monitor_t *monitor);
 static unsigned st_monitor_get_width(st_monitor_t *monitor);
 static unsigned st_monitor_get_height(st_monitor_t *monitor);
 static void *st_monitor_get_handle(st_monitor_t *monitor);
+static void st_monitor_set_userdata(const st_monitor_t *monitor,
+ const char *key, uintptr_t value);
+static bool st_monitor_get_userdata(const st_monitor_t *monitor, uintptr_t *dst,
+ const char *key);

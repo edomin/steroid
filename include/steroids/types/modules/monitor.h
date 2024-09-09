@@ -17,6 +17,10 @@ typedef void (*st_monitor_release_t)(st_monitor_t *monitor);
 typedef unsigned (*st_monitor_get_width_t)(st_monitor_t *monitor);
 typedef unsigned (*st_monitor_get_height_t)(st_monitor_t *monitor);
 typedef void *(*st_monitor_get_handle_t)(st_monitor_t *monitor);
+typedef void (*st_monitor_set_userdata_t)(const st_monitor_t *monitor,
+ const char *key, uintptr_t value);
+typedef bool (*st_monitor_get_userdata_t)(const st_monitor_t *monitor,
+ uintptr_t *dst, const char *key);
 
 typedef struct {
     st_monitor_init_t               monitor_init;
@@ -26,10 +30,12 @@ typedef struct {
 } st_monitorctx_funcs_t;
 
 typedef struct {
-    st_monitor_release_t    release;
-    st_monitor_get_width_t  get_width;
-    st_monitor_get_height_t get_height;
-    st_monitor_get_handle_t get_handle;
+    st_monitor_release_t      release;
+    st_monitor_get_width_t    get_width;
+    st_monitor_get_height_t   get_height;
+    st_monitor_get_handle_t   get_handle;
+    st_monitor_set_userdata_t set_userdata;
+    st_monitor_get_userdata_t get_userdata;
 } st_monitor_funcs_t;
 
 #define ST_MONITOR_CALL(object, func, ...) \

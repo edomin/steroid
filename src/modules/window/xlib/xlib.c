@@ -7,6 +7,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#include "steroids/types/modules/monitor.h"
+
 #define ATOM_BITS 32
 
 static st_modsmgr_t      *global_modsmgr;
@@ -48,7 +50,8 @@ static bool st_window_import_functions(st_modctx_t *window_ctx,
 
 static void st_window_free(void *window) {
     XCloseIM(((st_window_t *)window)->input_method);
-    XDestroyWindow(((st_window_t *)window)->monitor->handle,
+    XDestroyWindow(
+     ST_MONITOR_CALL(((st_window_t *)window)->monitor, get_handle),
      ((st_window_t *)window)->handle);
 }
 
@@ -180,10 +183,18 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     XIMStyle             im_best_match_style = 0;
     st_window_t          window;
     st_dlnode_t         *node;
+    uintptr_t            root_window;
 
-    window.handle = XCreateWindow(monitor->handle, monitor->root_window,
-     x, y, width, height, 0, CopyFromParent, InputOutput, CopyFromParent,
-     CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
+    if (!ST_MONITOR_CALL(monitor, get_userdata, &root_window, "root_window")) {
+        module->logger.error(module->logger.ctx,
+         "window_xlib: Unable to get root window from monitor");
+
+        return NULL;
+    }
+
+    window.handle = XCreateWindow(ST_MONITOR_CALL(monitor, get_handle),
+     root_window, x, y, width, height, 0, CopyFromParent, InputOutput,
+     CopyFromParent, CWEventMask, &event_attrs); // NOLINT(hicpp-signed-bitwise)
     if (!window.handle) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to create window");
@@ -191,27 +202,30 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         return NULL;
     }
 
-    XChangeWindowAttributes(monitor->handle, window.handle,
+    XChangeWindowAttributes(ST_MONITOR_CALL(monitor, get_handle), window.handle,
      CWOverrideRedirect, &override_redirect_attrs);  // NOLINT(hicpp-signed-bitwise)
 
-    window.wm_delete_msg = XInternAtom(monitor->handle, "WM_DELETE_WINDOW",
-     False);
-    XSetWMProtocols(monitor->handle, window.handle, &window.wm_delete_msg, 1);
+    window.wm_delete_msg = XInternAtom(ST_MONITOR_CALL(monitor, get_handle),
+     "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(ST_MONITOR_CALL(monitor, get_handle), window.handle,
+     &window.wm_delete_msg, 1);
     window.xed = false;
 
-    XSetWMHints(monitor->handle, window.handle, &hints);
-    XMapWindow(monitor->handle, window.handle);
-    XStoreName(monitor->handle, window.handle, title);
+    XSetWMHints(ST_MONITOR_CALL(monitor, get_handle), window.handle, &hints);
+    XMapWindow(ST_MONITOR_CALL(monitor, get_handle), window.handle);
+    XStoreName(ST_MONITOR_CALL(monitor, get_handle), window.handle, title);
 
     if (fullscreen) {
-        fullscreen_window(monitor->handle, window.handle);
+        fullscreen_window(ST_MONITOR_CALL(monitor, get_handle), window.handle);
     } else {
-        XChangeProperty(monitor->handle, window.handle,
-         XInternAtom(monitor->handle, "_HILDON_NON_COMPOSITED_WINDOW", False),
+        XChangeProperty(ST_MONITOR_CALL(monitor, get_handle), window.handle,
+         XInternAtom(ST_MONITOR_CALL(monitor, get_handle),
+         "_HILDON_NON_COMPOSITED_WINDOW", False),
          XA_INTEGER, ATOM_BITS, PropModeReplace, (unsigned char*)(int[]){1}, 1);
     }
 
-    window.input_method = XOpenIM(monitor->handle, NULL, NULL, NULL);
+    window.input_method = XOpenIM(ST_MONITOR_CALL(monitor, get_handle), NULL,
+     NULL, NULL);
     if (!window.input_method) {
         module->logger.error(module->logger.ctx,
          "window_xlib: Unable to open X input method");
@@ -255,7 +269,8 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
         goto create_ic_fail;;
     }
 
-    XkbSetDetectableAutoRepeat(monitor->handle, true, NULL);
+    XkbSetDetectableAutoRepeat(ST_MONITOR_CALL(monitor, get_handle), true,
+     NULL);
 
     window.ctx = window_ctx;
     window.monitor = monitor;
@@ -277,7 +292,7 @@ best_match_fail:
 get_im_values_fail:
     XCloseIM(window.input_method);
 open_im_fail:
-    XDestroyWindow(window.monitor->handle, window.handle);
+    XDestroyWindow(ST_MONITOR_CALL(window.monitor, get_handle), window.handle);
 
     return NULL;
 }
@@ -321,10 +336,10 @@ static void st_window_process(st_modctx_t *window_ctx) {
     while (node) {
         st_window_t *window = st_dlist_get_data(node);
 
-        while (XPending(window->monitor->handle)) {
+        while (XPending(ST_MONITOR_CALL(window->monitor, get_handle))) {
             XEvent xevent;
 
-            XNextEvent(window->monitor->handle, &xevent);
+            XNextEvent(ST_MONITOR_CALL(window->monitor, get_handle), &xevent);
             switch (xevent.type) {
                 case ClientMessage: {
                     st_window_t *event_window = get_window_by_xwindow(
@@ -410,7 +425,8 @@ static void st_window_process(st_modctx_t *window_ctx) {
                     st_evwinu64_t    press_event = {
                         .window = get_window_by_xwindow(window_ctx,
                          xevent.xkey.window),
-                        .value = XkbKeycodeToKeysym(window->monitor->handle,
+                        .value = XkbKeycodeToKeysym(
+                         ST_MONITOR_CALL(window->monitor, get_handle),
                          (unsigned char)xevent.xkey.keycode, 0, 0),
                     };
                     module->events.push(module->events.ctx,
@@ -432,7 +448,8 @@ static void st_window_process(st_modctx_t *window_ctx) {
                     st_evwinu64_t event = {
                         .window = get_window_by_xwindow(window_ctx,
                          xevent.xkey.window),
-                        .value = XkbKeycodeToKeysym(window->monitor->handle,
+                        .value = XkbKeycodeToKeysym(
+                         ST_MONITOR_CALL(window->monitor, get_handle),
                          (unsigned char)xevent.xkey.keycode, 0, 0),
                     };
                     module->events.push(module->events.ctx,
