@@ -943,8 +943,8 @@ static void st_gfxctx_set_userdata(const st_gfxctx_t *gfxctx, const char *key,
 
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
             module->logger.error(module->logger.ctx,
-             "ini_inih: Unable to allocate memory for key of userdata \"%s\": "
-             "%s", key, errbuf);
+             "gfxctx_egl: Unable to allocate memory for userdata of gfxctx "
+             "\"%s\": %s", key, errbuf);
     }
 }
 
