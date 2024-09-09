@@ -1,6 +1,7 @@
 #pragma once
 
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 #include "dlist.h"
 
@@ -17,9 +18,8 @@ typedef struct {
     st_dlist_t           *opened_handles;
 } st_so_simple_t;
 
-typedef struct {
-    st_so_simple_t *module;
-    void           *handle;
-} st_so_t;
+ST_CLASS (
+    void *handle;
+) st_so_t;
 
 #define ST_SO_T_DEFINED

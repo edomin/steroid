@@ -7,6 +7,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "steroids/types/object.h"
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
@@ -44,8 +46,6 @@ static bool st_plugin_import_functions(st_modctx_t *plugin_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", pathtools, concat);
 
     ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, open);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, close);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", so, load_symbol);
 
     ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", spcpaths, get_cache_path);
 
@@ -161,12 +161,12 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
         if (!so)
             goto fail;
 
-        modinit_func = module->so.load_symbol(so, "st_module_init");
+        modinit_func = ST_SO_CALL(so, load_symbol, "st_module_init");
         if (!modinit_func) {
             module->logger.error(module->logger.ctx,
              "plugin_simple: Module %s has not function \"st_module_init\"");
 
-            module->so.close(so);
+            ST_SO_CALL(so, close);
 
             goto fail;
         }

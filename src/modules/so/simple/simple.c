@@ -7,8 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "steroids/types/object.h"
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+
+static st_so_funcs_t so_funcs = {
+    .close       = st_so_close,
+    .load_symbol = st_so_load_symbol,
+};
 
 ST_MODULE_DEF_GET_FUNC(so_simple)
 ST_MODULE_DEF_INIT_FUNC(so_simple)
@@ -42,7 +49,7 @@ static bool st_so_import_functions(st_modctx_t *so_ctx,
 }
 
 static void st_so_free(void *so) {
-    st_so_simple_t *module = ((st_so_t *)so)->module;
+    st_so_simple_t *module = ((st_modctx_t *)st_object_get_owner(so))->data;
 
     if (dlclose(((st_so_t *)so)->handle) != 0)
         module->logger.warning(module->logger.ctx,
@@ -98,6 +105,7 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
     st_so_simple_t *module = so_ctx->data;
     void           *handle = dlopen(filename, RTLD_LAZY);
     st_dlnode_t    *node;
+    st_so_t         so = { .handle = handle };
 
     if (handle) {
         module->logger.info(module->logger.ctx,
@@ -109,10 +117,9 @@ static st_so_t *st_so_open(st_modctx_t *so_ctx, const char *filename) {
         return NULL;
     }
 
-    node = st_dlist_push_back(module->opened_handles, &(st_so_t){
-        .module = module,
-        .handle = handle,
-    });
+    st_object_make(&so, so_ctx, &so_funcs);
+
+    node = st_dlist_push_back(module->opened_handles, &so);
     if (!node) {
         module->logger.error(module->logger.ctx,
          "so_simple: Unable to create node for so file entry: \"%s\"",
@@ -136,7 +143,7 @@ static st_so_t *st_so_memopen(st_modctx_t *so_ctx,
 }
 
 static void st_so_close(st_so_t *so) {
-    st_so_simple_t *module = so->module;
+    st_so_simple_t *module = ((st_modctx_t *)st_object_get_owner(so))->data;
     st_dlnode_t    *node = st_dlist_get_head(module->opened_handles);
 
     while (node) {
@@ -153,7 +160,7 @@ static void st_so_close(st_so_t *so) {
 }
 
 static void *st_so_load_symbol(st_so_t *so, const char *name) {
-    st_so_simple_t *module = so->module;
+    st_so_simple_t *module = ((st_modctx_t *)st_object_get_owner(so))->data;
     void           *symbol = dlsym(so->handle, name);
 
     if (symbol)

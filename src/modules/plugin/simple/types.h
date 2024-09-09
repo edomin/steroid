@@ -26,10 +26,8 @@ typedef struct {
 } st_plugin_simple_pathtools_t;
 
 typedef struct {
-    st_modctx_t        *ctx;
-    st_so_open_t        open;
-    st_so_close_t       close;
-    st_so_load_symbol_t load_symbol;
+    st_modctx_t *ctx;
+    st_so_open_t open;
 } st_plugin_simple_so_t;
 
 typedef struct {
