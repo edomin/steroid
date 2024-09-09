@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "steroids/types/object.h"
+
 #define CTX_METATABLE_NAME     "monitor_ctx"
 #define MONITOR_METATABLE_NAME "monitor"
 
@@ -12,9 +14,6 @@ static st_monitor_init_t               st_monitor_init;
 static st_monitor_quit_t               st_monitor_quit;
 static st_monitor_get_monitors_count_t st_monitor_get_monitors_count;
 static st_monitor_open_t               st_monitor_open;
-static st_monitor_release_t            st_monitor_release;
-static st_monitor_get_width_t          st_monitor_get_width;
-static st_monitor_get_height_t         st_monitor_get_height;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -61,9 +60,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, get_monitors_count);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, open);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, release);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, get_width);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", monitor, get_height);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_monitor", lua, create_userdata);
@@ -167,7 +163,7 @@ static int monitor_release_bind(st_luastate_t *lua_state) {
     st_monitor_t *monitor = *(st_monitor_t **)st_lua_get_named_userdata(
      lua_state, 1, MONITOR_METATABLE_NAME);
 
-    st_monitor_release(monitor);
+    ST_MONITOR_CALL(monitor, release);
 
     return 0;
 }
@@ -176,7 +172,7 @@ static int monitor_get_width_bind(st_luastate_t *lua_state) {
     st_monitor_t *monitor = *(st_monitor_t **)st_lua_get_named_userdata(
      lua_state, 1, MONITOR_METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_monitor_get_width(monitor));
+    st_lua_push_integer(lua_state, ST_MONITOR_CALL(monitor, get_width));
 
     return 1;
 }
@@ -185,7 +181,7 @@ static int monitor_get_height_bind(st_luastate_t *lua_state) {
     st_monitor_t *monitor = *(st_monitor_t **)st_lua_get_named_userdata(
      lua_state, 1, MONITOR_METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_monitor_get_height(monitor));
+    st_lua_push_integer(lua_state, ST_MONITOR_CALL(monitor, get_height));
 
     return 1;
 }
