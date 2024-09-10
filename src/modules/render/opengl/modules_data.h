@@ -85,7 +85,5 @@ typedef struct {
 } st_render_opengl_vec2_t;
 
 typedef struct {
-    st_window_get_width_t  get_width;
-    st_window_get_height_t get_height;
-    st_window_t           *handle;
+    st_window_t *handle;
 } st_render_opengl_window_t;

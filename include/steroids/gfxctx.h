@@ -4,7 +4,7 @@
 #include "steroids/types/modules/gfxctx.h"
 
 static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
- st_modctx_t *monitor_ctx, st_modctx_t *window_ctx);
+ st_modctx_t *monitor_ctx);
 static void st_gfxctx_quit(st_modctx_t *gfxctx_ctx);
 
 static st_gfxctx_t *st_gfxctx_create(st_modctx_t *gfxctx_ctx,

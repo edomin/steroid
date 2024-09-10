@@ -24,11 +24,6 @@ typedef struct {
 } st_gfxctx_egl_monitor_t;
 
 typedef struct {
-    st_modctx_t            *ctx;
-    st_window_get_handle_t  get_handle;
-} st_gfxctx_egl_window_t;
-
-typedef struct {
     st_fnv1a_get_u32hashstr_func_t get_u32hashstr_func;
 } st_gfxctx_egl_fnv1a_t;
 
@@ -42,7 +37,6 @@ typedef struct {
 typedef struct {
     st_gfxctx_egl_logger_t  logger;
     st_gfxctx_egl_monitor_t monitor;
-    st_gfxctx_egl_window_t  window;
     st_gfxctx_egl_fnv1a_t   fnv1a;
     st_gfxctx_egl_htable_t  htable;
     bool                    debug_enabled;

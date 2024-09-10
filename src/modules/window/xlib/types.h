@@ -5,6 +5,7 @@
 #include "steroids/types/modules/events.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/monitor.h"
+#include "steroids/types/object.h"
 
 #include "dlist.h"
 
@@ -60,8 +61,7 @@ typedef struct {
     st_evtypeid_t            evtypes[EV_MAX];
 } st_window_xlib_t;
 
-typedef struct {
-    st_modctx_t  *ctx;
+ST_CLASS (
     Window        handle;
     st_monitor_t *monitor;
     Atom          wm_delete_msg;
@@ -70,7 +70,7 @@ typedef struct {
     bool          xed;
     unsigned      width;
     unsigned      height;
-} st_window_t;
+) st_window_t;
 
 #define ST_WINDOW_T_DEFINED
 #define ST_MONITOR_T_DEFINED

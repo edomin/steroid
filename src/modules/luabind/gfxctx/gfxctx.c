@@ -124,11 +124,8 @@ static int st_gfxctx_init_bind(st_luastate_t *lua_state) {
      lua_state, 1, "logger_ctx");
     st_modctx_t *monitor_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 2, "monitor_ctx");
-    st_modctx_t *window_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 3, "window_ctx");
 
-    *(st_modctx_t **)userdata = st_gfxctx_init(logger_ctx, monitor_ctx,
-     window_ctx);
+    *(st_modctx_t **)userdata = st_gfxctx_init(logger_ctx, monitor_ctx);
     st_lua_set_metatable(lua_state, MODCTX_METATABLE_NAME);
 
     return 1;

@@ -4,7 +4,6 @@
 #include "steroids/luabind.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/lua.h"
-#include "steroids/types/modules/window.h"
 
 typedef struct {
     st_modctx_t      *ctx;

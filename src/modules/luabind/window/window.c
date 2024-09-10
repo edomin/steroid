@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "steroids/types/modules/window.h"
+
 #define CTX_METATABLE_NAME    "window_ctx"
 #define WINDOW_METATABLE_NAME "window"
 
@@ -11,11 +13,7 @@ static st_modsmgr_funcs_t              global_modsmgr_funcs;
 static st_window_init_t                st_window_init;
 static st_window_quit_t                st_window_quit;
 static st_window_create_t              st_window_create;
-static st_window_destroy_t             st_window_destroy;
-static st_window_xed_t                 st_window_xed;
 static st_window_process_t             st_window_process;
-static st_window_get_width_t           st_window_get_width;
-static st_window_get_height_t          st_window_get_height;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -64,11 +62,7 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, create);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, destroy);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, xed);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, process);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, get_width);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_window", window, get_height);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_window", lua, create_userdata);
@@ -187,7 +181,7 @@ static int st_window_destroy_bind(st_luastate_t *lua_state) {
     st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
      1, WINDOW_METATABLE_NAME);
 
-    st_window_destroy(window);
+    ST_WINDOW_CALL(window, destroy);
 
     return 0;
 }
@@ -196,7 +190,7 @@ static int st_window_xed_bind(st_luastate_t *lua_state) {
     st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
      1, WINDOW_METATABLE_NAME);
 
-    st_lua_push_bool(lua_state, st_window_xed(window));
+    st_lua_push_bool(lua_state, ST_WINDOW_CALL(window, xed));
 
     return 1;
 }
@@ -204,7 +198,7 @@ static int st_window_xed_bind(st_luastate_t *lua_state) {
 static int st_window_get_width_bind(st_luastate_t *lua_state) {
     st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
      1, WINDOW_METATABLE_NAME);
-    unsigned width = st_window_get_width(window);
+    unsigned width = ST_WINDOW_CALL(window, get_width);
 
     st_lua_push_integer(lua_state, (ptrdiff_t)width);
 
@@ -214,7 +208,7 @@ static int st_window_get_width_bind(st_luastate_t *lua_state) {
 static int st_window_get_height_bind(st_luastate_t *lua_state) {
     st_window_t *window = *(st_window_t **)st_lua_get_named_userdata(lua_state,
      1, WINDOW_METATABLE_NAME);
-    unsigned height = st_window_get_height(window);
+    unsigned height = ST_WINDOW_CALL(window, get_height);
 
     st_lua_push_integer(lua_state, (ptrdiff_t)height);
 

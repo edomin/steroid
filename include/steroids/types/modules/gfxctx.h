@@ -41,7 +41,7 @@ typedef enum {
 } st_gapi_t;
 
 typedef st_modctx_t *(*st_gfxctx_init_t)(st_modctx_t *logger_ctx,
- st_modctx_t *monitor_ctx, st_modctx_t *window_ctx);
+ st_modctx_t *monitor_ctx);
 typedef void (*st_gfxctx_quit_t)(st_modctx_t *gfxctx_ctx);
 
 typedef st_gfxctx_t *(*st_gfxctx_create_t)(st_modctx_t *gfxctx_ctx,

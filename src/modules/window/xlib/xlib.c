@@ -14,6 +14,15 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_window_funcs_t window_funcs = {
+    .destroy     = st_window_destroy,
+    .xed         = st_window_xed,
+    .get_monitor = st_window_get_monitor,
+    .get_handle  = st_window_get_handle,
+    .get_width   = st_window_get_width,
+    .get_height  = st_window_get_height,
+};
+
 ST_MODULE_DEF_GET_FUNC(window_xlib)
 ST_MODULE_DEF_INIT_FUNC(window_xlib)
 
@@ -272,7 +281,7 @@ static st_window_t *st_window_create(st_modctx_t *window_ctx,
     XkbSetDetectableAutoRepeat(ST_MONITOR_CALL(monitor, get_handle), true,
      NULL);
 
-    window.ctx = window_ctx;
+    st_object_make(&window, window_ctx, &window_funcs);
     window.monitor = monitor;
     window.width = width;
     window.height = height;
@@ -298,7 +307,7 @@ open_im_fail:
 }
 
 static void st_window_destroy(st_window_t *window) {
-    st_window_xlib_t *module = window->ctx->data;
+    st_window_xlib_t *module = ((st_modctx_t *)st_object_get_owner(window))->data;
     st_dlnode_t      *node = st_dlist_get_head(module->windows);
 
     while (node) {
@@ -548,10 +557,6 @@ static void st_window_process(st_modctx_t *window_ctx) {
 
 static bool st_window_xed(const st_window_t *window) {
     return window->xed;
-}
-
-static st_modctx_t *st_window_get_ctx(st_window_t *window) {
-    return window->ctx;
 }
 
 static st_monitor_t *st_window_get_monitor(st_window_t *window) {

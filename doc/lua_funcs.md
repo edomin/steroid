@@ -87,7 +87,7 @@ fs_ctx:mkdir(dirname: string): bool
 ```luau
 GfxCtx = require "GfxCtx"
 
-GfxCtx.new_ctx(logger_ctx: logger_ctx, monitor_ctx: monitor_ctx, window_ctx: window_ctx): gfxctx_ctx
+GfxCtx.new_ctx(logger_ctx: logger_ctx, monitor_ctx: monitor_ctx): gfxctx_ctx
 GfxCtx.gapi_gl11: integer
 GfxCtx.gapi_gl12: integer
 GfxCtx.gapi_gl13: integer

@@ -57,9 +57,7 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     st_glloader_init_t             st_glloader_init;
     st_glloader_quit_t             st_glloader_quit;
     st_glloader_get_proc_address_t st_glloader_get_proc_address;
-    st_window_get_ctx_t            st_window_get_ctx;
     st_modctx_t                   *gfxctx_ctx = st_object_get_owner(gfxctx);
-    st_modctx_t                   *window_ctx;
     st_modctx_t                   *glloader_ctx = NULL;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -74,17 +72,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
 
     module->gfxctx.gapi = ST_GFXCTX_CALL(gfxctx, get_api);
     module->window.handle = ST_GFXCTX_CALL(gfxctx, get_window);
-
-    st_window_get_ctx = global_modsmgr_funcs.get_function(global_modsmgr,
-     "window", NULL, "get_ctx");
-    if (!st_window_get_ctx) {
-        module->logger.error(module->logger.ctx,
-         "render_opengl: Unable to load function \"get_ctx\" from module "
-         "\"window\"\n");
-
-        return false;
-    }
-    window_ctx = st_window_get_ctx(module->window.handle);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", angle, dtor);
 
@@ -124,9 +111,6 @@ static bool st_render_import_functions(st_modctx_t *render_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", texture, bind);
 
     ST_LOAD_FUNCTION_FROM_CTX("render_opengl", vec2, apply_matrix3x3);
-
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", window, get_width);
-    ST_LOAD_FUNCTION_FROM_CTX("render_opengl", window, get_height);
 
     st_glloader_init = global_modsmgr_funcs.get_function(global_modsmgr,
      "glloader", gfxctx_ctx->name, "init");
@@ -456,10 +440,10 @@ static void screen_to_clip(float *x, float *y, unsigned window_width,
 
 static void st_render_process_queue(st_modctx_t *render_ctx) {
     st_render_opengl_t *module = render_ctx->data;
-    unsigned            window_width = module->window.get_width(
-     module->window.handle);
-    unsigned            window_height = module->window.get_height(
-     module->window.handle);
+    unsigned            window_width = ST_WINDOW_CALL(module->window.handle,
+     get_width);
+    unsigned            window_height = ST_WINDOW_CALL(module->window.handle,
+     get_height);
     const st_drawrec_t *draw_entries = ST_DRAWQ_CALL(module->drawq.handle,
      get_all);
     size_t              draw_entries_count = ST_DRAWQ_CALL(module->drawq.handle,

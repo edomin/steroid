@@ -66,7 +66,7 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *window_ctx) {
+ st_modctx_t *logger_ctx) {
     st_gfxctx_egl_t *module = gfxctx_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -90,8 +90,6 @@ static bool st_gfxctx_import_functions(st_modctx_t *gfxctx_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, info);
     ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", logger, warning);
 
-    ST_LOAD_FUNCTION_FROM_CTX("gfxctx_egl", window, get_handle);
-
     return true;
 }
 
@@ -100,7 +98,7 @@ static bool st_keyeqfunc(const void *left, const void *right) {
 }
 
 static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
- st_modctx_t *monitor_ctx, st_modctx_t *window_ctx) {
+ st_modctx_t *monitor_ctx) {
     st_modctx_t     *gfxctx_ctx;
     st_gfxctx_egl_t *module;
 
@@ -115,12 +113,11 @@ static st_modctx_t *st_gfxctx_init(st_modctx_t *logger_ctx,
     module = gfxctx_ctx->data;
     module->logger.ctx = logger_ctx;
     module->monitor.ctx = monitor_ctx;
-    module->window.ctx = window_ctx;
     module->debug_enabled = false;
     module->must_quit = false;
     module->gfxctxs_count = 0;
 
-    if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx, window_ctx))
+    if (!st_gfxctx_import_functions(gfxctx_ctx, logger_ctx))
         goto import_fail;
 
     module->htable.ctx = module->htable.init(module->logger.ctx);
@@ -748,7 +745,7 @@ static st_gfxctx_t *st_gfxctx_create_impl(st_modctx_t *gfxctx_ctx,
 
     gfxctx->surface = eglCreateWindowSurface(gfxctx->display,
      gfxctx->cfg,
-     (EGLNativeWindowType)*(void *[]){module->window.get_handle(window)}, NULL);
+     (EGLNativeWindowType)*(void *[]){ ST_WINDOW_CALL(window, get_handle) }, NULL);
     if (gfxctx->surface == EGL_NO_SURFACE) {
         if (!module->debug_enabled)
             module->logger.error(module->logger.ctx,
