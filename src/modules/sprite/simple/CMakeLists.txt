@@ -9,10 +9,6 @@ set(ST_MODULE_TARGET st_${ST_MODULE_SUBSYSTEM}_${ST_MODULE_NAME})
 
 set(ST_MODULE_PREREQS [=[
     {
-        .subsystem = "atlas",
-        .name = NULL,
-    },
-    {
         .subsystem = "logger",
         .name = NULL,
     },
@@ -21,7 +17,7 @@ set(ST_MODULE_PREREQS [=[
         .name = NULL,
     },
 ]=])
-set(ST_MODULE_PREREQS_COUNT 3)
+set(ST_MODULE_PREREQS_COUNT 2)
 
 configure_file(
     "config.h.in"
