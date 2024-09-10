@@ -12,12 +12,7 @@ typedef struct {
 } st_atlas_simple_logger_t;
 
 typedef struct {
-    st_modctx_t *ctx;
-} st_atlas_simple_texture_t;
-
-typedef struct {
     st_atlas_simple_logger_t  logger;
-    st_atlas_simple_texture_t texture;
 } st_atlas_simple_t;
 
 typedef struct {

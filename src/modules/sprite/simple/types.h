@@ -12,13 +12,7 @@ typedef struct {
 } st_sprite_simple_logger_t;
 
 typedef struct {
-    st_texture_get_width_t  get_width;
-    st_texture_get_height_t get_height;
-} st_sprite_simple_texture_t;
-
-typedef struct {
     st_sprite_simple_logger_t  logger;
-    st_sprite_simple_texture_t texture;
 } st_sprite_simple_t;
 
 typedef struct {

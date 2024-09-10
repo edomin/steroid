@@ -23,7 +23,7 @@ angle_ctx:dgacos(cos : double): double
 ```luau
 Atlas = require "Atlas"
 
-Atlas.new_ctx(logger_ctx: logger_ctx, texture_ctx: texture_ctx): atlas_ctx
+Atlas.new_ctx(logger_ctx: logger_ctx): atlas_ctx
 
 atlas_ctx:destroy()
 ```
@@ -505,7 +505,7 @@ render_ctx:process()
 ```luau
 Sprite = require "Sprite"
 
-Sprite.new_ctx(atlas_ctx: atlas_ctx, logger_ctx: logger_ctx, texture_ctx: texture_ctx): sprite_ctx
+Sprite.new_ctx(logger_ctx: logger_ctx): sprite_ctx
 
 sprite_ctx:destroy()
 sprite_ctx:from_texture(texture: texture): sprite

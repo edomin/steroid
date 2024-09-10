@@ -46,8 +46,7 @@ static bool st_atlas_import_functions(st_modctx_t *atlas_ctx,
     return true;
 }
 
-static st_modctx_t *st_atlas_init(st_modctx_t *logger_ctx,
- st_modctx_t *texture_ctx) {
+static st_modctx_t *st_atlas_init(st_modctx_t *logger_ctx) {
     st_modctx_t          *atlas_ctx;
     st_atlas_simple_t *module;
 
@@ -61,7 +60,6 @@ static st_modctx_t *st_atlas_init(st_modctx_t *logger_ctx,
 
     module = atlas_ctx->data;
     module->logger.ctx = logger_ctx;
-    module->texture.ctx = texture_ctx;
 
     if (!st_atlas_import_functions(atlas_ctx, logger_ctx))
         goto fail;

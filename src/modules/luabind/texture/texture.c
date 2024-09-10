@@ -11,9 +11,6 @@ static st_modsmgr_funcs_t              global_modsmgr_funcs;
 static st_texture_init_t               st_texture_init;
 static st_texture_quit_t               st_texture_quit;
 static st_texture_load_t               st_texture_load;
-static st_texture_destroy_t            st_texture_destroy;
-static st_texture_get_width_t          st_texture_get_width;
-static st_texture_get_height_t         st_texture_get_height;
 
 static st_lua_get_state_t              st_lua_get_state;
 static st_lua_create_userdata_t        st_lua_create_userdata;
@@ -60,9 +57,6 @@ static bool st_luabind_import_functions(st_modctx_t *luabind_ctx,
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, init);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, quit);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, load);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, destroy);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, get_width);
-    ST_LOAD_GLOBAL_FUNCTION("luabind_texture", texture, get_height);
 
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, get_state);
     ST_LOAD_GLOBAL_FUNCTION("luabind_texture", lua, create_userdata);
@@ -162,7 +156,7 @@ static int st_texture_destroy_bind(st_luastate_t *lua_state) {
     st_texture_t *texture = *(st_texture_t **)st_lua_get_named_userdata(
      lua_state, 1, TEX_METATABLE_NAME);
 
-    st_texture_destroy(texture);
+    ST_TEXTURE_CALL(texture, destroy);
 
     return 0;
 }
@@ -171,7 +165,7 @@ static int st_texture_get_width_bind(st_luastate_t *lua_state) {
     st_texture_t *texture = *(st_texture_t **)st_lua_get_named_userdata(
      lua_state, 1, TEX_METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_texture_get_width(texture));
+    st_lua_push_integer(lua_state, ST_TEXTURE_CALL(texture, get_width));
 
     return 1;
 }
@@ -180,7 +174,7 @@ static int st_texture_get_height_bind(st_luastate_t *lua_state) {
     st_texture_t *texture = *(st_texture_t **)st_lua_get_named_userdata(
      lua_state, 1, TEX_METATABLE_NAME);
 
-    st_lua_push_integer(lua_state, st_texture_get_height(texture));
+    st_lua_push_integer(lua_state, ST_TEXTURE_CALL(texture, get_width));
 
     return 1;
 }

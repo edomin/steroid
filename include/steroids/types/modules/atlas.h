@@ -8,8 +8,7 @@
     typedef struct st_atlas_s st_atlas_t;
 #endif
 
-typedef st_modctx_t *(*st_atlas_init_t)(st_modctx_t *logger_ctx,
- st_modctx_t *texture_ctx);
+typedef st_modctx_t *(*st_atlas_init_t)(st_modctx_t *logger_ctx);
 typedef void (*st_atlas_quit_t)(st_modctx_t *atlas_ctx);
 
 typedef st_atlas_t *(*st_atlas_create_t)(st_modctx_t *atlas_ctx,

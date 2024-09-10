@@ -23,8 +23,7 @@
     } st_uv_t;
 #endif
 
-typedef st_modctx_t *(*st_sprite_init_t)(st_modctx_t *atlas_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *texture_ctx);
+typedef st_modctx_t *(*st_sprite_init_t)(st_modctx_t *logger_ctx);
 typedef void (*st_sprite_quit_t)(st_modctx_t *sprite_ctx);
 
 typedef st_sprite_t *(*st_sprite_create_t)(st_modctx_t *sprite_ctx,

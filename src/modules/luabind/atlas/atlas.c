@@ -109,10 +109,8 @@ static int st_atlas_init_bind(st_luastate_t *lua_state) {
      sizeof(st_modctx_t *));
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
      lua_state, 1, "logger_ctx");
-    st_modctx_t *texture_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 2, "texture_ctx");
 
-    *(st_modctx_t **)userdata = st_atlas_init(logger_ctx, texture_ctx);
+    *(st_modctx_t **)userdata = st_atlas_init(logger_ctx);
     st_lua_set_metatable(lua_state, CTX_METATABLE_NAME);
 
     return 1;

@@ -114,15 +114,10 @@ static void st_luabind_quit(st_modctx_t *luabind_ctx) {
 static int st_sprite_init_bind(st_luastate_t *lua_state) {
     void        *userdata = st_lua_create_userdata(lua_state,
      sizeof(st_modctx_t *));
-    st_modctx_t *atlas_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 1, "atlas_ctx");
     st_modctx_t *logger_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 2, "logger_ctx");
-    st_modctx_t *texture_ctx = *(st_modctx_t **)st_lua_get_named_userdata(
-     lua_state, 3, "texture_ctx");
+     lua_state, 1, "logger_ctx");
 
-    *(st_modctx_t **)userdata = st_sprite_init(atlas_ctx, logger_ctx,
-     texture_ctx);
+    *(st_modctx_t **)userdata = st_sprite_init(logger_ctx);
     st_lua_set_metatable(lua_state, CTX_METATABLE_NAME);
 
     return 1;

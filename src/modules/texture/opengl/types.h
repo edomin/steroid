@@ -7,6 +7,7 @@
 #include "steroids/types/modules/gldebug.h"
 #include "steroids/types/modules/glloader.h"
 #include "steroids/types/modules/logger.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t           *ctx;
@@ -47,11 +48,10 @@ typedef struct {
     st_texture_opengl_gfxctx_t  gfxctx;
 } st_texture_opengl_t;
 
-typedef struct {
-    st_texture_opengl_t *module;
-    GLuint               id;
-    unsigned             width;
-    unsigned             height;
-} st_texture_t;
+ST_CLASS (
+    GLuint   id;
+    unsigned width;
+    unsigned height;
+) st_texture_t;
 
 #define ST_TEXTURE_T_DEFINED

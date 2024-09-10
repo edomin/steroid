@@ -4,8 +4,7 @@
 #include "steroids/types/modules/atlas.h"
 #include "steroids/types/modules/texture.h"
 
-static st_modctx_t *st_atlas_init(st_modctx_t *logger_ctx,
- st_modctx_t *texture_ctx);
+static st_modctx_t *st_atlas_init(st_modctx_t *logger_ctx);
 static void st_atlas_quit(st_modctx_t *atlas_ctx);
 
 static st_atlas_t *st_atlas_create(st_modctx_t *atlas_ctx,

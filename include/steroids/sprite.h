@@ -5,8 +5,7 @@
 #include "steroids/types/modules/sprite.h"
 #include "steroids/types/modules/texture.h"
 
-static st_modctx_t *st_sprite_init(st_modctx_t *atlas_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *texture_ctx);
+static st_modctx_t *st_sprite_init(st_modctx_t *logger_ctx);
 static void st_sprite_quit(st_modctx_t *sprite_ctx);
 
 static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,

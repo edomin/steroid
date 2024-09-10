@@ -6,12 +6,21 @@
 
 #include <GL/gl.h>
 
+#include "steroids/types/object.h"
+
 #define ERRMSGBUF_SIZE 128
 
 static void (*glGenerateMipmap)(GLenum target);
 
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+
+static st_texture_funcs_t texture_funcs = {
+    .destroy    = st_texture_destroy,
+    .bind       = st_texture_bind,
+    .get_width  = st_texture_get_width,
+    .get_height = st_texture_get_height,
+};
 
 ST_MODULE_DEF_GET_FUNC(texture_opengl)
 ST_MODULE_DEF_INIT_FUNC(texture_opengl)
@@ -111,15 +120,18 @@ get_proc_addr_fail:
     return true;
 }
 
-static void st_texture_label(st_texture_opengl_t *module, unsigned id,
- const char *label) {
+static void st_texture_label(const st_texture_t *texture, const char *label) {
+    st_texture_opengl_t *module = ((st_modctx_t *)st_object_get_owner(texture))->data;
+
     if (module->gldebug.ctx)
-        module->gldebug.label_texture(module->gldebug.ctx, id, label);
+        module->gldebug.label_texture(module->gldebug.ctx, texture->id, label);
 }
 
-static void st_texture_unlabel(st_texture_opengl_t *module, unsigned id) {
+static void st_texture_unlabel(const st_texture_t *texture) {
+    st_texture_opengl_t *module = ((st_modctx_t *)st_object_get_owner(texture))->data;
+
     if (module->gldebug.ctx)
-        module->gldebug.unlabel_texture(module->gldebug.ctx, id);
+        module->gldebug.unlabel_texture(module->gldebug.ctx, texture->id);
 }
 
 static st_modctx_t *st_texture_init(st_modctx_t *bitmap_ctx,
@@ -195,14 +207,14 @@ static st_texture_t *st_texture_load_impl(st_modctx_t *texture_ctx,
         return NULL;
     }
 
-    texture->module = module;
+    st_object_make(texture, texture_ctx, &texture_funcs);
     texture->width = module->bitmap.get_width(bitmap);
     texture->height = module->bitmap.get_height(bitmap);
 
     ST_GFXCTX_CALL(module->gfxctx.handle, make_current);
     glGenTextures(1, &texture->id);
     glBindTexture(GL_TEXTURE_2D, texture->id);
-    st_texture_label(module, texture->id, name ? name : "(unnamed)");
+    st_texture_label(texture, name ? name : "(unnamed)");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     if (glapi_least(texture_ctx, ST_GAPI_GL3) && glGenerateMipmap) {
         float mip_max = log2f(
@@ -280,7 +292,7 @@ static st_texture_t *st_texture_memload(st_modctx_t *texture_ctx,
 }
 
 static void st_texture_destroy(st_texture_t *texture) {
-    st_texture_unlabel(texture->module, texture->id);
+    st_texture_unlabel(texture);
     glDeleteTextures(1, &texture->id);
     free(texture);
 }
@@ -292,10 +304,12 @@ static bool st_texture_bind(const st_texture_t *texture, unsigned unit) {
 
     error = glGetError();
     if (error != GL_NO_ERROR) {
-        texture->module->logger.error(texture->module->logger.ctx,
+        st_texture_opengl_t *module = (
+         (st_modctx_t *)st_object_get_owner(texture))->data;
+
+        module->logger.error(module->logger.ctx,
          "texture_opengl: Unable to bind texture: %s",
-         texture->module->gldebug.get_error_msg(
-          texture->module->gldebug.ctx, error));
+         module->gldebug.get_error_msg(module->gldebug.ctx, error));
 
         return false;
     }

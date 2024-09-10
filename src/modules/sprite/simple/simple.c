@@ -30,7 +30,7 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 #endif
 
 static bool st_sprite_import_functions(st_modctx_t *sprite_ctx,
- st_modctx_t *atlas_ctx, st_modctx_t *logger_ctx, st_modctx_t *texture_ctx) {
+ st_modctx_t *logger_ctx) {
     st_sprite_simple_t *module = sprite_ctx->data;
 
     module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
@@ -46,14 +46,10 @@ static bool st_sprite_import_functions(st_modctx_t *sprite_ctx,
     ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", logger, debug);
     ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", logger, info);
 
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", texture, get_width);
-    ST_LOAD_FUNCTION_FROM_CTX("sprite_simple", texture, get_height);
-
     return true;
 }
 
-static st_modctx_t *st_sprite_init(st_modctx_t *atlas_ctx,
- st_modctx_t *logger_ctx, st_modctx_t *texture_ctx) {
+static st_modctx_t *st_sprite_init(st_modctx_t *logger_ctx) {
     st_modctx_t        *sprite_ctx;
     st_sprite_simple_t *module;
 
@@ -68,8 +64,7 @@ static st_modctx_t *st_sprite_init(st_modctx_t *atlas_ctx,
     module = sprite_ctx->data;
     module->logger.ctx = logger_ctx;
 
-    if (!st_sprite_import_functions(sprite_ctx, atlas_ctx, logger_ctx,
-     texture_ctx))
+    if (!st_sprite_import_functions(sprite_ctx, logger_ctx))
         goto fail;
 
     module->logger.info(module->logger.ctx,
@@ -114,8 +109,8 @@ static st_sprite_t *st_sprite_create(st_modctx_t *sprite_ctx,
     st_object_make(sprite, sprite_ctx, &sprite_funcs);
     sprite->texture = ST_ATLAS_CALL(atlas, get_texture);
 
-    texture_width = module->texture.get_width(sprite->texture);
-    texture_height = module->texture.get_height(sprite->texture);
+    texture_width = ST_TEXTURE_CALL(sprite->texture, get_width);
+    texture_height = ST_TEXTURE_CALL(sprite->texture, get_height);
     clip_x = ST_ATLAS_CALL(atlas, get_clip_x, clip_num);
     clip_y = ST_ATLAS_CALL(atlas, get_clip_y, clip_num);
 
@@ -157,8 +152,8 @@ static st_sprite_t *st_sprite_from_texture(st_modctx_t *sprite_ctx,
     st_object_make(sprite, sprite_ctx, &sprite_funcs);
     sprite->texture = texture;
 
-    sprite->width = module->texture.get_width(texture);
-    sprite->height = module->texture.get_height(texture);
+    sprite->width = ST_TEXTURE_CALL(texture, get_width);
+    sprite->height = ST_TEXTURE_CALL(texture, get_height);
 
     sprite->uv.upper_left.u  = 0.0f;
     sprite->uv.upper_left.v  = 0.0f;

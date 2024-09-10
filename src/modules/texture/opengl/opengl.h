@@ -4,15 +4,11 @@
 #include "types.h"  // IWYU pragma: keep
 #include "steroids/texture.h"
 
-static st_texture_funcs_t st_texture_opengl_funcs = {
-    .texture_init       = st_texture_init,
-    .texture_quit       = st_texture_quit,
-    .texture_load       = st_texture_load,
-    .texture_memload    = st_texture_memload,
-    .texture_destroy    = st_texture_destroy,
-    .texture_bind       = st_texture_bind,
-    .texture_get_width  = st_texture_get_width,
-    .texture_get_height = st_texture_get_height,
+static st_texturectx_funcs_t st_texture_opengl_funcs = {
+    .texture_init    = st_texture_init,
+    .texture_quit    = st_texture_quit,
+    .texture_load    = st_texture_load,
+    .texture_memload = st_texture_memload,
 };
 
 static st_modfuncentry_t st_module_texture_opengl_funcs[] = {
