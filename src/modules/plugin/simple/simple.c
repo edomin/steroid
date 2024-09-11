@@ -51,11 +51,6 @@ static bool st_plugin_import_functions(st_modctx_t *plugin_ctx,
 
     ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, open);
     ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, memopen);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, close);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entries_count);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entry_name);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, get_entry_type);
-    ST_LOAD_FUNCTION_FROM_CTX("plugin_simple", zip, extract_entry);
 
     return true;
 }
@@ -109,7 +104,7 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
     char                tmp_path[PATH_MAX];
     char                triplet_path[PATH_MAX];
 
-    zip_entries_count = module->zip.get_entries_count(zip);
+    zip_entries_count = ST_ZIP_CALL(zip, get_entries_count);
     if (zip_entries_count == -1) {
         module->logger.error(module->logger.ctx,
          "plugin_simple: Unable to get entries count in plugin \"%s\"",
@@ -137,8 +132,8 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
         st_modinitfunc_t modinit_func;
         st_so_t         *so;
 
-        if (module->zip.get_entry_type(zip, i) == ST_ZET_DIR ||
-         !module->zip.get_entry_name(zip, entry_name, PATH_MAX, i) ||
+        if (ST_ZIP_CALL(zip, get_entry_type, i) == ST_ZET_DIR ||
+         !ST_ZIP_CALL(zip, get_entry_name, entry_name, PATH_MAX, i) ||
          !module->pathtools.get_parent_dir(module->pathtools.ctx,
           entry_parent_dir, PATH_MAX, entry_name) ||
          strcmp(entry_parent_dir, ST_TRIPLET) != 0)
@@ -154,7 +149,7 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
         }
 
         if (!module->fs.mkdir(module->fs.ctx, triplet_path) ||
-         !module->zip.extract_entry(zip, i, so_filename))
+         !ST_ZIP_CALL(zip, extract_entry, i, so_filename))
             goto fail;
 
         so = module->so.open(module->so.ctx, so_filename);
@@ -171,7 +166,7 @@ static bool st_plugin_load_impl(st_modctx_t *plugin_ctx, st_zip_t *zip,
             goto fail;
         }
 
-        module->zip.close(zip);
+        ST_ZIP_CALL(zip, close);
 
         return global_modsmgr_funcs.load_module(global_modsmgr, modinit_func,
          force);
@@ -181,7 +176,7 @@ fail:
     module->logger.error(module->logger.ctx,
      "plugin_simple: Plugin \"%s\" cannot be loaded on this platform",
      filename);
-    module->zip.close(zip);
+    ST_ZIP_CALL(zip, close);
 
     return false;
 }

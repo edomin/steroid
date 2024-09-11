@@ -36,14 +36,9 @@ typedef struct {
 } st_plugin_simple_spcpaths_t;
 
 typedef struct {
-    st_modctx_t               *ctx;
-    st_zip_open_t              open;
-    st_zip_memopen_t           memopen;
-    st_zip_close_t             close;
-    st_zip_get_entries_count_t get_entries_count;
-    st_zip_get_entry_name_t    get_entry_name;
-    st_zip_get_entry_type_t    get_entry_type;
-    st_zip_extract_entry_t     extract_entry;
+    st_modctx_t     *ctx;
+    st_zip_open_t    open;
+    st_zip_memopen_t memopen;
 } st_plugin_simple_zip_t;
 
 typedef struct {

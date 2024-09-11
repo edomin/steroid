@@ -5,6 +5,7 @@
 #include "steroids/types/modules/fs.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/pathtools.h"
+#include "steroids/types/object.h"
 
 typedef struct {
     st_modctx_t          *ctx;
@@ -34,10 +35,9 @@ typedef struct {
     st_zip_zip_pathtools_t pathtools;
 } st_zip_zip_t;
 
-typedef struct {
-    st_zip_zip_t *module;
+ST_CLASS (
     struct zip_t *handle;
     st_ziptype_t  type;
-} st_zip_t;
+) st_zip_t;
 
 #define ST_ZIP_T_DEFINED

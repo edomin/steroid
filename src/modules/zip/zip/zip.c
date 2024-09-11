@@ -15,6 +15,14 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_zip_funcs_t zip_funcs = {
+    .close             = st_zip_close,
+    .get_entries_count = st_zip_get_entries_count,
+    .get_entry_name    = st_zip_get_entry_name,
+    .get_entry_type    = st_zip_get_entry_type,
+    .extract_entry     = st_zip_extract_entry,
+};
+
 ST_MODULE_DEF_GET_FUNC(zip_zip)
 ST_MODULE_DEF_INIT_FUNC(zip_zip)
 
@@ -109,7 +117,7 @@ static st_zip_t *st_zip_open(st_modctx_t *zip_ctx, const char *filename) {
         return NULL;
     }
 
-    zip->module = module;
+    st_object_make(zip, zip_ctx, &zip_funcs);
     zip->handle = handle;
     zip->type   = ST_ZT_FILE;
 
@@ -144,7 +152,7 @@ static st_zip_t *st_zip_memopen(st_modctx_t *zip_ctx, const void *data,
         return NULL;
     }
 
-    zip->module = module;
+    st_object_make(zip, zip_ctx, &zip_funcs);
     zip->handle = handle;
     zip->type   = ST_ZT_MEM;
 
@@ -161,7 +169,7 @@ static void st_zip_close(st_zip_t *zip) {
 }
 
 static ssize_t st_zip_get_entries_count(st_zip_t *zip) {
-    st_zip_zip_t *module = zip->module;
+    st_zip_zip_t *module = ((st_modctx_t *)st_object_get_owner(zip))->data;
     ssize_t       ret;
 
     if (!zip || !zip->handle)
@@ -180,7 +188,7 @@ static ssize_t st_zip_get_entries_count(st_zip_t *zip) {
 
 static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
  size_t entrynum) {
-    st_zip_zip_t *module = zip->module;
+    st_zip_zip_t *module = ((st_modctx_t *)st_object_get_owner(zip))->data;
     int           ret;
     const char   *entry_name;
 
@@ -215,7 +223,7 @@ static bool st_zip_get_entry_name(st_zip_t *zip, char *dst, size_t dstsize,
 }
 
 static st_zipentrytype_t st_zip_get_entry_type(st_zip_t *zip, size_t entrynum) {
-    st_zip_zip_t *module = zip->module;
+    st_zip_zip_t *module = ((st_modctx_t *)st_object_get_owner(zip))->data;
     int           ret;
 
     if (!zip || !zip->handle)
@@ -241,7 +249,7 @@ static st_zipentrytype_t st_zip_get_entry_type(st_zip_t *zip, size_t entrynum) {
 
 static bool st_zip_extract_entry(st_zip_t *zip, size_t entrynum,
  const char *path) {
-    st_zip_zip_t *module = zip->module;
+    st_zip_zip_t *module = ((st_modctx_t *)st_object_get_owner(zip))->data;
     char          result_filename[PATH_MAX];
     const char   *presult_filename;
     int           ret;
