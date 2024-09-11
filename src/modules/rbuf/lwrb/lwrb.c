@@ -16,6 +16,11 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_rbufctx_funcs_t rbufctx_funcs = {
+    .quit   = st_rbuf_quit,
+    .create = st_rbuf_create,
+};
+
 static st_rbuf_funcs_t rbuf_funcs = {
     .destroy        = st_rbuf_destroy,
     .push           = st_rbuf_push,
@@ -37,104 +42,62 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool st_rbuf_import_functions(st_modctx_t *rbuf_ctx,
- st_modctx_t *logger_ctx) {
-    st_rbuf_lwrb_t *module = rbuf_ctx->data;
+static const char *st_module_subsystem = "rbuf";
+static const char *st_module_name = "lwrb";
 
-    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "error");
-    if (!module->logger.error) {
-        fprintf(stderr,
-         "rbuf_lwrb: Unable to load function \"error\" from module "
-         "\"logger\"\n");
+static st_rbufctx_t *st_rbuf_init(st_loggerctx_t *logger_ctx) {
+    st_rbufctx_t *rbuf_ctx = st_modctx_new(st_module_subsystem, st_module_name,
+     sizeof(st_rbufctx_t), NULL, &rbufctx_funcs);
 
-        return false;
-    }
-
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_lwrb", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("rbuf_lwrb", logger, info);
-
-    return true;
-}
-
-static st_modctx_t *st_rbuf_init(st_modctx_t *logger_ctx) {
-    st_modctx_t    *rbuf_ctx;
-    st_rbuf_lwrb_t *module;
-
-    rbuf_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
-     &st_module_rbuf_lwrb_data, sizeof(st_rbuf_lwrb_t));
-
-    if (!rbuf_ctx)
-        return NULL;
-
-    rbuf_ctx->funcs = &st_rbuf_lwrb_funcs;
-
-    module = rbuf_ctx->data;
-    module->logger.ctx = logger_ctx;
-
-    if (!st_rbuf_import_functions(rbuf_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, rbuf_ctx);
+    if (!rbuf_ctx) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "rbuf_lwrb: unable to create new rbuf ctx object");
 
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx, "rbuf_lwrb: Module initialized");
+    rbuf_ctx->logger_ctx = logger_ctx;
+
+    ST_LOGGERCTX_CALL(logger_ctx, info, "rbuf_lwrb: Module initialized");
 
     return rbuf_ctx;
 }
 
-static void st_rbuf_quit(st_modctx_t *rbuf_ctx) {
-    st_rbuf_lwrb_t *module = rbuf_ctx->data;
-
-    module->logger.info(module->logger.ctx, "rbuf_lwrb: Module destroyed");
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, rbuf_ctx);
+static void st_rbuf_quit(st_rbufctx_t *rbuf_ctx) {
+    ST_LOGGERCTX_CALL(rbuf_ctx->logger_ctx, info,
+     "rbuf_lwrb: Module destroyed");
+    free(rbuf_ctx);
 }
 
-static st_rbuf_t *st_rbuf_create(st_modctx_t *rbuf_ctx, size_t size) {
-    st_rbuf_lwrb_t *module = rbuf_ctx->data;
-    st_rbuf_t      *rbuf = malloc(sizeof(st_rbuf_t));
-    char            errbuf[ERRMSGBUF_SIZE];
+static st_rbuf_t *st_rbuf_create(st_rbufctx_t *rbuf_ctx, size_t size) {
+    st_rbuf_t *rbuf = malloc(sizeof(lwrb_t) + size);
+    char       errbuf[ERRMSGBUF_SIZE];
 
     if (!rbuf) {
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(rbuf_ctx->logger_ctx, error,
              "rbuf_lwrb: Unable to allocate memory for ring buffer structure: "
              "%s", errbuf);
 
         return NULL;
     }
 
-    rbuf->data = malloc(size);
-    if (!rbuf->data) {
-        if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
-             "rbuf_lwrb: Unable to allocate memory for ring buffer data: %s",
-             errbuf);
-
-        goto malloc_data_fail;
-    }
-
     if (!lwrb_init(&rbuf->handle, rbuf->data, size)) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(rbuf_ctx->logger_ctx, error,
          "rbuf_lwrb: Unable to init ring buffer");
+        free(rbuf);
 
-        goto init_fail;
+        return NULL;
     }
 
     st_object_make(rbuf, rbuf_ctx, &rbuf_funcs);
 
     return rbuf;
-
-init_fail:
-    free(rbuf->data);
-malloc_data_fail:
-    free(rbuf);
-
-    return NULL;
 }
 
 static void st_rbuf_destroy(st_rbuf_t *rbuf) {
     lwrb_free(&rbuf->handle);
+    free(rbuf);
 }
 
 static bool st_rbuf_push(st_rbuf_t *rbuf, const void *data, size_t size) {

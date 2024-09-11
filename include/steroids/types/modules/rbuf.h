@@ -6,14 +6,17 @@
 #include "steroids/module.h"
 #include "steroids/types/object.h"
 
+#ifndef ST_RBUFCTX_T_DEFINED
+    typedef struct st_rbufctx_s st_rbufctx_t;
+#endif
 #ifndef ST_RBUF_T_DEFINED
     typedef struct st_rbuf_s st_rbuf_t;
 #endif
 
-typedef st_modctx_t *(*st_rbuf_init_t)(st_modctx_t *logger_ctx);
-typedef void (*st_rbuf_quit_t)(st_modctx_t *rbuf_ctx);
+typedef st_rbufctx_t *(*st_rbuf_init_t)(st_loggerctx_t *logger_ctx);
+typedef void (*st_rbuf_quit_t)(st_rbufctx_t *rbuf_ctx);
 
-typedef st_rbuf_t *(*st_rbuf_create_t)(st_modctx_t *rbuf_ctx, size_t size);
+typedef st_rbuf_t *(*st_rbuf_create_t)(st_rbufctx_t *rbuf_ctx, size_t size);
 typedef void (*st_rbuf_destroy_t)(st_rbuf_t *rbuf);
 typedef bool (*st_rbuf_push_t)(st_rbuf_t *rbuf, const void *data, size_t size);
 typedef bool (*st_rbuf_peek_t)(const st_rbuf_t *rbuf, void *data, size_t size);
@@ -24,9 +27,8 @@ typedef size_t (*st_rbuf_get_free_space_t)(const st_rbuf_t *rbuf);
 typedef bool (*st_rbuf_is_empty_t)(const st_rbuf_t *rbuf);
 
 typedef struct {
-    st_rbuf_init_t   rbuf_init;
-    st_rbuf_quit_t   rbuf_quit;
-    st_rbuf_create_t rbuf_create;
+    st_rbuf_quit_t   quit;
+    st_rbuf_create_t create;
 } st_rbufctx_funcs_t;
 
 typedef struct {
@@ -40,5 +42,7 @@ typedef struct {
     st_rbuf_is_empty_t       is_empty;
 } st_rbuf_funcs_t;
 
+#define ST_RBUFCTX_CALL(ctx, func, ...) \
+    ((st_rbufctx_funcs_t *)((const st_object_t *)ctx)->funcs)->func(ctx, ## __VA_ARGS__)
 #define ST_RBUF_CALL(object, func, ...) \
     ((st_rbuf_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

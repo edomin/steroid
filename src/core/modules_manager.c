@@ -11,15 +11,12 @@
 #include "utils.h"
 
 #define FOUND_MODULES_MAX 8
-#define ST_MODSMGR_FUNCS                                           \
-    &(st_modsmgr_funcs_t){                                         \
-        .get_module_names      = st_modsmgr_get_module_names,      \
-        .load_module           = st_modsmgr_load_module,           \
-        .process_deps          = st_modsmgr_process_deps,          \
-        .get_function          = st_modsmgr_get_function,          \
-        .get_function_from_ctx = st_modsmgr_get_function_from_ctx, \
-        .init_module_ctx       = st_modsmgr_init_module_ctx,       \
-        .free_module_ctx       = st_free_module_ctx,               \
+#define ST_MODSMGR_FUNCS                                      \
+    &(st_modsmgr_funcs_t){                                    \
+        .get_module_names      = st_modsmgr_get_module_names, \
+        .load_module           = st_modsmgr_load_module,      \
+        .process_deps          = st_modsmgr_process_deps,     \
+        .get_function          = st_modsmgr_get_function,     \
      }
 
 st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
@@ -204,72 +201,4 @@ void *st_modsmgr_get_function(const st_modsmgr_t *modsmgr,
         return NULL;
 
     return module_data->get_function(func_name);
-}
-
-void *st_modsmgr_get_function_from_ctx(const st_modsmgr_t *modsmgr,
- const st_modctx_t *ctx, const char *func_name) {
-    st_moddata_t *module_data;
-
-    if (!ctx)
-        return NULL;
-
-    module_data = st_modsmgr_find_module(modsmgr, ctx->subsystem, ctx->name);
-
-    if (!module_data)
-        return NULL;
-
-    return module_data->get_function(func_name);
-}
-
-st_modctx_t *st_modsmgr_init_module_ctx(st_modsmgr_t *modsmgr,
- const st_moddata_t *module_data, size_t data_size) {
-    st_modctx_t *modctx = malloc(sizeof(st_modctx_t));
-
-    if (!modctx) {
-        perror("malloc");
-
-        return NULL;
-    }
-
-    modctx->subsystem = strdup(module_data->subsystem);
-    if (!modctx->subsystem) {
-        perror("strdup");
-
-        goto strdup_sybsystem_fail;
-    }
-
-    modctx->name = strdup(module_data->name);
-    if (!modctx->name) {
-        perror("strdup");
-
-        goto strdup_name_fail;
-    }
-
-    modctx->data = calloc(1, data_size);
-    if (!modctx->data) {
-        perror("malloc");
-
-        goto malloc_fail;
-    }
-
-    return modctx;
-
-malloc_fail:
-    free(modctx->name);
-strdup_name_fail:
-    free(modctx->subsystem);
-strdup_sybsystem_fail:
-    free(modctx);
-
-    return NULL;
-}
-
-void st_free_module_ctx(st_modsmgr_t *modsmgr, st_modctx_t *modctx) {
-    if (!modsmgr || !modctx)
-        return;
-
-    free(modctx->subsystem);
-    free(modctx->name);
-    free(modctx->data);
-    free(modctx);
 }
