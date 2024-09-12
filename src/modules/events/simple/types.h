@@ -11,21 +11,7 @@
 #define EVENT_TYPES_MAX      32
 #define SUBSCRIBERS_MAX      8
 
-typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
-} st_events_simple_logger_t;
-
-typedef struct {
-    st_modctx_t     *ctx;
-    st_rbuf_init_t   init;
-    st_rbuf_quit_t   quit;
-    st_rbuf_create_t create;
-} st_events_simple_rbuf_t;
-
-ST_CLASS(
+ST_STRUCT_CLASS (st_evq_s,
     st_rbuf_t *handle;
     bool       active;
 ) st_evq_t;
@@ -37,11 +23,9 @@ typedef struct {
     size_t    subscribers_count;
 } st_evtype_t;
 
-typedef struct {
-    st_events_simple_logger_t logger;
-    st_events_simple_rbuf_t   rbuf;
-    st_evtype_t               types[EVENT_TYPES_MAX];
-    size_t                    types_count;
-} st_events_simple_t;
-
-#define ST_EVQ_T_DEFINED
+ST_STRUCT_MODCTX (st_eventsctx_s,
+    struct st_loggerctx_s *logger_ctx;
+    st_rbufctx_t          *rbuf_ctx;
+    st_evtype_t            types[EVENT_TYPES_MAX];
+    size_t                 types_count;
+) st_eventsctx_t;

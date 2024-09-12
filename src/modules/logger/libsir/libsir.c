@@ -46,7 +46,7 @@ static void log_file_destroy(void *plog_file) {
 static const char *st_module_subsystem = "logger";
 static const char *st_module_name = "libsir";
 
-static st_loggerctx_t *st_logger_init(st_modctx_t *events_ctx) {
+static st_loggerctx_t *st_logger_init(struct st_eventsctx_s *events_ctx) {
     sirinit init_options = {
         .d_stdout = {
             .levels = ST_LL_NONE,
@@ -129,7 +129,7 @@ static void st_logger_quit(st_loggerctx_t *logger_ctx) {
 }
 
 static bool st_logger_enable_events(st_loggerctx_t *logger_ctx,
- st_modctx_t *events_ctx) {
+ struct st_eventsctx_s *events_ctx) {
     /* Not implemented */
 
     return false;

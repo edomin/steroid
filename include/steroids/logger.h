@@ -5,11 +5,11 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/logger.h"
 
-static st_loggerctx_t *st_logger_init(st_modctx_t *events_ctx);
+static st_loggerctx_t *st_logger_init(struct st_eventsctx_s *events_ctx);
 static void st_logger_quit(st_loggerctx_t *logger_ctx);
 
 static bool st_logger_enable_events(st_loggerctx_t *logger_ctx,
- st_modctx_t *events_ctx);
+ struct st_eventsctx_s *events_ctx);
 static bool st_logger_set_stdout_levels(st_loggerctx_t *logger_ctx,
  st_loglvl_t levels);
 static bool st_logger_set_stderr_levels(st_loggerctx_t *logger_ctx,

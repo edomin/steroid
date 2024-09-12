@@ -45,7 +45,7 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 static const char *st_module_subsystem = "rbuf";
 static const char *st_module_name = "lwrb";
 
-static st_rbufctx_t *st_rbuf_init(st_loggerctx_t *logger_ctx) {
+static st_rbufctx_t *st_rbuf_init(struct st_loggerctx_s *logger_ctx) {
     st_rbufctx_t *rbuf_ctx = st_modctx_new(st_module_subsystem, st_module_name,
      sizeof(st_rbufctx_t), NULL, &rbufctx_funcs);
 

@@ -13,7 +13,7 @@
     typedef struct st_rbuf_s st_rbuf_t;
 #endif
 
-typedef st_rbufctx_t *(*st_rbuf_init_t)(st_loggerctx_t *logger_ctx);
+typedef st_rbufctx_t *(*st_rbuf_init_t)(struct st_loggerctx_s *logger_ctx);
 typedef void (*st_rbuf_quit_t)(st_rbufctx_t *rbuf_ctx);
 
 typedef st_rbuf_t *(*st_rbuf_create_t)(st_rbufctx_t *rbuf_ctx, size_t size);

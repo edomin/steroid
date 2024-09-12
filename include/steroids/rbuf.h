@@ -6,7 +6,7 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/rbuf.h"
 
-static st_rbufctx_t *st_rbuf_init(st_loggerctx_t *logger_ctx);
+static st_rbufctx_t *st_rbuf_init(struct st_loggerctx_s *logger_ctx);
 static void st_rbuf_quit(st_rbufctx_t *rbuf_ctx);
 
 static st_rbuf_t *st_rbuf_create(st_rbufctx_t *rbuf_ctx, size_t size);

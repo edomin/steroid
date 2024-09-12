@@ -10,6 +10,12 @@ ST_CLASS (                \
     __VA_ARGS__;          \
 )
 
+#define ST_STRUCT_MODCTX(struct_name, ...) \
+ST_STRUCT_CLASS (struct_name,              \
+    _st_modctx_t _modctx;                  \
+    __VA_ARGS__;                           \
+)
+
 typedef struct {
     const char *_subsystem;
     const char *_name;

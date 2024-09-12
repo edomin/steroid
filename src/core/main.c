@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
     // st_modctx_t  *fs;
     // st_modctx_t  *ini;
-    st_loggerctx_t  *logger_ctx;
+    struct st_loggerctx_s *logger_ctx;
     // st_modctx_t  *opts;
     // st_modctx_t  *runner;
     // st_modctx_t  *pathtools;

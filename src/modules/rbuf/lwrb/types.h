@@ -12,7 +12,7 @@
 #include "steroids/types/object.h"
 
 ST_MODCTX (
-    st_loggerctx_t *logger_ctx;
+    struct st_loggerctx_s *logger_ctx;
 ) st_rbufctx_t;
 
 ST_CLASS (

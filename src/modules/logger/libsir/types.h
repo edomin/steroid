@@ -32,15 +32,13 @@ typedef struct {
     int         log_levels;
 } st_logger_libsir_callback_t;
 
-ST_MODCTX (
-    st_modctx_t  *events_ctx;
-    st_dlist_t   *log_files;
-    st_dlist_t   *callbacks;
-    st_evtypeid_t ev_log_output_debug;
-    st_evtypeid_t ev_log_output_info;
-    st_evtypeid_t ev_log_output_warning;
-    st_evtypeid_t ev_log_output_error;
-    char          postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
+ST_STRUCT_MODCTX (st_loggerctx_s,
+    struct st_eventsctx_s *events_ctx;
+    st_dlist_t            *log_files;
+    st_dlist_t            *callbacks;
+    st_evtypeid_t          ev_log_output_debug;
+    st_evtypeid_t          ev_log_output_info;
+    st_evtypeid_t          ev_log_output_warning;
+    st_evtypeid_t          ev_log_output_error;
+    char                   postmortem_msg[ST_POSTMORTEM_MSG_SIZE_MAX];
 ) st_loggerctx_t;
-
-#define ST_LOGGERCTX_T_DEFINED
