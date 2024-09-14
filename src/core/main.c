@@ -6,7 +6,7 @@
 // #include "steroids/types/modules/fs.h"
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
-// #include "steroids/types/modules/opts.h"
+#include "steroids/types/modules/opts.h"
 // #include "steroids/types/modules/pathtools.h"
 // #include "steroids/types/modules/plugin.h"
 // #include "steroids/types/modules/runner.h"
@@ -17,15 +17,9 @@
 // static st_fs_init_t st_fs_init;
 // static st_fs_quit_t st_fs_quit;
 
-static st_ini_init_t st_ini_init;
-// static st_ini_quit_t st_ini_quit;
-
+static st_ini_init_t     st_ini_init;
 static st_logger_init_t  st_logger_init;
-// static st_logger_error_t st_logger_error;
-// static st_logger_quit_t  st_logger_quit;
-
-// static st_opts_init_t st_opts_init;
-// static st_opts_quit_t st_opts_quit;
+static st_opts_init_t    st_opts_init;
 
 // static st_runner_init_t st_runner_init;
 // static st_runner_quit_t st_runner_quit;
@@ -62,9 +56,7 @@ static bool init_funcs(st_modsmgr_t *modsmgr,
 //     LOAD_FUNCTION(fs, quit);
 
     LOAD_FUNCTION(ini, init);
-
-//     LOAD_FUNCTION(opts, init);
-//     LOAD_FUNCTION(opts, quit);
+    LOAD_FUNCTION(opts, init);
 
 //     LOAD_FUNCTION(runner, init);
 //     LOAD_FUNCTION(runner, quit);
@@ -93,7 +85,7 @@ int main(int argc, char **argv) {
     // st_modctx_t  *fs;
     st_inictx_t  *ini_ctx;
     struct st_loggerctx_s *logger_ctx;
-    // st_modctx_t  *opts;
+    st_optsctx_t  *opts_ctx;
     // st_modctx_t  *runner;
     // st_modctx_t  *pathtools;
     // st_modctx_t  *plugin;
@@ -112,7 +104,7 @@ int main(int argc, char **argv) {
     }
 
     ini_ctx = st_ini_init(logger_ctx);
-//     opts = st_opts_init(argc, argv, logger);
+    opts_ctx = st_opts_init(argc, argv, logger_ctx);
 //     pathtools = st_pathtools_init(logger);
 //     fs = st_fs_init(logger, pathtools);
 //     so = st_so_init(logger);
@@ -130,7 +122,7 @@ int main(int argc, char **argv) {
 //     st_so_quit(so);
 //     st_fs_quit(fs);
 //     st_pathtools_quit(pathtools);
-//     st_opts_quit(opts);
+    ST_OPTSCTX_CALL(opts_ctx, quit);
     ST_INICTX_CALL(ini_ctx, quit);
 
 init_funcs_fail:

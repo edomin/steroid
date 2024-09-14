@@ -114,8 +114,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/logger/libsir"
 #  "${CMAKE_BINARY_DIR}/src/modules/monitor/xlib")
 # add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/mouse/simple"
 #  "${CMAKE_BINARY_DIR}/src/modules/mouse/simple")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
-#  "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/opts/ketopt"
+ "${CMAKE_BINARY_DIR}/src/modules/opts/ketopt")
 # add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/pathtools/cwalk"
 #  "${CMAKE_BINARY_DIR}/src/modules/pathtools/cwalk")
 # add_subdirectory("${CMAKE_SOURCE_DIR}/src/modules/plugin/simple"
