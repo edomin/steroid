@@ -4,12 +4,6 @@
 #include "types.h" // IWYU pragma: keep
 #include "steroids/htable.h"
 
-static st_htablectx_funcs_t st_htable_hash_table_funcs = {
-    .htable_init   = st_htable_init,
-    .htable_quit   = st_htable_quit,
-    .htable_create = st_htable_create,
-};
-
 static st_modfuncentry_t st_module_htable_hash_table_funcs[] = {
     {"init"          , st_htable_init},
     {"quit"          , st_htable_quit},

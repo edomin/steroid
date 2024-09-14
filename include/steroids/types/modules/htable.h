@@ -3,8 +3,12 @@
 #include <stdint.h>
 
 #include "steroids/module.h"
+#include "steroids/types/modules/logger.h"
 #include "steroids/types/object.h"
 
+#ifndef ST_HTABLECTX_T_DEFINED
+    typedef struct st_htablectx_s st_htablectx_t;
+#endif
 #ifndef ST_HTABLE_T_DEFINED
     typedef struct st_htable_s st_htable_t;
 #endif
@@ -21,9 +25,9 @@ typedef bool (*st_keyeqfunc_t)(const void *left, const void *right);
     typedef void (*st_freefunc_t)(void *ptr);
 #endif
 
-typedef st_modctx_t *(*st_htable_init_t)(st_modctx_t *logger_ctx);
-typedef void (*st_htable_quit_t)(st_modctx_t *htable_ctx);
-typedef st_htable_t *(*st_htable_create_t)(st_modctx_t *htable_ctx,
+typedef st_htablectx_t *(*st_htable_init_t)(struct st_loggerctx_s *logger_ctx);
+typedef void (*st_htable_quit_t)(st_htablectx_t *htable_ctx);
+typedef st_htable_t *(*st_htable_create_t)(st_htablectx_t *htable_ctx,
  st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc);
 typedef void (*st_htable_destroy_t)(st_htable_t *htable);
@@ -41,9 +45,8 @@ typedef const void *(*st_htable_get_iter_key_t)(const st_htiter_t *iter);
 typedef void *(*st_htable_get_iter_value_t)(const st_htiter_t *iter);
 
 typedef struct {
-    st_htable_init_t   htable_init;
-    st_htable_quit_t   htable_quit;
-    st_htable_create_t htable_create;
+    st_htable_quit_t   quit;
+    st_htable_create_t create;
 } st_htablectx_funcs_t;
 
 typedef struct {
@@ -63,6 +66,8 @@ typedef struct st_htiter_funcs {
     st_htable_get_iter_value_t get_value;
 } st_htiter_funcs_t;
 
+#define ST_HTABLECTX_CALL(object, func, ...) \
+    ((st_htablectx_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
 #define ST_HTABLE_CALL(object, func, ...) \
     ((st_htable_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
 #define ST_HTITER_CALL(object, func, ...) \

@@ -3,10 +3,10 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/htable.h"
 
-static st_modctx_t *st_htable_init(st_modctx_t *logger_ctx);
-static void st_htable_quit(st_modctx_t *htable_ctx);
+static st_htablectx_t *st_htable_init(struct st_loggerctx_s *logger_ctx);
+static void st_htable_quit(st_htablectx_t *htable_ctx);
 
-static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
+static st_htable_t *st_htable_create(st_htablectx_t *htable_ctx,
  st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc);
 static void st_htable_destroy(st_htable_t *htable);

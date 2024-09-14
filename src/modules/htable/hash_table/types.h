@@ -5,16 +5,9 @@
 
 typedef void (*st_freefunc_t)(void *ptr);
 
-typedef struct {
-    st_modctx_t      *ctx;
-    st_logger_debug_t debug;
-    st_logger_info_t  info;
-    st_logger_error_t error;
-} st_htable_hash_table_logger_t;
-
-typedef struct {
-    st_htable_hash_table_logger_t logger;
-} st_htable_hash_table_t;
+ST_MODCTX (
+    struct st_loggerctx_s *logger_ctx;
+) st_htablectx_t;
 
 ST_CLASS (
     struct hash_table *handle;
@@ -26,6 +19,7 @@ ST_CLASS (
     struct hash_entry *handle;
 ) st_htiter_t;
 
+#define ST_HTABLECTX_T_DEFINED
 #define ST_FREEFUNC_T_DEFINED
 #define ST_HTABLE_T_DEFINED
 #define ST_HTITER_T_DEFINED

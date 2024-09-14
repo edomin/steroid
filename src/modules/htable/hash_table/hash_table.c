@@ -10,6 +10,11 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_htablectx_funcs_t htablectx_funcs = {
+    .quit   = st_htable_quit,
+    .create = st_htable_create,
+};
+
 static st_htable_funcs_t htable_funcs = {
     .destroy   = st_htable_destroy,
     .insert    = st_htable_insert,
@@ -37,70 +42,42 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool st_htable_import_functions(st_modctx_t *htable_ctx,
- st_modctx_t *logger_ctx) {
-    st_htable_hash_table_t *module = htable_ctx->data;
+static const char *st_module_subsystem = "htable";
+static const char *st_module_name = "hash_table";
 
-    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "error");
-    if (!module->logger.error) {
-        fprintf(stderr,
-         "htable_hash_table: Unable to load function \"error\" from module "
-         "\"logger\"\n");
+static st_htablectx_t *st_htable_init(struct st_loggerctx_s *logger_ctx) {
+    st_htablectx_t *htable_ctx = st_modctx_new(st_module_subsystem,
+     st_module_name, sizeof(st_htablectx_t), NULL, &htablectx_funcs);
 
-        return false;
-    }
-
-    ST_LOAD_FUNCTION_FROM_CTX("htable_hash_table", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("htable_hash_table", logger, info);
-
-    return true;
-}
-
-static st_modctx_t *st_htable_init(st_modctx_t *logger_ctx) {
-    st_modctx_t            *htable_ctx;
-    st_htable_hash_table_t *module;
-
-    htable_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
-     &st_module_htable_hash_table_data, sizeof(st_htable_hash_table_t));
-
-    if (!htable_ctx)
-        return NULL;
-
-    htable_ctx->funcs = &st_htable_hash_table_funcs;
-
-    module = htable_ctx->data;
-    module->logger.ctx = logger_ctx;
-
-    if (!st_htable_import_functions(htable_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, htable_ctx);
+    if (!htable_ctx) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "htable_hash_table: unable to create new htable ctx object");
 
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx,
-     "htable_hash_table: Module initialized.");
+    htable_ctx->logger_ctx = logger_ctx;
+
+    ST_LOGGERCTX_CALL(logger_ctx, info,
+     "htable_hash_table: hash tables manipulation module context initialized");
 
     return htable_ctx;
 }
 
-static void st_htable_quit(st_modctx_t *htable_ctx) {
-    st_htable_hash_table_t *module = htable_ctx->data;
-
-    module->logger.info(module->logger.ctx,
-     "htable_hash_table: Module destroyed");
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, htable_ctx);
+static void st_htable_quit(st_htablectx_t *htable_ctx) {
+    ST_LOGGERCTX_CALL(htable_ctx->logger_ctx, info,
+     "htable_hash_table: hash tables manipulation module context destroyed");
+    free(htable_ctx);
 }
 
-static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
+static st_htable_t *st_htable_create(st_htablectx_t *htable_ctx,
  st_u32hashfunc_t hashfunc, st_keyeqfunc_t keyeqfunc, st_freefunc_t keydelfunc,
  st_freefunc_t valdelfunc) {
-    st_htable_hash_table_t *module = htable_ctx->data;
-    struct hash_table      *handle = hash_table_create(hashfunc, keyeqfunc);
-    st_htable_t            *htable;
+    struct hash_table *handle = hash_table_create(hashfunc, keyeqfunc);
+    st_htable_t       *htable;
 
     if (!handle) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(htable_ctx->logger_ctx, error,
          "htable_hash_table: Unable to create hash table handle");
 
         return NULL;
@@ -108,7 +85,7 @@ static st_htable_t *st_htable_create(st_modctx_t *htable_ctx,
 
     htable = malloc(sizeof(st_htable_t));
     if (!htable) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(htable_ctx->logger_ctx, error,
          "htable_hash_table: Unable allocate memory for hash_table");
         hash_table_destroy(handle, NULL);
 
