@@ -4,18 +4,22 @@
 #include <stddef.h>
 
 #include "steroids/module.h"
+#include "steroids/types/modules/logger.h"
 #include "steroids/types/object.h"
 
+#ifndef ST_INICTX_T_DEFINED
+    typedef struct st_inictx_s st_inictx_t;
+#endif
 #ifndef ST_INI_T_DEFINED
     typedef struct st_ini_s st_ini_t;
 #endif
 
-typedef st_modctx_t *(*st_ini_init_t)(st_modctx_t *logger_ctx);
-typedef void (*st_ini_quit_t)(st_modctx_t *ini_ctx);
+typedef st_inictx_t *(*st_ini_init_t)(struct st_loggerctx_s *logger_ctx);
+typedef void (*st_ini_quit_t)(st_inictx_t *ini_ctx);
 
-typedef st_ini_t *(*st_ini_create_t)(st_modctx_t *ini_ctx);
-typedef st_ini_t *(*st_ini_load_t)(st_modctx_t *ini_ctx, const char *filename);
-typedef st_ini_t *(*st_ini_memload_t)(st_modctx_t *ini_ctx, const void *ptr,
+typedef st_ini_t *(*st_ini_create_t)(st_inictx_t *ini_ctx);
+typedef st_ini_t *(*st_ini_load_t)(st_inictx_t *ini_ctx, const char *filename);
+typedef st_ini_t *(*st_ini_memload_t)(st_inictx_t *ini_ctx, const void *ptr,
  size_t size);
 typedef void (*st_ini_destroy_t)(st_ini_t *ini);
 typedef bool (*st_ini_section_exists_t)(const st_ini_t *ini,
@@ -38,11 +42,10 @@ typedef bool (*st_ini_export_t)(const st_ini_t *ini, char *buffer,
 typedef bool (*st_ini_save_t)(const st_ini_t *ini, const char *filename);
 
 typedef struct {
-    st_ini_init_t    ini_init;
-    st_ini_quit_t    ini_quit;
-    st_ini_load_t    ini_load;
-    st_ini_memload_t ini_memload;
-    st_ini_create_t  ini_create;
+    st_ini_quit_t    quit;
+    st_ini_load_t    load;
+    st_ini_memload_t memload;
+    st_ini_create_t  create;
 } st_inictx_funcs_t;
 
 typedef struct {
@@ -60,5 +63,7 @@ typedef struct {
     st_ini_save_t           save;
 } st_ini_funcs_t;
 
+#define ST_INICTX_CALL(object, func, ...) \
+    ((st_inictx_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)
 #define ST_INI_CALL(object, func, ...) \
     ((st_ini_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

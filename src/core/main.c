@@ -4,7 +4,7 @@
 #include "modules_manager.h"
 
 // #include "steroids/types/modules/fs.h"
-// #include "steroids/types/modules/ini.h"
+#include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
 // #include "steroids/types/modules/opts.h"
 // #include "steroids/types/modules/pathtools.h"
@@ -17,7 +17,7 @@
 // static st_fs_init_t st_fs_init;
 // static st_fs_quit_t st_fs_quit;
 
-// static st_ini_init_t st_ini_init;
+static st_ini_init_t st_ini_init;
 // static st_ini_quit_t st_ini_quit;
 
 static st_logger_init_t  st_logger_init;
@@ -50,17 +50,18 @@ static st_logger_init_t  st_logger_init;
     st_##module##_##function = st_modsmgr_get_function(modsmgr, #module, NULL, \
      #function);                                                               \
     if (!st_##module##_##function) {                                           \
-        st_logger_error(logger, "steroids: Unable to load function \"%s\"",    \
+        ST_LOGGERCTX_CALL(logger_ctx, error,                                   \
+         "steroids: Unable to load function \"%s\"",                           \
          #function);                                                           \
         return false;                                                          \
     }
 
-// static bool init_funcs(st_modsmgr_t *modsmgr, st_modctx_t *logger) {
+static bool init_funcs(st_modsmgr_t *modsmgr,
+ struct st_loggerctx_s *logger_ctx) {
 //     LOAD_FUNCTION(fs, init);
 //     LOAD_FUNCTION(fs, quit);
 
-//     LOAD_FUNCTION(ini, init);
-//     LOAD_FUNCTION(ini, quit);
+    LOAD_FUNCTION(ini, init);
 
 //     LOAD_FUNCTION(opts, init);
 //     LOAD_FUNCTION(opts, quit);
@@ -84,13 +85,13 @@ static st_logger_init_t  st_logger_init;
 //     LOAD_FUNCTION(zip, init);
 //     LOAD_FUNCTION(zip, quit);
 
-//     return true;
-// }
+    return true;
+}
 
 int main(int argc, char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
     // st_modctx_t  *fs;
-    // st_modctx_t  *ini;
+    st_inictx_t  *ini_ctx;
     struct st_loggerctx_s *logger_ctx;
     // st_modctx_t  *opts;
     // st_modctx_t  *runner;
@@ -103,15 +104,14 @@ int main(int argc, char **argv) {
 
     st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL, "init");
     logger_ctx = st_logger_init(NULL);
-    ST_LOGGERCTX_CALL(logger_ctx, debug, "hello\n");
 
-//     if (!init_funcs(modsmgr, logger)) {
-//         exitcode = EXIT_FAILURE;
+    if (!init_funcs(modsmgr, logger_ctx)) {
+        exitcode = EXIT_FAILURE;
 
-//         goto init_funcs_fail;
-//     }
+        goto init_funcs_fail;
+    }
 
-//     ini = st_ini_init(logger);
+    ini_ctx = st_ini_init(logger_ctx);
 //     opts = st_opts_init(argc, argv, logger);
 //     pathtools = st_pathtools_init(logger);
 //     fs = st_fs_init(logger, pathtools);
@@ -131,10 +131,10 @@ int main(int argc, char **argv) {
 //     st_fs_quit(fs);
 //     st_pathtools_quit(pathtools);
 //     st_opts_quit(opts);
-//     st_ini_quit(ini);
-// init_funcs_fail:
-    ST_LOGGERCTX_CALL(logger_ctx, quit);
+    ST_INICTX_CALL(ini_ctx, quit);
 
+init_funcs_fail:
+    ST_LOGGERCTX_CALL(logger_ctx, quit);
     st_modsmgr_destroy(modsmgr);
 
     return exitcode;

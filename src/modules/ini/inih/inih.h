@@ -4,14 +4,6 @@
 #include "types.h"
 #include "steroids/ini.h"
 
-static st_inictx_funcs_t st_ini_inih_funcs = {
-    .ini_init    = st_ini_init,
-    .ini_quit    = st_ini_quit,
-    .ini_create  = st_ini_create,
-    .ini_load    = st_ini_load,
-    .ini_memload = st_ini_memload,
-};
-
 static st_modfuncentry_t st_module_ini_inih_funcs[] = {
     {"init"          , st_ini_init},
     {"quit"          , st_ini_quit},

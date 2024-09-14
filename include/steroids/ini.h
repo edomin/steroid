@@ -6,12 +6,12 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/ini.h"
 
-static st_modctx_t *st_ini_init(st_modctx_t *logger_ctx);
-static void st_ini_quit(st_modctx_t *ini_ctx);
+static st_inictx_t *st_ini_init(struct st_loggerctx_s *logger_ctx);
+static void st_ini_quit(st_inictx_t *ini_ctx);
 
-static st_ini_t *st_ini_create(st_modctx_t *ini_ctx);
-static st_ini_t *st_ini_load(st_modctx_t *ini_ctx, const char *filename);
-static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
+static st_ini_t *st_ini_create(st_inictx_t *ini_ctx);
+static st_ini_t *st_ini_load(st_inictx_t *ini_ctx, const char *filename);
+static st_ini_t *st_ini_memload(st_inictx_t *ini_ctx, const void *ptr,
  size_t size);
 static void st_ini_destroy(st_ini_t *ini);
 static bool st_ini_section_exists(const st_ini_t *ini, const char *section);

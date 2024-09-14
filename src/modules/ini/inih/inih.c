@@ -1,5 +1,6 @@
 #include "inih.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -19,6 +20,13 @@ typedef struct {
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_inictx_funcs_t inictx_funcs = {
+    .quit    = st_ini_quit,
+    .create  = st_ini_create,
+    .load    = st_ini_load,
+    .memload = st_ini_memload,
+};
+
 static st_ini_funcs_t ini_funcs = {
     .destroy        = st_ini_destroy,
     .section_exists = st_ini_section_exists,
@@ -36,7 +44,6 @@ static st_ini_funcs_t ini_funcs = {
 
 static void st_ini_free_section(void *ptr) {
     st_inisection_t *section = ptr;
-    st_ini_inih_t   *module = section->module;
 
     ST_HTABLE_CALL(section->data, destroy);
     free(section);
@@ -52,117 +59,101 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool st_ini_import_functions(st_modctx_t *ini_ctx,
- st_modctx_t *logger_ctx) {
-    st_ini_inih_t *module = ini_ctx->data;
+static const char *st_module_subsystem = "ini";
+static const char *st_module_name = "inih";
 
-    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "error");
-    if (!module->logger.error) {
-        fprintf(stderr,
-         "ini_inih: Unable to load function \"error\" from module \"logger\"\n"
-        );
+static st_inictx_t *st_ini_init(struct st_loggerctx_s *logger_ctx) {
+    st_inictx_t     *ini_ctx;
+    st_fnv1a_init_t  fnv1a_init;
+    st_htable_init_t htable_init;
 
-        return false;
-    }
+    fnv1a_init = global_modsmgr_funcs.get_function(global_modsmgr,
+     "fnv1a", NULL, "init");
+    if (!fnv1a_init) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "ini_inih: Unable to load function \"init\" from module \"fnv1a\"");
 
-    ST_LOAD_FUNCTION("ini_inih", fnv1a, NULL, get_u32hashstr_func);
-
-    ST_LOAD_FUNCTION("ini_inih", htable, NULL, create);
-
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("ini_inih", logger, info);
-
-    return true;
-}
-
-static st_modctx_t *st_ini_init(st_modctx_t *logger_ctx) {
-    st_modctx_t   *ini_ctx;
-    st_ini_inih_t *module;
-
-    ini_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
-     &st_module_ini_inih_data, sizeof(st_ini_inih_t));
-
-    if (!ini_ctx)
         return NULL;
+    }
 
-    module = ini_ctx->data;
-
-    module->htable.init = global_modsmgr_funcs.get_function(global_modsmgr,
+    htable_init = global_modsmgr_funcs.get_function(global_modsmgr,
      "htable", NULL, "init");
-    if (!module->htable.init) {
-        fprintf(stderr,
-         "ini_inih: Unable to load function \"init\" from module \"htable\"\n");
+    if (!htable_init) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "ini_inih: Unable to load function \"init\" from module \"htable\"");
 
-        goto get_func_fail;
+        return NULL;
     }
 
-    module->htable.quit = global_modsmgr_funcs.get_function(global_modsmgr,
-     "htable", NULL, "quit");
-    if (!module->htable.quit) {
-        fprintf(stderr,
-         "ini_inih: Unable to load function \"quit\" from module \"htable\"\n");
+    ini_ctx = st_modctx_new(st_module_subsystem, st_module_name,
+     sizeof(st_inictx_t), NULL, &inictx_funcs);
+    if (!ini_ctx) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "ini_inih: unable to create new ini ctx object");
 
-        goto get_func_fail;
+        return NULL;
     }
 
-    ini_ctx->funcs = &st_ini_inih_funcs;
+    ini_ctx->fnv1a_ctx = fnv1a_init(logger_ctx);
+    if (!ini_ctx->fnv1a_ctx)
+        goto fnv1a_init_fail;
 
-    module->htable.ctx = module->htable.init(logger_ctx);
-    if (!module->htable.ctx)
+    ini_ctx->htable_ctx = htable_init(logger_ctx);
+    if (!ini_ctx->htable_ctx)
         goto htable_init_fail;
 
-    module->logger.ctx = logger_ctx;
+    ini_ctx->logger_ctx = logger_ctx;
 
-    if (!st_ini_import_functions(ini_ctx, logger_ctx))
-        goto import_funcs_fail;
-
-    module->logger.info(module->logger.ctx, "ini_inih: Module initialized.");
+    ST_LOGGERCTX_CALL(logger_ctx, info,
+     "ini_inih: INI-files manipulation module context initialized");
 
     return ini_ctx;
 
-import_funcs_fail:
-    module->htable.quit(module->htable.ctx);
 htable_init_fail:
-get_func_fail:
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, ini_ctx);
+    ST_FNV1ACTX_CALL(ini_ctx->fnv1a_ctx, quit);
+fnv1a_init_fail:
+    free(ini_ctx);
 
     return NULL;
 }
 
-static void st_ini_quit(st_modctx_t *ini_ctx) {
-    st_ini_inih_t *module = ini_ctx->data;
+static void st_ini_quit(st_inictx_t *ini_ctx) {
+    ST_HTABLECTX_CALL(ini_ctx->htable_ctx, quit);
+    ST_FNV1ACTX_CALL(ini_ctx->fnv1a_ctx, quit);
 
-    module->htable.quit(module->htable.ctx);
-
-    module->logger.info(module->logger.ctx, "ini_inih: Module destroyed");
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, ini_ctx);
+    ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, info,
+     "ini_inih: INI-files manipulation module context destroyed");
+    free(ini_ctx);
 }
 
 static bool st_keyeqfunc(const void *left, const void *right) {
     return strcmp(left, right) == 0;
 }
 
-static st_ini_t *st_ini_create(st_modctx_t *ini_ctx) {
-    st_ini_inih_t *module = ini_ctx->data;
+static st_ini_t *st_ini_create(st_inictx_t *ini_ctx) {
     st_ini_t      *ini = malloc(sizeof(st_ini_t));
 
     if (!ini) {
         char errbuf[ERRMSGBUF_SIZE];
 
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to allocate memory for ini: %s", errbuf);
 
         return NULL;
     }
 
     st_object_make(ini, ini_ctx, &ini_funcs);
-    ini->sections = module->htable.create(module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
+
+    _Static_assert(sizeof(unsigned int) == sizeof(uint32_t),
+     "get_u32hashstr_func returned 32-bit unsigned int but we need 64-bit "
+     "insigned instead");
+    ini->sections = ST_HTABLECTX_CALL(ini_ctx->htable_ctx, create,
+     (unsigned int (*)(const void *))ST_FNV1ACTX_CALL(
+      ini_ctx->fnv1a_ctx, get_u32hashstr_func),
      st_keyeqfunc, free, st_ini_free_section);
     if (!ini->sections) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
          "ini_inih: Unable to create hash table for sections");
 
         free(ini);
@@ -179,8 +170,7 @@ static int st_ini_parse_handler(void *userdata, const char *section,
 static int st_ini_parse_handler(void *userdata, const char *section,
  const char *key, const char *value) {
 #endif
-    st_userdata_t *typed_userdata = userdata;
-    st_ini_t      *ini = typed_userdata->ini;
+    st_ini_t *ini = ((st_userdata_t *)userdata)->ini;
 
     if (!key && !value)
         return st_ini_add_section(ini, section) ? 1 : 0;
@@ -192,31 +182,30 @@ static int st_ini_parse_handler(void *userdata, const char *section,
 }
 
 static void st_process_error(int parse_result, const char *filename,
- st_ini_inih_logger_t *logger) {
+ struct st_loggerctx_s *logger_ctx) {
     switch (parse_result) {
         case 0:
             break;
         case -1:
-            logger->error(logger->ctx,
+            ST_LOGGERCTX_CALL(logger_ctx, error,
              "ini_inih: Unable to open file \"%s\"", filename);
             break;
         case -2:
-            logger->error(logger->ctx,
+            ST_LOGGERCTX_CALL(logger_ctx, error,
              "ini_inih: Memory allocation error while parsing file \"%s\"",
              filename);
             break;
         default:
-            logger->error(logger->ctx, "ini_inih: Syntax error at %s:%d",
-             filename, parse_result);
+            ST_LOGGERCTX_CALL(logger_ctx, error,
+             "ini_inih: Syntax error at %s:%d", filename, parse_result);
             break;
     }
 }
 
-static st_ini_t *st_ini_load(st_modctx_t *ini_ctx, const char *filename) {
-    st_ini_inih_t *module = ini_ctx->data;
-    st_userdata_t  userdata;
-    st_ini_t      *ini = st_ini_create(ini_ctx);
-    int            ret;
+static st_ini_t *st_ini_load(st_inictx_t *ini_ctx, const char *filename) {
+    st_userdata_t userdata;
+    int           ret;
+    st_ini_t     *ini = st_ini_create(ini_ctx);
 
     if (!ini)
         return NULL;
@@ -225,7 +214,7 @@ static st_ini_t *st_ini_load(st_modctx_t *ini_ctx, const char *filename) {
     userdata.filename = filename;
     ret = ini_parse(filename, st_ini_parse_handler, &userdata);
     if (ret != 0) {
-        st_process_error(ret, filename, &module->logger);
+        st_process_error(ret, filename, ini_ctx->logger_ctx);
         st_ini_destroy(ini);
 
         return NULL;
@@ -234,12 +223,11 @@ static st_ini_t *st_ini_load(st_modctx_t *ini_ctx, const char *filename) {
     return ini;
 }
 
-static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
+static st_ini_t *st_ini_memload(st_inictx_t *ini_ctx, const void *ptr,
  size_t size) {
-    st_ini_inih_t *module = ini_ctx->data;
-    st_ini_t      *ini = st_ini_create(ini_ctx);
-    int            ret;
-    char          *zero_terminated;
+    st_ini_t *ini = st_ini_create(ini_ctx);
+    int       ret;
+    char     *zero_terminated;
 
     if (!ini)
         return NULL;
@@ -247,7 +235,7 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
     if (size == 0) {
         ret = ini_parse_string(ptr, st_ini_parse_handler, ini);
         if (ret != 0) {
-            st_process_error(ret, NULL, &module->logger);
+            st_process_error(ret, NULL, ini_ctx->logger_ctx);
 
             goto ini_destroy;
         }
@@ -258,7 +246,7 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
             char errbuf[ERRMSGBUF_SIZE];
 
             if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-                module->logger.error(module->logger.ctx,
+                ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
                  "ini_inih: Unable to allocate memory for temporary ini "
                  "buffer: %s", errbuf);
 
@@ -267,7 +255,7 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
 
         ret = snprintf(zero_terminated, size + 1, "%s", (const char *)ptr);
         if (ret < 0 || (size_t)ret == size + 1) {
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to copy ini data to temp buffer");
 
             goto free_terminated_and_ini_destroy;
@@ -275,7 +263,7 @@ static st_ini_t *st_ini_memload(st_modctx_t *ini_ctx, const void *ptr,
 
         ret = ini_parse_string(zero_terminated, st_ini_parse_handler, ini);
         if (ret != 0) {
-            st_process_error(ret, NULL, &module->logger);
+            st_process_error(ret, NULL, ini_ctx->logger_ctx);
             goto free_terminated_and_ini_destroy;
         }
 
@@ -292,15 +280,11 @@ ini_destroy:
 }
 
 static void st_ini_destroy(st_ini_t *ini) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
-
     ST_HTABLE_CALL(ini->sections, destroy);
     free(ini);
 }
 
 static bool st_ini_section_exists(const st_ini_t *ini, const char *section) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
-
     return !!ST_HTABLE_CALL(ini->sections, get, !!section ? section : "");
 }
 
@@ -311,7 +295,6 @@ static bool st_ini_key_exists(const st_ini_t *ini, const char *section,
 
 static const char *st_ini_get_str(const st_ini_t *ini, const char *section_name,
  const char *key) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_inisection_t *section = ST_HTABLE_CALL(ini->sections, get,
      !!section_name ? section_name : "");
 
@@ -335,14 +318,11 @@ static bool st_ini_fill_str(const st_ini_t *ini, char *dst, size_t dstsize,
 }
 
 static bool st_ini_delete_section(st_ini_t *ini, const char *section) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
-
     return ST_HTABLE_CALL(ini->sections, remove, section);
 }
 
 static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
  const char *key) {
-    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
@@ -355,7 +335,6 @@ static bool st_ini_delete_key(st_ini_t *ini, const char *section_name,
 }
 
 static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
-    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
     st_htiter_t      section_iter;
     st_inisection_t *section;
 
@@ -369,7 +348,7 @@ static bool st_ini_clear_section(st_ini_t *ini, const char *section_name) {
 }
 
 static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
-    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
+    st_inictx_t     *ini_ctx = st_object_get_owner(ini);
     st_inisection_t *section;
     char            *section_key;
     char             errbuf[ERRMSGBUF_SIZE];
@@ -377,12 +356,15 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     if (ST_HTABLE_CALL(ini->sections, contains, section_name))
         return true;
 
-    st_htable_t *section_ht = module->htable.create(
-     module->htable.ctx,
-     (unsigned int (*)(const void *))module->fnv1a.get_u32hashstr_func(NULL),
+    _Static_assert(sizeof(unsigned int) == sizeof(uint32_t),
+     "get_u32hashstr_func returned 32-bit unsigned int but we need 64-bit "
+     "insigned instead");
+    st_htable_t *section_ht = ST_HTABLECTX_CALL(ini_ctx->htable_ctx, create,
+     (unsigned int (*)(const void *))ST_FNV1ACTX_CALL(
+      ini_ctx->fnv1a_ctx, get_u32hashstr_func),
      st_keyeqfunc, free, free);
     if (!section_ht) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
          "ini_inih: Unable to create section \"%s\"", section_name);
 
         return false;
@@ -391,26 +373,27 @@ static bool st_ini_add_section(st_ini_t *ini, const char *section_name) {
     section = malloc(sizeof(st_inisection_t));
     if (!section) {
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to allocate memory for section \"%s\": %s",
              section_name, errbuf);
 
         goto malloc_fail;
     }
     section->data = section_ht;
-    section->module = module;
+    /* TODO: crete weak_ptr */
+    section->ctx = ini_ctx;
 
     section_key = strdup(section_name);
     if (!section_key) {
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to allocate memory for section key: %s", errbuf);
 
         goto strdup_fail;
     }
 
     if (!ST_HTABLE_CALL(ini->sections, insert, NULL, section_key, section)) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
          "ini_inih: Unable to insert unnamed section to sections table");
 
         goto insert_fail;
@@ -430,7 +413,7 @@ malloc_fail:
 
 static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
  const char *key, const char *value) {
-    st_ini_inih_t   *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
+    st_inictx_t     *ini_ctx = st_object_get_owner(ini);
     st_inisection_t *section;
     char            *keydup;
     char            *valdup;
@@ -444,7 +427,7 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     keydup = strdup(key);
     if (!keydup) {
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to allocate memory for key: %s", errbuf);
 
         return false;
@@ -453,14 +436,14 @@ static bool st_ini_add_key(st_ini_t *ini, const char *section_name,
     valdup = strdup(value);
     if (!valdup) {
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to allocate memory for value: %s", errbuf);
 
         goto valdup_fail;
     }
 
     if (!ST_HTABLE_CALL(section->data, insert, NULL, keydup, valdup)) {
-        module->logger.error(module->logger.ctx,
+        ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
          "ini_inih: Unable to insert key \"%s\" to section \"%s\"", key,
          section_name);
 
@@ -478,9 +461,9 @@ valdup_fail:
 }
 
 static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
-    st_htiter_t    section_it;
-    size_t         bufoffset;
+    st_inictx_t *ini_ctx = st_object_get_owner(ini);
+    st_htiter_t  section_it;
+    size_t       bufoffset;
 
     if (!ST_HTABLE_CALL(ini->sections, get_first, &section_it))
         return true;
@@ -494,7 +477,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         if (sec_key[0] != '\n') { // if section is not unnamed
             sec_ret = snprintf(buffer, bufsize, "[%s]\n", sec_key);
             if (sec_ret < 0 || (size_t)sec_ret == bufsize) {
-                module->logger.error(module->logger.ctx,
+                ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
                  "ini_inih: Unable to construct section header for section: %s",
                  sec_key);
 
@@ -514,7 +497,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
             int         ret = snprintf(buffer, bufsize, "%s=%s\n", key, value);
 
             if (ret < 0 || (size_t)ret == bufsize) {
-                module->logger.error(module->logger.ctx,
+                ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
                  "ini_inih: Unable to construct key-value record for key: %s",
                  key);
 
@@ -526,7 +509,7 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
         } while (ST_HTITER_CALL(&key_it, get_next, &key_it));
 
         if (bufsize-- == 0) {
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Buffer overflow while trying to export section \"%s\"",
              sec_key);
 
@@ -541,12 +524,12 @@ static bool st_ini_export(const st_ini_t *ini, char *buffer, size_t bufsize) {
 }
 
 static bool st_ini_save(const st_ini_t *ini, const char *filename) {
-    st_ini_inih_t *module = ((st_modctx_t *)st_object_get_owner(ini))->data;
-    char           buffer[SAVE_BUFFER_SIZE];
-    bool           buffer_filled = st_ini_export(ini, buffer, SAVE_BUFFER_SIZE);
-    FILE          *file;
-    size_t         buflen;
-    size_t         writen;
+    st_inictx_t *ini_ctx = st_object_get_owner(ini);
+    char         buffer[SAVE_BUFFER_SIZE];
+    FILE        *file;
+    size_t       buflen;
+    size_t       writen;
+    bool         buffer_filled = st_ini_export(ini, buffer, SAVE_BUFFER_SIZE);
 
     if (!buffer_filled)
         return false;
@@ -557,7 +540,7 @@ static bool st_ini_save(const st_ini_t *ini, const char *filename) {
         char errbuf[ERRMSGBUF_SIZE];
 
         if (strerror_r(errno, errbuf, ERRMSGBUF_SIZE) == 0)
-            module->logger.error(module->logger.ctx,
+            ST_LOGGERCTX_CALL(ini_ctx->logger_ctx, error,
              "ini_inih: Unable to open file \"%s\": %s\n", filename, errbuf);
 
         return false;
