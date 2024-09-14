@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "steroids/module.h"
+#include "steroids/types/modules/logger.h"
 #include "steroids/types/object.h"
 
 #ifndef ST_FNV1ACTX_T_DEFINED
