@@ -1,6 +1,13 @@
 #pragma once
 
 #include "steroids/module.h"
+#include "steroids/types/modules/logger.h"
+#include "steroids/types/modules/pathtools.h"
+#include "steroids/types/object.h"
+
+#ifndef ST_FSCTX_T_DEFINED
+    typedef struct st_fsctx_s st_fsctx_t;
+#endif
 
 typedef enum {
     ST_FT_UNKNOWN,
@@ -13,16 +20,18 @@ typedef enum {
     ST_FT_SOCK,
 } st_filetype_t;
 
-typedef st_modctx_t *(*st_fs_init_t)(st_modctx_t *logger_ctx,
- st_modctx_t *pathtools_ctx);
-typedef void (*st_fs_quit_t)(st_modctx_t *fs_ctx);
-typedef st_filetype_t (*st_fs_get_file_type_t)(st_modctx_t *fs_ctx,
+typedef st_fsctx_t *(*st_fs_init_t)(struct st_loggerctx_s *logger_ctx,
+ st_pathtoolsctx_t *pathtools_ctx);
+typedef void (*st_fs_quit_t)(st_fsctx_t *fs_ctx);
+typedef st_filetype_t (*st_fs_get_file_type_t)(st_fsctx_t *fs_ctx,
  const char *filename);
-typedef bool (*st_fs_mkdir_t)(st_modctx_t *fs_ctx, const char *dirname);
+typedef bool (*st_fs_mkdir_t)(st_fsctx_t *fs_ctx, const char *dirname);
 
 typedef struct {
-    st_fs_init_t          fs_init;
-    st_fs_quit_t          fs_quit;
-    st_fs_get_file_type_t fs_get_file_type;
-    st_fs_mkdir_t         fs_mkdir;
-} st_fs_funcs_t;
+    st_fs_quit_t          quit;
+    st_fs_get_file_type_t get_file_type;
+    st_fs_mkdir_t         mkdir;
+} st_fsctx_funcs_t;
+
+#define ST_FSCTX_CALL(object, func, ...) \
+    ((st_fsctx_funcs_t *)((const st_object_t *)object)->funcs)->func(object, ## __VA_ARGS__)

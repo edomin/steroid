@@ -3,7 +3,7 @@
 
 #include "modules_manager.h"
 
-// #include "steroids/types/modules/fs.h"
+#include "steroids/types/modules/fs.h"
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/opts.h"
@@ -14,12 +14,10 @@
 // #include "steroids/types/modules/spcpaths.h"
 // #include "steroids/types/modules/zip.h"
 
-// static st_fs_init_t st_fs_init;
-// static st_fs_quit_t st_fs_quit;
-
-static st_ini_init_t     st_ini_init;
-static st_logger_init_t  st_logger_init;
-static st_opts_init_t    st_opts_init;
+static st_fs_init_t     st_fs_init;
+static st_ini_init_t    st_ini_init;
+static st_logger_init_t st_logger_init;
+static st_opts_init_t   st_opts_init;
 
 // static st_runner_init_t st_runner_init;
 // static st_runner_quit_t st_runner_quit;
@@ -51,9 +49,7 @@ static st_pathtools_init_t st_pathtools_init;
 
 static bool init_funcs(st_modsmgr_t *modsmgr,
  struct st_loggerctx_s *logger_ctx) {
-//     LOAD_FUNCTION(fs, init);
-//     LOAD_FUNCTION(fs, quit);
-
+    LOAD_FUNCTION(fs, init);
     LOAD_FUNCTION(ini, init);
     LOAD_FUNCTION(opts, init);
 
@@ -80,7 +76,7 @@ static bool init_funcs(st_modsmgr_t *modsmgr,
 
 int main(int argc, char **argv) {
     st_modsmgr_t *modsmgr = st_modsmgr_init();
-    // st_modctx_t  *fs;
+    st_fsctx_t  *fs_ctx;
     st_inictx_t  *ini_ctx;
     struct st_loggerctx_s *logger_ctx;
     st_optsctx_t  *opts_ctx;
@@ -104,7 +100,7 @@ int main(int argc, char **argv) {
     ini_ctx = st_ini_init(logger_ctx);
     opts_ctx = st_opts_init(argc, argv, logger_ctx);
     pathtools_ctx = st_pathtools_init(logger_ctx);
-//     fs = st_fs_init(logger, pathtools);
+    fs_ctx = st_fs_init(logger_ctx, pathtools_ctx);
 //     so = st_so_init(logger);
 //     spcpaths = st_spcpaths_init(logger);
 //     zip = st_zip_init(fs, logger, pathtools);
@@ -119,6 +115,7 @@ int main(int argc, char **argv) {
 //     st_spcpaths_quit(spcpaths);
 //     st_so_quit(so);
 //     st_fs_quit(fs);
+    ST_FSCTX_CALL(fs_ctx, quit);
     ST_PATHTOOLSCTX_CALL(pathtools_ctx, quit);
     ST_OPTSCTX_CALL(opts_ctx, quit);
     ST_INICTX_CALL(ini_ctx, quit);
