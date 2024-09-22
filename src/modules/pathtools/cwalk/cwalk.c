@@ -5,8 +5,22 @@
 
 #include <cwalk.h>
 
+typedef enum {
+    ST_PT_IRI,
+    ST_PT_ABSOLUTE,
+    ST_PT_RELATIVE,
+    ST_PT_NOT_PATH,
+} st_pathtype_t;
+
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
+
+static st_pathtoolsctx_funcs_t pathtoolsctx_funcs = {
+    .quit           = st_pathtools_quit,
+    .resolve        = st_pathtools_resolve,
+    .get_parent_dir = st_pathtools_get_parent_dir,
+    .concat         = st_pathtools_concat,
+};
 
 ST_MODULE_DEF_GET_FUNC(pathtools_cwalk)
 ST_MODULE_DEF_INIT_FUNC(pathtools_cwalk)
@@ -18,59 +32,32 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool st_pathtools_import_functions(st_modctx_t *pathtools_ctx,
- st_modctx_t *logger_ctx) {
-    st_pathtools_cwalk_t *module = pathtools_ctx->data;
+static const char *st_module_subsystem = "pathtools";
+static const char *st_module_name = "cwalk";
 
-    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "error");
-    if (!module->logger.error) {
-        fprintf(stderr,
-         "pathtools_cwalk: Unable to load function \"error\" from module "
-         "\"logger\"\n");
+static st_pathtoolsctx_t *st_pathtools_init(struct st_loggerctx_s *logger_ctx) {
+    st_pathtoolsctx_t *pathtools_ctx = st_modctx_new(st_module_subsystem,
+     st_module_name, sizeof(st_pathtoolsctx_t), NULL, &pathtoolsctx_funcs);
 
-        return false;
-    }
-
-    ST_LOAD_FUNCTION_FROM_CTX("pathtools_cwalk", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("pathtools_cwalk", logger, info);
-
-    return true;
-}
-
-static st_modctx_t *st_pathtools_init(st_modctx_t *logger_ctx) {
-    st_modctx_t          *pathtools_ctx;
-    st_pathtools_cwalk_t *module;
-
-    pathtools_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
-     &st_module_pathtools_cwalk_data, sizeof(st_pathtools_cwalk_t));
-
-    if (!pathtools_ctx)
-        return NULL;
-
-    pathtools_ctx->funcs = &st_pathtools_cwalk_funcs;
-
-    module = pathtools_ctx->data;
-    module->logger.ctx = logger_ctx;
-
-    if (!st_pathtools_import_functions(pathtools_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, pathtools_ctx);
+    if (!pathtools_ctx) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "pathtools_cwalk: unable to create new pathtools ctx object");
 
         return NULL;
     }
 
-    module->logger.info(module->logger.ctx,
-     "pathtools_cwalk: Path tools initialized");
+    pathtools_ctx->logger_ctx = logger_ctx;
+
+    ST_LOGGERCTX_CALL(logger_ctx, info,
+     "pathtools_cwalk: path tools initialized");
 
     return pathtools_ctx;
 }
 
-static void st_pathtools_quit(st_modctx_t *pathtools_ctx) {
-    st_pathtools_cwalk_t *module = pathtools_ctx->data;
-
-    module->logger.info(module->logger.ctx,
-     "pathtools_path_normalize: Path tools destroyed");
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, pathtools_ctx);
+static void st_pathtools_quit(st_pathtoolsctx_t *pathtools_ctx) {
+    ST_LOGGERCTX_CALL(pathtools_ctx->logger_ctx, info,
+     "pathtools_cwalk: path tools destroyed");
+    free(pathtools_ctx);
 }
 
 static bool st_pathtools_is_iri(const char *path) {
@@ -137,11 +124,10 @@ static st_pathtype_t st_pathtools_get_type(const char *path) {
         return ST_PT_NOT_PATH;
 }
 
-static bool st_pathtools_resolve(
- __attribute__((unused)) st_modctx_t *pathtools_ctx, char *dst, size_t dstsize,
- const char *path) {
-    char                  unix_path[dstsize];
-    st_pathtype_t         type = st_pathtools_get_type(path);
+static bool st_pathtools_resolve(st_pathtoolsctx_t *pathtools_ctx, char *dst,
+ size_t dstsize, const char *path) {
+    char          unix_path[dstsize];
+    st_pathtype_t type = st_pathtools_get_type(path);
 
     if (type != ST_PT_NOT_PATH)
         st_pathtools_to_unix(unix_path, dstsize, path);
@@ -150,11 +136,8 @@ static bool st_pathtools_resolve(
         case ST_PT_NOT_PATH:
             return false;
         case ST_PT_IRI: {
-            st_pathtools_cwalk_t *module = pathtools_ctx->data;
-
-            module->logger.error(module->logger.ctx,
-             "pathtools_path_normalize: IRI normalizing is not implemented yet"
-            );
+            ST_LOGGERCTX_CALL(pathtools_ctx->logger_ctx, error,
+             "pathtools_cwalk: IRI normalizing is not implemented yet");
             return false;
         }
         case ST_PT_ABSOLUTE:
@@ -167,12 +150,12 @@ static bool st_pathtools_resolve(
     return false;
 }
 
-static bool st_pathtools_get_parent_dir(st_modctx_t *pathtools_ctx, char *dst,
+static bool st_pathtools_get_parent_dir(st_pathtoolsctx_t *pathtools_ctx, char *dst,
  size_t dstsize, const char *path) {
     return st_pathtools_concat(pathtools_ctx, dst, dstsize, path, "..");
 }
 
-static bool st_pathtools_concat(st_modctx_t *pathtools_ctx, char *dst,
+static bool st_pathtools_concat(st_pathtoolsctx_t *pathtools_ctx, char *dst,
  size_t dstsize, const char *path, const char *append) {
     char concatenated[dstsize];
     int  ret;

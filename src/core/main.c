@@ -7,7 +7,7 @@
 #include "steroids/types/modules/ini.h"
 #include "steroids/types/modules/logger.h"
 #include "steroids/types/modules/opts.h"
-// #include "steroids/types/modules/pathtools.h"
+#include "steroids/types/modules/pathtools.h"
 // #include "steroids/types/modules/plugin.h"
 // #include "steroids/types/modules/runner.h"
 // #include "steroids/types/modules/so.h"
@@ -25,8 +25,7 @@ static st_opts_init_t    st_opts_init;
 // static st_runner_quit_t st_runner_quit;
 // static st_runner_run_t  st_runner_run;
 
-// static st_pathtools_init_t st_pathtools_init;
-// static st_pathtools_quit_t st_pathtools_quit;
+static st_pathtools_init_t st_pathtools_init;
 
 // static st_plugin_init_t st_plugin_init;
 // static st_plugin_quit_t st_plugin_quit;
@@ -62,8 +61,7 @@ static bool init_funcs(st_modsmgr_t *modsmgr,
 //     LOAD_FUNCTION(runner, quit);
 //     LOAD_FUNCTION(runner, run);
 
-//     LOAD_FUNCTION(pathtools, init);
-//     LOAD_FUNCTION(pathtools, quit);
+    LOAD_FUNCTION(pathtools, init);
 
 //     LOAD_FUNCTION(plugin, init);
 //     LOAD_FUNCTION(plugin, quit);
@@ -87,7 +85,7 @@ int main(int argc, char **argv) {
     struct st_loggerctx_s *logger_ctx;
     st_optsctx_t  *opts_ctx;
     // st_modctx_t  *runner;
-    // st_modctx_t  *pathtools;
+    st_pathtoolsctx_t  *pathtools_ctx;
     // st_modctx_t  *plugin;
     // st_modctx_t  *so;
     // st_modctx_t  *spcpaths;
@@ -105,7 +103,7 @@ int main(int argc, char **argv) {
 
     ini_ctx = st_ini_init(logger_ctx);
     opts_ctx = st_opts_init(argc, argv, logger_ctx);
-//     pathtools = st_pathtools_init(logger);
+    pathtools_ctx = st_pathtools_init(logger_ctx);
 //     fs = st_fs_init(logger, pathtools);
 //     so = st_so_init(logger);
 //     spcpaths = st_spcpaths_init(logger);
@@ -121,7 +119,7 @@ int main(int argc, char **argv) {
 //     st_spcpaths_quit(spcpaths);
 //     st_so_quit(so);
 //     st_fs_quit(fs);
-//     st_pathtools_quit(pathtools);
+    ST_PATHTOOLSCTX_CALL(pathtools_ctx, quit);
     ST_OPTSCTX_CALL(opts_ctx, quit);
     ST_INICTX_CALL(ini_ctx, quit);
 

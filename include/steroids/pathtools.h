@@ -5,12 +5,12 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/pathtools.h"
 
-static st_modctx_t *st_pathtools_init(st_modctx_t *logger_ctx);
-static void st_pathtools_quit(st_modctx_t *pathtools_ctx);
+static st_pathtoolsctx_t *st_pathtools_init(struct st_loggerctx_s *logger_ctx);
+static void st_pathtools_quit(st_pathtoolsctx_t *pathtools_ctx);
 
-static bool st_pathtools_resolve(st_modctx_t *pathtools_ctx, char *dst,
+static bool st_pathtools_resolve(st_pathtoolsctx_t *pathtools_ctx, char *dst,
  size_t dstsize, const char *path);
-static bool st_pathtools_get_parent_dir(st_modctx_t *pathtools_ctx, char *dst,
- size_t dstsize, const char *path);
-static bool st_pathtools_concat(st_modctx_t *pathtools_ctx, char *dst,
+static bool st_pathtools_get_parent_dir(st_pathtoolsctx_t *pathtools_ctx,
+ char *dst, size_t dstsize, const char *path);
+static bool st_pathtools_concat(st_pathtoolsctx_t *pathtools_ctx, char *dst,
  size_t dstsize, const char *path, const char *append);
