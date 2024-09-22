@@ -11,7 +11,7 @@
 // #include "steroids/types/modules/plugin.h"
 // #include "steroids/types/modules/runner.h"
 #include "steroids/types/modules/so.h"
-// #include "steroids/types/modules/spcpaths.h"
+#include "steroids/types/modules/spcpaths.h"
 // #include "steroids/types/modules/zip.h"
 
 static st_fs_init_t     st_fs_init;
@@ -28,10 +28,8 @@ static st_pathtools_init_t st_pathtools_init;
 // static st_plugin_init_t st_plugin_init;
 // static st_plugin_quit_t st_plugin_quit;
 
-static st_so_init_t st_so_init;
-
-// static st_spcpaths_init_t st_spcpaths_init;
-// static st_spcpaths_quit_t st_spcpaths_quit;
+static st_so_init_t       st_so_init;
+static st_spcpaths_init_t st_spcpaths_init;
 
 // static st_zip_init_t st_zip_init;
 // static st_zip_quit_t st_zip_quit;
@@ -61,10 +59,8 @@ static bool init_funcs(st_modsmgr_t *modsmgr,
 //     LOAD_FUNCTION(plugin, init);
 //     LOAD_FUNCTION(plugin, quit);
 
-    LOAD_FUNCTION(so, init);
-
-//     LOAD_FUNCTION(spcpaths, init);
-//     LOAD_FUNCTION(spcpaths, quit);
+    LOAD_FUNCTION(so,       init);
+    LOAD_FUNCTION(spcpaths, init);
 
 //     LOAD_FUNCTION(zip, init);
 //     LOAD_FUNCTION(zip, quit);
@@ -79,10 +75,10 @@ int main(int argc, char **argv) {
     struct st_loggerctx_s *logger_ctx;
     st_optsctx_t          *opts_ctx;
     // st_modctx_t  *runner;
-    st_pathtoolsctx_t  *pathtools_ctx;
+    st_pathtoolsctx_t *pathtools_ctx;
     // st_modctx_t  *plugin;
-    st_soctx_t  *so_ctx;
-    // st_modctx_t  *spcpaths;
+    st_soctx_t       *so_ctx;
+    st_spcpathsctx_t *spcpaths_ctx;
     // st_modctx_t  *zip;
     int           exitcode = EXIT_SUCCESS;
 
@@ -100,7 +96,7 @@ int main(int argc, char **argv) {
     pathtools_ctx = st_pathtools_init(logger_ctx);
     fs_ctx = st_fs_init(logger_ctx, pathtools_ctx);
     so_ctx = st_so_init(logger_ctx);
-//     spcpaths = st_spcpaths_init(logger);
+    spcpaths_ctx = st_spcpaths_init(logger_ctx);
 //     zip = st_zip_init(fs, logger, pathtools);
 //     plugin = st_plugin_init(fs, logger, pathtools, so, spcpaths, zip);
 //     runner = st_runner_init(ini, logger, opts, pathtools, plugin);
@@ -110,7 +106,7 @@ int main(int argc, char **argv) {
 //     st_runner_quit(runner);
 //     st_plugin_quit(plugin);
 //     st_zip_quit(zip);
-//     st_spcpaths_quit(spcpaths);
+    ST_SPCPATHSCTX_CALL(spcpaths_ctx, quit);
     ST_SOCTX_CALL(so_ctx, quit);
     ST_FSCTX_CALL(fs_ctx, quit);
     ST_PATHTOOLSCTX_CALL(pathtools_ctx, quit);

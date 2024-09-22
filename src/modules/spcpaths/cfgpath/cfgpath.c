@@ -11,6 +11,13 @@
 static st_modsmgr_t      *global_modsmgr;
 static st_modsmgr_funcs_t global_modsmgr_funcs;
 
+static st_spcpathsctx_funcs_t spcpathsctx_funcs = {
+    .quit            = st_spcpaths_quit,
+    .get_config_path = st_spcpaths_get_config_path,
+    .get_data_path   = st_spcpaths_get_data_path,
+    .get_cache_path  = st_spcpaths_get_cache_path,
+};
+
 ST_MODULE_DEF_GET_FUNC(spcpaths_cfgpath)
 ST_MODULE_DEF_INIT_FUNC(spcpaths_cfgpath)
 
@@ -21,75 +28,48 @@ st_moddata_t *st_module_init(st_modsmgr_t *modsmgr,
 }
 #endif
 
-static bool st_spcpaths_import_functions(st_modctx_t *spcpaths_ctx,
- st_modctx_t *logger_ctx) {
-    st_spcpaths_cfgpath_t *module = spcpaths_ctx->data;
+static const char *st_module_subsystem = "spcpaths";
+static const char *st_module_name = "cfgpath";
 
-    module->logger.error = global_modsmgr_funcs.get_function_from_ctx(
-     global_modsmgr, logger_ctx, "error");
-    if (!module->logger.error) {
-        fprintf(stderr,
-         "spcpaths_cfgpath: Unable to load function \"error\" from module "
-         "\"logger\"\n");
+static st_spcpathsctx_t *st_spcpaths_init(struct st_loggerctx_s *logger_ctx) {
+    st_spcpathsctx_t *spcpaths_ctx = st_modctx_new(st_module_subsystem,
+     st_module_name, sizeof(st_spcpathsctx_t), NULL, &spcpathsctx_funcs);
 
-        return false;
-    }
-
-    ST_LOAD_FUNCTION_FROM_CTX("spcpaths_cfgpath", logger, debug);
-    ST_LOAD_FUNCTION_FROM_CTX("spcpaths_cfgpath", logger, info);
-
-    return true;
-}
-
-static st_modctx_t *st_spcpaths_init(st_modctx_t *logger_ctx) {
-    st_modctx_t           *spcpaths_ctx;
-    st_spcpaths_cfgpath_t *spcpaths;
-
-    spcpaths_ctx = global_modsmgr_funcs.init_module_ctx(global_modsmgr,
-     &st_module_spcpaths_cfgpath_data, sizeof(st_spcpaths_cfgpath_t));
-
-    if (!spcpaths_ctx)
-        return NULL;
-
-    spcpaths_ctx->funcs = &st_spcpaths_cfgpath_funcs;
-
-    spcpaths = spcpaths_ctx->data;
-    spcpaths->logger.ctx = logger_ctx;
-
-    if (!st_spcpaths_import_functions(spcpaths_ctx, logger_ctx)) {
-        global_modsmgr_funcs.free_module_ctx(global_modsmgr, spcpaths_ctx);
+    if (!spcpaths_ctx) {
+        ST_LOGGERCTX_CALL(logger_ctx, error,
+         "spcpaths_cfgpath: unable to create new spcpaths ctx object");
 
         return NULL;
     }
 
-    spcpaths->logger.info(spcpaths->logger.ctx,
-     "spcpaths_cfgpath: Special paths mgr initialized.");
+    spcpaths_ctx->logger_ctx = logger_ctx;
+
+    ST_LOGGERCTX_CALL(logger_ctx, info,
+     "spcpaths_cfgpath: Special paths manager initialized.");
 
     return spcpaths_ctx;
 }
 
-static void st_spcpaths_quit(st_modctx_t *spcpaths_ctx) {
-    st_spcpaths_cfgpath_t *spcpaths = spcpaths_ctx->data;
-
-    spcpaths->logger.info(spcpaths->logger.ctx,
-     "spcpaths_cfgpath: Special paths mgr destroyed");
-    global_modsmgr_funcs.free_module_ctx(global_modsmgr, spcpaths_ctx);
+static void st_spcpaths_quit(st_spcpathsctx_t *spcpaths_ctx) {
+    ST_LOGGERCTX_CALL(spcpaths_ctx->logger_ctx, info,
+     "spcpaths_cfgpath: Special paths manager destroyed");
+    free(spcpaths_ctx);
 }
 
 static void st_spcpaths_get_config_path(
- __attribute__((unused)) st_modctx_t *spcpaths_ctx, char *dst, size_t dstlen,
- const char *appname) {
+ __attribute__((unused)) st_spcpathsctx_t *spcpaths_ctx, char *dst,
+ size_t dstlen, const char *appname) {
     get_user_config_folder(dst, (unsigned)dstlen, appname);
 }
 
 static void st_spcpaths_get_data_path(
- __attribute__((unused)) st_modctx_t *spcpaths_ctx, char *dst, size_t dstlen,
- const char *appname) {
+ __attribute__((unused)) st_spcpathsctx_t *spcpaths_ctx, char *dst,
+ size_t dstlen, const char *appname) {
     get_user_data_folder(dst, (unsigned)dstlen, appname);
 }
 
 static void st_spcpaths_get_cache_path(
- __attribute__((unused)) st_modctx_t *spcpaths_ctx, char *dst, size_t dstlen,
- const char *appname) {
+ __attribute__((unused)) st_spcpathsctx_t *spcpaths_ctx, char *dst,
+ size_t dstlen, const char *appname) {
     get_user_cache_folder(dst, (unsigned)dstlen, appname);
 }
