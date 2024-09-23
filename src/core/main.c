@@ -12,7 +12,7 @@
 // #include "steroids/types/modules/runner.h"
 #include "steroids/types/modules/so.h"
 #include "steroids/types/modules/spcpaths.h"
-// #include "steroids/types/modules/zip.h"
+#include "steroids/types/modules/zip.h"
 
 static st_fs_init_t     st_fs_init;
 static st_ini_init_t    st_ini_init;
@@ -30,9 +30,7 @@ static st_pathtools_init_t st_pathtools_init;
 
 static st_so_init_t       st_so_init;
 static st_spcpaths_init_t st_spcpaths_init;
-
-// static st_zip_init_t st_zip_init;
-// static st_zip_quit_t st_zip_quit;
+static st_zip_init_t      st_zip_init;
 
 #define LOAD_FUNCTION(module, function)                                        \
     st_##module##_##function = st_modsmgr_get_function(modsmgr, #module, NULL, \
@@ -61,9 +59,7 @@ static bool init_funcs(st_modsmgr_t *modsmgr,
 
     LOAD_FUNCTION(so,       init);
     LOAD_FUNCTION(spcpaths, init);
-
-//     LOAD_FUNCTION(zip, init);
-//     LOAD_FUNCTION(zip, quit);
+    LOAD_FUNCTION(zip,      init);
 
     return true;
 }
@@ -79,8 +75,8 @@ int main(int argc, char **argv) {
     // st_modctx_t  *plugin;
     st_soctx_t       *so_ctx;
     st_spcpathsctx_t *spcpaths_ctx;
-    // st_modctx_t  *zip;
-    int           exitcode = EXIT_SUCCESS;
+    st_zipctx_t      *zip_ctx;
+    int               exitcode = EXIT_SUCCESS;
 
     st_logger_init = st_modsmgr_get_function(modsmgr, "logger", NULL, "init");
     logger_ctx = st_logger_init(NULL);
@@ -97,7 +93,7 @@ int main(int argc, char **argv) {
     fs_ctx = st_fs_init(logger_ctx, pathtools_ctx);
     so_ctx = st_so_init(logger_ctx);
     spcpaths_ctx = st_spcpaths_init(logger_ctx);
-//     zip = st_zip_init(fs, logger, pathtools);
+    zip_ctx = st_zip_init(fs_ctx, logger_ctx, pathtools_ctx);
 //     plugin = st_plugin_init(fs, logger, pathtools, so, spcpaths, zip);
 //     runner = st_runner_init(ini, logger, opts, pathtools, plugin);
 
@@ -105,7 +101,7 @@ int main(int argc, char **argv) {
 
 //     st_runner_quit(runner);
 //     st_plugin_quit(plugin);
-//     st_zip_quit(zip);
+    ST_ZIPCTX_CALL(zip_ctx, quit);
     ST_SPCPATHSCTX_CALL(spcpaths_ctx, quit);
     ST_SOCTX_CALL(so_ctx, quit);
     ST_FSCTX_CALL(fs_ctx, quit);

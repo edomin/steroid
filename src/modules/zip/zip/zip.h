@@ -5,13 +5,6 @@
 #include "steroids/zip.h"
 #include "steroids/types/modules/logger.h"
 
-static st_zipctx_funcs_t st_zip_zip_funcs = {
-    .zip_init    = st_zip_init,
-    .zip_quit    = st_zip_quit,
-    .zip_open    = st_zip_open,
-    .zip_memopen = st_zip_memopen,
-};
-
 static st_modfuncentry_t st_module_zip_zip_funcs[] = {
     {"init"             , st_zip_init},
     {"quit"             , st_zip_quit},

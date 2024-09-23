@@ -5,12 +5,12 @@
 #include "steroids/module.h"
 #include "steroids/types/modules/zip.h"
 
-static st_modctx_t *st_zip_init(st_modctx_t *fs_ctx, st_modctx_t *logger_ctx,
- st_modctx_t *pathtools_ctx);
-static void st_zip_quit(st_modctx_t *zip_ctx);
+static st_zipctx_t *st_zip_init(st_fsctx_t *fs_ctx,
+ struct st_loggerctx_s *logger_ctx, st_pathtoolsctx_t *pathtools_ctx);
+static void st_zip_quit(st_zipctx_t *zip_ctx);
 
-static st_zip_t *st_zip_open(st_modctx_t *zip_ctx, const char *filename);
-static st_zip_t *st_zip_memopen(st_modctx_t *zip_ctx, const void *data,
+static st_zip_t *st_zip_open(st_zipctx_t *zip_ctx, const char *filename);
+static st_zip_t *st_zip_memopen(st_zipctx_t *zip_ctx, const void *data,
  size_t size);
 static void st_zip_close(st_zip_t *zip);
 static ssize_t st_zip_get_entries_count(st_zip_t *zip);
